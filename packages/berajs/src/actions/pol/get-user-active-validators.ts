@@ -23,6 +23,7 @@ export const getUserActiveValidators = async ({
       throw new Error("pol subgraph uri is not found in config");
     }
 
+    // TODO: handle more than 1000 validators
     const result = await bgtClient.query<GetUserValidatorInformationQuery>({
       query: GetUserValidatorInformation,
       variables: { address: account.toLowerCase() },
