@@ -18,3 +18,4 @@ export * from "./searchUserPools";
 export * from "./getGlobalDexStats";
 
 export * from "./balancerClient";
+export * from "./b-sdk";

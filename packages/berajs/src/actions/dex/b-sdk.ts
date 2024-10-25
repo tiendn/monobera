@@ -26,10 +26,13 @@ import { defaultBeraNetworkConfig } from "@bera/wagmi/config";
 import { ADDRESS_ZERO } from "~/config";
 
 export * from "@balancer/sdk";
+export { Swap, SwapKind, Slippage } from "@balancer/sdk";
+export type { SwapBuildCallInput, SwapInput } from "@balancer/sdk";
 
 export const balancerApi = new BalancerApi(balancerApiUrl, chainId);
 
 API_CHAIN_NAMES[chainId] = "BARTIO";
+// @ts-expect-error not in network list
 CHAINS[chainId] = defaultBeraNetworkConfig.chain;
 BALANCER_RELAYER[chainId] = balancerRelayerAddress;
 VAULT[chainId] = balancerVaultAddress;

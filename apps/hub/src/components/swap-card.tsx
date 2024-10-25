@@ -309,7 +309,7 @@ export function SwapCard({
       !exceedingBalance &&
       !isWrap &&
       !isRouteLoading &&
-      swapInfo?.batchSwapSteps.length !== 0 &&
+      swapInfo?.swapPaths?.length !== 0 &&
       !swapInfo?.error
     ) {
       return (
@@ -355,7 +355,7 @@ export function SwapCard({
           <DynamicPreview
             swapInfo={swapInfo}
             disabled={
-              swapInfo?.formattedReturnAmount === "0" ||
+              swapInfo?.expectedAmountOut.amount === 0n ||
               exceedingBalance ||
               Number(fromAmount) <= 0 ||
               Number(toAmount) <= 0
@@ -371,11 +371,9 @@ export function SwapCard({
             write={() => {
               // NOTE: here is where we actually write out the transaction from the useTxn in L181
               write({
-                address: balancerVaultAddress,
-                abi: balancerVaultAbi,
-                functionName: "batchSwap",
-                params: payload ?? [],
-                value: payloadValue,
+                address: swapInfo.call.to,
+                data: swapInfo.call.callData,
+                value: swapInfo.call.value,
               });
             }}
             isLoading={isLoading}
@@ -417,7 +415,7 @@ export function SwapCard({
     selectedFrom &&
     selectedTo &&
     swapInfo &&
-    swapInfo.batchSwapSteps.length === 0 &&
+    // swapInfo?.batchSwapSteps?.length === 0 &&
     fromAmount &&
     fromAmount !== "" &&
     swapAmount !== "0" &&
@@ -683,8 +681,8 @@ export function SwapCard({
                     gasPrice={gasPriceLabel}
                   />
                 )}
-                {swapInfo?.batchSwapSteps &&
-                  swapInfo?.batchSwapSteps.length > 0 &&
+                {swapInfo?.pathAmounts &&
+                  swapInfo?.pathAmounts.length > 0 &&
                   selectedFrom &&
                   selectedTo && (
                     <SwapRoute

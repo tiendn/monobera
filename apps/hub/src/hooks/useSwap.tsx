@@ -168,6 +168,8 @@ export const useSwap = ({
     // },
   );
 
+  console.log("SWOOOOP", swapInfo);
+
   const priceImpactPercentage =
     swapInfo?.formattedReturnAmount &&
     swapInfo?.formattedPredictedAmountOut &&
