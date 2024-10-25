@@ -38,7 +38,7 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { isAddress, parseUnits } from "viem";
+import { decodeFunctionData, isAddress, parseUnits } from "viem";
 
 import { WRAP_TYPE, useSwap } from "~/hooks/useSwap";
 // NOTE: the meat of the swap needs to be driven by a refactored useSwap
@@ -369,11 +369,13 @@ export function SwapCard({
             open={openPreview}
             setOpen={setOpenPreview}
             write={() => {
+              const calldata = swapInfo.getCallData("1");
               // NOTE: here is where we actually write out the transaction from the useTxn in L181
+              // @ts-expect-error FIXME: typing wants ABI and functionName because sendTransaction support was added in a rush
               write({
-                address: swapInfo.call.to,
-                data: swapInfo.call.callData,
-                value: swapInfo.call.value,
+                address: calldata.to,
+                data: calldata.callData,
+                value: calldata.value,
               });
             }}
             isLoading={isLoading}
@@ -506,7 +508,7 @@ export function SwapCard({
                       setExceedingBalance(isExceeding)
                     }
                     setAmount={(amount) => {
-                      // setSwapKind(SwapKind.GIVEN_IN);
+                      // setSwapKind(SwapKind.GivenIn);
                       if (isRedeem) {
                         setFromAmount(amount);
                         setToAmount(amount);

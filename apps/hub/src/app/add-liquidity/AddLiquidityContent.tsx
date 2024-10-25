@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import {
   TXN_GAS_USED_ESTIMATES,
@@ -12,7 +12,12 @@ import {
   type Token,
 } from "@bera/berajs";
 import { getAddLiquidityPayload } from "@bera/berajs/actions";
-import { beraTokenAddress, cloudinaryUrl, crocDexAddress } from "@bera/config";
+import {
+  balancerVaultAddress,
+  beraTokenAddress,
+  cloudinaryUrl,
+  crocDexAddress,
+} from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -32,16 +37,17 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { Address, formatUnits, parseUnits } from "viem";
+import { Address, formatEther, parseUnits } from "viem";
 
 import { isBera, isBeratoken } from "~/utils/isBeraToken";
 import { SettingsPopover } from "~/components/settings-popover";
 import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
-import { useAddLiquidity } from "./useAddLiquidity";
+import { useAddLiquidity } from "@bera/berajs";
 import { useSelectedPool } from "~/hooks/useSelectedPool";
 import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
+import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 
 interface IAddLiquidityContent {
   shareAddress: Address;
@@ -52,9 +58,34 @@ export default function AddLiquidityContent({
 }: IAddLiquidityContent) {
   const { data, isLoading } = usePool({ id: shareAddress });
 
+  const [previewOpen, setPreviewOpen] = useState(false);
   const { v2Pool: pool, v3Pool } = data ?? {};
 
-  console.log("POOL", pool, v3Pool);
+  useEffect(() => {
+    console.log("POOL", pool, v3Pool);
+  }, [pool, v3Pool]);
+
+  const { queryOutput, input, setInput } = useAddLiquidity({ pool: v3Pool });
+
+  const {
+    needsApproval,
+    needsApprovalNoBera,
+    refresh: refreshAllowances,
+  } = useMultipleTokenApprovalsWithSlippage(
+    queryOutput?.amountsIn?.map((amount) => ({
+      symbol: "token",
+      name: "token",
+      ...amount.token,
+      exceeding: false,
+      decimals: amount.token.decimals,
+      amount: formatEther(amount.scale18),
+    })) ?? [],
+    balancerVaultAddress,
+  );
+
+  useEffect(() => {
+    console.log("NEEDS APPROVAL", needsApprovalNoBera);
+  }, [queryOutput]);
 
   useEffect(() => {
     if (!pool && !isLoading) {
@@ -100,57 +131,8 @@ export default function AddLiquidityContent({
     actionType: TransactionActionType.ADD_LIQUIDITY,
   });
 
-  // const baseCost = useMemo(() => {
-  //   if (!poolPrice) {
-  //     return 0;
-  //   }
-  //   return getBaseCost(poolPrice);
-  // }, [poolPrice]);
-
-  // const quoteCost = useMemo(() => {
-  //   if (!poolPrice) {
-  //     return 0;
-  //   }
-  //   return getQuoteCost(poolPrice);
-  // }, [poolPrice]);
-
-  // const handleBaseAssetAmountChange = (value: string): void => {
-  //   updateTokenAmount(0, value);
-  //   const parsedBaseCost = parseUnits(
-  //     baseCost.toString(),
-  //     quoteToken?.decimals ?? 18,
-  //   );
-  //   const parsedValue = parseUnits(value, quoteToken?.decimals ?? 18);
-  //   const quoteAmount =
-  //     (parsedBaseCost * parsedValue) /
-  //     BigInt(10 ** (quoteToken?.decimals ?? 18));
-  //   updateTokenAmount(
-  //     1,
-  //     quoteAmount === 0n
-  //       ? ""
-  //       : formatUnits(quoteAmount, quoteToken?.decimals ?? 18),
-  //   );
-  // };
-
-  // const handleQuoteAssetAmountChange = (value: string): void => {
-  //   updateTokenAmount(1, value);
-  //   const parsedQuoteCost = parseUnits(
-  //     quoteCost.toString(),
-  //     baseToken?.decimals ?? 18,
-  //   );
-  //   const parsedValue = parseUnits(value, baseToken?.decimals ?? 18);
-  //   const baseAmount =
-  //     (parsedQuoteCost * parsedValue) /
-  //     BigInt(10 ** (baseToken?.decimals ?? 18));
-  //   updateTokenAmount(
-  //     0,
-  //     baseAmount === 0n
-  //       ? ""
-  //       : formatUnits(baseAmount, baseToken?.decimals ?? 18),
-  //   );
-  // };
-
   const slippage = useSlippage();
+
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
       {ModalPortal}
@@ -188,19 +170,27 @@ export default function AddLiquidityContent({
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
             Add Liquidity
-            <SettingsPopover />
+            {/* <SettingsPopover /> */}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <TokenList>
-            {pool?.tokens?.map((token) => (
+            {pool?.tokens?.map((token, idx) => (
               <TokenInput
                 key={token?.address}
                 selected={token}
                 selectable={false}
                 customTokenList={[token]}
-                // amount={token[0]?.amount ?? ""}
+                amount={
+                  token?.address === input?.address
+                    ? input?.amount
+                    : formatEther(queryOutput?.amountsIn.at(idx)?.scale18 ?? 0n)
+                }
                 setAmount={(amount: string) => {
+                  setInput({
+                    address: token.address as Address,
+                    amount,
+                  });
                   // setIsBaseInput(true);
                   // handleBaseAssetAmountChange(amount);
                 }}
@@ -250,39 +240,27 @@ export default function AddLiquidityContent({
               <AlertDescription className="text-xs">{error}</AlertDescription>
             </Alert>
           )} */}
-          {/* <TxnPreview
+          <TxnPreview
             open={previewOpen}
-            disabled={areAllInputsEmpty || error !== undefined}
+            // disabled={}
             title={"Confirm LP Addition Details"}
             imgURI={`${cloudinaryUrl}/placeholder/preview-swap-img_ucrnla`}
             triggerText={"Preview"}
             setOpen={setPreviewOpen}
           >
             <TokenList className="bg-muted">
-              <PreviewToken
-                token={
-                  isBeratoken(tokenInputs[0])
-                    ? isNativeBera
-                      ? beraToken
-                      : wBeraToken
-                    : tokenInputs[0]
-                }
-                value={tokenInputs[0]?.amount}
-                price={Number(baseToken?.usdValue ?? 0)}
-              />
-              <PreviewToken
-                token={
-                  isBeratoken(tokenInputs[1])
-                    ? isNativeBera
-                      ? beraToken
-                      : wBeraToken
-                    : tokenInputs[1]
-                }
-                value={tokenInputs[1]?.amount}
-                price={Number(quoteToken?.usdValue ?? 0)}
-              />
+              {queryOutput?.amountsIn.map((amount) => (
+                <PreviewToken
+                  token={{
+                    ...amount.token,
+                    address: amount.token.wrapped as Address,
+                  }}
+                  value={formatEther(amount.scale18)}
+                  // price={Number(baseToken?.usdValue ?? 0)}
+                />
+              ))}
             </TokenList>
-            <InfoBoxList>
+            {/* <InfoBoxList>
               <InfoBoxListItem
                 title={"Pool Price"}
                 value={
@@ -310,33 +288,24 @@ export default function AddLiquidityContent({
                 }
               />
               <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
-            </InfoBoxList>
-            {(!isNativeBera && needsApproval.length > 0) ||
-            (isNativeBera && needsApprovalNoBera.length > 0) ? (
-              <ApproveButton
-                amount={
-                  isNativeBera
-                    ? needsApprovalNoBera[0]?.address.toLowerCase() ===
-                      baseToken?.address.toLowerCase()
-                      ? maxBaseApprovalAmount
-                      : maxQuoteApprovalAmount
-                    : needsApproval[0]?.address.toLowerCase() ===
-                        baseToken?.address.toLowerCase()
-                      ? maxBaseApprovalAmount
-                      : maxQuoteApprovalAmount
-                }
-                token={isNativeBera ? needsApprovalNoBera[0] : needsApproval[0]}
-                spender={crocDexAddress}
-                onApproval={() => refreshAllowances()}
-              />
+            </InfoBoxList> */}
+            {needsApprovalNoBera.length > 0 ? (
+              <>
+                {needsApprovalNoBera.map((token, idx) => (
+                  <ApproveButton
+                    amount={queryOutput?.amountsIn.at(idx)?.amount}
+                    token={token}
+                    spender={balancerVaultAddress}
+                    onApproval={() => refreshAllowances()}
+                  />
+                ))}
+              </>
             ) : (
               <ActionButton>
-                <Button className="w-full" onClick={() => handleAddLiquidity()}>
-                  Add Liquidity
-                </Button>
+                <Button className="w-full">Add Liquidity</Button>
               </ActionButton>
             )}
-          </TxnPreview> */}
+          </TxnPreview>
         </CardContent>
       </Card>
     </div>

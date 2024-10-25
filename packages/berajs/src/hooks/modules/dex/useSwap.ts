@@ -92,7 +92,6 @@ export const usePollBalancerSwap = (
       const amountBI = parseUnits("1", tokenInDecimals ?? 18);
       //   const amountBN = BigNumber.from(amountBI); // FIXME: this seems really dumb that we have to do this
       //   const gasPrice = parseFixed("1", 9); // FIXME: we should be doing this dynamically
-      const deadline = 10000n; // FIXME: this is a placeholder
 
       // ///////////////////////////// V3 SDK with SOR /////////////////////////////
       const tokenInV3 = new Token(chainId, tokenIn, tokenInDecimals);
@@ -131,14 +130,16 @@ export const usePollBalancerSwap = (
       return {
         ...queryOutput,
         swapPaths: sorPaths,
-        call: swap.buildCall({
-          slippage: Slippage.fromPercentage("1"),
-          deadline,
-          queryOutput,
-          sender: account,
-          recipient: account,
-          wethIsEth: true,
-        }),
+        getCallData(slippage: `${number}` = "1", deadlineIn = 30) {
+          return swap.buildCall({
+            slippage: Slippage.fromPercentage(slippage),
+            deadline: BigInt(Math.round(Date.now() / 1000) + deadlineIn),
+            queryOutput,
+            sender: account,
+            recipient: account,
+            wethIsEth: true,
+          });
+        },
       };
     },
     {
