@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TXN_GAS_USED_ESTIMATES,
   useGasData,
@@ -13,23 +13,17 @@ import {
   // @ts-ignore - ignore Token typing import error
   type Token,
 } from "@bera/berajs";
-import { getSwapPayload } from "@bera/berajs/actions";
+import { SwapKind } from "@bera/berajs/actions";
 import {
   balancerVaultAddress,
   beraTokenAddress,
   nativeTokenAddress,
 } from "@bera/config";
 import { POLLING } from "@bera/shared-ui";
-import { useSlippage } from "@bera/shared-ui/src/hooks";
 import { beraToken } from "@bera/wagmi";
-import { formatUnits, type Address } from "viem";
+import { type Address } from "viem";
 
 import { isBeratoken } from "~/utils/isBeraToken";
-
-enum SwapKind {
-  GIVEN_IN = 0,
-  GIVEN_OUT = 1,
-}
 
 // const QUOTING_TOKEN = honeyTokenAddress;
 interface ISwap {
@@ -117,37 +111,28 @@ export const useSwap = ({
   const tokenOutPrice = outputTokenInfo?.usdValue;
 
   const [isWrap, setIsWrap] = useState(false);
-
   const [wrapType, setWrapType] = useState<WRAP_TYPE | undefined>(undefined);
-
   const [fromAmount, setFromAmount] = useState<string | undefined>();
-
   const [toAmount, setToAmount] = useState<string | undefined>();
-
   const [swapAmount, setSwapAmount] = useState("");
-
   const [exchangeRate, setExchangeRate] = useState<undefined | string>(
     undefined,
   );
-
-  const [swapKind, setSwapKind] = useState<SwapKind>(SwapKind.GIVEN_IN);
-
+  const [swapKind, setSwapKind] = useState<SwapKind>(SwapKind.GivenIn);
   const [isTyping, setIsTyping] = useState(false);
-
   const { isLoading: isBalanceLoading } = usePollWalletBalances();
 
   useEffect(() => {
     if (isWrap) {
-      if (swapKind === SwapKind.GIVEN_IN) {
+      if (swapKind === SwapKind.GivenIn) {
         setToAmount(fromAmount);
       }
-      if (swapKind === SwapKind.GIVEN_OUT) {
+      if (swapKind === SwapKind.GivenOut) {
         setFromAmount(toAmount);
       }
     }
   }, [swapAmount]);
 
-  // TODO (#multiswap): we are hardcoding internally to usePollBalancerSwap because we dont support multiswap yet
   const {
     data: swapInfo,
     error: getSwapError,
@@ -160,46 +145,29 @@ export const useSwap = ({
       tokenOutDecimals: selectedTo?.decimals ?? 18,
       amount: swapAmount,
     },
-    // {  FIXME: add this back
-    //   opts: {
-    //     refreshInterval: POLLING.FAST,
-    //   },
-    //   isTyping: isTyping,
-    // },
+    {
+      opts: {
+        refreshInterval: POLLING.FAST, // every 10s
+      },
+      isTyping: isTyping,
+    },
   );
 
   useEffect(() => {
     swapInfo && console.log("SWOOOOP", swapInfo);
   }, [swapInfo]);
 
-  const priceImpactPercentage =
-    swapInfo?.formattedReturnAmount &&
-    swapInfo?.formattedPredictedAmountOut &&
-    !Number.isNaN(parseFloat(swapInfo.formattedReturnAmount)) &&
-    !Number.isNaN(parseFloat(swapInfo.formattedPredictedAmountOut)) &&
-    parseFloat(swapInfo.formattedPredictedAmountOut) !== 0
-      ? (parseFloat(swapInfo.formattedReturnAmount) /
-          parseFloat(swapInfo.formattedPredictedAmountOut)) *
-          100 -
-        100
-      : 0;
-
   const [differenceUSD, setDifferenceUSD] = useState<number | null>(null);
 
-  // update price impact
+  // update price impact in terms of USD value of in/out tokens
   useEffect(() => {
-    if (
-      !swapInfo?.batchSwapSteps?.length ||
-      !swapInfo?.batchSwapSteps?.length
-    ) {
+    if (!swapInfo?.swapPaths?.length || !swapInfo?.swapPaths?.length) {
       setDifferenceUSD(0);
       return;
     }
-
-    const usdIn =
-      Number(tokenInPrice ?? 0) * Number(swapInfo?.formattedAmountIn);
+    const usdIn = Number(tokenInPrice ?? 0) * Number(swapInfo?.amountIn);
     const usdOut =
-      Number(tokenOutPrice ?? 0) * Number(swapInfo?.formattedReturnAmount);
+      Number(tokenOutPrice ?? 0) * Number(swapInfo?.expectedAmountOutFormatted);
     const differenceUSD = (usdOut / usdIn) * 100 - 100;
     setDifferenceUSD(parseFloat(differenceUSD.toFixed(2)));
   }, [swapInfo, tokenInPrice, tokenOutPrice]);
@@ -227,29 +195,29 @@ export const useSwap = ({
   // populate field of calculated swap amount
   useEffect(() => {
     if (isWrap || isRedeem) return;
-    if (!swapInfo?.batchSwapSteps?.length) {
-      setToAmount(swapInfo?.formattedReturnAmount);
+    if (!swapInfo?.swapPaths?.length) {
+      setToAmount(swapInfo?.amountInFormatted);
     }
-    if (swapKind === SwapKind.GIVEN_IN) {
-      setToAmount(swapInfo?.formattedReturnAmount);
+    if (swapKind === SwapKind.GivenIn) {
+      setToAmount(swapInfo?.expectedAmountOutFormatted);
     } else {
-      setFromAmount(swapInfo?.formattedAmountIn); //FIXME: should be using formattedSwapAmount
+      setFromAmount(swapInfo?.amountInFormatted);
     }
   }, [swapInfo, isWrap]);
 
   // calculate exchange rate
   useEffect(() => {
-    if (!swapInfo?.batchSwapSteps?.length) return;
+    if (!swapInfo?.swapPaths?.length) return;
     if (
-      swapInfo?.formattedAmountIn &&
-      swapInfo?.formattedReturnAmount &&
+      swapInfo?.amountInFormatted &&
+      swapInfo?.expectedAmountOutFormatted &&
       selectedFrom &&
       selectedTo
     ) {
       try {
         const ratio = normalizeToRatio(
-          Number(swapInfo?.formattedAmountIn),
-          Number(swapInfo?.formattedReturnAmount),
+          Number(swapInfo?.amountInFormatted),
+          Number(swapInfo?.expectedAmountOutFormatted),
         );
         if (Number.isNaN(Number(ratio))) {
           setExchangeRate(undefined);
@@ -275,20 +243,6 @@ export const useSwap = ({
     spender: balancerVaultAddress,
     token: selectedFrom,
   });
-
-  const slippage = useSlippage();
-  const swapPayload = useMemo(
-    () =>
-      getSwapPayload({
-        args: {
-          swapInfo,
-          slippage,
-          baseToken: selectedFrom,
-          quoteToken: selectedTo,
-        },
-      }),
-    [swapInfo, slippage, selectedFrom, selectedTo],
-  );
 
   const onSwitch = () => {
     const tempFrom = selectedFrom;
@@ -319,10 +273,6 @@ export const useSwap = ({
       }
     }
   }, [isWrap]);
-
-  const minAmountOutFormatted = swapPayload?.payload?.[2]
-    ? formatUnits(swapPayload?.payload[2] ?? 0, selectedTo?.decimals ?? 18)
-    : "";
 
   // @ts-ignore
   const { estimatedBeraFee } = useGasData({
@@ -361,8 +311,6 @@ export const useSwap = ({
     inputAddTokenDialogOpen,
     outputAddTokenDialogOpen,
     swapAmount,
-    payload: swapPayload?.payload,
-    payloadValue: swapPayload?.value,
     selectedFrom,
     allowance,
     selectedTo,
@@ -380,8 +328,7 @@ export const useSwap = ({
     isBalanceLoading,
     tokenInPrice,
     tokenOutPrice,
-    minAmountOut: minAmountOutFormatted,
-    priceImpact: priceImpactPercentage,
+    priceImpact: 0.0116, // FIXME: we need to either extend getSorSwapPaths to fetchPriceImpact or do a second addLiqudity sdk query
     differenceUSD,
   };
 };

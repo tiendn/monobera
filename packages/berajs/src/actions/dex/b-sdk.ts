@@ -34,8 +34,8 @@ BALANCER_QUERIES[chainId] = balancerQueriesAddress;
 
 WEIGHTED_POOL_FACTORY_BALANCER_V2[chainId] = ADDRESS_ZERO;
 COMPOSABLE_STABLE_POOL_FACTORY[chainId] = ADDRESS_ZERO;
-// @ts-expect-error not in network list
-NATIVE_ASSETS[chainId] = new Token(
+
+export const nativeToken = new Token(
   chainId,
   ADDRESS_ZERO,
   gasTokenDecimals,
@@ -43,6 +43,8 @@ NATIVE_ASSETS[chainId] = new Token(
   gasTokenSymbol,
   beraTokenAddress,
 );
+// @ts-expect-error not in network list
+NATIVE_ASSETS[chainId] = nativeToken;
 
 export * as BalSDK from "@balancer/sdk";
 export { Swap, SwapKind, Slippage, AddLiquidity } from "@balancer/sdk";

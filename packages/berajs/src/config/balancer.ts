@@ -17,12 +17,11 @@ import {
   nativeTokenAddress,
 } from "@bera/config";
 
-// FIXME: this throws TypeError: Cannot read properties of undefined (reading 'addresses')
 const contractAddresses: ContractAddresses = {
   vault: balancerVaultAddress,
   multicall: multicallAddress,
   poolDataQueries: balancerQueriesAddress,
-  balancerHelpers: balancerHelperAddress, // "0x389A5033796c6cF8043AECc12B3ffE5874186697",
+  balancerHelpers: balancerHelperAddress,
   balancerRelayer: "0x0000000000000000000000000000000000000001", // https://docs.balancer.fi/concepts/advanced/relayers.html#authorizing-a-relayer
 };
 
@@ -35,7 +34,7 @@ export const balancerNetworkConfig: BalancerNetworkConfig = {
     },
   },
   urls: {
-    subgraph: balancerSubgraphUrl, // FIXME: this will likely throw CORS
+    subgraph: balancerSubgraphUrl,
   },
   thirdParty: {
     coingecko: {
@@ -44,7 +43,7 @@ export const balancerNetworkConfig: BalancerNetworkConfig = {
     },
   },
   pools: {},
-  chainId: 80084 as Network, // FIXME: need to fork Balancer SDK to support Berachain fully (vs modifying locally)
+  chainId: 80084 as Network,
 
   // multicallBatchSize: 10, // Optional batch size for multicall
   // averageBlockTime: 3, // Optional average block time in seconds

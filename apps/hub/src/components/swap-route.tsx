@@ -1,14 +1,13 @@
-import { SwapInfo, Token } from "@bera/berajs";
+import { SwapInfoV4, Token } from "@bera/berajs";
 import { TokenIcon } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
-import { Address } from "viem";
 
 export const SwapRoute = ({
   swapInfo,
   tokenIn,
   tokenOut,
 }: {
-  swapInfo: SwapInfo;
+  swapInfo: SwapInfoV4;
   tokenIn: Token;
   tokenOut: Token;
 }) => {
@@ -17,12 +16,11 @@ export const SwapRoute = ({
       <TokenIcon address={tokenIn.address} size={"lg"} />
       <span className="text-sm font-medium">{tokenIn.symbol}</span>
       <Icons.arrowRight className="h-4 w-4" />
-      {swapInfo.batchSwapSteps.map((step, index) => (
+      {swapInfo.swapPaths.map((step, index) => (
         <div key={index} className="flex flex-row">
-          {/* TODO (#multiswap): properly define these as step-wise token in -> out via batchSwap asset steps */}
-          <TokenIcon address={tokenIn.address} size={"lg"} />
+          <TokenIcon address={step.tokens[0].address} size={"lg"} />
           <TokenIcon
-            address={tokenOut.address}
+            address={step.tokens[1].address} // FIXME: We are assuming the tokens involved here by pool idx vs using the route that exists in gql (route)
             size={"lg"}
             className="ml-[-8px]"
           />

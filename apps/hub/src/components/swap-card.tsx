@@ -8,7 +8,6 @@ import {
   // @ts-ignore - ignore Token typing import error
   Token,
   TransactionActionType,
-  balancerVaultAbi,
   useBeraJs,
   useBgtUnstakedBalance,
   usePollWalletBalances,
@@ -38,10 +37,9 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { decodeFunctionData, isAddress, parseUnits } from "viem";
+import { isAddress, parseUnits } from "viem";
 
 import { WRAP_TYPE, useSwap } from "~/hooks/useSwap";
-// NOTE: the meat of the swap needs to be driven by a refactored useSwap
 import { SwapCardHeader } from "./swap-card-header";
 import { SwapCardInfo } from "./swap-card-info";
 import { SwapRoute } from "./swap-route";
@@ -100,8 +98,6 @@ export function SwapCard({
     swapInfo,
     isRouteLoading,
     refreshAllowance,
-    payload,
-    payloadValue,
     exchangeRate,
     gasEstimateInBera: estimatedBeraFee,
     gasPrice,
@@ -109,7 +105,6 @@ export function SwapCard({
     tokenOutPrice,
     isWrap,
     wrapType,
-    minAmountOut,
     priceImpact,
     differenceUSD,
     setInputAddTokenDialogOpen,
@@ -310,7 +305,7 @@ export function SwapCard({
       !isWrap &&
       !isRouteLoading &&
       swapInfo?.swapPaths?.length !== 0 &&
-      !swapInfo?.error
+      !error
     ) {
       return (
         <ApproveButton
@@ -360,7 +355,7 @@ export function SwapCard({
               Number(fromAmount) <= 0 ||
               Number(toAmount) <= 0
             }
-            priceImpact={0}
+            priceImpact={priceImpact}
             exchangeRate={exchangeRate}
             tokenIn={selectedFrom}
             tokenOut={selectedTo}
@@ -369,9 +364,7 @@ export function SwapCard({
             open={openPreview}
             setOpen={setOpenPreview}
             write={() => {
-              const calldata = swapInfo.getCallData("1");
-              // NOTE: here is where we actually write out the transaction from the useTxn in L181
-              // @ts-expect-error FIXME: typing wants ABI and functionName because sendTransaction support was added in a rush
+              const calldata = swapInfo.buildCall();
               write({
                 address: calldata.to,
                 data: calldata.callData,
@@ -379,7 +372,7 @@ export function SwapCard({
               });
             }}
             isLoading={isLoading}
-            minAmountOut={minAmountOut}
+            minAmountOut={swapInfo.expectedAmountOutFormatted} // FIXME: what was the difference with minAmountOut?
           />
         );
       }
@@ -396,17 +389,10 @@ export function SwapCard({
           open={openPreview}
           setOpen={setOpenPreview}
           write={() => {
-            write({
-              // NOTE: here is where we actually write out the transaction from the useTxn in L181
-              address: balancerVaultAddress,
-              abi: balancerVaultAbi,
-              functionName: "batchSwap",
-              params: payload ?? [],
-              value: (swapInfo as any)?.value,
-            });
+            // NOTE: we shouldn't allow a transsaction if the query has not executed
           }}
           isLoading={isLoading}
-          minAmountOut={minAmountOut}
+          minAmountOut={"n/a"}
         />
       );
     }
@@ -417,7 +403,7 @@ export function SwapCard({
     selectedFrom &&
     selectedTo &&
     swapInfo &&
-    // swapInfo?.batchSwapSteps?.length === 0 &&
+    swapInfo?.swapPaths?.length === 0 &&
     fromAmount &&
     fromAmount !== "" &&
     swapAmount !== "0" &&
@@ -456,8 +442,8 @@ export function SwapCard({
 
   const { addNewToken } = useTokens();
 
-  if (swapInfo?.error !== undefined) {
-    console.error(swapInfo);
+  if (error !== undefined) {
+    console.error("usePollBalancer resolved with an error!", swapInfo);
   }
 
   return (
@@ -555,11 +541,7 @@ export function SwapCard({
                       setToAmount(amount);
                     }}
                     difference={
-                      isWrap
-                        ? undefined
-                        : swapInfo?.error
-                          ? undefined
-                          : differenceUSD
+                      isWrap ? undefined : error ? undefined : differenceUSD
                     }
                     showExceeding={false}
                     isActionLoading={isRouteLoading && !isWrap && !isRedeem}
@@ -618,15 +600,11 @@ export function SwapCard({
                 ) : (
                   false
                 )}
-                {swapInfo?.error !== undefined && (
-                  // toAmount && FIXME: this error shows when values are empty
-                  // Number(toAmount) > 0 &&
-                  // fromAmount &&
-                  // Number(fromAmount) > 0 &&
+                {error !== undefined && (
                   <Alert variant="destructive">
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription className="text-xs">
-                      {`There was an error with swap simulation:\n${swapInfo.error}`}
+                      {`There was an error with swap simulation:\n${error}`}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -683,8 +661,8 @@ export function SwapCard({
                     gasPrice={gasPriceLabel}
                   />
                 )}
-                {swapInfo?.pathAmounts &&
-                  swapInfo?.pathAmounts.length > 0 &&
+                {swapInfo?.swapPaths &&
+                  swapInfo?.swapPaths.length > 0 &&
                   selectedFrom &&
                   selectedTo && (
                     <SwapRoute

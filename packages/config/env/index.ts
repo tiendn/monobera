@@ -245,8 +245,6 @@ export const balancerRelayerAddress = process.env
 export const balancerSubgraphUrl = process.env
   .NEXT_PUBLIC_BALANCER_SUBGRAPH as Address;
 
-// TODO (#): we need subgraph and so on here
-
 // Sentry && Mixpanel
 export const developmentAnalytics = process.env
   .NEXT_PUBLIC_DEVELOPMENT_ANALYTICS as string;
