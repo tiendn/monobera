@@ -6,12 +6,12 @@ import {
   TXN_GAS_USED_ESTIMATES,
   TransactionActionType,
   bexAbi,
+  useBeraJs,
   useGasData,
   usePollWalletBalances,
   usePool,
   type Token,
 } from "@bera/berajs";
-import { getAddLiquidityPayload } from "@bera/berajs/actions";
 import {
   balancerVaultAddress,
   beraTokenAddress,
@@ -42,12 +42,13 @@ import { Address, formatEther, parseUnits } from "viem";
 import { isBera, isBeratoken } from "~/utils/isBeraToken";
 import { SettingsPopover } from "~/components/settings-popover";
 import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
-import { useAddLiquidity } from "@bera/berajs";
+import { useAddLiquidityUnbalanced } from "@bera/berajs";
 import { useSelectedPool } from "~/hooks/useSelectedPool";
 import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
+import { vaultV2Abi } from "@balancer/sdk";
 
 interface IAddLiquidityContent {
   shareAddress: Address;
@@ -61,11 +62,16 @@ export default function AddLiquidityContent({
   const [previewOpen, setPreviewOpen] = useState(false);
   const { v2Pool: pool, v3Pool } = data ?? {};
 
+  const { account } = useBeraJs();
+
   useEffect(() => {
     console.log("POOL", pool, v3Pool);
   }, [pool, v3Pool]);
 
-  const { queryOutput, input, setInput } = useAddLiquidity({ pool: v3Pool });
+  const { queryOutput, input, setInput, getCallData } =
+    useAddLiquidityUnbalanced({
+      pool: v3Pool,
+    });
 
   const {
     needsApproval,
@@ -82,10 +88,6 @@ export default function AddLiquidityContent({
     })) ?? [],
     balancerVaultAddress,
   );
-
-  useEffect(() => {
-    console.log("NEEDS APPROVAL", needsApprovalNoBera);
-  }, [queryOutput]);
 
   useEffect(() => {
     if (!pool && !isLoading) {
@@ -175,34 +177,47 @@ export default function AddLiquidityContent({
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <TokenList>
-            {pool?.tokens?.map((token, idx) => (
-              <TokenInput
-                key={token?.address}
-                selected={token}
-                selectable={false}
-                customTokenList={[token]}
-                amount={
-                  token?.address === input?.address
-                    ? input?.amount
-                    : formatEther(queryOutput?.amountsIn.at(idx)?.scale18 ?? 0n)
-                }
-                setAmount={(amount: string) => {
-                  setInput({
-                    address: token.address as Address,
-                    amount,
-                  });
-                  // setIsBaseInput(true);
-                  // handleBaseAssetAmountChange(amount);
-                }}
-                price={Number(token?.token?.latestUSDPrice ?? "0")}
-                onExceeding={
-                  (exceeding: boolean) => false // updateTokenExceeding(0, exceeding)
-                }
-                showExceeding={true}
-                // disabled={!poolPrice}
-                // beraSafetyMargin={estimatedBeraFee}
-              />
-            ))}
+            {pool?.tokens?.map((token, idx) => {
+              const currInput = input.find((i) => i.address === token.address);
+
+              return (
+                <TokenInput
+                  key={token?.address}
+                  selected={token}
+                  selectable={false}
+                  customTokenList={[token]}
+                  amount={currInput?.amount}
+                  setAmount={(amount: string) => {
+                    setInput((prev) => {
+                      const prevIdx = prev.findIndex(
+                        (i) => i.address === token.address,
+                      );
+                      const input = {
+                        address: token.address as Address,
+                        amount,
+                      };
+                      if (prevIdx === -1) {
+                        return [...prev, input];
+                      }
+                      return [
+                        ...prev.slice(0, prevIdx),
+                        input,
+                        ...prev.slice(prevIdx + 1),
+                      ];
+                    });
+                    // setIsBaseInput(true);
+                    // handleBaseAssetAmountChange(amount);
+                  }}
+                  price={Number(token?.token?.latestUSDPrice ?? "0")}
+                  onExceeding={
+                    (exceeding: boolean) => false // updateTokenExceeding(0, exceeding)
+                  }
+                  showExceeding={true}
+                  // disabled={!poolPrice}
+                  // beraSafetyMargin={estimatedBeraFee}
+                />
+              );
+            })}
           </TokenList>
           <InfoBoxList>
             {/* <InfoBoxListItem
@@ -289,7 +304,7 @@ export default function AddLiquidityContent({
               />
               <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
             </InfoBoxList> */}
-            {needsApprovalNoBera.length > 0 ? (
+            {needsApproval.length > 0 ? (
               <>
                 {needsApprovalNoBera.map((token, idx) => (
                   <ApproveButton
@@ -302,7 +317,23 @@ export default function AddLiquidityContent({
               </>
             ) : (
               <ActionButton>
-                <Button className="w-full">Add Liquidity</Button>
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    const data = getCallData(1, account!);
+
+                    // @ts-ignore
+                    write({
+                      params: data.args,
+                      address: data.to,
+                      abi: vaultV2Abi,
+                      functionName: "joinPool",
+                      value: data.value,
+                    });
+                  }}
+                >
+                  Add Liquidity
+                </Button>
               </ActionButton>
             )}
           </TxnPreview>

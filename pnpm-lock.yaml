@@ -704,7 +704,7 @@ importers:
         version: 1.1.6(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@balancer/sdk':
         specifier: ^0.28.2
-        version: 0.28.2(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+        version: link:../../../b-sdk
       '@bera/beracrocswap':
         specifier: workspace:*
         version: link:../beracrocswap
@@ -2028,10 +2028,6 @@ packages:
       '@ethersproject/constants': ^5.4.0
       '@ethersproject/contracts': ^5.4.1
       '@ethersproject/providers': ^5.4.4
-
-  '@balancer/sdk@0.28.2':
-    resolution: {integrity: sha512-UfXPWYqzI/lRk2pJjAj/ZHg/QqoS4l/CEPcrvLPbUsR/2pVSLwNIk25zo+PBh+g4nAPKyayn6B0GMplsKqhJdg==}
-    engines: {node: '>=18.x'}
 
   '@base2/pretty-print-object@1.0.1':
     resolution: {integrity: sha512-4iri8i1AqYHJE2DstZYkyEprg6Pq6sKx3xn5FpySk9sNhH7qN2LLlHJCfDTZRILNwQNPD7mATWM0TBui7uC1pA==}
@@ -10294,9 +10290,6 @@ packages:
   lodash.clone@4.5.0:
     resolution: {integrity: sha512-GhrVeweiTD6uTmmn5hV/lzgCQhccwReIVRLHp7LT4SopOjqEZ5BbX8b5WWEtAKasjmy8hR7ZPwsYlxRCku5odg==}
 
-  lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
-
   lodash.curry@4.1.1:
     resolution: {integrity: sha512-/u14pXGviLaweY5JI0IUzgzF2J6Ne8INyzAZjImcryjgkZ+ebruBxy2/JaOOkTqScddcYtakjhSaeemV8lR0tA==}
 
@@ -15123,17 +15116,6 @@ snapshots:
       '@ethersproject/contracts': 5.7.0
       '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       isomorphic-fetch: 2.2.1
-
-  '@balancer/sdk@0.28.2(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)':
-    dependencies:
-      decimal.js-light: 2.5.1
-      lodash.clonedeep: 4.5.0
-      viem: 2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
 
   '@base2/pretty-print-object@1.0.1': {}
 
@@ -26789,8 +26771,6 @@ snapshots:
   lodash-es@4.17.21: {}
 
   lodash.clone@4.5.0: {}
-
-  lodash.clonedeep@4.5.0: {}
 
   lodash.curry@4.1.1: {}
 
