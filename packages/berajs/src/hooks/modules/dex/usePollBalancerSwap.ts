@@ -1,4 +1,5 @@
 import {
+  Address,
   Path,
   Slippage,
   Swap,
@@ -9,7 +10,7 @@ import {
   TokenAmount,
   ZERO_ADDRESS,
 } from "@balancer/sdk";
-import { chainId } from "@bera/config";
+import { beraTokenAddress, chainId } from "@bera/config";
 import useSWR from "swr";
 import { formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
@@ -64,6 +65,15 @@ function getEmptyResponse(): SwapInfoV4 {
   };
 }
 
+function convertZeroToWrapped(address: Address): Address {
+  // NOTE: if we were using sdk v2's findRouteGivenIn it would handle this, but we are doing a raw fetchSorSwapPaths call
+  return address.toLowerCase() === ZERO_ADDRESS ? beraTokenAddress : address;
+}
+
+const isZero = (amount: string) =>
+  (!Number.isNaN(Number(amount)) && Number(amount) === 0) ||
+  amount.trim() === "";
+
 /**
  * Polls a pair for the optimal route and amount for a swap using Balancer SDK
  */
@@ -87,6 +97,7 @@ export const usePollBalancerSwap = (
     !tokenOut ||
     !tokenInDecimals ||
     !tokenOutDecimals ||
+    isZero(amount) || // TODO: it would be nice to strengthen the string formatting for inputs
     options?.isTyping
       ? null // Prevent fetching when required data is missing
       : [tokenIn, tokenOut, amount];
@@ -101,12 +112,24 @@ export const usePollBalancerSwap = (
         if (!publicClient || !account || !config) {
           throw new Error("Missing public client, account, or config");
         }
-        const tokenInV3 = new Token(chainId, tokenIn, tokenInDecimals ?? 18);
-        const tokenOutV3 = new Token(chainId, tokenOut, tokenOutDecimals ?? 6);
-        const tokenAmount = TokenAmount.fromHumanAmount(tokenInV3, "1");
+        const tokenInV3 = new Token(
+          chainId,
+          convertZeroToWrapped(tokenIn),
+          tokenInDecimals ?? 18,
+        );
+        const tokenOutV3 = new Token(
+          chainId,
+          convertZeroToWrapped(tokenOut),
+          tokenOutDecimals ?? 18,
+        );
+        const tokenAmount = TokenAmount.fromHumanAmount(
+          tokenInV3,
+          amount as `${number}`, // TODO: we should firm up the typing for amount, but it's actually a large-ish refactor
+        );
         const swapKind = SwapKind.GivenIn;
 
         // Fetch paths using Balancer API
+        // TODO: if the V3 SDK brings back swap.findRouteGivenIn we might want to use that interface instead
         const sorPaths = await balancerApi.sorSwapPaths.fetchSorSwapPaths({
           chainId,
           tokenIn: tokenInV3.address,
@@ -163,7 +186,7 @@ export const usePollBalancerSwap = (
               queryOutput,
               sender: account,
               recipient: account,
-              wethIsEth: true,
+              wethIsEth: true, // NOTE: this converts i/o wrapped addresses back to 0x0 for on-chain txs (see b-sdk.ts config)
             }),
         } satisfies SwapInfoV4;
       } catch (e: any) {
