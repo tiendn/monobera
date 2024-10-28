@@ -321,6 +321,17 @@ export const useCreateProposal = ({
         throw new Error("No actions submitted in proposal");
       }
 
+      const link = new URL(proposal.forumLink);
+
+      const description = matter.stringify(proposal.description, {
+        title: proposal.title,
+        topics: Array.from(proposal.topic.values()),
+        forumLink: link.toString(),
+        version: "1.0.0",
+        "content-encoding": "utf-8",
+        "content-type": "text/markdown",
+      });
+
       write({
         address: governorAddress,
         abi: GOVERNANCE_ABI,
@@ -329,14 +340,7 @@ export const useCreateProposal = ({
           proposal.actions.map((action) => action.target as `0x${string}`),
           proposal.actions.map((action) => action.value ?? 0n),
           actions,
-          matter.stringify(proposal.description, {
-            title: proposal.title,
-            topics: Array.from(proposal.topic.values()),
-            forumLink: proposal.forumLink,
-            version: "1.0.0",
-            "content-encoding": "utf-8",
-            "content-type": "text/markdown",
-          }),
+          description,
         ],
       });
     },
