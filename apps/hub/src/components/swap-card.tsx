@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { SwapBuildOutputExactIn } from "@balancer/sdk";
 import {
   BGT_ABI,
   // Vault
@@ -38,7 +39,7 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { isAddress, parseUnits } from "viem";
+import { formatUnits, isAddress, parseUnits } from "viem";
 
 import { WRAP_TYPE, useSwap } from "~/hooks/useSwap";
 import { SwapCardHeader } from "./swap-card-header";
@@ -129,6 +130,19 @@ export function SwapCard({
       : honeyAddress,
     isRedeem: isRedeem,
   });
+
+  // NOTE: we need to build a swap call to obtain the min amount out per balancer v3 SDK
+  const [minAmountOut, setMinAmountOut] = useState<string | undefined>(
+    undefined,
+  );
+  useEffect(() => {
+    if (swapInfo?.swapPaths?.length) {
+      const call = swapInfo.buildCall(slippage ?? 0) as SwapBuildOutputExactIn;
+      setMinAmountOut(
+        formatUnits(call.minAmountOut.amount, selectedFrom?.decimals ?? 18),
+      );
+    }
+  }, [swapInfo]);
 
   const { account } = useBeraJs();
   const { captureException, track } = useAnalytics();
@@ -376,7 +390,7 @@ export function SwapCard({
               });
             }}
             isLoading={isLoading}
-            minAmountOut={swapInfo.expectedAmountOutFormatted} // FIXME: what was the difference with minAmountOut?
+            minAmountOut={minAmountOut ?? "n/a"}
           />
         );
       }
