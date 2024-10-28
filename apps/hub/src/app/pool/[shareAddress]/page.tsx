@@ -8,7 +8,7 @@ import PoolPageContent from "../PoolPageContent";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Pool | DEX | Berachain",
+    title: "Pool",
   };
 }
 

@@ -49,6 +49,9 @@ import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { vaultV2Abi } from "@balancer/sdk";
+import { useReadLocalStorage } from "usehooks-ts";
+import { DEFAULT_DEADLINE, LOCAL_STORAGE_KEYS } from "~/utils/constants";
+import { SELECTION } from "~/components/swap-settings";
 
 interface IAddLiquidityContent {
   shareAddress: Address;
@@ -172,7 +175,7 @@ export default function AddLiquidityContent({
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
             Add Liquidity
-            {/* <SettingsPopover /> */}
+            <SettingsPopover />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -320,9 +323,8 @@ export default function AddLiquidityContent({
                 <Button
                   className="w-full"
                   onClick={() => {
-                    const data = getCallData(1, account!);
+                    const data = getCallData(slippage ?? 0, account!);
 
-                    // @ts-ignore
                     write({
                       params: data.args,
                       address: data.to,

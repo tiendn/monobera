@@ -14,7 +14,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from "~/utils/constants";
 
-enum SELECTION {
+export enum SELECTION {
   AUTO = "auto",
   CUSTOM = "custom",
   DEGEN = "degen",
@@ -50,7 +50,7 @@ export default function SwapSettings() {
       </div>
       <div className="flex h-[40px] w-full items-center justify-between gap-4">
         <Tabs
-          className=" flex-shrink-0"
+          className="flex-shrink-0"
           defaultValue={slippageToleranceType as string}
           onValueChange={(value: string) => setSlippageToleranceType(value)}
         >
