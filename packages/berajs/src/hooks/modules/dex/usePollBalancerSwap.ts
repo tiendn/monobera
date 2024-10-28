@@ -115,8 +115,10 @@ export const usePollBalancerSwap = (
           swapAmount: tokenAmount,
         });
 
-        if (!sorPaths) {
-          throw new Error("No swap paths returned from Balancer API");
+        if (!sorPaths || sorPaths.length === 0) {
+          throw new Error(
+            `No swap paths returned from Balancer API between ${tokenInV3.address} and ${tokenOutV3.address}`,
+          );
         }
 
         const swapInput = {
@@ -167,7 +169,7 @@ export const usePollBalancerSwap = (
       } catch (e: any) {
         // NOTE: we are throwing errors but logging them here because SWR doesnt handle errors well
         console.error(e);
-        throw new Error(`Error fetching swap information. Error: ${e}`);
+        throw e;
       }
     },
     {

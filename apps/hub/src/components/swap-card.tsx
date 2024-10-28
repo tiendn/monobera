@@ -608,7 +608,7 @@ export function SwapCard({
                   <Alert variant="destructive">
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription className="text-xs">
-                      {`There was an error with swap simulation:\n${error}`}
+                      {`Swap query failed due to '${error}'`}
                     </AlertDescription>
                   </Alert>
                 )}
