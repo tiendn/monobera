@@ -106,14 +106,14 @@ export default function WithdrawLiquidityContent({
 
   const slippage = useSlippage();
 
-  const baseToken = pool?.baseInfo;
-  const quoteToken = pool?.quoteInfo;
+  const baseToken = pool?.tokens[0];
+  const quoteToken = pool?.tokens[1];
 
   const {
     data: userPositionBreakdown,
     isLoading: isPositionBreakdownLoading,
     refresh,
-  } = usePoolUserPosition({ pool });
+  } = usePoolUserPosition({ pool: undefined });
 
   const baseAmountWithdrawn = useMemo(() => {
     if (!userPositionBreakdown || amount === 0) {
@@ -137,13 +137,13 @@ export default function WithdrawLiquidityContent({
 
   const totalHoneyPrice = useMemo(() => {
     return (
-      Number(baseToken?.usdValue ?? 0) * Number(baseAmountWithdrawn) +
-      Number(quoteToken?.usdValue ?? 0) * Number(quoteAmountWithdrawn)
+      Number(0) * Number(baseAmountWithdrawn) +
+      Number(0) * Number(quoteAmountWithdrawn)
     );
   }, [baseToken, quoteToken, baseAmountWithdrawn, quoteAmountWithdrawn]);
 
   const { write, ModalPortal } = useTxn({
-    message: `Withdraw liquidity from ${pool?.poolName}`,
+    message: `Withdraw liquidity from ${pool?.id}`,
     onSuccess: () => {
       reset();
       refresh();
@@ -153,30 +153,29 @@ export default function WithdrawLiquidityContent({
 
   const client = usePublicClient();
   const handleWithdrawLiquidity = useCallback(async () => {
-    try {
-      const withdrawLiquidityRequest = await getWithdrawLiquidityPayload({
-        args: {
-          slippage: slippage ?? 0,
-          poolPrice,
-          baseToken,
-          quoteToken,
-          poolIdx: pool?.poolIdx,
-          percentRemoval: amount,
-          seeds: userPositionBreakdown?.seeds.toString() ?? "0",
-          shareAddress: pool?.shareAddress,
-        },
-        publicClient: client,
-      });
-
-      write({
-        address: crocDexAddress,
-        abi: bexAbi,
-        functionName: "userCmd",
-        params: withdrawLiquidityRequest?.payload ?? [],
-      });
-    } catch (error) {
-      console.error("Error creating pool:", error);
-    }
+    // try {
+    //   // const withdrawLiquidityRequest = await getWithdrawLiquidityPayload({
+    //   //   args: {
+    //   //     slippage: slippage ?? 0,
+    //   //     poolPrice,
+    //   //     baseToken,
+    //   //     quoteToken,
+    //   //     poolIdx: pool?.poolIdx,
+    //   //     percentRemoval: amount,
+    //   //     seeds: userPositionBreakdown?.seeds.toString() ?? "0",
+    //   //     shareAddress: pool?.shareAddress,
+    //   //   },
+    //   //   publicClient: client,
+    //   // });
+    //   // write({
+    //   //   address: crocDexAddress,
+    //   //   abi: bexAbi,
+    //   //   functionName: "userCmd",
+    //   //   params: withdrawLiquidityRequest?.payload ?? [],
+    //   // });
+    // } catch (error) {
+    //   console.error("Error creating pool:", error);
+    // }
   }, [
     amount,
     write,
@@ -199,7 +198,7 @@ export default function WithdrawLiquidityContent({
         {isLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
-          <p className="text-center text-2xl font-semibold">{pool?.poolName}</p>
+          <p className="text-center text-2xl font-semibold">{pool?.id}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
           {isLoading ? (
@@ -209,6 +208,7 @@ export default function WithdrawLiquidityContent({
               return (
                 <TokenIcon
                   address={token.address}
+                  // @ts-expect-error FIXME: fix token typings
                   symbol={token.symbol}
                   className={cn("h-12 w-12", i !== 0 && "ml-[-16px]")}
                   key={token.address}
@@ -235,7 +235,9 @@ export default function WithdrawLiquidityContent({
         <CardContent className="flex flex-col gap-4">
           <TokenSummary
             title="Your Tokens In the Pool"
+            // @ts-expect-error FIXME: fix token typings
             baseToken={baseToken}
+            // @ts-expect-error FIXME: fix token typings
             quoteToken={quoteToken}
             baseAmount={userPositionBreakdown?.formattedBaseAmount ?? "0"}
             quoteAmount={userPositionBreakdown?.formattedQuoteAmount ?? "0"}
@@ -276,7 +278,8 @@ export default function WithdrawLiquidityContent({
           </div>
           <InfoBoxList>
             <InfoBoxListItem
-              title={`Removing ${isLoading ? "..." : baseToken?.symbol}`}
+              // @ts-expect-error FIXME: fix token typings
+              title={`Removing ${isLoading ? "..." : baseToken?.symbol ?? ""}`}
               value={
                 <div className="flex flex-row items-center justify-end gap-1">
                   <FormattedNumber
@@ -286,12 +289,14 @@ export default function WithdrawLiquidityContent({
                   <TokenIcon
                     address={baseToken?.address}
                     size={"md"}
+                    // @ts-expect-error FIXME: fix token typings
                     symbol={baseToken?.symbol}
                   />
                 </div>
               }
             />
             <InfoBoxListItem
+              // @ts-expect-error FIXME: fix token typings
               title={`Removing ${isLoading ? "..." : quoteToken?.symbol}`}
               value={
                 <div className="flex flex-row items-center justify-end gap-1">
@@ -302,6 +307,7 @@ export default function WithdrawLiquidityContent({
                   <TokenIcon
                     address={quoteToken?.address}
                     size={"md"}
+                    // @ts-expect-error FIXME: fix token typings
                     symbol={quoteToken?.symbol}
                   />
                 </div>
@@ -314,9 +320,14 @@ export default function WithdrawLiquidityContent({
                   <>
                     <FormattedNumber
                       value={poolPrice}
+                      // @ts-expect-error FIXME: fix token typings
                       symbol={baseToken?.symbol}
                     />{" "}
-                    = 1 {quoteToken?.symbol}
+                    = 1{" "}
+                    {
+                      // @ts-expect-error FIXME: fix token typings
+                      quoteToken?.symbol
+                    }
                   </>
                 ) : (
                   "-"
@@ -352,14 +363,18 @@ export default function WithdrawLiquidityContent({
             <TokenList className="divide-muted bg-muted">
               <PreviewToken
                 key={baseToken?.address}
+                // @ts-expect-error FIXME: fix token typings
                 token={baseToken}
                 value={Number(baseAmountWithdrawn)}
+                // @ts-expect-error FIXME: fix token typings
                 price={Number(baseToken?.usdValue ?? 0)}
               />
               <PreviewToken
                 key={quoteToken?.address}
+                // @ts-expect-error FIXME: fix token typings
                 token={quoteToken}
                 value={Number(quoteAmountWithdrawn)}
+                // @ts-expect-error FIXME: fix token typings
                 price={Number(quoteToken?.usdValue ?? 0)}
               />
             </TokenList>
@@ -371,9 +386,14 @@ export default function WithdrawLiquidityContent({
                     <>
                       <FormattedNumber
                         value={poolPrice}
+                        // @ts-expect-error FIXME: fix token typings
                         symbol={baseToken?.symbol}
                       />{" "}
-                      = 1 {quoteToken?.symbol}
+                      = 1{" "}
+                      {
+                        // @ts-expect-error FIXME: fix token typings
+                        quoteToken?.symbol
+                      }
                     </>
                   ) : (
                     "-"

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { formatUsd, type SwapInfo, type Token } from "@bera/berajs";
+import { formatUsd, type SwapInfoV4, type Token } from "@bera/berajs";
 import { cloudinaryUrl } from "@bera/config";
 import { Spinner, TokenIcon } from "@bera/shared-ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
@@ -20,7 +20,7 @@ import { useReadLocalStorage } from "usehooks-ts";
 import { LOCAL_STORAGE_KEYS } from "~/utils/constants";
 
 type Props = {
-  swapInfo: SwapInfo | undefined;
+  swapInfo: SwapInfoV4 | undefined;
   priceImpact: number | undefined;
   exchangeRate: string | undefined;
   tokenIn: Token | undefined;
@@ -84,9 +84,9 @@ export default function PreviewDialog({
   setOpen,
   write,
 }: Props) {
-  const [initialSwapInfo, setInitialSwapInfo] = useState<SwapInfo | undefined>(
-    undefined,
-  );
+  const [initialSwapInfo, setInitialSwapInfo] = useState<
+    SwapInfoV4 | undefined
+  >(undefined);
 
   const [priceChangeWarning, setPriceChangeWarning] = useState<
     boolean | undefined
@@ -102,16 +102,15 @@ export default function PreviewDialog({
 
   useEffect(() => {
     const upperBound =
-      (1 + PRICE_CHANGE_THRESHOLD) *
-      Number(initialSwapInfo?.formattedReturnAmount);
+      (1 + PRICE_CHANGE_THRESHOLD) * Number(initialSwapInfo?.amountInFormatted);
     const lowerBound =
       (1 - PRICE_CHANGE_THRESHOLD) *
-      Number(initialSwapInfo?.formattedReturnAmount);
+      Number(initialSwapInfo?.expectedAmountOutFormatted);
 
     const isNewSwapGTSlippage =
-      upperBound < Number(swapInfo?.formattedReturnAmount);
+      upperBound < Number(swapInfo?.expectedAmountOutFormatted);
     const isNewSwapLTSlippage =
-      lowerBound > Number(swapInfo?.formattedReturnAmount);
+      lowerBound > Number(swapInfo?.expectedAmountOutFormatted);
 
     if (
       initialSwapInfo !== undefined &&
@@ -151,14 +150,14 @@ export default function PreviewDialog({
         <PreviewToken
           token={tokenIn}
           title={"You pay"}
-          amount={swapInfo?.formattedAmountIn ?? "0"}
+          amount={swapInfo?.amountInFormatted ?? "0"}
           price={tokenInPrice ?? "0"}
         />
         {/* TODO: add slippage calculation */}
         <PreviewToken
           token={tokenOut}
           title={"You receive"}
-          amount={swapInfo?.formattedReturnAmount ?? "0"}
+          amount={swapInfo?.expectedAmountOutFormatted ?? "0"}
           price={tokenOutPrice ?? "0"}
         />
         <div className="flex w-full flex-col gap-2 rounded-lg bg-muted p-3">

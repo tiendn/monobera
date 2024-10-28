@@ -186,8 +186,10 @@ export default function AddLiquidityContent({
               return (
                 <TokenInput
                   key={token?.address}
+                  // @ts-expect-error FIXME: fix token typings
                   selected={token}
                   selectable={false}
+                  // @ts-expect-error FIXME: fix token typings
                   customTokenList={[token]}
                   amount={currInput?.amount}
                   setAmount={(amount: string) => {
@@ -270,6 +272,8 @@ export default function AddLiquidityContent({
               {queryOutput?.amountsIn.map((amount) => (
                 <PreviewToken
                   token={{
+                    symbol: "",
+                    name: "",
                     ...amount.token,
                     address: amount.token.wrapped as Address,
                   }}

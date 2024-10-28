@@ -1,15 +1,13 @@
 import { useState } from "react";
+import { PoolState } from "@balancer/sdk";
 import { useTokens, type PoolV2 } from "@bera/berajs";
 
-import { useCrocPoolPrice } from "~/hooks/useCrocPoolPrice";
-
-export const useWithdrawLiquidity = (pool: PoolV2 | undefined) => {
+export const useWithdrawLiquidity = (pool: PoolState | undefined) => {
   const [amount, setAmount] = useState<number>(0);
 
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const { data: tokenData } = useTokens();
-  const { usePoolPrice } = useCrocPoolPrice(pool);
-  const poolPrice = usePoolPrice();
+  const poolPrice = 0;
   return {
     poolPrice,
     tokenDictionary: tokenData?.tokenDictionary,

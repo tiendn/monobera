@@ -13,7 +13,7 @@ import {
   useValueSend,
   type IContractWrite,
   type IValueSend,
-  type TransactionActionType,
+  TransactionActionType,
 } from "@bera/berajs";
 import toast from "react-hot-toast";
 import { useMediaQuery } from "usehooks-ts";
@@ -37,7 +37,7 @@ import {
 
 interface IUseTxn {
   message?: string;
-  actionType?: keyof typeof TransactionActionType;
+  actionType?: TransactionActionType;
   disableToast?: boolean;
   disableModal?: boolean;
   CustomSuccessModal?: React.FC;

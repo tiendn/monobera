@@ -1,4 +1,4 @@
-export * from "./usePollBalancer";
+export * from "./usePollBalancerSwap";
 export * from "./usePoolTable";
 export * from "./usePoolUserPosition";
 export * from "./usePoolRecentSwaps";

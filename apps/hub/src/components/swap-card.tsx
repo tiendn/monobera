@@ -29,6 +29,7 @@ import {
   TooltipCustom,
   useAnalytics,
   useBreakpoint,
+  useSlippage,
   useTxn,
 } from "@bera/shared-ui";
 import { AddTokenDialog } from "@bera/shared-ui/src/add-token-dialog";
@@ -80,6 +81,8 @@ export function SwapCard({
   isRedeem,
   className,
 }: ISwapCard) {
+  const slippage = useSlippage();
+
   const {
     setSelectedFrom,
     selectedFrom,
@@ -364,7 +367,8 @@ export function SwapCard({
             open={openPreview}
             setOpen={setOpenPreview}
             write={() => {
-              const calldata = swapInfo.buildCall();
+              const calldata = swapInfo.buildCall(slippage ?? 0);
+              // @ts-expect-error export args from buildCall so we can simulate
               write({
                 address: calldata.to,
                 data: calldata.callData,
@@ -389,7 +393,7 @@ export function SwapCard({
           open={openPreview}
           setOpen={setOpenPreview}
           write={() => {
-            // NOTE: we shouldn't allow a transsaction if the query has not executed
+            // NOTE: we shouldn't allow a transaction if the query has not executed
           }}
           isLoading={isLoading}
           minAmountOut={"n/a"}

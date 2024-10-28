@@ -1,9 +1,10 @@
 import { PoolWithMethods } from "@balancer-labs/sdk";
+import { PoolState } from "@balancer/sdk";
 import { isIPFS } from "@bera/config";
 import BigNumber from "bignumber.js";
 
 export const getPoolUrl = (
-  pool: PoolWithMethods | undefined,
+  pool: PoolState | PoolWithMethods | undefined,
   isMyPool = false,
 ): string => {
   if (!pool) return "";
@@ -13,7 +14,9 @@ export const getPoolUrl = (
   return `/pool/${pool?.id}${isMyPool ? "?back=my-pools" : ""}`;
 };
 
-export const getPoolAddLiquidityUrl = (pool: PoolWithMethods | undefined) => {
+export const getPoolAddLiquidityUrl = (
+  pool: PoolState | PoolWithMethods | undefined,
+) => {
   if (!pool) return "";
 
   if (isIPFS) {
@@ -23,7 +26,9 @@ export const getPoolAddLiquidityUrl = (pool: PoolWithMethods | undefined) => {
   return `/add-liquidity/${pool?.id}`;
 };
 
-export const getPoolWithdrawUrl = (pool: PoolWithMethods | undefined) => {
+export const getPoolWithdrawUrl = (
+  pool: PoolState | PoolWithMethods | undefined,
+) => {
   if (!pool) return "";
   return `/withdraw/${pool?.id}`;
 };

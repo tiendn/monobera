@@ -26,11 +26,12 @@ import { type Address } from "viem";
 import { isBeratoken } from "~/utils/isBeraToken";
 
 // const QUOTING_TOKEN = honeyTokenAddress;
-interface ISwap {
+interface UseSwapArguments {
   inputCurrency?: string | undefined;
   outputCurrency?: string | undefined;
   isRedeem: boolean;
 }
+
 function normalizeToRatio(num1: number, num2: number): string {
   const ratio = num2 / num1;
   return ratio.toFixed(6);
@@ -45,7 +46,7 @@ export const useSwap = ({
   inputCurrency = undefined,
   outputCurrency = undefined,
   isRedeem,
-}: ISwap) => {
+}: UseSwapArguments) => {
   const { data: pendingInputToken } = useTokenInformation({
     address: inputCurrency,
   });

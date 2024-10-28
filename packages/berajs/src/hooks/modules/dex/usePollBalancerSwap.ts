@@ -17,7 +17,6 @@ import { usePublicClient } from "wagmi";
 import { balancerApi, nativeToken } from "~/actions/dex/b-sdk";
 import { useBeraJs } from "~/contexts";
 import { SwapRequest, type DefaultHookOptions } from "~/types";
-import { useSlippage } from "../../../../../shared-ui/src";
 
 type IUsePollSwapsArgs = SwapRequest;
 interface IUsePollSwapsOptions extends DefaultHookOptions {
@@ -32,7 +31,7 @@ export interface SwapInfoV4 {
   expectedAmountOutFormatted: string;
   amountInFormatted: string;
   buildCall: (
-    slippagePercent?: `${number}`,
+    slippagePercent: number,
     deadlineIn?: number,
   ) => SwapBuildOutputExactIn | SwapBuildOutputExactOut;
   swapPaths: Path[];
@@ -76,8 +75,6 @@ export const usePollBalancerSwap = (
 
   const publicClient = usePublicClient();
   const { account, config: beraConfig } = useBeraJs();
-  const defaultSlippagePercent =
-    (useSlippage()?.toString() as `${number}`) ?? ("1" as `${number}`);
   const defaultDeadlineIn = 30; // seconds
 
   const config = options?.beraConfigOverride ?? beraConfig;
@@ -94,7 +91,7 @@ export const usePollBalancerSwap = (
       ? null // Prevent fetching when required data is missing
       : [tokenIn, tokenOut, amount];
 
-  return useSWR(
+  return useSWR<SwapInfoV4>(
     QUERY_KEY,
     async () => {
       try {
@@ -142,7 +139,6 @@ export const usePollBalancerSwap = (
 
         // NOTE: we are building this call here to set the deadline to 30 seconds from the time we return the object
         return {
-          isLoading: false,
           swapPaths: sorPaths,
           ...queryOutput,
           expectedAmountOutFormatted: formatUnits(
@@ -154,18 +150,20 @@ export const usePollBalancerSwap = (
             tokenInDecimals,
           ),
           buildCall: (
-            slippagePercent = defaultSlippagePercent,
+            slippagePercent: number,
             deadlineIn = defaultDeadlineIn,
           ) =>
             swap.buildCall({
-              slippage: Slippage.fromPercentage(slippagePercent),
+              slippage: Slippage.fromPercentage(
+                slippagePercent.toString() as `${number}`,
+              ),
               deadline: BigInt(Math.round(Date.now() / 1000) + deadlineIn),
               queryOutput,
               sender: account,
               recipient: account,
               wethIsEth: true,
             }),
-        };
+        } satisfies SwapInfoV4;
       } catch (e: any) {
         // NOTE: we are throwing errors but logging them here because SWR doesnt handle errors well
         console.error(e);

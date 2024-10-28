@@ -38,7 +38,7 @@ import {
 
 interface IUseTxn {
   message?: string;
-  actionType?: keyof typeof TransactionActionType;
+  actionType?: TransactionActionType;
   disableToast?: boolean;
   disableModal?: boolean;
   onSuccess?: (hash: string) => void;
