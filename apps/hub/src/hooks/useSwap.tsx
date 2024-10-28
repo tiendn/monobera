@@ -145,6 +145,7 @@ export const useSwap = ({
       tokenInDecimals: selectedFrom?.decimals ?? 18,
       tokenOutDecimals: selectedTo?.decimals ?? 18,
       amount: swapAmount,
+      isWrap,
     },
     {
       opts: {
@@ -153,10 +154,6 @@ export const useSwap = ({
       isTyping: isTyping,
     },
   );
-
-  useEffect(() => {
-    swapInfo && console.log("SWOOOOP", swapInfo);
-  }, [swapInfo]);
 
   const [differenceUSD, setDifferenceUSD] = useState<number | null>(null);
 

@@ -26,6 +26,7 @@ export interface SwapRequest {
   tokenInDecimals: number;
   tokenOutDecimals: number;
   amount: string;
+  isWrap: boolean;
 }
 
 export interface AddLiquidityRequest {

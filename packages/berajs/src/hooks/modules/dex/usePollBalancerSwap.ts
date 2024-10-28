@@ -33,7 +33,7 @@ export interface SwapInfoV4 {
   amountInFormatted: string;
   buildCall: (
     slippagePercent: number,
-    deadlineIn?: number,
+    deadlineIn?: number, // defaults to 30 seconds
   ) => SwapBuildOutputExactIn | SwapBuildOutputExactOut;
   swapPaths: Path[];
 }
@@ -47,7 +47,7 @@ function getEmptyResponse(): SwapInfoV4 {
     amountIn: TokenAmount.fromHumanAmount(nativeToken, "0"),
     expectedAmountOutFormatted: "0",
     amountInFormatted: "0",
-    buildCall: () =>
+    buildCall: (slippagePercent: number, deadlineIn?: number) =>
       ({
         swapAmount: BigInt(0),
         returnAmount: BigInt(0),
@@ -81,14 +81,20 @@ export const usePollBalancerSwap = (
   args: IUsePollSwapsArgs,
   options?: IUsePollSwapsOptions,
 ) => {
-  const { tokenIn, tokenOut, amount, tokenInDecimals, tokenOutDecimals } = args;
+  const {
+    tokenIn,
+    tokenOut,
+    amount,
+    tokenInDecimals,
+    tokenOutDecimals,
+    isWrap, // NOTE: this will effectively mean we do not execute the query as wrapping is distinct from swapping.
+  } = args;
 
   const publicClient = usePublicClient();
   const { account, config: beraConfig } = useBeraJs();
   const defaultDeadlineIn = 30; // seconds
 
   const config = options?.beraConfigOverride ?? beraConfig;
-  // FIXME: is this QUERY key acceptable?
   const QUERY_KEY =
     !publicClient ||
     !account ||
@@ -97,6 +103,7 @@ export const usePollBalancerSwap = (
     !tokenOut ||
     !tokenInDecimals ||
     !tokenOutDecimals ||
+    isWrap || // NOTE: we dont do a query when we are doing wrapping, price is always 1:1 and its done differently.
     isZero(amount) || // TODO: it would be nice to strengthen the string formatting for inputs
     options?.isTyping
       ? null // Prevent fetching when required data is missing
