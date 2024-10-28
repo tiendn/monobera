@@ -49,6 +49,7 @@ export const useProposalFromTx = (
     voteEndBlock: String(creationEvent?.args.voteEnd),
     proposer: creationEvent?.args.proposer,
     description: fm.content,
+    unverifiedForumLink: fm.data.forumLink,
     pollResult: {
       for: "0",
       forVotersCount: 0,
