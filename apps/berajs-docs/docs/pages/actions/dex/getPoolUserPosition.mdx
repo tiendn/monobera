@@ -34,14 +34,7 @@ const publicClient = createPublicClient({
   chain: berachain, // viem chains directory: https://github.com/wevm/viem/blob/main/src/chains/index.ts
   transport: http(),
 });
-
-const userPosition = getPoolUserPosition({
-  args: {
-    pool,
-    account,
-  },
-  publicClient,
-});
+ 
 ```
 
 ## Parameters

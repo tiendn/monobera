@@ -46,7 +46,6 @@ import { Address } from "viem";
 
 import { calculateApy } from "~/utils/calculateApy";
 import formatTimeAgo from "~/utils/formatTimeAgo";
-import { useSelectedPool } from "~/hooks/useSelectedPool";
 import {
   getPoolAddLiquidityUrl,
   getPoolWithdrawUrl,

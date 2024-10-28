@@ -39,19 +39,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Address, formatEther, parseUnits } from "viem";
 
-import { isBera, isBeratoken } from "~/utils/isBeraToken";
 import { SettingsPopover } from "~/components/settings-popover";
 import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
 import { useAddLiquidityUnbalanced } from "@bera/berajs";
-import { useSelectedPool } from "~/hooks/useSelectedPool";
 import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { vaultV2Abi } from "@balancer/sdk";
-import { useReadLocalStorage } from "usehooks-ts";
-import { DEFAULT_DEADLINE, LOCAL_STORAGE_KEYS } from "~/utils/constants";
-import { SELECTION } from "~/components/swap-settings";
 
 interface IAddLiquidityContent {
   shareAddress: Address;
