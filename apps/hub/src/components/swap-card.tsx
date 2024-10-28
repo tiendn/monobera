@@ -537,7 +537,7 @@ export function SwapCard({
                     selected={selectedTo}
                     selectedTokens={[selectedFrom, selectedTo]}
                     onTokenSelection={setSelectedTo}
-                    amount={toAmount ?? "0"}
+                    amount={toAmount ?? ""}
                     price={Number(tokenOutPrice)}
                     hideMax={true}
                     disabled={true}
