@@ -101,8 +101,13 @@ export default function PreviewDialog({
   );
 
   useEffect(() => {
+    // TODO: it would make more sense to calculate these from TokenAmount expectedAmountOut (div by decimals)
+    if (initialSwapInfo) {
+      const upperBoundNumber = initialSwapInfo.expectedAmountOut;
+    }
     const upperBound =
-      (1 + PRICE_CHANGE_THRESHOLD) * Number(initialSwapInfo?.amountInFormatted);
+      (1 + PRICE_CHANGE_THRESHOLD) *
+      Number(initialSwapInfo?.expectedAmountOutFormatted);
     const lowerBound =
       (1 - PRICE_CHANGE_THRESHOLD) *
       Number(initialSwapInfo?.expectedAmountOutFormatted);
