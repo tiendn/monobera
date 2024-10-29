@@ -3,4 +3,4 @@
 	url = https://github.com/berachain/berachain-subgraph.git
 [submodule "packages/b-sdk"]
 	path = packages/b-sdk
-	url = git@github.com:bearpong/b-sdk.git
+	url = https://github.com/bearpong/b-sdk.git
