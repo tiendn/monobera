@@ -1,3 +1,4 @@
+import { beraTokenAddress, chainId } from "@bera/config";
 import {
   Address,
   Path,
@@ -9,8 +10,7 @@ import {
   Token,
   TokenAmount,
   ZERO_ADDRESS,
-} from "@bera/berancer-sdk";
-import { beraTokenAddress, chainId } from "@bera/config";
+} from "@berachain-foundation/berancer-sdk";
 import useSWR from "swr";
 import { formatUnits } from "viem";
 import { usePublicClient } from "wagmi";

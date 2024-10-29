@@ -1,4 +1,7 @@
-import { PoolState, PoolStateWithBalances } from "@bera/berancer-sdk";
+import {
+  PoolState,
+  PoolStateWithBalances,
+} from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 import { useAccount, usePublicClient } from "wagmi";

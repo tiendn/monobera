@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
+import { chainId, jsonRpcUrl } from "@bera/config";
 import {
   AddLiquidityQueryOutput,
   PoolState,
   Slippage,
-} from "@bera/berancer-sdk";
-import { chainId, jsonRpcUrl } from "@bera/config";
+} from "@berachain-foundation/berancer-sdk";
 import { Address, parseUnits } from "viem";
 
 import { AddLiquidity, BalSDK } from "~/actions/dex/b-sdk";

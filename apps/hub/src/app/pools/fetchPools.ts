@@ -1,6 +1,6 @@
 import { PoolWithMethods } from "@balancer-labs/sdk";
-import { PoolState } from "@bera/berancer-sdk";
 import { isIPFS } from "@bera/config";
+import { PoolState } from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 
 export const getPoolUrl = (

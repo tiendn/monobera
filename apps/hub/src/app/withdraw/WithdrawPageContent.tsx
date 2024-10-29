@@ -35,7 +35,10 @@ import { usePublicClient } from "wagmi";
 import { SettingsPopover } from "~/components/settings-popover";
 import { getPoolUrl } from "../pools/fetchPools";
 import { Skeleton } from "@bera/ui/skeleton";
-import { PoolState, PoolStateWithBalances } from "@bera/berancer-sdk";
+import {
+  PoolState,
+  PoolStateWithBalances,
+} from "@berachain-foundation/berancer-sdk";
 import { pools } from "~/utils/constants";
 
 interface ITokenSummary {

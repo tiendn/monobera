@@ -1,16 +1,4 @@
 import {
-  API_CHAIN_NAMES,
-  BALANCER_QUERIES,
-  BALANCER_RELAYER,
-  BalancerApi,
-  CHAINS,
-  COMPOSABLE_STABLE_POOL_FACTORY,
-  NATIVE_ASSETS,
-  Token,
-  VAULT,
-  WEIGHTED_POOL_FACTORY_BALANCER_V2,
-} from "@bera/berancer-sdk";
-import {
   balancerApiUrl,
   balancerQueriesAddress,
   balancerRelayerAddress,
@@ -22,6 +10,18 @@ import {
   gasTokenSymbol,
 } from "@bera/config";
 import { defaultBeraNetworkConfig } from "@bera/wagmi/config";
+import {
+  API_CHAIN_NAMES,
+  BALANCER_QUERIES,
+  BALANCER_RELAYER,
+  BalancerApi,
+  CHAINS,
+  COMPOSABLE_STABLE_POOL_FACTORY,
+  NATIVE_ASSETS,
+  Token,
+  VAULT,
+  WEIGHTED_POOL_FACTORY_BALANCER_V2,
+} from "@berachain-foundation/berancer-sdk";
 
 import { ADDRESS_ZERO } from "~/config";
 
@@ -45,8 +45,16 @@ export const nativeToken = new Token(
 // @ts-expect-error not in network list
 NATIVE_ASSETS[chainId] = nativeToken;
 
-export * as BalSDK from "@bera/berancer-sdk";
-export { Swap, SwapKind, Slippage, AddLiquidity } from "@bera/berancer-sdk";
-export type { SwapBuildCallInput, SwapInput } from "@bera/berancer-sdk";
+export * as BalSDK from "@berachain-foundation/berancer-sdk";
+export {
+  Swap,
+  SwapKind,
+  Slippage,
+  AddLiquidity,
+} from "@berachain-foundation/berancer-sdk";
+export type {
+  SwapBuildCallInput,
+  SwapInput,
+} from "@berachain-foundation/berancer-sdk";
 
 export const balancerApi = new BalancerApi(balancerApiUrl, chainId);

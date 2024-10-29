@@ -40,7 +40,7 @@ import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { vaultV2Abi } from "@bera/berancer-sdk";
+import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
 
 interface IAddLiquidityContent {
   shareAddress: Address;
@@ -125,6 +125,7 @@ export default function AddLiquidityContent({
     actionType: TransactionActionType.ADD_LIQUIDITY,
   });
 
+  console.log({ needsApproval });
   const slippage = useSlippage();
 
   return (
@@ -300,17 +301,17 @@ export default function AddLiquidityContent({
               />
               <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
             </InfoBoxList> */}
-            {needsApproval.length > 0 ? (
-              <>
-                {needsApprovalNoBera.map((token, idx) => (
-                  <ApproveButton
-                    amount={queryOutput?.amountsIn.at(idx)?.amount}
-                    token={token}
-                    spender={balancerVaultAddress}
-                    onApproval={() => refreshAllowances()}
-                  />
-                ))}
-              </>
+            {needsApprovalNoBera.length > 0 ? (
+              <ApproveButton
+                amount={queryOutput?.amountsIn.at(0)?.amount}
+                token={
+                  v3Pool!.tokens.find(
+                    (t) => t.address === needsApprovalNoBera.at(0)!.address,
+                  ) as Token
+                }
+                spender={balancerVaultAddress}
+                onApproval={() => refreshAllowances()}
+              />
             ) : (
               <ActionButton>
                 <Button
