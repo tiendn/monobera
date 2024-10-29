@@ -13,5 +13,9 @@ module.exports = {
       schema: process.env.NEXT_PUBLIC_CHAIN_BLOCKS_SUBGRAPH_URL,
       documents: "./packages/graphql/src/modules/chain/query.ts",
     },
+    balancerApi: {
+      schema: process.env.NEXT_PUBLIC_BALANCER_API_URL,
+      documents: "./packages/b-sdk/**/*.ts",
+    },
   },
 };
