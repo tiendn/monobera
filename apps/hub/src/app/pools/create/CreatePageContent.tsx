@@ -36,13 +36,7 @@ import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import useCreateTokenWeights from "~/hooks/useCreateTokenWeights";
 import { getBaseCost, getQuoteCost } from "../fetchPools";
 import useCreatePool from "~/hooks/useCreatePool";
-import {
-  PriceRange,
-  BeraSdkResponse,
-  initPool,
-  transformLimits,
-  encodeWarmPath,
-} from "@bera/beracrocswap";
+
 import { crocDexAddress } from "@bera/config";
 import { useCrocIsDupePool } from "~/hooks/useCrocIsDupePool";
 
@@ -232,83 +226,7 @@ export default function CreatePageContent() {
   const slippage = useSlippage();
 
   const handleCreatePool = useCallback(async () => {
-    try {
-      let inputLiq;
-      if (isBaseTokenInput) {
-        inputLiq = baseAmount;
-      } else {
-        inputLiq = quoteAmount;
-      }
-
-      const encodedCrocPrice = encodeCrocPrice(
-        getSafeNumber(quoteBasedInitialPrice),
-      );
-      const encodedPriceNumber = encodedCrocPrice;
-      const initialLiquidityAmount = isBaseTokenInput
-        ? calculateBaseTokenAmount(INITIAL_AMOUNT, encodedPriceNumber)
-        : calculateQuoteTokenAmount(INITIAL_AMOUNT, encodedPriceNumber);
-
-      const priceLimits = {
-        min: getSafeNumber(quoteBasedInitialPrice),
-        max: getSafeNumber(quoteBasedInitialPrice),
-      };
-      const limits: PriceRange = [priceLimits.min, priceLimits.max];
-
-      const initPoolInfo: BeraSdkResponse = initPool(
-        Number(quoteBasedInitialPrice),
-        baseToken as Token,
-        quoteToken as Token,
-        Number(poolId),
-      );
-
-      const bnLiquidity = parseUnits(
-        inputLiq ?? "0",
-        isBaseTokenInput
-          ? (baseToken?.decimals as number)
-          : (quoteToken?.decimals as number),
-      );
-
-      const transformedLimits = transformLimits(
-        limits,
-        baseToken?.decimals as number,
-        quoteToken?.decimals as number,
-      );
-
-      const mintCalldata = await encodeWarmPath(
-        baseToken?.address as string,
-        quoteToken?.address as string,
-        Number(poolId) === POOLID.STABLE
-          ? isBaseTokenInput
-            ? 11
-            : 12
-          : isBaseTokenInput
-            ? 31
-            : 32,
-        0,
-        0,
-        ((bnLiquidity - initialLiquidityAmount) * BigInt(999)) / BigInt(1000),
-        transformedLimits[0],
-        transformedLimits[1],
-        0,
-        Number(poolId),
-        undefined, // undefined because we dont know the shareAddress
-      );
-
-      const multiPathArgs = [2, 3, initPoolInfo.calldata, 128, mintCalldata];
-
-      const multiCmd = encodeAbiParameters(
-        parseAbiParameters("uint8, uint8, bytes, uint8, bytes"),
-        multiPathArgs as any[5],
-      );
-      write({
-        address: crocDexAddress,
-        abi: bexAbi,
-        functionName: "userCmd",
-        params: [6, multiCmd],
-      });
-    } catch (error) {
-      console.error("Error creating pool:", error);
-    }
+    return;
   }, [
     baseToken,
     quoteToken,

@@ -15,32 +15,6 @@ export enum TXN_GAS_USED_ESTIMATES {
   SIMPLE = 25000,
 }
 
-const getGeneralGasEstimate = async (
-  publicClient: ReturnType<typeof usePublicClient>,
-  gasUsedOverride?: number,
-) => {
-  const feesPerGasEstimate = await publicClient?.estimateFeesPerGas();
-  const gas = gasUsedOverride
-    ? BigInt(gasUsedOverride)
-    : await publicClient?.estimateGas({
-        account: nativeTokenAddress,
-        to: crocMultiSwapAddress,
-        value: parseEther("1"),
-      });
-  const estimatedTxFeeInBera =
-    feesPerGasEstimate?.maxPriorityFeePerGas &&
-    gas &&
-    parseFloat(`${feesPerGasEstimate.maxPriorityFeePerGas * gas}`);
-
-  return estimatedTxFeeInBera
-    ? {
-        estimatedTxFeeInBera: parseFloat(
-          formatEther(BigInt(estimatedTxFeeInBera)),
-        ),
-      }
-    : undefined;
-};
-
 const getContractGasEstimate = async (
   publicClient: ReturnType<typeof usePublicClient>,
   contractArgs: any,
@@ -87,35 +61,9 @@ export const useGasData = ({
   >();
 
   useEffect(() => {
-    if (contractArgs === undefined) {
-      getGeneralGasEstimate(publicClient, gasUsedOverride)
-        .then((res: { estimatedTxFeeInBera: number } | undefined) => {
-          if (!res) {
-            throw new Error("failed to get general gas estimate");
-          }
-          setEstimatedBeraFee(res.estimatedTxFeeInBera);
-        })
-        .catch();
-      return;
-    }
-    getContractGasEstimate(publicClient, contractArgs, gasUsedOverride)
-      .then((res: { estimatedTxFeeInBera: number } | undefined) => {
-        if (!res) {
-          throw new Error("failed to get contract gas estimate");
-        }
-        setEstimatedBeraFee(res?.estimatedTxFeeInBera);
-      })
-      .catch((e: unknown) => {
-        setEstimatedBeraFee(undefined);
-
-        const isFalseAlarm =
-          `${e}`.includes("Unable to decode signature") ||
-          `${e}`.includes("insufficient allowance");
-
-        if (!isFalseAlarm) {
-          console.error("useGasData: ", e);
-        }
-      });
+    throw new Error(
+      "failed to get general gas estimate. this was used with crocswap",
+    );
   }, [contractArgs]);
 
   return { estimatedBeraFee };

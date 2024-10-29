@@ -93,7 +93,6 @@ To run Hub for example, run `pnpm i && pnpm dev:hub`
 | `packages/proto`        | A package to generate e2e typing & protobuf for interacting with Cosmos-SDK                               |
 | `packages/shared-ui`    | A package of built UI widgets made from `packages/ui` component                                           |
 | `packages/ui`           | A package of [shadcn](https://ui.shadcn.com/) components                                                  |
-| `packages/beracrocswap` | A forked version of [CrocSwap SDK](https://github.com/CrocSwap/sdk) to work better with `packages/berajs` |
 
 
 

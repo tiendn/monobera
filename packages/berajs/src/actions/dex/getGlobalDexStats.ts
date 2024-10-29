@@ -1,4 +1,4 @@
-import { chainId, crocIndexerEndpoint } from "@bera/config";
+import { chainId } from "@bera/config";
 
 import { BeraConfig } from "~/types";
 
@@ -21,7 +21,7 @@ export const getGlobalDexStats = (
   return new Promise((res, rej) =>
     fetch(
       `${
-        config?.endpoints?.dexIndexer ?? crocIndexerEndpoint
+        config?.endpoints?.dexIndexer
       }/v2/global_stats?chainId=0x${chainId.toString(16)}`,
     )
       .then((response) => response.json())

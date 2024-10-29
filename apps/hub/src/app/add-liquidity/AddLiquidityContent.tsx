@@ -12,16 +12,10 @@ import {
   usePool,
   type Token,
 } from "@bera/berajs";
-import {
-  balancerVaultAddress,
-  beraTokenAddress,
-  cloudinaryUrl,
-  crocDexAddress,
-} from "@bera/config";
+import { balancerVaultAddress, cloudinaryUrl } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
-  FormattedNumber,
   InfoBoxList,
   InfoBoxListItem,
   PreviewToken,

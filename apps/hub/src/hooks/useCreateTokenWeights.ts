@@ -35,9 +35,9 @@ export const SWAPFEE = {
 
 /**
  *
+ * @deprecated delete this and start from scratch
  * @brief A state management hook for preparing the creation of a new pool
  */
-
 const useCreateTokenWeights = () => {
   const [error, setError] = useState<Error | undefined>(undefined);
 
@@ -59,16 +59,14 @@ const useCreateTokenWeights = () => {
   const [baseAmount, setBaseAmount] = useState<string>("");
   const [quoteAmount, setQuoteAmount] = useState<string>("");
 
-  const tokenACrocToken = useCrocToken(tokenA);
-  const tokenBCrocToken = useCrocToken(tokenB);
-  const crocPool = useCrocPoolFromTokens(tokenACrocToken, tokenBCrocToken);
+  const crocPool = useCrocPoolFromTokens();
 
   const baseToken = useMemo(() => {
-    return tokenA?.address === crocPool?.baseToken.tokenAddr ? tokenA : tokenB;
+    return tokenA;
   }, [JSON.stringify(crocPool)]);
 
   const quoteToken = useMemo(() => {
-    return tokenB?.address === crocPool?.quoteToken.tokenAddr ? tokenB : tokenA;
+    return tokenB;
   }, [JSON.stringify(crocPool)]);
 
   const baseTokenBalance = useSelectedWalletBalance(baseToken?.address ?? "0x");
