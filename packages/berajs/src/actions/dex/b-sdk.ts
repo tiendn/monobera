@@ -9,7 +9,7 @@ import {
   Token,
   VAULT,
   WEIGHTED_POOL_FACTORY_BALANCER_V2,
-} from "@balancer/sdk";
+} from "@bera/berancer-sdk";
 import {
   balancerApiUrl,
   balancerQueriesAddress,
@@ -26,7 +26,6 @@ import { defaultBeraNetworkConfig } from "@bera/wagmi/config";
 import { ADDRESS_ZERO } from "~/config";
 
 API_CHAIN_NAMES[chainId] = "BARTIO";
-// @ts-expect-error not in network list
 CHAINS[chainId] = defaultBeraNetworkConfig.chain;
 BALANCER_RELAYER[chainId] = balancerRelayerAddress;
 VAULT[chainId] = balancerVaultAddress;
@@ -46,8 +45,8 @@ export const nativeToken = new Token(
 // @ts-expect-error not in network list
 NATIVE_ASSETS[chainId] = nativeToken;
 
-export * as BalSDK from "@balancer/sdk";
-export { Swap, SwapKind, Slippage, AddLiquidity } from "@balancer/sdk";
-export type { SwapBuildCallInput, SwapInput } from "@balancer/sdk";
+export * as BalSDK from "@bera/berancer-sdk";
+export { Swap, SwapKind, Slippage, AddLiquidity } from "@bera/berancer-sdk";
+export type { SwapBuildCallInput, SwapInput } from "@bera/berancer-sdk";
 
 export const balancerApi = new BalancerApi(balancerApiUrl, chainId);

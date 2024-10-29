@@ -1,3 +1,6 @@
 [submodule "packages/graphql/submodules/berachain-subgraph"]
 	path = packages/graphql/submodules/berachain-subgraph
 	url = https://github.com/berachain/berachain-subgraph.git
+[submodule "packages/b-sdk"]
+	path = packages/b-sdk
+	url = git@github.com:bearpong/b-sdk.git

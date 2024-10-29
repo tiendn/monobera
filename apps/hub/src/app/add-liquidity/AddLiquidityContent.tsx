@@ -46,7 +46,7 @@ import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { vaultV2Abi } from "@balancer/sdk";
+import { vaultV2Abi } from "@bera/berancer-sdk";
 
 interface IAddLiquidityContent {
   shareAddress: Address;

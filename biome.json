@@ -11,6 +11,7 @@
       ".next",
       "**/next/**",
       "beracrocswap/*",
+      "b-sdk/*",
       "./apps/perp/public/static/**",
       "**/public/**",
       "ui/",

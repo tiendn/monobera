@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  AddLiquidityBuildCallOutput,
   AddLiquidityQueryOutput,
   PoolState,
-  QueryOutputBase,
   Slippage,
-  parseAddLiquidityArgs,
-} from "@balancer/sdk";
+} from "@bera/berancer-sdk";
 import { chainId, jsonRpcUrl } from "@bera/config";
 import { Address, parseUnits } from "viem";
 

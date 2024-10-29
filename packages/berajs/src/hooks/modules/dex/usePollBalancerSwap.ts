@@ -9,7 +9,7 @@ import {
   Token,
   TokenAmount,
   ZERO_ADDRESS,
-} from "@balancer/sdk";
+} from "@bera/berancer-sdk";
 import { beraTokenAddress, chainId } from "@bera/config";
 import useSWR from "swr";
 import { formatUnits } from "viem";

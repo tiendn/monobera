@@ -1,5 +1,5 @@
 import { PoolWithMethods } from "@balancer-labs/sdk";
-import { PoolState } from "@balancer/sdk";
+import { PoolState } from "@bera/berancer-sdk";
 import { isIPFS } from "@bera/config";
 import BigNumber from "bignumber.js";
 
