@@ -13,6 +13,7 @@ describe('Format Input Token Value', () => {
   test('should return "0" for null or undefined input', () => {
     expect(formatInputTokenValue(null as any)).toBe("0");
     expect(formatInputTokenValue(undefined as any)).toBe("0");
+    expect(formatInputTokenValue("" as any)).toBe("0");
   });
 
   test('should handle numeric input correctly', () => {
