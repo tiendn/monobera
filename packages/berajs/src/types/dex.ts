@@ -27,6 +27,7 @@ export interface SwapRequest {
   tokenOutDecimals: number;
   amount: string;
   isWrap: boolean;
+  wberaIsBera: boolean;
 }
 
 export interface AddLiquidityRequest {

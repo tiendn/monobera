@@ -25,7 +25,6 @@ import { type Address } from "viem";
 
 import { isBeratoken } from "~/utils/isBeraToken";
 
-// const QUOTING_TOKEN = honeyTokenAddress;
 interface UseSwapArguments {
   inputCurrency?: string | undefined;
   outputCurrency?: string | undefined;
@@ -146,6 +145,9 @@ export const useSwap = ({
       tokenOutDecimals: selectedTo?.decimals ?? 18,
       amount: swapAmount,
       isWrap,
+      wberaIsBera:
+        selectedTo?.address === nativeTokenAddress ||
+        selectedFrom?.address === nativeTokenAddress, // aka if we have BERA in i/o we want vault to handle the wrapping
     },
     {
       opts: {

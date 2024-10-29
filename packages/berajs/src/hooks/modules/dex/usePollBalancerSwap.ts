@@ -61,7 +61,7 @@ function getEmptyResponse(): SwapInfoV4 {
         callData: "0x",
         value: BigInt(0),
         minAmountOut: TokenAmount.fromHumanAmount(nativeToken, "0"),
-      }) as SwapBuildOutputExactIn,
+      } as SwapBuildOutputExactIn),
   };
 }
 
@@ -88,6 +88,7 @@ export const usePollBalancerSwap = (
     tokenInDecimals,
     tokenOutDecimals,
     isWrap, // NOTE: this will effectively mean we do not execute the query as wrapping is distinct from swapping.
+    wberaIsBera, // NOTE: if true we will do wrapping in vault contract.
   } = args;
 
   const publicClient = usePublicClient();
@@ -103,7 +104,7 @@ export const usePollBalancerSwap = (
     !tokenOut ||
     !tokenInDecimals ||
     !tokenOutDecimals ||
-    isWrap || // NOTE: we dont do a query when we are doing wrapping, price is always 1:1 and its done differently.
+    isWrap || // NOTE: we dont do a query when we are doing a straight wrap, price is always 1:1 and its done differently.
     isZero(amount) || // TODO: it would be nice to strengthen the string formatting for inputs
     options?.isTyping
       ? null // Prevent fetching when required data is missing
@@ -119,6 +120,7 @@ export const usePollBalancerSwap = (
         if (!publicClient || !account || !config) {
           throw new Error("Missing public client, account, or config");
         }
+        // NOTE: when we are finding paths we need to use always ERC20 (wrapped) addresses.
         const tokenInV3 = new Token(
           chainId,
           convertZeroToWrapped(tokenIn),
@@ -193,7 +195,7 @@ export const usePollBalancerSwap = (
               queryOutput,
               sender: account,
               recipient: account,
-              wethIsEth: true, // NOTE: this converts i/o wrapped addresses back to 0x0 for on-chain txs (see b-sdk.ts config)
+              wethIsEth: wberaIsBera,
             }),
         } satisfies SwapInfoV4;
       } catch (e: any) {
