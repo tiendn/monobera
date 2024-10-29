@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { usePollAllowances, type Token } from "@bera/berajs";
 import { parseUnits } from "viem";
 
-import { type ITokenWeight } from "~/hooks/useCreateTokenWeights";
-
 const useCreatePool = ({
   baseToken,
   quoteToken,

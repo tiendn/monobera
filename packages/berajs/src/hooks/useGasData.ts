@@ -54,17 +54,15 @@ export const useGasData = ({
   contractArgs?: EstimateContractGasParameters<any> | null;
   gasUsedOverride?: number;
 } = {}): UseGasDataReturnType => {
-  const publicClient = usePublicClient();
-
   const [estimatedBeraFee, setEstimatedBeraFee] = useState<
     number | undefined
   >();
 
   useEffect(() => {
-    throw new Error(
+    console.error(
       "failed to get general gas estimate. this was used with crocswap",
     );
-  }, [contractArgs]);
+  }, []);
 
   return { estimatedBeraFee };
 };

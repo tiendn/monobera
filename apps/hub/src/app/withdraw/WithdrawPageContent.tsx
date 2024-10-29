@@ -12,7 +12,7 @@ import {
   usePoolUserPosition,
   type Token,
 } from "@bera/berajs";
-import { cloudinaryUrl, crocDexAddress } from "@bera/config";
+import { cloudinaryUrl } from "@bera/config";
 import {
   ActionButton,
   FormattedNumber,
