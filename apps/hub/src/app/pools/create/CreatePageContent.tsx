@@ -1,6 +1,10 @@
 "use client";
 
-import { getSafeNumber, POOLID, TransactionActionType } from "@bera/berajs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { PoolType, PoolWithMethods } from "@balancer-labs/sdk";
+import { TransactionActionType, type Token } from "@bera/berajs";
+import { balancerVaultAddress } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -14,18 +18,65 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { Input } from "@bera/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { parseUnits } from "viem";
 
-const INITIAL_AMOUNT = 11000n;
+import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
+import CreatePoolInput from "~/components/create-pool/create-pool-input";
+import { usePools } from "~/b-sdk/usePools";
 
 export default function CreatePageContent() {
   const router = useRouter();
-
   const { captureException, track } = useAnalytics();
 
+  const [tokens, setTokens] = useState<Token[]>([]); // NOTE: functionally max is 3 tokens
+  const [poolType, setPoolType] = useState<PoolType>(PoolType.Stable);
+  const [baseAmount, setBaseAmount] = useState<string>("");
+  const [quoteAmounts, setQuoteAmounts] = useState<string[]>([]);
+  const [needsApproval, setNeedsApproval] = useState<Token[]>([]);
+  const [isDupePool, setIsDupePool] = useState<boolean>(false);
+  const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [enableLiquidityInput, setEnableLiquidityInput] =
+    useState<boolean>(false);
+
+  const slippage = useSlippage();
+
+  const [baseToken, quoteTokens] = useMemo(() => {
+    return [tokens[0], tokens.slice(1)];
+  }, [tokens]);
+
+  const handleTokenSelection = (token: Token | null, index: number) => {
+    setTokens((prevTokens) => {
+      const updatedTokens = [...prevTokens];
+      updatedTokens[index] = token;
+      return updatedTokens;
+    });
+  };
+
+  const handleBaseAssetAmountChange = (amount: string) => {
+    setBaseAmount(amount);
+  };
+
+  const handleQuoteAssetAmountChange = (amount: string, index: number) => {
+    setQuoteAmounts((prev) => {
+      const newAmounts = [...prev];
+      newAmounts[index] = amount;
+      return newAmounts;
+    });
+  };
+
+  const {
+    data: pools,
+    isLoading: isLoadingPools,
+    error: errorLoadingPools,
+  } = usePools();
+  useEffect(() => {
+    if (!isLoadingPools) {
+      console.log("POOLS LOADED:", pools);
+    }
+  }, [pools]);
+
+  // FIXME: untested
   const { write, ModalPortal } = useTxn({
     message: "Create new pool",
     onSuccess: () => {
@@ -40,15 +91,100 @@ export default function CreatePageContent() {
     },
     actionType: TransactionActionType.CREATE_POOL,
   });
-
-  const slippage = useSlippage();
-
   const handleCreatePool = useCallback(async () => {
-    return;
+    console.log("CREATING POOL FIXME");
+    return; // FIXME
   }, [slippage, write]);
 
+  // check for duplicates
+  useEffect(() => {
+    if (!baseToken || !quoteTokens.length) return;
+    if (isLoadingPools) return;
+
+    const isDupe = pools?.find((pool) => {
+      const hasAllTokens = [baseToken, ...quoteTokens].every((token) =>
+        pool?.tokenAddresses?.includes(token?.address.toLowerCase()),
+      );
+      if (hasAllTokens && pool?.poolType === poolType) {
+        setDupePool(pool);
+        return true;
+      }
+      setDupePool(null);
+      return false;
+    });
+
+    setIsDupePool(!!isDupe);
+  }, [baseToken, quoteTokens, pools, isLoadingPools]);
+
+  // FIXME: we need to raise if the amount exceeds balance as an error message
+
+  // update the form state if the user changes the pool type (i.e. let them input liquidity again)
+  useEffect(() => {
+    const requiredQuoteTokensLength = poolType === PoolType.Weighted ? 3 : 2;
+    setTokens((prevTokens) => {
+      if (
+        prevTokens.length !== requiredQuoteTokensLength ||
+        prevTokens.some(
+          (token, index) =>
+            index >= requiredQuoteTokensLength && token !== null,
+        )
+      ) {
+        const updatedTokens = [
+          ...prevTokens.slice(0, requiredQuoteTokensLength),
+        ];
+        while (updatedTokens.length < requiredQuoteTokensLength) {
+          updatedTokens.push(null);
+        }
+        return updatedTokens;
+      }
+      return prevTokens;
+    });
+
+    setQuoteAmounts((prevAmounts) => {
+      const requiredQuoteAmountsLength = requiredQuoteTokensLength - 1;
+      if (
+        prevAmounts.length !== requiredQuoteAmountsLength ||
+        prevAmounts.some(
+          (amount, index) =>
+            index >= requiredQuoteAmountsLength && amount !== "",
+        )
+      ) {
+        const updatedAmounts = [
+          ...prevAmounts.slice(0, requiredQuoteAmountsLength),
+        ];
+        while (updatedAmounts.length < requiredQuoteAmountsLength) {
+          updatedAmounts.push("");
+        }
+        return updatedAmounts;
+      }
+      return prevAmounts;
+    });
+
+    // Determine if liquidity input should be enabled
+    if (
+      baseToken &&
+      tokens.length === requiredQuoteTokensLength &&
+      tokens.every((token) => token) &&
+      !isLoadingPools &&
+      !isDupePool &&
+      !errorLoadingPools
+    ) {
+      setEnableLiquidityInput(true);
+    } else {
+      setEnableLiquidityInput(false);
+    }
+  }, [
+    baseToken,
+    tokens,
+    quoteAmounts,
+    poolType,
+    isLoadingPools,
+    isDupePool,
+    errorLoadingPools,
+  ]);
+
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-8 max-w-[600px]">
+    <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
       {ModalPortal}
       <Button
         variant={"ghost"}
@@ -60,181 +196,214 @@ export default function CreatePageContent() {
         <div className="text-sm font-medium">All Pools</div>
       </Button>
       <div className="flex w-full flex-col items-center justify-center gap-16">
-        <section className="w-full flex flex-col gap-4">
-          <h1 className="text-3xl font-semibold self-start">Creating a pool</h1>
-          <div className="w-full flex flex-row gap-6">
-            {/* <CreatePoolInput
-              key={0}
-              token={tokenA}
-              selectedTokens={[tokenA, tokenB] as Token[]}
-              onTokenSelection={setTokenA}
-            />
-            <CreatePoolInput
-              key={1}
-              token={tokenB}
-              selectedTokens={[tokenA, tokenB] as Token[]}
-              onTokenSelection={setTokenB}
-            /> */}
-          </div>
-        </section>
-
-        <section className="w-full flex flex-col gap-4">
-          <h1 className="text-3xl font-semibold self-start">
-            Select a pair type
+        <section className="flex w-full flex-col gap-4">
+          <h1 className="self-start text-3xl font-semibold">
+            Select a Pool Type
           </h1>
-
-          <div className="w-full flex flex-row gap-6">
+          <div className="flex w-full flex-row gap-6">
             <Card
-              // onClick={() => setPoolId(POOLID.AMBIENT)}
+              onClick={() => setPoolType(PoolType.Stable)}
               className={cn(
-                "p-4 flex flex-col gap-0 w-full border-2",
-                // poolId === POOLID.AMBIENT && "border-sky-600",
+                "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
+                poolType === PoolType.Stable && "border-sky-600",
               )}
             >
-              <span className="text-lg font-semibold">Ambient</span>
-              <span className="text-sm text-muted-foreground mt-[-4px]">
-                Recommended for volatile pairs
-              </span>
-              <span className="text-sm text-muted-foreground mt-[24px]">
-                Fee: <span className="text-foreground font-medium">0.3%</span>
-              </span>
-            </Card>
-            <Card
-              // onClick={() => setPoolId(POOLID.STABLE)}
-              className={cn(
-                "p-4 flex flex-col gap-0 w-full border-2 opacity-50 cursor-not-allowed",
-                // poolId === POOLID.STABLE && "border-sky-600",
-              )}
-            >
-              <span className="text-lg font-semibold">
-                Stable (coming soon)
-              </span>
-              <span className="text-sm text-muted-foreground mt-[-4px]">
+              <span className="text-lg font-semibold">Stable</span>
+              <span className="mt-[-4px] text-sm text-muted-foreground">
                 Recommended for stable pairs
               </span>
-              <span className="text-sm text-muted-foreground mt-[24px]">
-                Fee: <span className="text-foreground font-medium">0.01%</span>
+              <span className="mt-[24px] text-sm text-muted-foreground">
+                Fee: <span className="font-medium text-foreground">0.01%</span>
+              </span>
+            </Card>
+            <Card
+              onClick={() => setPoolType(PoolType.Weighted)}
+              className={cn(
+                "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
+                poolType === PoolType.Weighted && "border-sky-600",
+              )}
+            >
+              <span className="text-lg font-semibold">Weighted</span>
+              <span className="mt-[-4px] text-sm text-muted-foreground">
+                Customize the weights of tokens
+              </span>
+              <span className="mt-[24px] text-sm text-muted-foreground">
+                Fee: <span className="font-medium text-foreground">0.01%</span>
+              </span>
+            </Card>
+            <Card
+              onClick={() => setPoolType(PoolType.MetaStable)}
+              className={cn(
+                "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
+                poolType === PoolType.MetaStable && "border-sky-600",
+              )}
+            >
+              <span className="text-lg font-semibold">MetaStable</span>
+              <span className="mt-[-4px] text-sm text-muted-foreground">
+                The most efficient pool type for two highly correlated tokens
+              </span>
+              <span className="mt-[24px] text-sm text-muted-foreground">
+                Fee: <span className="font-medium text-foreground">0.01%</span>
               </span>
             </Card>
           </div>
         </section>
 
-        {/* {isDupePool && (
+        <section className="flex w-full flex-col gap-4">
+          <h1 className="self-start text-3xl font-semibold">Select Tokens</h1>
+          <div className="flex w-full flex-col gap-6">
+            <CreatePoolInput
+              token={tokens[0]}
+              selectedTokens={tokens}
+              onTokenSelection={(token) => handleTokenSelection(token, 0)}
+            />
+            {poolType === PoolType.Weighted && (
+              <>
+                <CreatePoolInput
+                  token={tokens[1]}
+                  selectedTokens={tokens}
+                  onTokenSelection={(token) => handleTokenSelection(token, 1)}
+                />
+                <CreatePoolInput
+                  token={tokens[2]}
+                  selectedTokens={tokens}
+                  onTokenSelection={(token) => handleTokenSelection(token, 2)}
+                />
+              </>
+            )}
+            {poolType === PoolType.Stable && (
+              <CreatePoolInput
+                token={tokens[1]}
+                selectedTokens={tokens}
+                onTokenSelection={(token) => handleTokenSelection(token, 1)}
+              />
+            )}
+          </div>
+        </section>
+
+        {isDupePool && (
           <Alert variant="destructive">
-            <AlertTitle>Similar Pools Already Exist</AlertTitle>
-            <AlertDescription>
-              Please note that creating this pool will not be possible; consider
-              adding liquidity to an existing pool instead.
+            <AlertTitle>Similar Pool Already Exists</AlertTitle>
+            <AlertDescription className="space-y-4">
+              <p>
+                Please note that creating this pool will not be possible;
+                consider adding liquidity to an existing pool instead.
+              </p>
+              <a
+                href={`/pools/${dupePool?.id}/`}
+                className="text-sky-600 underline"
+              >
+                Similar pool
+              </a>
             </AlertDescription>
           </Alert>
-        )} */}
-
-        {/* {isDupePoolLoading && tokenA && tokenB && (
-          <div className="flex flex-row items-center text-2xl font-medium gap-2 justify-start w-full">
-            <SSRSpinner size={10} /> Checking for duplicate pools.
-          </div>
-        )} */}
-
-        {POOLID.AMBIENT && (
-          <section
-            className={cn(
-              "w-full flex flex-col gap-4",
-              // setPriceSectionDisabled && "opacity-25 pointer-events-none",
-            )}
-          >
-            <h1 className="text-3xl font-semibold self-start ">Set Price</h1>
-            {/* {!setPriceSectionDisabled && (
-              <div>
-                <span className="text-sm text-muted-foreground">
-                  Denominate in
-                </span>
-                <Tabs defaultValue="base">
-                  <TabsList
-                    className="grid w-fit grid-cols-2 bg-none"
-                    variant="ghost"
-                  >
-                    <TabsTrigger
-                      value="base"
-                      onClick={() => setIsPriceBase(true)}
-                    >
-                      {baseToken?.symbol}
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="quote"
-                      onClick={() => setIsPriceBase(false)}
-                    >
-                      {quoteToken?.symbol}
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            )} */}
-            <div className="rounded-sm border-border border p-2">
-              {/* <Input
-                value={initialPrice}
-                onChange={(e) => setInitialPrice(e.target.value)}
-                type="number-enhanced"
-                className="border-none bg-transparent text-3xl font-semibold p-0"
-              />
-              {!setPriceSectionDisabled && (
-                <span className="text-sm text-muted-foreground font-medium">
-                  {isPriceBase
-                    ? `${baseToken?.symbol} per ${quoteToken?.symbol}`
-                    : `${quoteToken?.symbol} per ${baseToken?.symbol}`}
-                </span>
-              )} */}
-            </div>
-          </section>
         )}
+
         <section
           className={cn(
-            "w-full flex flex-col gap-4",
-            // setInitialLiquiditySectionDisabled &&
-            //   "opacity-25 pointer-events-none",
+            "flex w-full flex-col gap-10",
+            !enableLiquidityInput && "pointer-events-none opacity-25",
           )}
         >
-          <h1 className="text-3xl font-semibold self-start">
-            Initial Liquidity
+          <h1 className="self-start text-3xl font-semibold">
+            Set Initial Liquidity
           </h1>
           <div className="flex flex-col gap-4">
             <ul className="divide divide-y divide-border rounded-lg border">
-              {/* <CreatePoolInitialLiquidityInput
-                disabled={false}
+              <CreatePoolInitialLiquidityInput
+                disabled={!enableLiquidityInput}
                 key={0}
                 token={baseToken as Token}
                 tokenAmount={baseAmount}
                 onTokenBalanceChange={handleBaseAssetAmountChange}
               />
-              <CreatePoolInitialLiquidityInput
-                disabled={false}
-                key={1}
-                token={quoteToken as Token}
-                tokenAmount={quoteAmount}
-                onTokenBalanceChange={handleQuoteAssetAmountChange}
-              /> */}
+              {quoteTokens.map((token, index) => (
+                <CreatePoolInitialLiquidityInput
+                  disabled={!enableLiquidityInput}
+                  key={index + 1}
+                  token={token as Token}
+                  tokenAmount={quoteAmounts[index] || ""}
+                  onTokenBalanceChange={(amount) =>
+                    handleQuoteAssetAmountChange(amount, index)
+                  }
+                />
+              ))}
             </ul>
           </div>
-          {
+
+          {errorMessage && (
             <Alert variant="destructive" className="my-4">
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>Error message</AlertDescription>
+              <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
-          }
+          )}
+
+          {/*  FIXME: Set Swap Fee section */}
+          <section className="flex w-full flex-col gap-10">
+            <h1 className="self-start text-3xl font-semibold">Set Swap Fee</h1>
+            <div className="flex flex-col gap-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
+                <span className="text-lg font-semibold">Swap Fee</span>
+                <span className="mt-[-4px] text-sm text-muted-foreground">
+                  Fee charged on each swap
+                </span>
+                <span className="mt-[24px] text-sm text-muted-foreground">
+                  Fee:{" "}
+                  <span className="font-medium text-foreground">0.01%</span>
+                </span>
+              </Card>
+            </div>
+          </section>
+
+          {/* FIXME: pool name and pool symbol input */}
+          <section className="flex w-full flex-col gap-10">
+            <p className="self-start text-3xl font-semibold">Pool Name</p>
+            <div className="flex flex-col gap-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
+                <span className="text-lg font-semibold">Pool Name</span>
+                <span className="mt-[-4px] text-sm text-muted-foreground">
+                  Name of the pool
+                </span>
+              </Card>
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
+                <span className="text-lg font-semibold">Pool Symbol</span>
+                <span className="mt-[-4px] text-sm text-muted-foreground">
+                  Symbol
+                </span>
+              </Card>
+            </div>
+          </section>
 
           {
-            // should be nees Approval
-            INITIAL_AMOUNT ? (
+            // Handle approvals for each token before creating the pool
+            baseAmount && quoteAmounts.length ? (
               <ActionButton>
-                {/* <ApproveButton
-                amount={parseUnits(
-                  baseToken?.address === needsApproval[0]?.address
-                    ? baseAmount
-                    : quoteAmount,
-                  needsApproval[0]?.decimals ?? 18,
-                )}
-                token={needsApproval[0]}
-                onApproval={() => refreshAllowances()}
-              /> */}
+                {needsApproval.map((token, index) => (
+                  <ApproveButton
+                    key={token.address}
+                    amount={parseUnits(
+                      token.address === baseToken?.address
+                        ? baseAmount
+                        : quoteAmounts[index] || "0",
+                      token.decimals ?? 18,
+                    )}
+                    spender={balancerVaultAddress}
+                    token={token}
+                    onApproval={() => {
+                      // Remove token from needsApproval once approved
+                      setNeedsApproval((prev) =>
+                        prev.filter((t) => t.address !== token.address),
+                      );
+                    }}
+                  />
+                ))}
+                <Button
+                  disabled={needsApproval.length > 0}
+                  className="mt-4 w-full"
+                  onClick={() => handleCreatePool()}
+                >
+                  Create Pool
+                </Button>
               </ActionButton>
             ) : (
               <ActionButton>
