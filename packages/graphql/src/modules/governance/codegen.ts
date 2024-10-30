@@ -354,7 +354,6 @@ export enum ExecutableCall_OrderBy {
   ProposalExecutableAtBlock = "proposal__executableAtBlock",
   ProposalExecutedAt = "proposal__executedAt",
   ProposalExecutedAtBlock = "proposal__executedAtBlock",
-  ProposalForumLink = "proposal__forumLink",
   ProposalId = "proposal__id",
   ProposalProposalId = "proposal__proposalId",
   ProposalProposer = "proposal__proposer",
@@ -365,6 +364,8 @@ export enum ExecutableCall_OrderBy {
   ProposalStatus = "proposal__status",
   ProposalTimelockId = "proposal__timelockId",
   ProposalTitle = "proposal__title",
+  ProposalUnparsedDescription = "proposal__unparsedDescription",
+  ProposalUnverifiedForumLink = "proposal__unverifiedForumLink",
   ProposalVoteEndBlock = "proposal__voteEndBlock",
   ProposalVoteStartBlock = "proposal__voteStartBlock",
   Signature = "signature",
@@ -583,7 +584,6 @@ export type Proposal = {
   executableCalls: Array<ExecutableCall>;
   executedAt?: Maybe<Scalars["BigInt"]["output"]>;
   executedAtBlock?: Maybe<Scalars["BigInt"]["output"]>;
-  forumLink?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   pollResult: PollResult;
   proposalId: Scalars["BigInt"]["output"];
@@ -596,6 +596,8 @@ export type Proposal = {
   timelockId?: Maybe<Scalars["Bytes"]["output"]>;
   title?: Maybe<Scalars["String"]["output"]>;
   topics: Array<Scalars["String"]["output"]>;
+  unparsedDescription: Scalars["String"]["output"];
+  unverifiedForumLink?: Maybe<Scalars["String"]["output"]>;
   voteEndBlock: Scalars["BigInt"]["output"];
   voteStartBlock: Scalars["BigInt"]["output"];
   votes: Array<Vote>;
@@ -753,26 +755,6 @@ export type Proposal_Filter = {
   executedAt_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
   executedAt_not?: InputMaybe<Scalars["BigInt"]["input"]>;
   executedAt_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
-  forumLink?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_contains?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_ends_with?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_gt?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_gte?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  forumLink_lt?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_lte?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not_contains?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not_ends_with?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  forumLink_not_starts_with?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_not_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_starts_with?: InputMaybe<Scalars["String"]["input"]>;
-  forumLink_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
   id?: InputMaybe<Scalars["ID"]["input"]>;
   id_gt?: InputMaybe<Scalars["ID"]["input"]>;
   id_gte?: InputMaybe<Scalars["ID"]["input"]>;
@@ -893,6 +875,62 @@ export type Proposal_Filter = {
   topics_not?: InputMaybe<Array<Scalars["String"]["input"]>>;
   topics_not_contains?: InputMaybe<Array<Scalars["String"]["input"]>>;
   topics_not_contains_nocase?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  unparsedDescription?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_contains?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_gt?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_gte?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  unparsedDescription_lt?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_lte?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_not?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_not_contains?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_not_contains_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unparsedDescription_not_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_not_ends_with_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unparsedDescription_not_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  unparsedDescription_not_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_not_starts_with_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unparsedDescription_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  unparsedDescription_starts_with_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unverifiedForumLink?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_contains?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_gt?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_gte?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  unverifiedForumLink_lt?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_lte?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_not?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_not_contains?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_not_contains_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unverifiedForumLink_not_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_not_ends_with_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unverifiedForumLink_not_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  unverifiedForumLink_not_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_not_starts_with_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
+  unverifiedForumLink_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  unverifiedForumLink_starts_with_nocase?: InputMaybe<
+    Scalars["String"]["input"]
+  >;
   voteEndBlock?: InputMaybe<Scalars["BigInt"]["input"]>;
   voteEndBlock_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
   voteEndBlock_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
@@ -924,7 +962,6 @@ export enum Proposal_OrderBy {
   ExecutableCalls = "executableCalls",
   ExecutedAt = "executedAt",
   ExecutedAtBlock = "executedAtBlock",
-  ForumLink = "forumLink",
   Id = "id",
   PollResult = "pollResult",
   PollResultAbstain = "pollResult__abstain",
@@ -950,6 +987,8 @@ export enum Proposal_OrderBy {
   TimelockId = "timelockId",
   Title = "title",
   Topics = "topics",
+  UnparsedDescription = "unparsedDescription",
+  UnverifiedForumLink = "unverifiedForumLink",
   VoteEndBlock = "voteEndBlock",
   VoteStartBlock = "voteStartBlock",
   Votes = "votes",
@@ -1293,7 +1332,6 @@ export enum Vote_OrderBy {
   ProposalIdExecutableAtBlock = "proposalId__executableAtBlock",
   ProposalIdExecutedAt = "proposalId__executedAt",
   ProposalIdExecutedAtBlock = "proposalId__executedAtBlock",
-  ProposalIdForumLink = "proposalId__forumLink",
   ProposalIdId = "proposalId__id",
   ProposalIdProposalId = "proposalId__proposalId",
   ProposalIdProposer = "proposalId__proposer",
@@ -1304,6 +1342,8 @@ export enum Vote_OrderBy {
   ProposalIdStatus = "proposalId__status",
   ProposalIdTimelockId = "proposalId__timelockId",
   ProposalIdTitle = "proposalId__title",
+  ProposalIdUnparsedDescription = "proposalId__unparsedDescription",
+  ProposalIdUnverifiedForumLink = "proposalId__unverifiedForumLink",
   ProposalIdVoteEndBlock = "proposalId__voteEndBlock",
   ProposalIdVoteStartBlock = "proposalId__voteStartBlock",
   Reason = "reason",
@@ -1357,6 +1397,8 @@ export type ProposalSelectionFragment = {
   description: string;
   status: ProposalStatus;
   createdAt: any;
+  createdAtBlock: any;
+  unverifiedForumLink?: string | null;
   quorum: any;
   voteEndBlock: any;
   voteStartBlock: any;
@@ -1409,6 +1451,8 @@ export type ProposalWithVotesFragment = {
   description: string;
   status: ProposalStatus;
   createdAt: any;
+  createdAtBlock: any;
+  unverifiedForumLink?: string | null;
   quorum: any;
   voteEndBlock: any;
   voteStartBlock: any;
@@ -1489,6 +1533,8 @@ export type GetProposalsQuery = {
     description: string;
     status: ProposalStatus;
     createdAt: any;
+    createdAtBlock: any;
+    unverifiedForumLink?: string | null;
     quorum: any;
     voteEndBlock: any;
     voteStartBlock: any;
@@ -1532,6 +1578,8 @@ export type SearchProposalsQuery = {
     description: string;
     status: ProposalStatus;
     createdAt: any;
+    createdAtBlock: any;
+    unverifiedForumLink?: string | null;
     quorum: any;
     voteEndBlock: any;
     voteStartBlock: any;
@@ -1573,6 +1621,8 @@ export type GetProposalQuery = {
     description: string;
     status: ProposalStatus;
     createdAt: any;
+    createdAtBlock: any;
+    unverifiedForumLink?: string | null;
     quorum: any;
     voteEndBlock: any;
     voteStartBlock: any;
@@ -1623,6 +1673,8 @@ export const ProposalSelectionFragmentDoc = gql`
   description
   status
   createdAt
+  createdAtBlock
+  unverifiedForumLink
   quorum
   pollResult {
     for
@@ -2038,6 +2090,8 @@ export const ProposalSelection = gql`
   description
   status
   createdAt
+  createdAtBlock
+  unverifiedForumLink
   quorum
   pollResult {
     for

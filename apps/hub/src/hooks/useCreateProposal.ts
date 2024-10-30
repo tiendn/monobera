@@ -117,7 +117,12 @@ export const checkProposalField: CheckProposalField = (
         return ProposalErrorCodes.INVALID_ADDRESS;
       }
 
-      if (!value.startsWith(requiredOrBase)) {
+      // biome-ignore lint/correctness/noSwitchDeclarations: <explanation>
+      const base = new URL(requiredOrBase as string);
+
+      // base.pathname = "/c/";
+
+      if (!value.startsWith(base.toString())) {
         return ProposalErrorCodes.INVALID_BASEPATH;
       }
 
@@ -171,7 +176,7 @@ export const useCreateProposal = ({
 }: {
   governorAddress: Address;
   initialData?: any;
-  onSuccess?: () => void;
+  onSuccess?: (txHash: string) => void;
 }) => {
   const [proposal, setProposal] = useState<CustomProposal>({
     title: "",
@@ -193,12 +198,11 @@ export const useCreateProposal = ({
     }));
   }, [currentTopic]);
 
-  const { write, ModalPortal } = useTxn({
+  const { write, ModalPortal, isSubmitting } = useTxn({
     message: "Submit Proposal",
     actionType: TransactionActionType.SUBMIT_PROPOSAL,
-    onSuccess: () => {
-      onSuccess?.();
-      router.push(`/governance/${currentTopic.slug}`);
+    onSuccess: (txHash) => {
+      onSuccess?.(txHash);
     },
   });
 
@@ -317,6 +321,17 @@ export const useCreateProposal = ({
         throw new Error("No actions submitted in proposal");
       }
 
+      const link = new URL(proposal.forumLink);
+
+      const description = matter.stringify(proposal.description, {
+        title: proposal.title,
+        topics: Array.from(proposal.topic.values()),
+        forumLink: link.toString(),
+        version: "1.0.0",
+        "content-encoding": "utf-8",
+        "content-type": "text/markdown",
+      });
+
       write({
         address: governorAddress,
         abi: GOVERNANCE_ABI,
@@ -325,14 +340,7 @@ export const useCreateProposal = ({
           proposal.actions.map((action) => action.target as `0x${string}`),
           proposal.actions.map((action) => action.value ?? 0n),
           actions,
-          matter.stringify(proposal.description, {
-            title: proposal.title,
-            topics: Array.from(proposal.topic.values()),
-            forumLink: proposal.forumLink,
-            version: "1.0.0",
-            "content-encoding": "utf-8",
-            "content-type": "text/markdown",
-          }),
+          description,
         ],
       });
     },
@@ -346,5 +354,6 @@ export const useCreateProposal = ({
     submitProposal,
     addProposalAction,
     removeProposalAction,
+    isSubmitting,
   };
 };

@@ -8,6 +8,8 @@ export default gql`
     description
     status
     createdAt
+    createdAtBlock
+    unverifiedForumLink
     quorum
     pollResult {
       for
