@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { chainId, jsonRpcUrl } from "@bera/config";
 import {
+  AddLiquidity,
+  AddLiquidityKind,
   AddLiquidityQueryOutput,
   PoolState,
   Slippage,
 } from "@berachain-foundation/berancer-sdk";
 import { Address, parseUnits } from "viem";
-
-import { AddLiquidity, BalSDK } from "~/actions/dex/b-sdk";
 
 export interface UseAddLiquidityArgs {
   pool: PoolState | undefined;
@@ -40,7 +40,7 @@ export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
     const queryOutput = await addLiquidity.query(
       {
         chainId,
-        kind: BalSDK.AddLiquidityKind.Unbalanced,
+        kind: AddLiquidityKind.Unbalanced,
         rpcUrl: jsonRpcUrl,
         amountsIn: pool.tokens
           .filter((t) => input.findIndex((i) => i.address === t.address) !== -1)
@@ -74,7 +74,6 @@ export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
         poolId: pool.id,
         recipient: sender,
         wethIsEth: false,
-
         slippage: Slippage.fromPercentage(slippage.toString() as `${number}`),
       });
     },

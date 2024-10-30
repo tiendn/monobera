@@ -20,7 +20,7 @@
     "@apollo/client": "^3.8.8",
     "@balancer-labs/sdk": "^1.1.6",
     "@balancer/sdk": "^0.28.2",
-    "@berachain-foundation/berancer-sdk": "^0.29.0",
+    "@berachain-foundation/berancer-sdk": "workspace:*",
     "@bera/config": "workspace:*",
     "@bera/graphql": "workspace:*",
     "@bera/wagmi": "workspace:*",

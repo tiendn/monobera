@@ -13,7 +13,7 @@
     "with-env": "dotenv -e ../../.env -c --"
   },
   "dependencies": {
-    "@berachain-foundation/berancer-sdk": "^0.29.0",
+    "@berachain-foundation/berancer-sdk": "workspace:*",
     "@bera/berajs": "workspace:*",
     "@bera/config": "workspace:*",
     "@bera/graphql": "workspace:*",

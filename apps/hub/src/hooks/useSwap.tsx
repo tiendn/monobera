@@ -13,7 +13,7 @@ import {
   // @ts-ignore - ignore Token typing import error
   type Token,
 } from "@bera/berajs";
-import { SwapKind } from "@bera/berajs/actions";
+import { SwapKind } from "@berachain-foundation/berancer-sdk";
 import {
   balancerVaultAddress,
   beraTokenAddress,

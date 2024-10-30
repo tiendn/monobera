@@ -188,14 +188,6 @@ export const perpsPythPricesMocked = process.env
 export const perpsTradingviewEnabled = process.env
   .NEXT_PUBLIC_PERPS_TRADINGVIEW_ENABLED as string;
 
-// Validator clue
-export const validatorClueEndpoint = process.env
-  .NEXT_PUBLIC_VILIDATOR_CLUE_ENDPOINT as string;
-
-// gov authority
-export const governanceAuthority = process.env
-  .NEXT_PUBLIC_GOVERNANCE_AUTHORITY as string;
-
 export const bannerEnabled = Boolean(
   process.env.NEXT_PUBLIC_BANNER_ENABLED,
 ) as boolean;

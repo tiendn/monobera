@@ -45,16 +45,4 @@ export const nativeToken = new Token(
 // @ts-expect-error not in network list
 NATIVE_ASSETS[chainId] = nativeToken;
 
-export * as BalSDK from "@berachain-foundation/berancer-sdk";
-export {
-  Swap,
-  SwapKind,
-  Slippage,
-  AddLiquidity,
-} from "@berachain-foundation/berancer-sdk";
-export type {
-  SwapBuildCallInput,
-  SwapInput,
-} from "@berachain-foundation/berancer-sdk";
-
 export const balancerApi = new BalancerApi(balancerApiUrl, chainId);
