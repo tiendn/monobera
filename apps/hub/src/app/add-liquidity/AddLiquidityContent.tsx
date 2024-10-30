@@ -9,7 +9,6 @@ import {
   useBeraJs,
   useGasData,
   usePollWalletBalances,
-  usePool,
   type Token,
 } from "@bera/berajs";
 import { balancerVaultAddress, cloudinaryUrl } from "@bera/config";
@@ -35,12 +34,13 @@ import { Address, formatEther, parseUnits } from "viem";
 
 import { SettingsPopover } from "~/components/settings-popover";
 import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
-import { useAddLiquidityUnbalanced } from "@bera/berajs";
 import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
+import { usePool } from "~/b-sdk/usePool";
+import { useAddLiquidityUnbalanced } from "~/b-sdk/useAddLiquidityUnbalanced";
 
 interface IAddLiquidityContent {
   shareAddress: Address;

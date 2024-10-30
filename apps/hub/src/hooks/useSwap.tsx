@@ -5,7 +5,6 @@ import {
   TXN_GAS_USED_ESTIMATES,
   useGasData,
   usePollAllowance,
-  usePollBalancerSwap,
   usePollWalletBalances,
   useSubgraphTokenInformation,
   useTokenInformation,
@@ -24,6 +23,7 @@ import { beraToken } from "@bera/wagmi";
 import { type Address } from "viem";
 
 import { isBeratoken } from "~/utils/isBeraToken";
+import { usePollBalancerSwap } from "~/b-sdk/usePollBalancerSwap";
 
 interface UseSwapArguments {
   inputCurrency?: string | undefined;

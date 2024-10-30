@@ -8,11 +8,9 @@ import {
   truncateHash,
   useBeraJs,
   useBgtInflation,
-  usePool,
   usePoolHistoricalData,
   usePoolRecentProvisions,
   usePoolRecentSwaps,
-  usePoolUserPosition,
   type IProvision,
   type ISwaps,
   type PoolV2,
@@ -52,6 +50,7 @@ import {
 } from "../pools/fetchPools";
 import { PoolChart } from "./PoolChart";
 import { usePoolEvents } from "./usePoolEvents";
+import { usePool } from "~/b-sdk/usePool";
 
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,

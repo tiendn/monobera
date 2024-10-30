@@ -1,3 +1,4 @@
+import { SwapRequest, useBeraJs, type DefaultHookOptions } from "@bera/berajs";
 import { beraTokenAddress, chainId } from "@bera/config";
 import {
   Address,
@@ -15,9 +16,7 @@ import useSWR from "swr";
 import { formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { balancerApi, nativeToken } from "~/actions/dex/b-sdk";
-import { useBeraJs } from "~/contexts";
-import { SwapRequest, type DefaultHookOptions } from "~/types";
+import { balancerApi, nativeToken } from "./b-sdk";
 
 type IUsePollSwapsArgs = SwapRequest;
 interface IUsePollSwapsOptions extends DefaultHookOptions {
@@ -61,7 +60,7 @@ function getEmptyResponse(): SwapInfoV4 {
         callData: "0x",
         value: BigInt(0),
         minAmountOut: TokenAmount.fromHumanAmount(nativeToken, "0"),
-      }) as SwapBuildOutputExactIn,
+      } as SwapBuildOutputExactIn),
   };
 }
 

@@ -1,6 +1,7 @@
-import { SwapInfoV4, Token } from "@bera/berajs";
+import { Token } from "@bera/berajs";
 import { TokenIcon } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
+import { SwapInfoV4 } from "~/b-sdk/usePollBalancerSwap";
 
 export const SwapRoute = ({
   swapInfo,

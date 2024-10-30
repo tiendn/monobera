@@ -1,6 +1,6 @@
 import useSWR from "swr";
 
-import { balancerApi } from "~/actions/dex/b-sdk";
+import { balancerApi } from "./b-sdk";
 
 export const usePool = ({ id }: { id: string }) => {
   return useSWR(`pool-${id}`, async () => {

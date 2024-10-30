@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { SwapBuildOutputExactIn } from "@balancer/sdk";
+import { SwapBuildOutputExactIn } from "@berachain-foundation/berancer-sdk";
 import {
   BGT_ABI,
   // Vault

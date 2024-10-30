@@ -1,3 +1,4 @@
+import { ADDRESS_ZERO } from "@bera/berajs";
 import {
   balancerApiUrl,
   balancerQueriesAddress,
@@ -23,9 +24,8 @@ import {
   WEIGHTED_POOL_FACTORY_BALANCER_V2,
 } from "@berachain-foundation/berancer-sdk";
 
-import { ADDRESS_ZERO } from "~/config";
-
 API_CHAIN_NAMES[chainId] = "BARTIO";
+// @ts-expect-error not in network list
 CHAINS[chainId] = defaultBeraNetworkConfig.chain;
 BALANCER_RELAYER[chainId] = balancerRelayerAddress;
 VAULT[chainId] = balancerVaultAddress;

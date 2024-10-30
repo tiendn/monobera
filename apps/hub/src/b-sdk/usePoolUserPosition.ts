@@ -1,19 +1,17 @@
 import {
-  PoolState,
-  PoolStateWithBalances,
-} from "@berachain-foundation/berancer-sdk";
-import BigNumber from "bignumber.js";
-import useSWR from "swr";
-import { useAccount, usePublicClient } from "wagmi";
-
-import POLLING from "~/enum/polling";
-import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
-import {
+  DefaultHookOptions,
+  DefaultHookReturnType,
   PoolV2,
   useBeraJs,
   usePollBalance,
   type IUserPosition,
-} from "../../..";
+} from "@bera/berajs";
+import {
+  PoolState,
+  PoolStateWithBalances,
+} from "@berachain-foundation/berancer-sdk";
+import BigNumber from "bignumber.js";
+import { useAccount, usePublicClient } from "wagmi";
 
 type IUsePoolUserPositionArgs = {
   pool: PoolStateWithBalances | undefined;

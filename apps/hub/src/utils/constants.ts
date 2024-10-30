@@ -13,14 +13,6 @@ export const DEFAULT_DEADLINE = 30; // minutes
 export const DEFAULT_SLIPPAGE = 1; // 0.3%
 export const DEFAULT_SOUND_ENABLED = true; // 1 if true, 0 if false
 
-export const dummyToken = {
-  address: "0x3945f611Fe77A51C7F3e1f84709C1a2fDcDfAC5B",
-  decimals: 18,
-  default: true,
-  name: "Dummy Token",
-  symbol: "dbgt",
-};
-
 export enum TRANSACTION_TYPES {
   LEGACY = "legacy",
   EIP_1559 = "eip1559",

@@ -8,8 +8,6 @@ import {
   TokenBalance,
   TransactionActionType,
   bexAbi,
-  usePool,
-  usePoolUserPosition,
   type Token,
 } from "@bera/berajs";
 import { cloudinaryUrl } from "@bera/config";
@@ -40,6 +38,8 @@ import {
   PoolStateWithBalances,
 } from "@berachain-foundation/berancer-sdk";
 import { pools } from "~/utils/constants";
+import { usePool } from "~/b-sdk/usePool";
+import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 
 interface ITokenSummary {
   title: string;
