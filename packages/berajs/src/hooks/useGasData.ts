@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { crocMultiSwapAddress, nativeTokenAddress } from "@bera/config";
 import {
   ContractFunctionArgs,
   EstimateContractGasParameters,

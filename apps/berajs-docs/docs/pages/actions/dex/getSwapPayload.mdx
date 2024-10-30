@@ -23,10 +23,7 @@ import { type BeraConfig } from "@bera/berajs";
 export const beraConfig: BeraConfig = {
   endpoints: {
     dexRouter: "https://...", // required for getSwap
-  },
-  contracts: {
-    crocMultiSwapAddress: "0x...", // required for getSwap and getSwapPayload
-  },
+  }, 
 };
 ```
 
@@ -44,10 +41,7 @@ import { getSwap, getSwapPayload } from "@bera/berajs/actions";
 export const beraConfig: BeraConfig = {
   endpoints: {
     dexRouter: "https://...", // required for getSwap
-  },
-  contracts: {
-    crocMultiSwapAddress: "0x...", // required for getSwap and getSwapPayload
-  },
+  }
 };
 
 // get swapInfo using the getSwap function
@@ -71,16 +65,7 @@ const swapPayload = getSwapPayload({
     quoteToken: "0x...", // address of token to receive from swap
   },
 });
-
-// use the swap payload to perform the swap
-const { write } = useBeraContractWrite();
-write({
-  address: beraConfig.contracts.crocMultiSwapAddress,
-  abi: multiswapAbi,
-  functionName: "multiSwap",
-  params: swapPayload?.payload ?? [],
-  value: swapPayload?.value,
-});
+ 
 ```
 
 ## Parameters

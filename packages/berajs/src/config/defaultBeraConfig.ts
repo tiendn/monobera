@@ -5,9 +5,7 @@ import {
   bgtSubgraphUrl,
   bgtTokenAddress,
   // TODO: remove the croc addresses & endpoints
-  crocDexAddress,
   crocIndexerEndpoint,
-  crocMultiSwapAddress,
   crocRouterEndpoint,
   crocSubgraphEndpoint,
   governanceSubgraphUrl,
@@ -49,10 +47,8 @@ export const defaultBeraConfig: BeraConfig = {
   },
   contracts: {
     multicallAddress: multicallAddress,
-    crocMultiSwapAddress: crocMultiSwapAddress,
     balancerVaultAddress: balancerVaultAddress,
     wrappedTokenAddress: beraTokenAddress,
-    dexAddress: crocDexAddress, // TODO (#): prune/migrate this croc-specific address to balancer
     bgtAddress: bgtTokenAddress,
     lendAddressProviderAddress: lendPoolAddressProviderAddress,
     lendOracleAddress: lendOracleAddress,
