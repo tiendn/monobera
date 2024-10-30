@@ -12,7 +12,6 @@ import {
   // @ts-ignore - ignore Token typing import error
   type Token,
 } from "@bera/berajs";
-import { SwapKind } from "@berachain-foundation/berancer-sdk";
 import {
   balancerVaultAddress,
   beraTokenAddress,
@@ -20,6 +19,7 @@ import {
 } from "@bera/config";
 import { POLLING } from "@bera/shared-ui";
 import { beraToken } from "@bera/wagmi";
+import { SwapKind } from "@berachain-foundation/berancer-sdk";
 import { type Address } from "viem";
 
 import { isBeratoken } from "~/utils/isBeraToken";
@@ -328,7 +328,6 @@ export const useSwap = ({
     isBalanceLoading,
     tokenInPrice,
     tokenOutPrice,
-    priceImpact: 0.0116, // FIXME: we need to either extend getSorSwapPaths to fetchPriceImpact or do a second addLiqudity sdk query
     differenceUSD,
   };
 };

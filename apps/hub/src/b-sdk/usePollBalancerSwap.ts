@@ -35,6 +35,7 @@ export interface SwapInfoV4 {
     deadlineIn?: number, // defaults to 30 seconds
   ) => SwapBuildOutputExactIn | SwapBuildOutputExactOut;
   swapPaths: Path[];
+  priceImpactPercentage?: number; // NOTE: if there is an error calculating this (less critical) information, we log an error but dont throw
 }
 
 // NOTE: this is used when generating typings
@@ -46,6 +47,7 @@ function getEmptyResponse(): SwapInfoV4 {
     amountIn: TokenAmount.fromHumanAmount(nativeToken, "0"),
     expectedAmountOutFormatted: "0",
     amountInFormatted: "0",
+    priceImpactPercentage: 0,
     buildCall: (slippagePercent: number, deadlineIn?: number) =>
       ({
         swapAmount: BigInt(0),
@@ -138,13 +140,14 @@ export const usePollBalancerSwap = (
 
         // Fetch paths using Balancer API
         // TODO: if the V3 SDK brings back swap.findRouteGivenIn we might want to use that interface instead
-        const sorPaths = await balancerApi.sorSwapPaths.fetchSorSwapPaths({
-          chainId,
-          tokenIn: tokenInV3.address,
-          tokenOut: tokenOutV3.address,
-          swapKind,
-          swapAmount: tokenAmount,
-        });
+        const { paths: sorPaths, priceImpact } =
+          await balancerApi.sorSwapPaths.fetchSorSwapPaths({
+            chainId,
+            tokenIn: tokenInV3.address,
+            tokenOut: tokenOutV3.address,
+            swapKind,
+            swapAmount: tokenAmount,
+          });
 
         if (!sorPaths || sorPaths.length === 0) {
           throw new Error(
@@ -170,10 +173,25 @@ export const usePollBalancerSwap = (
           throw new Error("No path amounts returned");
         }
 
+        if (priceImpact.error) {
+          console.error("Swap price impact error", priceImpact);
+        }
+        let priceImpactPercentage = 0;
+        try {
+          priceImpactPercentage = Number(priceImpact.priceImpact) * 100;
+        } catch (e) {
+          console.error("Swap price impact casting error", e);
+        }
+
         // NOTE: we are building this call here to set the deadline to 30 seconds from the time we return the object
         return {
           swapPaths: sorPaths,
           ...queryOutput,
+          priceImpactPercentage: priceImpact.error
+            ? undefined
+            : priceImpactPercentage
+            ? priceImpactPercentage
+            : undefined,
           expectedAmountOutFormatted: formatUnits(
             queryOutput.expectedAmountOut.amount,
             tokenInDecimals,

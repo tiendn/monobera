@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { SwapBuildOutputExactIn } from "@berachain-foundation/berancer-sdk";
 import {
   BGT_ABI,
   // Vault
@@ -39,6 +38,7 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
+import { SwapBuildOutputExactIn } from "@berachain-foundation/berancer-sdk";
 import { formatUnits, isAddress, parseUnits } from "viem";
 
 import { WRAP_TYPE, useSwap } from "~/hooks/useSwap";
@@ -109,7 +109,6 @@ export function SwapCard({
     tokenOutPrice,
     isWrap,
     wrapType,
-    priceImpact,
     differenceUSD,
     setInputAddTokenDialogOpen,
     setOutputAddTokenDialogOpen,
@@ -372,7 +371,7 @@ export function SwapCard({
               Number(fromAmount) <= 0 ||
               Number(toAmount) <= 0
             }
-            priceImpact={priceImpact}
+            priceImpact={swapInfo?.priceImpactPercentage}
             exchangeRate={exchangeRate}
             tokenIn={selectedFrom}
             tokenOut={selectedTo}
@@ -417,6 +416,9 @@ export function SwapCard({
     return <Connect />;
   };
 
+  const hasInsufficientBalanceError =
+    isConnected && exceedingBalance && !isBalancesLoading;
+
   const hasRouteNotFoundError =
     selectedFrom &&
     selectedTo &&
@@ -428,9 +430,6 @@ export function SwapCard({
     swapAmount !== "" &&
     !isRouteLoading &&
     !isWrap;
-
-  const hasInsufficientBalanceError =
-    isConnected && exceedingBalance && !isBalancesLoading;
 
   const gasPriceLabel = useMemo(() => {
     if (
@@ -461,7 +460,7 @@ export function SwapCard({
   const { addNewToken } = useTokens();
 
   if (error !== undefined) {
-    console.error("usePollBalancer resolved with an error!", swapInfo);
+    console.error("usePollBalancer resolved with an error!", error, swapInfo);
   }
 
   return (
@@ -574,37 +573,46 @@ export function SwapCard({
                     selectable={!isRedeem}
                   />
                 </ul>
-                {!!priceImpact && priceImpact < -10 && !isWrap && (
-                  <TooltipCustom
-                    anchor={
-                      breakpoint !== undefined && breakpoint! > BREAKPOINTS.md
-                        ? "right"
-                        : "bottom-center"
-                    }
-                    position={
-                      breakpoint !== undefined && breakpoint! > BREAKPOINTS.md
-                        ? "left"
-                        : "bottom-center"
-                    }
-                    tooltipContent={
-                      <div className="w-[250px]">
-                        <p className="text-xs text-muted-foreground">
-                          A swap of this size may have a high price impact,
-                          given the current liquidity in the pool. There may be
-                          a large difference between the amount of your input
-                          token and what you will receive in the output token
-                        </p>
-                      </div>
-                    }
-                  >
-                    <Alert variant="destructive">
-                      <AlertDescription className="text-xs">
-                        <Icons.tooltip className="mr-2 mt-[-4px] inline h-4 w-4" />
-                        {`Price Impact Warning: ${priceImpact?.toFixed(2)}%`}
-                      </AlertDescription>
-                    </Alert>
-                  </TooltipCustom>
-                )}
+                {!!swapInfo?.priceImpactPercentage &&
+                  swapInfo?.priceImpactPercentage > 10 &&
+                  !isWrap && (
+                    <TooltipCustom
+                      anchor={
+                        breakpoint !== undefined && breakpoint! > BREAKPOINTS.md
+                          ? "right"
+                          : "bottom-center"
+                      }
+                      position={
+                        breakpoint !== undefined && breakpoint! > BREAKPOINTS.md
+                          ? "left"
+                          : "bottom-center"
+                      }
+                      tooltipContent={
+                        <div className="w-[250px]">
+                          <p className="space-y-3 text-xs text-muted-foreground">
+                            <p>
+                              A swap of this size may have a high price impact,
+                              given the current liquidity in the pool.
+                            </p>
+                            <p>
+                              There may be a large difference between the amount
+                              of your input token and what you will receive in
+                              the output token
+                            </p>
+                          </p>
+                        </div>
+                      }
+                    >
+                      <Alert variant="destructive">
+                        <AlertDescription className="text-xs">
+                          <Icons.tooltip className="mr-2 mt-[-4px] inline h-4 w-4" />
+                          {`Price Impact Warning: ${swapInfo?.priceImpactPercentage?.toFixed(
+                            2,
+                          )}%`}
+                        </AlertDescription>
+                      </Alert>
+                    </TooltipCustom>
+                  )}
                 {hasInsufficientBalanceError ? (
                   <Alert
                     variant="destructive"
@@ -618,14 +626,15 @@ export function SwapCard({
                 ) : (
                   false
                 )}
-                {error !== undefined && (
-                  <Alert variant="destructive">
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription className="text-xs">
-                      {`Swap query failed due to '${error}'`}
-                    </AlertDescription>
-                  </Alert>
-                )}
+                {error !== undefined &&
+                  !hasInsufficientBalanceError && ( // NOTE: route not found is triggered by insuffucent balance
+                    <Alert variant="destructive">
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription className="text-xs">
+                        {`Swap query failed due to '${error}'`}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 {hasRouteNotFoundError && (
                   <Alert variant="destructive">
                     <AlertTitle>
@@ -674,7 +683,7 @@ export function SwapCard({
                 )}
                 {!isWrap && !isRedeem && (
                   <SwapCardInfo
-                    priceImpact={priceImpact}
+                    priceImpact={swapInfo?.priceImpactPercentage ?? 0} // FIXME: we should handle undefined in SwapCardInfo
                     exchangeRate={exchangeRate}
                     gasPrice={gasPriceLabel}
                   />
