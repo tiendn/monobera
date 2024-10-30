@@ -1,10 +1,9 @@
-import { PoolWithMethods } from "@balancer-labs/sdk";
 import { isIPFS } from "@bera/config";
 import { PoolState } from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 
 export const getPoolUrl = (
-  pool: PoolState | PoolWithMethods | undefined,
+  pool: Pick<PoolState, "id"> | undefined,
   isMyPool = false,
 ): string => {
   if (!pool) return "";
@@ -15,7 +14,7 @@ export const getPoolUrl = (
 };
 
 export const getPoolAddLiquidityUrl = (
-  pool: PoolState | PoolWithMethods | undefined,
+  pool: Pick<PoolState, "id"> | undefined,
 ) => {
   if (!pool) return "";
 
@@ -26,9 +25,7 @@ export const getPoolAddLiquidityUrl = (
   return `/add-liquidity/${pool?.id}`;
 };
 
-export const getPoolWithdrawUrl = (
-  pool: PoolState | PoolWithMethods | undefined,
-) => {
+export const getPoolWithdrawUrl = (pool: Pick<PoolState, "id"> | undefined) => {
   if (!pool) return "";
   return `/withdraw/${pool?.id}`;
 };
