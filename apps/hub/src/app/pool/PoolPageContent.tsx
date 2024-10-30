@@ -400,7 +400,7 @@ export default function PoolPageContent({
             <>
               <TokenIconList
                 tokenList={
-                  pool?.tokens.map((t) => ({
+                  v3Pool?.tokens.map((t) => ({
                     address: t.address as Address,
                     symbol: t.symbol!,
                     decimals: t.decimals!,
@@ -409,7 +409,7 @@ export default function PoolPageContent({
                 }
                 size="xl"
               />
-              {pool?.name}
+              {v3Pool?.id}
             </>
           )
         }
@@ -437,7 +437,7 @@ export default function PoolPageContent({
             content: isPoolLoading ? (
               <Skeleton className="h-4 w-8" />
             ) : (
-              <>{pool?.swapFee}%</>
+              <>{v3Pool?.fees24h}%</>
             ),
             color: "success",
           },
@@ -446,9 +446,9 @@ export default function PoolPageContent({
             content: isPoolLoading ? (
               <Skeleton className="h-4 w-16" />
             ) : (
-              <>{truncateHash(pool?.address ?? "")}</>
+              <>{truncateHash(v3Pool?.address ?? "")}</>
             ),
-            externalLink: `${blockExplorerUrl}/address/${pool?.address}`,
+            externalLink: `${blockExplorerUrl}/address/${v3Pool?.address}`,
           },
         ]}
         actions={
@@ -474,8 +474,8 @@ export default function PoolPageContent({
       ) : (
         <BgtStationBanner
           isHub
-          receiptTokenAddress={pool?.address as Address}
-          vaultAddress={pool?.id as Address}
+          receiptTokenAddress={v3Pool?.address as Address}
+          vaultAddress={"0x"}
         />
       )}
       <div className="flex w-full grid-cols-5 flex-col gap-4 lg:grid">
@@ -496,7 +496,7 @@ export default function PoolPageContent({
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
                 <FormattedNumber
-                  value={pool?.totalLiquidity ?? 0}
+                  value={v3Pool?.totalShares ?? 0}
                   symbol="USD"
                 />
               </div>
@@ -549,7 +549,7 @@ export default function PoolPageContent({
                   <Skeleton className="h-10 w-20" />
                 ) : (
                   <FormattedNumber
-                    value={pool?.totalLiquidity ?? 0}
+                    value={v3Pool?.totalShares ?? 0}
                     symbol="USD"
                   />
                 )}
@@ -558,16 +558,12 @@ export default function PoolPageContent({
             <TokenView
               isLoading={isPoolLoading}
               tokens={
-                !pool
-                  ? []
-                  : pool.tokens?.map((t) => ({
-                      address: t.address!,
-                      symbol: t.symbol!,
-                      value: parseFloat(t.balance),
-                      valueUSD:
-                        parseFloat(t.balance) *
-                        parseFloat(t.token?.latestUSDPrice ?? "0"),
-                    }))
+                v3Pool?.tokens?.map((t) => ({
+                  address: t.address!,
+                  symbol: t.symbol!,
+                  value: parseFloat(t.balance),
+                  valueUSD: parseFloat(t.balance) * parseFloat("0"),
+                })) ?? []
                 // {
                 //   address: pool.baseInfo.address,
                 //   symbol: pool.baseInfo.symbol,

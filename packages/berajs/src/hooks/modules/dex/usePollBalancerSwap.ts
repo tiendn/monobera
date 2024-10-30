@@ -61,7 +61,7 @@ function getEmptyResponse(): SwapInfoV4 {
         callData: "0x",
         value: BigInt(0),
         minAmountOut: TokenAmount.fromHumanAmount(nativeToken, "0"),
-      } as SwapBuildOutputExactIn),
+      }) as SwapBuildOutputExactIn,
   };
 }
 

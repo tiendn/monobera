@@ -13,5 +13,5 @@ export * from "./getPoolHistoricalData";
 export * from "./searchUserPools";
 export * from "./getGlobalDexStats";
 
-export * from "./balancerClient";
+// export * from "./balancerClient";
 export * from "./b-sdk";
