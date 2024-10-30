@@ -113,7 +113,7 @@ importers:
         version: 4.11.3(react@18.2.0)
       '@sentry/nextjs':
         specifier: ^8.28.0
-        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.2.2
         version: 0.2.2(zod@3.23.8)
@@ -187,6 +187,9 @@ importers:
 
   apps/hub:
     dependencies:
+      '@balancer-labs/sdk':
+        specifier: ^1.1.6
+        version: 1.1.6(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@bera/berajs':
         specifier: workspace:*
         version: link:../../packages/berajs
@@ -219,7 +222,7 @@ importers:
         version: 3.6.0(react-hook-form@7.51.5(react@18.2.0))
       '@sentry/nextjs':
         specifier: ^8.28.0
-        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.2.2
         version: 0.2.2(zod@3.23.8)
@@ -285,7 +288,7 @@ importers:
         version: 2.16.0(react@18.2.0)
       viem:
         specifier: ~2.13.7
-        version: 2.13.7(bufferutil@4.0.8)(typescript@5.5.3)(utf-8-validate@6.0.4)(zod@3.23.8)
+        version: 2.13.7(bufferutil@4.0.8)(typescript@5.5.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       zod:
         specifier: ^3.21.4
         version: 3.23.8
@@ -346,7 +349,7 @@ importers:
         version: link:../../packages/wagmi
       '@sentry/nextjs':
         specifier: ^8.28.0
-        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.2.2
         version: 0.2.2(zod@3.23.8)
@@ -394,7 +397,7 @@ importers:
         version: 2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
       wagmi:
         specifier: ^2.9.10
-        version: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+        version: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       zod:
         specifier: ^3.21.4
         version: 3.23.8
@@ -452,7 +455,7 @@ importers:
         version: 1.0.4(axios@1.7.2)
       '@sentry/nextjs':
         specifier: ^8.28.0
-        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.2.2
         version: 0.2.2(zod@3.23.8)
@@ -722,7 +725,7 @@ importers:
         version: link:../wagmi
       '@dynamic-labs/sdk-react-core':
         specifier: ^2.5.2
-        version: 2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
+        version: 2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@metamask/browser-passworder':
         specifier: ^5.0.0
         version: 5.0.0
@@ -761,14 +764,14 @@ importers:
         version: 2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
       wagmi:
         specifier: ^2.9.10
-        version: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+        version: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
     devDependencies:
       '@aave/math-utils':
         specifier: ^1.20.0
         version: 1.28.2(bignumber.js@9.1.2)(tslib@2.7.0)
       '@sentry/nextjs':
         specifier: ^8.28.0
-        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@types/crypto-js':
         specifier: ^4.1.2
         version: 4.2.2
@@ -844,25 +847,25 @@ importers:
     devDependencies:
       '@graphql-codegen/cli':
         specifier: ^5.0.2
-        version: 5.0.2(@parcel/watcher@2.4.1)(@types/node@22.7.5)(bufferutil@4.0.8)(enquirer@2.4.1)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4)
+        version: 5.0.2(@parcel/watcher@2.4.1)(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(enquirer@2.4.1)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4)
       '@graphql-codegen/client-preset':
         specifier: ^4.4.0
-        version: 4.4.0(graphql@16.8.1)
+        version: 4.4.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/near-operation-file-preset':
         specifier: ^3.0.0
-        version: 3.0.0(graphql@16.8.1)
+        version: 3.0.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/typescript':
         specifier: ^4.0.9
-        version: 4.0.9(graphql@16.8.1)
+        version: 4.0.9(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/typescript-document-nodes':
         specifier: ^4.0.9
-        version: 4.0.9(graphql@16.8.1)
+        version: 4.0.9(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/typescript-operations':
         specifier: ^4.2.3
-        version: 4.2.3(graphql@16.8.1)
+        version: 4.2.3(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/typescript-react-apollo':
         specifier: ^4.3.2
-        version: 4.3.2(graphql@16.8.1)
+        version: 4.3.2(encoding@0.1.13)(graphql@16.8.1)
       '@parcel/watcher':
         specifier: ^2.4.1
         version: 2.4.1
@@ -936,7 +939,7 @@ importers:
         version: link:../wagmi
       '@dynamic-labs/sdk-react-core':
         specifier: ^2.5.2
-        version: 2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
+        version: 2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@metamask/jazzicon':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1047,7 +1050,7 @@ importers:
         version: 1.0.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/addon-styling':
         specifier: ^1.3.0
-        version: 1.3.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(postcss@8.4.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)
+        version: 1.3.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(postcss@8.4.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.19(postcss@8.4.38)
@@ -1099,7 +1102,7 @@ importers:
         version: link:../config/tailwind
       '@storybook/addon-essentials':
         specifier: ^7.0.22
-        version: 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/addon-interactions':
         specifier: ^7.0.22
         version: 7.6.19
@@ -1108,10 +1111,10 @@ importers:
         version: 7.6.19(react@18.2.0)
       '@storybook/react':
         specifier: ^7.0.22
-        version: 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)
+        version: 7.6.19(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)
       '@storybook/react-vite':
         specifier: ^7.0.22
-        version: 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))
+        version: 7.6.19(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))
       '@types/faker':
         specifier: 5.5.9
         version: 5.5.9
@@ -1144,7 +1147,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       storybook:
         specifier: ^7.0.22
-        version: 7.6.19(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 7.6.19(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       tailwindcss:
         specifier: ^3.3.2
         version: 3.4.4(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.4.5))
@@ -1162,13 +1165,13 @@ importers:
         version: link:../config/env
       '@dynamic-labs/ethereum':
         specifier: ^2.5.2
-        version: 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+        version: 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/sdk-react-core':
         specifier: ^2.5.2
-        version: 2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+        version: 2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/wagmi-connector':
         specifier: ^2.5.2
-        version: 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-connector-core@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1))(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(eventemitter3@5.0.1)(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))
+        version: 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-connector-core@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1))(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(eventemitter3@5.0.1)(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))
       '@tanstack/react-query':
         specifier: ^5.26.3
         version: 5.40.1(react@18.3.1)
@@ -1183,7 +1186,7 @@ importers:
         version: 2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       wagmi:
         specifier: ^2.9.10
-        version: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+        version: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
 
 packages:
 
@@ -2013,6 +2016,19 @@ packages:
   '@babel/types@7.25.6':
     resolution: {integrity: sha512-/l42B1qxpG6RdfYf343Uw1vmDjeNhneUXtzhojE7pDgfpEypmRhI6j1kr17XCVv4Cgl9HdAiQY2x0GwKm7rWCw==}
     engines: {node: '>=6.9.0'}
+
+  '@balancer-labs/sdk@1.1.6':
+    resolution: {integrity: sha512-NSIjSk1TbHmmVCo2FO2zAYJFbNBdUaILP6rHUjzyMUDNQFNkXJs1IxX404HR89QV1zdvgGw/p8M6uz7sVujALg==}
+
+  '@balancer-labs/sor@4.1.1-beta.18':
+    resolution: {integrity: sha512-y/JfWXHAE76Ry/bptqzltTYmx8zvX1fHjCxKR28ZmAhhvG2ctWwBh8alabjMlQhstoaN1ResyHNLh9ChLsIDTA==}
+    peerDependencies:
+      '@ethersproject/abi': ^5.4.1
+      '@ethersproject/address': ^5.4.0
+      '@ethersproject/bignumber': ^5.4.2
+      '@ethersproject/constants': ^5.4.0
+      '@ethersproject/contracts': ^5.4.1
+      '@ethersproject/providers': ^5.4.4
 
   '@base2/pretty-print-object@1.0.1':
     resolution: {integrity: sha512-4iri8i1AqYHJE2DstZYkyEprg6Pq6sKx3xn5FpySk9sNhH7qN2LLlHJCfDTZRILNwQNPD7mATWM0TBui7uC1pA==}
@@ -3216,6 +3232,9 @@ packages:
 
   '@ethersproject/address@5.7.0':
     resolution: {integrity: sha512-9wYhYt7aghVGo758POM5nqcOMaE168Q6aRLJZwUmiqSrAungkG74gSSeKEIR7ukixesdRZGPgVqme6vmxs1fkA==}
+
+  '@ethersproject/base64@5.5.0':
+    resolution: {integrity: sha512-tdayUKhU1ljrlHzEWbStXazDpsx4eg1dBXUSI6+mHlYklOXoXF6lZvw8tnD6oVaWfnMxAgRSKROg3cVKtCcppA==}
 
   '@ethersproject/base64@5.7.0':
     resolution: {integrity: sha512-Dr8tcHt2mEbsZr/mwTPIQAf3Ai0Bks/7gTw9dSqk1mQvhW3XvRlmDJr/4n+wg1JmCl16NZue17CDh8xb/vZ0sQ==}
@@ -7444,6 +7463,9 @@ packages:
   axios@0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
 
+  axios@0.24.0:
+    resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
+
   axios@1.7.2:
     resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
 
@@ -8474,6 +8496,9 @@ packages:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
 
+  encoding@0.1.13:
+    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+
   end-of-stream@1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
 
@@ -8799,6 +8824,10 @@ packages:
     resolution: {integrity: sha512-FuoE1qtbJ4bBVvv94CC7s0oTnKUGvQs+Rjf1L2SJFfS+HTVVjhPFtehPdQ0JiGPqVNfSSZvL5yzHHQq2Z4WNhQ==}
     engines: {node: ^12.20 || >= 14.13}
 
+  extract-files@9.0.0:
+    resolution: {integrity: sha512-CvdFfHkC95B4bBBk36hcEmvdR2awOdhhVUYH6S/zrVj3477zven/fJMYg7121h4T1xHZC+tetUpubpAhxwI7hQ==}
+    engines: {node: ^10.17.0 || ^12.0.0 || >= 13.7.0}
+
   extract-zip@1.7.0:
     resolution: {integrity: sha512-xoh5G1W/PB0/27lXgMQyIhP5DSY/LhoCsOyZgb+6iMmRtCwVBo55uKaMoEYrDCKQhWvqEip5ZPKAc6eFNyf/MA==}
     hasBin: true
@@ -8972,6 +9001,10 @@ packages:
   foreground-child@3.3.0:
     resolution: {integrity: sha512-Ld2g8rrAyMYFXBhEqMz8ZAHBi4J4uS1i/CxGMDnjyFWddMXLVcDp051DZfu+t7+ab7Wv6SMqpWmyFIj5UbfFvg==}
     engines: {node: '>=14'}
+
+  form-data@3.0.2:
+    resolution: {integrity: sha512-sJe+TQb2vIaIyO783qN6BlMYWMw3WBOHA1Ay2qxsnjuafEOQFJ2JakedOQirT6D5XPRxDvS7AHYyem9fTpb4LQ==}
+    engines: {node: '>= 6'}
 
   form-data@4.0.0:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
@@ -9203,6 +9236,11 @@ packages:
       cosmiconfig-toml-loader:
         optional: true
 
+  graphql-request@3.7.0:
+    resolution: {integrity: sha512-dw5PxHCgBneN2DDNqpWu8QkbbJ07oOziy8z+bK/TAXufsOLaETuVO4GkXrbs0WjhdKhBMN3BkpN/RIvUHkmNUQ==}
+    peerDependencies:
+      graphql: 14 - 16
+
   graphql-request@6.1.0:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
     peerDependencies:
@@ -9219,6 +9257,10 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       graphql: '>=0.11 <=16'
+
+  graphql@15.9.0:
+    resolution: {integrity: sha512-GCOQdvm7XxV1S4U4CGrsdlEN37245eC8P9zaYCMr6K1BG0IPGy5lUwmJsEOGyl1GD6HXjOtl2keCP9asRBwNvA==}
+    engines: {node: '>= 10.x'}
 
   graphql@16.8.1:
     resolution: {integrity: sha512-59LZHPdGZVh695Ud9lRzPBVTtlX9ZCV150Er2W43ro37wVof0ctenSaskPPjN7lVTIN8mSZt8PHUNKZuNQUuxw==}
@@ -9428,6 +9470,10 @@ packages:
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
+    engines: {node: '>=0.10.0'}
+
+  iconv-lite@0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
 
   icss-utils@4.1.1:
@@ -9679,6 +9725,10 @@ packages:
     resolution: {integrity: sha512-Kw/ReK0iqwKeu0MITLFuj0jbPAmEiOsIwyIXvvbfa6QfmN9pkD1M+8pdk7Rl/dTKbH34/XBFMbgD4iMJhLQbGA==}
     engines: {node: '>=0.10.0'}
 
+  is-stream@1.1.0:
+    resolution: {integrity: sha512-uQPm8kcs47jx38atAcWTVxyltQYoPT68y9aWYdV6yWXSyW8mzSat0TL6CiWdZeCdF3KrAvpVtnHbTv4RN+rqdQ==}
+    engines: {node: '>=0.10.0'}
+
   is-stream@2.0.1:
     resolution: {integrity: sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==}
     engines: {node: '>=8'}
@@ -9739,6 +9789,9 @@ packages:
   isobject@3.0.1:
     resolution: {integrity: sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==}
     engines: {node: '>=0.10.0'}
+
+  isomorphic-fetch@2.2.1:
+    resolution: {integrity: sha512-9c4TNAKYXM5PRyVcwUZrF3W09nQ+sO7+jydgs4ZGW9dhsLG2VOlISJABombdQqQRXCwuYG3sYV/puGf5rp0qmA==}
 
   isomorphic-unfetch@3.1.0:
     resolution: {integrity: sha512-geDJjpoZ8N0kWexiwkX8F9NkTsXhetLPVbZFQ+JTW239QNOwvB0gniuR1Wc6f0AMTn7/mFGyXvHTifrCp/GH8Q==}
@@ -9899,6 +9952,9 @@ packages:
 
   json-stringify-safe@5.0.1:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
+
+  json-to-graphql-query@2.3.0:
+    resolution: {integrity: sha512-khZtaLLQ0HllFec+t89ZWduUZ0rmne/OpRm/39hyZUWDHNx9Yk4DgQzDtMeqd8zj2g5opBD4GHrdtH0JzKnN2g==}
 
   json-to-pretty-yaml@1.2.2:
     resolution: {integrity: sha512-rvm6hunfCcqegwYaG5T4yKJWxc9FXFgBVrcTZ4XfSVRwa5HA/Xs+vB/Eo9treYYHCeNM0nrSUr82V/M31Urc7A==}
@@ -10642,6 +10698,9 @@ packages:
 
   node-fetch-native@1.6.4:
     resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
+
+  node-fetch@1.7.3:
+    resolution: {integrity: sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==}
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -13433,6 +13492,9 @@ packages:
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
+  whatwg-fetch@3.6.20:
+    resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
+
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
@@ -13781,7 +13843,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@ardatan/relay-compiler@12.0.0(graphql@16.8.1)':
+  '@ardatan/relay-compiler@12.0.0(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/generator': 7.25.6
@@ -13792,22 +13854,22 @@ snapshots:
       babel-preset-fbjs: 3.4.0(@babel/core@7.25.2)
       chalk: 4.1.2
       fb-watchman: 2.0.2
-      fbjs: 3.0.5
+      fbjs: 3.0.5(encoding@0.1.13)
       glob: 7.2.3
       graphql: 16.8.1
       immutable: 3.7.6
       invariant: 2.2.4
       nullthrows: 1.1.1
-      relay-runtime: 12.0.0
+      relay-runtime: 12.0.0(encoding@0.1.13)
       signedsource: 1.0.0
       yargs: 15.4.1
     transitivePeerDependencies:
       - encoding
       - supports-color
 
-  '@ardatan/sync-fetch@0.0.1':
+  '@ardatan/sync-fetch@0.0.1(encoding@0.1.13)':
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
@@ -14833,6 +14895,40 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
+  '@balancer-labs/sdk@1.1.6(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@balancer-labs/sor': 4.1.1-beta.18(@ethersproject/abi@5.7.0)(@ethersproject/address@5.7.0)(@ethersproject/bignumber@5.7.0)(@ethersproject/constants@5.7.0)(@ethersproject/contracts@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/abstract-signer': 5.7.0
+      '@ethersproject/address': 5.7.0
+      '@ethersproject/base64': 5.5.0
+      '@ethersproject/bignumber': 5.7.0
+      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/constants': 5.7.0
+      '@ethersproject/contracts': 5.7.0
+      '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      axios: 0.24.0
+      ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      graphql: 15.9.0
+      graphql-request: 3.7.0(encoding@0.1.13)(graphql@15.9.0)
+      json-to-graphql-query: 2.3.0
+      lodash: 4.17.21
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - encoding
+      - utf-8-validate
+
+  '@balancer-labs/sor@4.1.1-beta.18(@ethersproject/abi@5.7.0)(@ethersproject/address@5.7.0)(@ethersproject/bignumber@5.7.0)(@ethersproject/constants@5.7.0)(@ethersproject/contracts@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/address': 5.7.0
+      '@ethersproject/bignumber': 5.7.0
+      '@ethersproject/constants': 5.7.0
+      '@ethersproject/contracts': 5.7.0
+      '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      isomorphic-fetch: 2.2.1
+
   '@base2/pretty-print-object@1.0.1': {}
 
   '@biomejs/biome@1.5.3':
@@ -15175,18 +15271,18 @@ snapshots:
 
   '@discoveryjs/json-ext@0.5.7': {}
 
-  '@dynamic-labs/ethereum@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/ethereum@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@coinbase/wallet-sdk': 4.0.4
       '@dynamic-labs/rpc-provider-ethereum': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/sdk-api-core': 0.0.497
-      '@dynamic-labs/turnkey': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(bufferutil@4.0.8)(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@dynamic-labs/turnkey': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(bufferutil@4.0.8)(encoding@0.1.13)(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/types': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/utils': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/viem-utils': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-connector-core@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1))(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/wallet-book': 2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/wallet-connector-core': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1)
-      '@walletconnect/ethereum-provider': 2.11.2(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(utf-8-validate@5.0.10)
+      '@walletconnect/ethereum-provider': 2.11.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)
       buffer: 6.0.3
       eventemitter3: 5.0.1
       stream: 0.0.2
@@ -15312,22 +15408,22 @@ snapshots:
     transitivePeerDependencies:
       - eventemitter3
 
-  '@dynamic-labs/rpc-provider-solana@2.5.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/rpc-provider-solana@2.5.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/types': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
       - viem
 
-  '@dynamic-labs/rpc-provider-solana@2.5.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/rpc-provider-solana@2.5.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/types': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -15348,13 +15444,13 @@ snapshots:
 
   '@dynamic-labs/sdk-api-core@0.0.497': {}
 
-  '@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@dynamic-labs/iconic': 2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dynamic-labs/logger': 2.5.2(eventemitter3@5.0.1)
       '@dynamic-labs/multi-wallet': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-provider-ethereum': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/sdk-api-core': 0.0.497
       '@dynamic-labs/store': 2.5.2(eventemitter3@5.0.1)
@@ -15383,13 +15479,13 @@ snapshots:
       - react-native
       - utf-8-validate
 
-  '@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@dynamic-labs/iconic': 2.5.2(eventemitter3@5.0.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@dynamic-labs/logger': 2.5.2(eventemitter3@5.0.1)
       '@dynamic-labs/multi-wallet': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(eventemitter3@5.0.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-provider-ethereum': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/sdk-api-core': 0.0.497
       '@dynamic-labs/store': 2.5.2(eventemitter3@5.0.1)
@@ -15418,13 +15514,13 @@ snapshots:
       - react-native
       - utf-8-validate
 
-  '@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@dynamic-labs/iconic': 2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       '@dynamic-labs/logger': 2.5.2(eventemitter3@5.0.1)
       '@dynamic-labs/multi-wallet': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-provider-ethereum': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/sdk-api-core': 0.0.497
       '@dynamic-labs/store': 2.5.2(eventemitter3@5.0.1)
@@ -15453,11 +15549,11 @@ snapshots:
       - react-native
       - utf-8-validate
 
-  '@dynamic-labs/solana-utils@2.5.2(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@dynamic-labs/solana-utils@2.5.2(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@dynamic-labs/types': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/utils': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -15469,23 +15565,23 @@ snapshots:
     transitivePeerDependencies:
       - eventemitter3
 
-  '@dynamic-labs/turnkey@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(bufferutil@4.0.8)(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@dynamic-labs/turnkey@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(bufferutil@4.0.8)(encoding@0.1.13)(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@dynamic-labs/rpc-provider-ethereum': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@dynamic-labs/rpc-provider-solana': 2.5.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/sdk-api-core': 0.0.497
-      '@dynamic-labs/solana-utils': 2.5.2(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@dynamic-labs/solana-utils': 2.5.2(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@dynamic-labs/types': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/utils': 2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/viem-utils': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-connector-core@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1))(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/wallet-book': 2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/wallet-connector-core': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1)
-      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@turnkey/http': 2.12.2
+      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@turnkey/http': 2.12.2(encoding@0.1.13)
       '@turnkey/iframe-stamper': 2.0.0
-      '@turnkey/solana': 0.3.9(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@turnkey/viem': 0.4.10(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@turnkey/solana': 0.3.9(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@turnkey/viem': 0.4.10(encoding@0.1.13)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@turnkey/webauthn-stamper': 0.5.0
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
     transitivePeerDependencies:
@@ -15558,18 +15654,18 @@ snapshots:
       '@dynamic-labs/wallet-connector-core': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1)
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
 
-  ? '@dynamic-labs/wagmi-connector@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-connector-core@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1))(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(eventemitter3@5.0.1)(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))'
+  ? '@dynamic-labs/wagmi-connector@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/sdk-react-core@2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-connector-core@2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1))(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(eventemitter3@5.0.1)(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))'
   : dependencies:
       '@dynamic-labs/logger': 2.5.2(eventemitter3@5.0.1)
       '@dynamic-labs/rpc-providers': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
-      '@dynamic-labs/sdk-react-core': 2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
+      '@dynamic-labs/sdk-react-core': 2.5.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/types': 2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@dynamic-labs/wallet-connector-core': 2.5.2(@dynamic-labs/logger@2.5.2(eventemitter3@5.0.1))(@dynamic-labs/rpc-providers@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/types@2.5.2(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/utils@2.5.2(eventemitter3@5.0.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)))(eventemitter3@5.0.1)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       eventemitter3: 5.0.1
       react: 18.3.1
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      wagmi: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+      wagmi: 2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
 
   '@dynamic-labs/wallet-book@2.5.2(eventemitter3@5.0.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
@@ -16210,6 +16306,10 @@ snapshots:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/rlp': 5.7.0
 
+  '@ethersproject/base64@5.5.0':
+    dependencies:
+      '@ethersproject/bytes': 5.7.0
+
   '@ethersproject/base64@5.7.0':
     dependencies:
       '@ethersproject/bytes': 5.7.0
@@ -16480,23 +16580,23 @@ snapshots:
       graphql: 16.8.1
       tslib: 2.6.3
 
-  '@graphql-codegen/cli@5.0.2(@parcel/watcher@2.4.1)(@types/node@22.7.5)(bufferutil@4.0.8)(enquirer@2.4.1)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4)':
+  '@graphql-codegen/cli@5.0.2(@parcel/watcher@2.4.1)(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(enquirer@2.4.1)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4)':
     dependencies:
       '@babel/generator': 7.25.6
       '@babel/template': 7.25.0
       '@babel/types': 7.25.6
-      '@graphql-codegen/client-preset': 4.4.0(graphql@16.8.1)
+      '@graphql-codegen/client-preset': 4.4.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/core': 4.0.2(graphql@16.8.1)
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-tools/apollo-engine-loader': 8.0.1(graphql@16.8.1)
+      '@graphql-tools/apollo-engine-loader': 8.0.1(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/code-file-loader': 8.1.3(graphql@16.8.1)
       '@graphql-tools/git-loader': 8.0.7(graphql@16.8.1)
-      '@graphql-tools/github-loader': 8.0.1(@types/node@22.7.5)(graphql@16.8.1)
+      '@graphql-tools/github-loader': 8.0.1(@types/node@22.7.5)(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/graphql-file-loader': 8.0.1(graphql@16.8.1)
       '@graphql-tools/json-file-loader': 8.0.1(graphql@16.8.1)
       '@graphql-tools/load': 8.0.2(graphql@16.8.1)
-      '@graphql-tools/prisma-loader': 8.0.4(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)
-      '@graphql-tools/url-loader': 8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)
+      '@graphql-tools/prisma-loader': 8.0.4(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(utf-8-validate@6.0.4)
+      '@graphql-tools/url-loader': 8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(utf-8-validate@6.0.4)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       '@whatwg-node/fetch': 0.8.8
       chalk: 4.1.2
@@ -16504,7 +16604,7 @@ snapshots:
       debounce: 1.2.1
       detect-indent: 6.1.0
       graphql: 16.8.1
-      graphql-config: 5.1.2(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4)
+      graphql-config: 5.1.2(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4)
       inquirer: 8.2.6
       is-glob: 4.0.3
       jiti: 1.21.3
@@ -16530,17 +16630,17 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@graphql-codegen/client-preset@4.4.0(graphql@16.8.1)':
+  '@graphql-codegen/client-preset@4.4.0(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/template': 7.25.0
       '@graphql-codegen/add': 5.0.3(graphql@16.8.1)
-      '@graphql-codegen/gql-tag-operations': 4.0.10(graphql@16.8.1)
+      '@graphql-codegen/gql-tag-operations': 4.0.10(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-codegen/typed-document-node': 5.0.10(graphql@16.8.1)
-      '@graphql-codegen/typescript': 4.1.0(graphql@16.8.1)
-      '@graphql-codegen/typescript-operations': 4.3.0(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.4.0(graphql@16.8.1)
+      '@graphql-codegen/typed-document-node': 5.0.10(encoding@0.1.13)(graphql@16.8.1)
+      '@graphql-codegen/typescript': 4.1.0(encoding@0.1.13)(graphql@16.8.1)
+      '@graphql-codegen/typescript-operations': 4.3.0(encoding@0.1.13)(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.4.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/documents': 1.0.1(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.8.1)
@@ -16558,10 +16658,10 @@ snapshots:
       graphql: 16.8.1
       tslib: 2.6.3
 
-  '@graphql-codegen/gql-tag-operations@4.0.10(graphql@16.8.1)':
+  '@graphql-codegen/gql-tag-operations@4.0.10(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.4.0(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.4.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
@@ -16570,11 +16670,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/near-operation-file-preset@3.0.0(graphql@16.8.1)':
+  '@graphql-codegen/near-operation-file-preset@3.0.0(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/add': 3.2.3(graphql@16.8.1)
       '@graphql-codegen/plugin-helpers': 3.1.2(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 2.13.1(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 2.13.1(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       graphql: 16.8.1
       parse-filepath: 1.0.2
@@ -16620,10 +16720,10 @@ snapshots:
       graphql: 16.8.1
       tslib: 2.6.3
 
-  '@graphql-codegen/typed-document-node@5.0.10(graphql@16.8.1)':
+  '@graphql-codegen/typed-document-node@5.0.10(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.4.0(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.4.0(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
       graphql: 16.8.1
@@ -16632,10 +16732,10 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-document-nodes@4.0.9(graphql@16.8.1)':
+  '@graphql-codegen/typescript-document-nodes@4.0.9(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
       tslib: 2.6.3
@@ -16643,11 +16743,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-operations@4.2.3(graphql@16.8.1)':
+  '@graphql-codegen/typescript-operations@4.2.3(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-codegen/typescript': 4.0.9(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.8.1)
+      '@graphql-codegen/typescript': 4.0.9(encoding@0.1.13)(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
       tslib: 2.6.3
@@ -16655,11 +16755,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-operations@4.3.0(graphql@16.8.1)':
+  '@graphql-codegen/typescript-operations@4.3.0(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
-      '@graphql-codegen/typescript': 4.1.0(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.4.0(graphql@16.8.1)
+      '@graphql-codegen/typescript': 4.1.0(encoding@0.1.13)(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.4.0(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
       tslib: 2.6.3
@@ -16667,10 +16767,10 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-react-apollo@4.3.2(graphql@16.8.1)':
+  '@graphql-codegen/typescript-react-apollo@4.3.2(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 3.1.2(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 2.13.1(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 2.13.1(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
       graphql: 16.8.1
@@ -16679,11 +16779,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript@4.0.9(graphql@16.8.1)':
+  '@graphql-codegen/typescript@4.0.9(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
       '@graphql-codegen/schema-ast': 4.1.0(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
       tslib: 2.6.3
@@ -16691,11 +16791,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript@4.1.0(graphql@16.8.1)':
+  '@graphql-codegen/typescript@4.1.0(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
       '@graphql-codegen/schema-ast': 4.1.0(graphql@16.8.1)
-      '@graphql-codegen/visitor-plugin-common': 5.4.0(graphql@16.8.1)
+      '@graphql-codegen/visitor-plugin-common': 5.4.0(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
       tslib: 2.6.3
@@ -16703,11 +16803,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/visitor-plugin-common@2.13.1(graphql@16.8.1)':
+  '@graphql-codegen/visitor-plugin-common@2.13.1(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 2.7.2(graphql@16.8.1)
       '@graphql-tools/optimize': 1.4.0(graphql@16.8.1)
-      '@graphql-tools/relay-operation-optimizer': 6.5.18(graphql@16.8.1)
+      '@graphql-tools/relay-operation-optimizer': 6.5.18(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 8.13.1(graphql@16.8.1)
       auto-bind: 4.0.0
       change-case-all: 1.0.14
@@ -16720,11 +16820,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/visitor-plugin-common@5.3.1(graphql@16.8.1)':
+  '@graphql-codegen/visitor-plugin-common@5.3.1(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
       '@graphql-tools/optimize': 2.0.0(graphql@16.8.1)
-      '@graphql-tools/relay-operation-optimizer': 7.0.1(graphql@16.8.1)
+      '@graphql-tools/relay-operation-optimizer': 7.0.1(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
@@ -16737,11 +16837,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/visitor-plugin-common@5.4.0(graphql@16.8.1)':
+  '@graphql-codegen/visitor-plugin-common@5.4.0(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.8.1)
       '@graphql-tools/optimize': 2.0.0(graphql@16.8.1)
-      '@graphql-tools/relay-operation-optimizer': 7.0.1(graphql@16.8.1)
+      '@graphql-tools/relay-operation-optimizer': 7.0.1(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
@@ -16754,9 +16854,9 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-tools/apollo-engine-loader@8.0.1(graphql@16.8.1)':
+  '@graphql-tools/apollo-engine-loader@8.0.1(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
-      '@ardatan/sync-fetch': 0.0.1
+      '@ardatan/sync-fetch': 0.0.1(encoding@0.1.13)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       '@whatwg-node/fetch': 0.9.21
       graphql: 16.8.1
@@ -16859,9 +16959,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@graphql-tools/github-loader@8.0.1(@types/node@22.7.5)(graphql@16.8.1)':
+  '@graphql-tools/github-loader@8.0.1(@types/node@22.7.5)(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
-      '@ardatan/sync-fetch': 0.0.1
+      '@ardatan/sync-fetch': 0.0.1(encoding@0.1.13)
       '@graphql-tools/executor-http': 1.1.6(@types/node@22.7.5)(graphql@16.8.1)
       '@graphql-tools/graphql-tag-pluck': 8.3.2(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
@@ -16935,9 +17035,9 @@ snapshots:
       graphql: 16.8.1
       tslib: 2.7.0
 
-  '@graphql-tools/prisma-loader@8.0.4(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)':
+  '@graphql-tools/prisma-loader@8.0.4(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(utf-8-validate@6.0.4)':
     dependencies:
-      '@graphql-tools/url-loader': 8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)
+      '@graphql-tools/url-loader': 8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(utf-8-validate@6.0.4)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       '@types/js-yaml': 4.0.9
       '@whatwg-node/fetch': 0.9.21
@@ -16945,7 +17045,7 @@ snapshots:
       debug: 4.3.7
       dotenv: 16.4.5
       graphql: 16.8.1
-      graphql-request: 6.1.0(graphql@16.8.1)
+      graphql-request: 6.1.0(encoding@0.1.13)(graphql@16.8.1)
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.5
       jose: 5.9.3
@@ -16961,9 +17061,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@graphql-tools/relay-operation-optimizer@6.5.18(graphql@16.8.1)':
+  '@graphql-tools/relay-operation-optimizer@6.5.18(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
-      '@ardatan/relay-compiler': 12.0.0(graphql@16.8.1)
+      '@ardatan/relay-compiler': 12.0.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 9.2.1(graphql@16.8.1)
       graphql: 16.8.1
       tslib: 2.7.0
@@ -16971,9 +17071,9 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-tools/relay-operation-optimizer@7.0.1(graphql@16.8.1)':
+  '@graphql-tools/relay-operation-optimizer@7.0.1(encoding@0.1.13)(graphql@16.8.1)':
     dependencies:
-      '@ardatan/relay-compiler': 12.0.0(graphql@16.8.1)
+      '@ardatan/relay-compiler': 12.0.0(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       graphql: 16.8.1
       tslib: 2.7.0
@@ -16989,9 +17089,9 @@ snapshots:
       tslib: 2.7.0
       value-or-promise: 1.0.12
 
-  '@graphql-tools/url-loader@8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)':
+  '@graphql-tools/url-loader@8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(utf-8-validate@6.0.4)':
     dependencies:
-      '@ardatan/sync-fetch': 0.0.1
+      '@ardatan/sync-fetch': 0.0.1(encoding@0.1.13)
       '@graphql-tools/delegate': 10.0.21(graphql@16.8.1)
       '@graphql-tools/executor-graphql-ws': 1.2.0(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)
       '@graphql-tools/executor-http': 1.1.6(@types/node@22.7.5)(graphql@16.8.1)
@@ -17464,10 +17564,10 @@ snapshots:
 
   '@metamask/safe-event-emitter@3.1.1': {}
 
-  '@metamask/sdk-communication-layer@0.20.5(cross-fetch@4.0.0)(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@metamask/sdk-communication-layer@0.20.5(cross-fetch@4.0.0(encoding@0.1.13))(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
       bufferutil: 4.0.8
-      cross-fetch: 4.0.0
+      cross-fetch: 4.0.0(encoding@0.1.13)
       date-fns: 2.30.0
       debug: 4.3.7
       eciesjs: 0.3.19
@@ -17506,15 +17606,15 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@metamask/sdk@0.20.5(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)':
+  '@metamask/sdk@0.20.5(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@metamask/onboarding': 1.0.1
       '@metamask/providers': 15.0.0
-      '@metamask/sdk-communication-layer': 0.20.5(cross-fetch@4.0.0)(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@metamask/sdk-communication-layer': 0.20.5(cross-fetch@4.0.0(encoding@0.1.13))(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@metamask/sdk-install-modal-web': 0.20.4(i18next@22.5.1)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@types/dom-screen-wake-lock': 1.0.3
       bowser: 2.11.0
-      cross-fetch: 4.0.0
+      cross-fetch: 4.0.0(encoding@0.1.13)
       debug: 4.3.7
       eciesjs: 0.3.19
       eth-rpc-errors: 4.0.3
@@ -17542,15 +17642,15 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@metamask/sdk@0.20.5(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)':
+  '@metamask/sdk@0.20.5(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@metamask/onboarding': 1.0.1
       '@metamask/providers': 15.0.0
-      '@metamask/sdk-communication-layer': 0.20.5(cross-fetch@4.0.0)(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@metamask/sdk-communication-layer': 0.20.5(cross-fetch@4.0.0(encoding@0.1.13))(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@metamask/sdk-install-modal-web': 0.20.4(i18next@22.5.1)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@types/dom-screen-wake-lock': 1.0.3
       bowser: 2.11.0
-      cross-fetch: 4.0.0
+      cross-fetch: 4.0.0(encoding@0.1.13)
       debug: 4.3.7
       eciesjs: 0.3.19
       eth-rpc-errors: 4.0.3
@@ -17578,15 +17678,15 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@metamask/sdk@0.20.5(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(utf-8-validate@5.0.10)':
+  '@metamask/sdk@0.20.5(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@metamask/onboarding': 1.0.1
       '@metamask/providers': 15.0.0
-      '@metamask/sdk-communication-layer': 0.20.5(cross-fetch@4.0.0)(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@metamask/sdk-communication-layer': 0.20.5(cross-fetch@4.0.0(encoding@0.1.13))(eciesjs@0.3.19)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.7.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@metamask/sdk-install-modal-web': 0.20.4(i18next@22.5.1)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@types/dom-screen-wake-lock': 1.0.3
       bowser: 2.11.0
-      cross-fetch: 4.0.0
+      cross-fetch: 4.0.0(encoding@0.1.13)
       debug: 4.3.7
       eciesjs: 0.3.19
       eth-rpc-errors: 4.0.3
@@ -19553,11 +19653,11 @@ snapshots:
       '@sentry/types': 8.28.0
       '@sentry/utils': 8.28.0
 
-  '@sentry/bundler-plugin-core@2.22.3':
+  '@sentry/bundler-plugin-core@2.22.3(encoding@0.1.13)':
     dependencies:
       '@babel/core': 7.25.2
       '@sentry/babel-plugin-component-annotate': 2.22.3
-      '@sentry/cli': 2.34.1
+      '@sentry/cli': 2.34.1(encoding@0.1.13)
       dotenv: 16.4.5
       find-up: 5.0.0
       glob: 9.3.5
@@ -19588,10 +19688,10 @@ snapshots:
   '@sentry/cli-win32-x64@2.34.1':
     optional: true
 
-  '@sentry/cli@2.34.1':
+  '@sentry/cli@2.34.1(encoding@0.1.13)':
     dependencies:
       https-proxy-agent: 5.0.1
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       progress: 2.0.3
       proxy-from-env: 1.1.0
       which: 2.0.2
@@ -19624,7 +19724,7 @@ snapshots:
       '@sentry/utils': 7.116.0
       localforage: 1.10.0
 
-  '@sentry/nextjs@8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)':
+  '@sentry/nextjs@8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@opentelemetry/instrumentation-http': 0.52.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.27.0
@@ -19636,7 +19736,7 @@ snapshots:
       '@sentry/types': 8.28.0
       '@sentry/utils': 8.28.0
       '@sentry/vercel-edge': 8.28.0
-      '@sentry/webpack-plugin': 2.22.3
+      '@sentry/webpack-plugin': 2.22.3(encoding@0.1.13)
       chalk: 3.0.0
       next: 14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       resolve: 1.22.8
@@ -19651,7 +19751,7 @@ snapshots:
       - react
       - supports-color
 
-  '@sentry/nextjs@8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)':
+  '@sentry/nextjs@8.28.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@opentelemetry/instrumentation-http': 0.52.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.27.0
@@ -19663,7 +19763,7 @@ snapshots:
       '@sentry/types': 8.28.0
       '@sentry/utils': 8.28.0
       '@sentry/vercel-edge': 8.28.0
-      '@sentry/webpack-plugin': 2.22.3
+      '@sentry/webpack-plugin': 2.22.3(encoding@0.1.13)
       chalk: 3.0.0
       next: 14.2.11(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       resolve: 1.22.8
@@ -19768,9 +19868,9 @@ snapshots:
       '@sentry/types': 8.28.0
       '@sentry/utils': 8.28.0
 
-  '@sentry/webpack-plugin@2.22.3':
+  '@sentry/webpack-plugin@2.22.3(encoding@0.1.13)':
     dependencies:
-      '@sentry/bundler-plugin-core': 2.22.3
+      '@sentry/bundler-plugin-core': 2.22.3(encoding@0.1.13)
       unplugin: 1.0.1
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -19849,7 +19949,7 @@ snapshots:
     dependencies:
       buffer: 6.0.3
 
-  '@solana/web3.js@1.92.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@solana/web3.js@1.92.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@babel/runtime': 7.24.7
       '@noble/curves': 1.4.0
@@ -19863,7 +19963,7 @@ snapshots:
       buffer: 6.0.3
       fast-stable-stringify: 1.0.0
       jayson: 4.1.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       rpc-websockets: 7.11.1
       superstruct: 1.0.4
     transitivePeerDependencies:
@@ -19982,9 +20082,9 @@ snapshots:
       storybook: 8.3.5(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       ts-dedent: 2.2.0
 
-  '@storybook/addon-controls@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@storybook/addon-controls@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@storybook/blocks': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@storybook/blocks': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       lodash: 4.17.21
       ts-dedent: 2.2.0
     transitivePeerDependencies:
@@ -20003,11 +20103,11 @@ snapshots:
       storybook: 8.3.5(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       ts-dedent: 2.2.0
 
-  '@storybook/addon-docs@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@storybook/addon-docs@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@jest/transform': 29.7.0
       '@mdx-js/react': 2.3.0(react@18.2.0)
-      '@storybook/blocks': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@storybook/blocks': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/client-logger': 7.6.19
       '@storybook/components': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/csf-plugin': 7.6.19
@@ -20048,18 +20148,18 @@ snapshots:
       storybook: 8.3.5(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       ts-dedent: 2.2.0
 
-  '@storybook/addon-essentials@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@storybook/addon-essentials@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@storybook/addon-actions': 7.6.19
       '@storybook/addon-backgrounds': 7.6.19
-      '@storybook/addon-controls': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@storybook/addon-docs': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@storybook/addon-controls': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@storybook/addon-docs': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/addon-highlight': 7.6.19
       '@storybook/addon-measure': 7.6.19
       '@storybook/addon-outline': 7.6.19
       '@storybook/addon-toolbars': 7.6.19
       '@storybook/addon-viewport': 7.6.19
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/manager-api': 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/node-logger': 7.6.19
       '@storybook/preview-api': 7.6.19
@@ -20168,13 +20268,13 @@ snapshots:
     transitivePeerDependencies:
       - webpack
 
-  '@storybook/addon-styling@1.3.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(postcss@8.4.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)':
+  '@storybook/addon-styling@1.3.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(postcss@8.4.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)':
     dependencies:
       '@babel/template': 7.24.6
       '@babel/types': 7.24.6
       '@storybook/api': 7.6.17(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/components': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/core-events': 7.6.19
       '@storybook/manager-api': 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/node-logger': 7.6.19
@@ -20232,14 +20332,14 @@ snapshots:
       - react
       - react-dom
 
-  '@storybook/blocks@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@storybook/blocks@7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@storybook/channels': 7.6.19
       '@storybook/client-logger': 7.6.19
       '@storybook/components': 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/core-events': 7.6.19
       '@storybook/csf': 0.1.8
-      '@storybook/docs-tools': 7.6.19
+      '@storybook/docs-tools': 7.6.19(encoding@0.1.13)
       '@storybook/global': 5.0.0
       '@storybook/manager-api': 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@storybook/preview-api': 7.6.19
@@ -20286,10 +20386,10 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/builder-manager@7.6.19':
+  '@storybook/builder-manager@7.6.19(encoding@0.1.13)':
     dependencies:
       '@fal-works/esbuild-plugin-global-externals': 2.1.2
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/manager': 7.6.19
       '@storybook/node-logger': 7.6.19
       '@types/ejs': 3.1.5
@@ -20308,11 +20408,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-vite@7.6.19(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))':
+  '@storybook/builder-vite@7.6.19(encoding@0.1.13)(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))':
     dependencies:
       '@storybook/channels': 7.6.19
       '@storybook/client-logger': 7.6.19
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/csf-plugin': 7.6.19
       '@storybook/node-logger': 7.6.19
       '@storybook/preview': 7.6.19
@@ -20369,19 +20469,19 @@ snapshots:
       telejson: 7.2.0
       tiny-invariant: 1.3.3
 
-  '@storybook/cli@7.6.19(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@storybook/cli@7.6.19(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/preset-env': 7.24.7(@babel/core@7.25.2)
       '@babel/types': 7.24.7
       '@ndelangen/get-tarball': 3.0.9
       '@storybook/codemod': 7.6.19
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/core-events': 7.6.19
-      '@storybook/core-server': 7.6.19(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@storybook/core-server': 7.6.19(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@storybook/csf-tools': 7.6.19
       '@storybook/node-logger': 7.6.19
-      '@storybook/telemetry': 7.6.19
+      '@storybook/telemetry': 7.6.19(encoding@0.1.13)
       '@storybook/types': 7.6.19
       '@types/semver': 7.5.8
       '@yarnpkg/fslib': 2.10.3
@@ -20471,7 +20571,7 @@ snapshots:
       '@storybook/client-logger': 7.6.19
       '@storybook/preview-api': 7.6.19
 
-  '@storybook/core-common@7.6.19':
+  '@storybook/core-common@7.6.19(encoding@0.1.13)':
     dependencies:
       '@storybook/core-events': 7.6.19
       '@storybook/node-logger': 7.6.19
@@ -20490,7 +20590,7 @@ snapshots:
       glob: 10.4.5
       handlebars: 4.7.8
       lazy-universal-dotenv: 4.0.0
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       picomatch: 2.3.1
       pkg-dir: 5.0.0
       pretty-hrtime: 1.0.3
@@ -20508,13 +20608,13 @@ snapshots:
     dependencies:
       ts-dedent: 2.2.0
 
-  '@storybook/core-server@7.6.19(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@storybook/core-server@7.6.19(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@aw-web-design/x-default-browser': 1.4.126
       '@discoveryjs/json-ext': 0.5.7
-      '@storybook/builder-manager': 7.6.19
+      '@storybook/builder-manager': 7.6.19(encoding@0.1.13)
       '@storybook/channels': 7.6.19
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/core-events': 7.6.19
       '@storybook/csf': 0.1.8
       '@storybook/csf-tools': 7.6.19
@@ -20523,7 +20623,7 @@ snapshots:
       '@storybook/manager': 7.6.19
       '@storybook/node-logger': 7.6.19
       '@storybook/preview-api': 7.6.19
-      '@storybook/telemetry': 7.6.19
+      '@storybook/telemetry': 7.6.19(encoding@0.1.13)
       '@storybook/types': 7.6.19
       '@types/detect-port': 1.3.5
       '@types/node': 18.19.34
@@ -20617,9 +20717,9 @@ snapshots:
 
   '@storybook/docs-mdx@0.1.0': {}
 
-  '@storybook/docs-tools@7.6.19':
+  '@storybook/docs-tools@7.6.19(encoding@0.1.13)':
     dependencies:
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/preview-api': 7.6.19
       '@storybook/types': 7.6.19
       '@types/doctrine': 0.0.3
@@ -20738,12 +20838,12 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       storybook: 8.3.5(bufferutil@4.0.8)(utf-8-validate@6.0.4)
 
-  '@storybook/react-vite@7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))':
+  '@storybook/react-vite@7.6.19(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))':
     dependencies:
       '@joshwooding/vite-plugin-react-docgen-typescript': 0.3.0(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))
       '@rollup/pluginutils': 5.1.0(rollup@4.24.0)
-      '@storybook/builder-vite': 7.6.19(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))
-      '@storybook/react': 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)
+      '@storybook/builder-vite': 7.6.19(encoding@0.1.13)(typescript@5.4.5)(vite@5.2.13(@types/node@22.7.5))
+      '@storybook/react': 7.6.19(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)
       '@vitejs/plugin-react': 3.1.0(vite@5.2.13(@types/node@22.7.5))
       magic-string: 0.30.10
       react: 18.2.0
@@ -20781,11 +20881,11 @@ snapshots:
       - typescript
       - vite-plugin-glimmerx
 
-  '@storybook/react@7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)':
+  '@storybook/react@7.6.19(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.4.5)':
     dependencies:
       '@storybook/client-logger': 7.6.19
       '@storybook/core-client': 7.6.19
-      '@storybook/docs-tools': 7.6.19
+      '@storybook/docs-tools': 7.6.19(encoding@0.1.13)
       '@storybook/global': 5.0.0
       '@storybook/preview-api': 7.6.19
       '@storybook/react-dom-shim': 7.6.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -20853,10 +20953,10 @@ snapshots:
       memoizerific: 1.11.3
       qs: 6.12.1
 
-  '@storybook/telemetry@7.6.19':
+  '@storybook/telemetry@7.6.19(encoding@0.1.13)':
     dependencies:
       '@storybook/client-logger': 7.6.19
-      '@storybook/core-common': 7.6.19
+      '@storybook/core-common': 7.6.19(encoding@0.1.13)
       '@storybook/csf-tools': 7.6.19
       chalk: 4.1.2
       detect-package-manager: 2.0.1
@@ -21009,40 +21109,40 @@ snapshots:
 
   '@turnkey/encoding@0.2.1': {}
 
-  '@turnkey/http@2.12.2':
+  '@turnkey/http@2.12.2(encoding@0.1.13)':
     dependencies:
       '@turnkey/api-key-stamper': 0.4.1
       '@turnkey/encoding': 0.2.1
       '@turnkey/webauthn-stamper': 0.5.0
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
-  '@turnkey/http@2.7.1':
+  '@turnkey/http@2.7.1(encoding@0.1.13)':
     dependencies:
       '@turnkey/api-key-stamper': 0.4.0
       '@turnkey/encoding': 0.1.0
       '@turnkey/webauthn-stamper': 0.5.0
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
   '@turnkey/iframe-stamper@2.0.0': {}
 
-  '@turnkey/solana@0.3.9(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@turnkey/solana@0.3.9(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@turnkey/http': 2.12.2
+      '@solana/web3.js': 1.92.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@turnkey/http': 2.12.2(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
 
-  '@turnkey/viem@0.4.10(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
+  '@turnkey/viem@0.4.10(encoding@0.1.13)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
       '@turnkey/api-key-stamper': 0.4.0
-      '@turnkey/http': 2.7.1
-      cross-fetch: 4.0.0
+      '@turnkey/http': 2.7.1(encoding@0.1.13)
+      cross-fetch: 4.0.0(encoding@0.1.13)
       typescript: 5.6.3
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
     transitivePeerDependencies:
@@ -21738,14 +21838,14 @@ snapshots:
       loupe: 3.1.2
       tinyrainbow: 1.2.0
 
-  '@wagmi/connectors@5.0.9(@types/react@18.3.12)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)':
+  '@wagmi/connectors@5.0.9(@types/react@18.3.12)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)':
     dependencies:
       '@coinbase/wallet-sdk': 4.0.3
-      '@metamask/sdk': 0.20.5(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(utf-8-validate@5.0.10)
+      '@metamask/sdk': 0.20.5(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(utf-8-validate@5.0.10)
       '@safe-global/safe-apps-provider': 0.18.1(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@safe-global/safe-apps-sdk': 8.1.0(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
-      '@walletconnect/ethereum-provider': 2.13.0(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(utf-8-validate@5.0.10)
+      '@walletconnect/ethereum-provider': 2.13.0(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)
       '@walletconnect/modal': 2.6.2(@types/react@18.3.12)(react@18.3.1)
       cbw-sdk: '@coinbase/wallet-sdk@3.9.3'
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
@@ -21778,14 +21878,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@wagmi/connectors@5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)':
+  '@wagmi/connectors@5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)':
     dependencies:
       '@coinbase/wallet-sdk': 4.0.3
-      '@metamask/sdk': 0.20.5(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)
+      '@metamask/sdk': 0.20.5(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)
       '@safe-global/safe-apps-provider': 0.18.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@safe-global/safe-apps-sdk': 8.1.0(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
-      '@walletconnect/ethereum-provider': 2.13.0(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)
+      '@walletconnect/ethereum-provider': 2.13.0(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.2.0)(utf-8-validate@5.0.10)
       '@walletconnect/modal': 2.6.2(@types/react@18.3.3)(react@18.2.0)
       cbw-sdk: '@coinbase/wallet-sdk@3.9.3'
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
@@ -21818,14 +21918,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@wagmi/connectors@5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)':
+  '@wagmi/connectors@5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)':
     dependencies:
       '@coinbase/wallet-sdk': 4.0.3
-      '@metamask/sdk': 0.20.5(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)
+      '@metamask/sdk': 0.20.5(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(utf-8-validate@5.0.10)
       '@safe-global/safe-apps-provider': 0.18.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@safe-global/safe-apps-sdk': 8.1.0(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
-      '@walletconnect/ethereum-provider': 2.13.0(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)
+      '@walletconnect/ethereum-provider': 2.13.0(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.2.0)(utf-8-validate@5.0.10)
       '@walletconnect/modal': 2.6.2(@types/react@18.3.3)(react@18.2.0)
       cbw-sdk: '@coinbase/wallet-sdk@3.9.3'
       viem: 2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
@@ -21892,7 +21992,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@walletconnect/core@2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@walletconnect/core@2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@walletconnect/heartbeat': 1.2.1
       '@walletconnect/jsonrpc-provider': 1.0.13
@@ -21908,7 +22008,7 @@ snapshots:
       '@walletconnect/types': 2.11.2
       '@walletconnect/utils': 2.11.2
       events: 3.3.0
-      isomorphic-unfetch: 3.1.0
+      isomorphic-unfetch: 3.1.0(encoding@0.1.13)
       lodash.isequal: 4.5.0
       uint8arrays: 3.1.1
     transitivePeerDependencies:
@@ -21930,7 +22030,7 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@walletconnect/core@2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@walletconnect/core@2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@walletconnect/heartbeat': 1.2.2
       '@walletconnect/jsonrpc-provider': 1.0.14
@@ -21946,7 +22046,7 @@ snapshots:
       '@walletconnect/types': 2.13.0
       '@walletconnect/utils': 2.13.0
       events: 3.3.0
-      isomorphic-unfetch: 3.1.0
+      isomorphic-unfetch: 3.1.0(encoding@0.1.13)
       lodash.isequal: 4.5.0
       uint8arrays: 3.1.0
     transitivePeerDependencies:
@@ -21972,16 +22072,16 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  '@walletconnect/ethereum-provider@2.11.2(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(utf-8-validate@5.0.10)':
+  '@walletconnect/ethereum-provider@2.11.2(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/jsonrpc-http-connection': 1.0.8
+      '@walletconnect/jsonrpc-http-connection': 1.0.8(encoding@0.1.13)
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/modal': 2.6.2(@types/react@18.3.12)(react@18.3.1)
-      '@walletconnect/sign-client': 2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/sign-client': 2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/types': 2.11.2
-      '@walletconnect/universal-provider': 2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/universal-provider': 2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/utils': 2.11.2
       events: 3.3.0
     transitivePeerDependencies:
@@ -22005,16 +22105,16 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@walletconnect/ethereum-provider@2.13.0(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(utf-8-validate@5.0.10)':
+  '@walletconnect/ethereum-provider@2.13.0(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/jsonrpc-http-connection': 1.0.8
+      '@walletconnect/jsonrpc-http-connection': 1.0.8(encoding@0.1.13)
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/modal': 2.6.2(@types/react@18.3.12)(react@18.3.1)
-      '@walletconnect/sign-client': 2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/sign-client': 2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/types': 2.13.0
-      '@walletconnect/universal-provider': 2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/universal-provider': 2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/utils': 2.13.0
       events: 3.3.0
     transitivePeerDependencies:
@@ -22038,16 +22138,16 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@walletconnect/ethereum-provider@2.13.0(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(utf-8-validate@5.0.10)':
+  '@walletconnect/ethereum-provider@2.13.0(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.2.0)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/jsonrpc-http-connection': 1.0.8
+      '@walletconnect/jsonrpc-http-connection': 1.0.8(encoding@0.1.13)
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/modal': 2.6.2(@types/react@18.3.3)(react@18.2.0)
-      '@walletconnect/sign-client': 2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/sign-client': 2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/types': 2.13.0
-      '@walletconnect/universal-provider': 2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/universal-provider': 2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/utils': 2.13.0
       events: 3.3.0
     transitivePeerDependencies:
@@ -22088,11 +22188,11 @@ snapshots:
       '@walletconnect/time': 1.0.2
       events: 3.3.0
 
-  '@walletconnect/jsonrpc-http-connection@1.0.8':
+  '@walletconnect/jsonrpc-http-connection@1.0.8(encoding@0.1.13)':
     dependencies:
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/safe-json': 1.0.2
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8(encoding@0.1.13)
       events: 3.3.0
     transitivePeerDependencies:
       - encoding
@@ -22227,9 +22327,9 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  '@walletconnect/sign-client@2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@walletconnect/sign-client@2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/core': 2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/core': 2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/events': 1.0.1
       '@walletconnect/heartbeat': 1.2.1
       '@walletconnect/jsonrpc-utils': 1.0.8
@@ -22257,9 +22357,9 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@walletconnect/sign-client@2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@walletconnect/sign-client@2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/core': 2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/core': 2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/events': 1.0.1
       '@walletconnect/heartbeat': 1.2.2
       '@walletconnect/jsonrpc-utils': 1.0.8
@@ -22339,14 +22439,14 @@ snapshots:
       - ioredis
       - uWebSockets.js
 
-  '@walletconnect/universal-provider@2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@walletconnect/universal-provider@2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/jsonrpc-http-connection': 1.0.8
+      '@walletconnect/jsonrpc-http-connection': 1.0.8(encoding@0.1.13)
       '@walletconnect/jsonrpc-provider': 1.0.13
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/logger': 2.1.2
-      '@walletconnect/sign-client': 2.11.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/sign-client': 2.11.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/types': 2.11.2
       '@walletconnect/utils': 2.11.2
       events: 3.3.0
@@ -22369,14 +22469,14 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@walletconnect/universal-provider@2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@walletconnect/universal-provider@2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@walletconnect/jsonrpc-http-connection': 1.0.8
+      '@walletconnect/jsonrpc-http-connection': 1.0.8(encoding@0.1.13)
       '@walletconnect/jsonrpc-provider': 1.0.14
       '@walletconnect/jsonrpc-types': 1.0.4
       '@walletconnect/jsonrpc-utils': 1.0.8
       '@walletconnect/logger': 2.1.2
-      '@walletconnect/sign-client': 2.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@walletconnect/sign-client': 2.13.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@walletconnect/types': 2.13.0
       '@walletconnect/utils': 2.13.0
       events: 3.3.0
@@ -22809,6 +22909,12 @@ snapshots:
       possible-typed-array-names: 1.0.0
 
   axios@0.21.4:
+    dependencies:
+      follow-redirects: 1.15.6
+    transitivePeerDependencies:
+      - debug
+
+  axios@0.24.0:
     dependencies:
       follow-redirects: 1.15.6
     transitivePeerDependencies:
@@ -23512,15 +23618,15 @@ snapshots:
       fs-extra: 11.2.0
       picocolors: 1.0.1
 
-  cross-fetch@3.1.8:
+  cross-fetch@3.1.8(encoding@0.1.13):
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
-  cross-fetch@4.0.0:
+  cross-fetch@4.0.0(encoding@0.1.13):
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
@@ -23888,6 +23994,10 @@ snapshots:
   encodeurl@1.0.2: {}
 
   encodeurl@2.0.0: {}
+
+  encoding@0.1.13:
+    dependencies:
+      iconv-lite: 0.6.3
 
   end-of-stream@1.4.4:
     dependencies:
@@ -24535,6 +24645,8 @@ snapshots:
 
   extract-files@11.0.0: {}
 
+  extract-files@9.0.0: {}
+
   extract-zip@1.7.0:
     dependencies:
       concat-stream: 1.6.2
@@ -24596,9 +24708,9 @@ snapshots:
 
   fbjs-css-vars@1.0.2: {}
 
-  fbjs@3.0.5:
+  fbjs@3.0.5(encoding@0.1.13):
     dependencies:
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8(encoding@0.1.13)
       fbjs-css-vars: 1.0.2
       loose-envify: 1.4.0
       object-assign: 4.1.1
@@ -24718,6 +24830,12 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
+
+  form-data@3.0.2:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
 
   form-data@4.0.0:
     dependencies:
@@ -24958,13 +25076,13 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql-config@5.1.2(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4):
+  graphql-config@5.1.2(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(typescript@5.6.3)(utf-8-validate@6.0.4):
     dependencies:
       '@graphql-tools/graphql-file-loader': 8.0.1(graphql@16.8.1)
       '@graphql-tools/json-file-loader': 8.0.1(graphql@16.8.1)
       '@graphql-tools/load': 8.0.2(graphql@16.8.1)
       '@graphql-tools/merge': 9.0.7(graphql@16.8.1)
-      '@graphql-tools/url-loader': 8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(graphql@16.8.1)(utf-8-validate@6.0.4)
+      '@graphql-tools/url-loader': 8.0.2(@types/node@22.7.5)(bufferutil@4.0.8)(encoding@0.1.13)(graphql@16.8.1)(utf-8-validate@6.0.4)
       '@graphql-tools/utils': 10.5.4(graphql@16.8.1)
       cosmiconfig: 9.0.0(typescript@5.6.3)
       graphql: 16.8.1
@@ -24979,10 +25097,19 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  graphql-request@6.1.0(graphql@16.8.1):
+  graphql-request@3.7.0(encoding@0.1.13)(graphql@15.9.0):
+    dependencies:
+      cross-fetch: 3.1.8(encoding@0.1.13)
+      extract-files: 9.0.0
+      form-data: 3.0.2
+      graphql: 15.9.0
+    transitivePeerDependencies:
+      - encoding
+
+  graphql-request@6.1.0(encoding@0.1.13)(graphql@16.8.1):
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.8.1)
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8(encoding@0.1.13)
       graphql: 16.8.1
     transitivePeerDependencies:
       - encoding
@@ -24995,6 +25122,8 @@ snapshots:
   graphql-ws@5.16.0(graphql@16.8.1):
     dependencies:
       graphql: 16.8.1
+
+  graphql@15.9.0: {}
 
   graphql@16.8.1: {}
 
@@ -25336,6 +25465,10 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
+  iconv-lite@0.6.3:
+    dependencies:
+      safer-buffer: 2.1.2
+
   icss-utils@4.1.1:
     dependencies:
       postcss: 7.0.39
@@ -25547,6 +25680,8 @@ snapshots:
     dependencies:
       is-unc-path: 1.0.0
 
+  is-stream@1.1.0: {}
+
   is-stream@2.0.1: {}
 
   is-stream@3.0.0: {}
@@ -25593,9 +25728,14 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  isomorphic-unfetch@3.1.0:
+  isomorphic-fetch@2.2.1:
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 1.7.3
+      whatwg-fetch: 3.6.20
+
+  isomorphic-unfetch@3.1.0(encoding@0.1.13):
+    dependencies:
+      node-fetch: 2.7.0(encoding@0.1.13)
       unfetch: 4.2.0
     transitivePeerDependencies:
       - encoding
@@ -25795,6 +25935,8 @@ snapshots:
   json-stable-stringify-without-jsonify@1.0.1: {}
 
   json-stringify-safe@5.0.1: {}
+
+  json-to-graphql-query@2.3.0: {}
 
   json-to-pretty-yaml@1.2.2:
     dependencies:
@@ -26927,9 +27069,16 @@ snapshots:
 
   node-fetch-native@1.6.4: {}
 
-  node-fetch@2.7.0:
+  node-fetch@1.7.3:
+    dependencies:
+      encoding: 0.1.13
+      is-stream: 1.1.0
+
+  node-fetch@2.7.0(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
+    optionalDependencies:
+      encoding: 0.1.13
 
   node-forge@1.3.1: {}
 
@@ -28399,10 +28548,10 @@ snapshots:
       hast-util-to-string: 3.0.1
       unist-util-visit: 5.0.0
 
-  relay-runtime@12.0.0:
+  relay-runtime@12.0.0(encoding@0.1.13):
     dependencies:
       '@babel/runtime': 7.24.7
-      fbjs: 3.0.5
+      fbjs: 3.0.5(encoding@0.1.13)
       invariant: 2.2.4
     transitivePeerDependencies:
       - encoding
@@ -28996,9 +29145,9 @@ snapshots:
 
   store2@2.14.3: {}
 
-  storybook@7.6.19(bufferutil@4.0.8)(utf-8-validate@5.0.10):
+  storybook@7.6.19(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
-      '@storybook/cli': 7.6.19(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@storybook/cli': 7.6.19(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -30248,7 +30397,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.13.7(bufferutil@4.0.8)(typescript@5.5.3)(utf-8-validate@6.0.4)(zod@3.23.8):
+  viem@2.13.7(bufferutil@4.0.8)(typescript@5.5.3)(utf-8-validate@5.0.10)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.10.0
       '@noble/curves': 1.2.0
@@ -30256,8 +30405,8 @@ snapshots:
       '@scure/bip32': 1.3.2
       '@scure/bip39': 1.2.1
       abitype: 1.0.0(typescript@5.5.3)(zod@3.23.8)
-      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4))
-      ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
+      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     optionalDependencies:
       typescript: 5.5.3
     transitivePeerDependencies:
@@ -30586,10 +30735,10 @@ snapshots:
 
   void-elements@3.1.0: {}
 
-  wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
+  wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
     dependencies:
       '@tanstack/react-query': 5.40.1(react@18.2.0)
-      '@wagmi/connectors': 5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+      '@wagmi/connectors': 5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.2.0(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
@@ -30624,10 +30773,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
+  wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.2.0))(@types/react@18.3.3)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
     dependencies:
       '@tanstack/react-query': 5.40.1(react@18.2.0)
-      '@wagmi/connectors': 5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+      '@wagmi/connectors': 5.0.9(@types/react@18.3.3)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.2.0))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)(rollup@4.24.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.3)(bufferutil@4.0.8)(react@18.2.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
@@ -30662,10 +30811,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
+  wagmi@2.9.10(@tanstack/query-core@5.40.0)(@tanstack/react-query@5.40.1(react@18.3.1))(@types/react@18.3.12)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
     dependencies:
       '@tanstack/react-query': 5.40.1(react@18.3.1)
-      '@wagmi/connectors': 5.0.9(@types/react@18.3.12)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
+      '@wagmi/connectors': 5.0.9(@types/react@18.3.12)(@wagmi/core@2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@23.4.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(rollup@4.24.0)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       '@wagmi/core': 2.10.5(@tanstack/query-core@5.40.0)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)(viem@2.13.7(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
       react: 18.3.1
       use-sync-external-store: 1.2.0(react@18.3.1)
@@ -30740,6 +30889,8 @@ snapshots:
   webpack-virtual-modules@0.5.0: {}
 
   webpack-virtual-modules@0.6.2: {}
+
+  whatwg-fetch@3.6.20: {}
 
   whatwg-url@5.0.0:
     dependencies:

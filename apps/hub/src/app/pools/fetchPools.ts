@@ -3,7 +3,7 @@ import { PoolState } from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 
 export const getPoolUrl = (
-  pool: Pick<PoolState, "id"> | undefined,
+  pool: { id: string } | undefined,
   isMyPool = false,
 ): string => {
   if (!pool) return "";
@@ -13,9 +13,7 @@ export const getPoolUrl = (
   return `/pool/${pool?.id}${isMyPool ? "?back=my-pools" : ""}`;
 };
 
-export const getPoolAddLiquidityUrl = (
-  pool: Pick<PoolState, "id"> | undefined,
-) => {
+export const getPoolAddLiquidityUrl = (pool: { id: string } | undefined) => {
   if (!pool) return "";
 
   if (isIPFS) {
@@ -25,7 +23,7 @@ export const getPoolAddLiquidityUrl = (
   return `/add-liquidity/${pool?.id}`;
 };
 
-export const getPoolWithdrawUrl = (pool: Pick<PoolState, "id"> | undefined) => {
+export const getPoolWithdrawUrl = (pool: { id: string } | undefined) => {
   if (!pool) return "";
   return `/withdraw/${pool?.id}`;
 };

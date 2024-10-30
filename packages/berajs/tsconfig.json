@@ -17,5 +17,5 @@
     "esm",
     "cjs",
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs", "../../apps/hub/src/hooks/useCreateProposal.ts", "src/hooks/useEthersProvider.js"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs", "../../apps/hub/src/hooks/useCreateProposal.ts", "src/hooks/useEthersProvider.js", "../../apps/hub/src/b-sdk/balancer.ts", "../../apps/hub/src/b-sdk/balancerClient.ts"]
 }

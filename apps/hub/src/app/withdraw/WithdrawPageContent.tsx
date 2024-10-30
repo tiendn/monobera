@@ -109,8 +109,8 @@ export default function WithdrawLiquidityContent({
 
   const slippage = useSlippage();
 
-  const baseToken = v3Pool?.tokens[0];
-  const quoteToken = v3Pool?.tokens[1];
+  const baseToken = v2Pool?.tokens[0];
+  const quoteToken = v2Pool?.tokens[1];
 
   const {
     data: userPositionBreakdown,
@@ -119,7 +119,7 @@ export default function WithdrawLiquidityContent({
   } = usePoolUserPosition({ pool: v3Pool });
 
   const { write, ModalPortal } = useTxn({
-    message: `Withdraw liquidity from ${v3Pool?.id}`,
+    message: `Withdraw liquidity from ${v2Pool?.name}`,
     onSuccess: () => {
       reset();
       refresh();
@@ -152,7 +152,7 @@ export default function WithdrawLiquidityContent({
     // } catch (error) {
     //   console.error("Error creating pool:", error);
     // }
-  }, [write, client, userPositionBreakdown, slippage]);
+  }, [write, client, userPositionBreakdown, slippage, baseToken, quoteToken]);
 
   const notDeposited =
     userPositionBreakdown === undefined ||
@@ -165,13 +165,13 @@ export default function WithdrawLiquidityContent({
         {isLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
-          <p className="text-center text-2xl font-semibold">{v3Pool?.id}</p>
+          <p className="text-center text-2xl font-semibold">{v2Pool?.name}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
           {isLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
-            v3Pool?.tokens?.map((token, i) => {
+            v2Pool?.tokens?.map((token, i) => {
               return (
                 <TokenIcon
                   address={token.address}

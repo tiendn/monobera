@@ -111,13 +111,13 @@ export default function AddLiquidityContent({
 
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
-    message: `Add liquidity to ${v3Pool?.id}`,
+    message: `Add liquidity to ${pool?.name}`,
     onSuccess: () => {
       // reset();
       refresh();
     },
-    CustomSuccessModal: v3Pool?.address ? AddLiquiditySuccess : undefined,
-    customSuccessModalProps: v3Pool?.address
+    CustomSuccessModal: pool?.address ? AddLiquiditySuccess : undefined,
+    customSuccessModalProps: pool?.address
       ? {
           pool: pool,
         }
@@ -135,13 +135,13 @@ export default function AddLiquidityContent({
         {isLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
-          <p className="text-center text-2xl font-semibold">{v3Pool?.id}</p>
+          <p className="text-center text-2xl font-semibold">{pool?.name}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
           {isLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
-            v3Pool?.tokens?.map((token, i) => {
+            pool?.tokens?.map((token, i) => {
               return (
                 <TokenIcon
                   symbol={token.symbol}
@@ -170,7 +170,7 @@ export default function AddLiquidityContent({
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <TokenList>
-            {v3Pool?.tokens?.map((token, idx) => {
+            {pool?.tokens?.map((token, idx) => {
               const currInput = input.find((i) => i.address === token.address);
 
               return (
@@ -203,7 +203,7 @@ export default function AddLiquidityContent({
                     // setIsBaseInput(true);
                     // handleBaseAssetAmountChange(amount);
                   }}
-                  price={Number("0")}
+                  price={Number(token?.token?.latestUSDPrice ?? "0")}
                   onExceeding={
                     (exceeding: boolean) => false // updateTokenExceeding(0, exceeding)
                   }

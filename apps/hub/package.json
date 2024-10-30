@@ -13,7 +13,7 @@
     "with-env": "dotenv -e ../../.env -c --"
   },
   "dependencies": {
-    "@berachain-foundation/berancer-sdk": "workspace:*",
+    "@balancer-labs/sdk": "^1.1.6",
     "@bera/berajs": "workspace:*",
     "@bera/config": "workspace:*",
     "@bera/graphql": "workspace:*",
@@ -22,6 +22,7 @@
     "@bera/tailwind-config": "workspace:*",
     "@bera/ui": "workspace:*",
     "@bera/wagmi": "workspace:*",
+    "@berachain-foundation/berancer-sdk": "workspace:*",
     "@hookform/resolvers": "^3.2.0",
     "@sentry/nextjs": "^8.28.0",
     "@t3-oss/env-nextjs": "^0.2.2",
