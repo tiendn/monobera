@@ -4,6 +4,9 @@ import {
   Address,
   Path,
   Slippage,
+  SorHop,
+  SorRoute,
+  SorSwapResult,
   Swap,
   SwapBuildOutputExactIn,
   SwapBuildOutputExactOut,
@@ -35,6 +38,7 @@ export interface SwapInfoV4 {
     deadlineIn?: number, // defaults to 30 seconds
   ) => SwapBuildOutputExactIn | SwapBuildOutputExactOut;
   swapPaths: Path[];
+  routes: SorRoute[];
   priceImpactPercentage?: number; // NOTE: if there is an error calculating this (less critical) information, we log an error but dont throw
 }
 
@@ -43,6 +47,16 @@ function getEmptyResponse(): SwapInfoV4 {
   return {
     swapPaths: [] as Path[],
     swapKind: SwapKind.GivenIn,
+    routes: [
+      {
+        share: "0",
+        tokenIn: ZERO_ADDRESS,
+        tokenInAmount: "0",
+        tokenOut: ZERO_ADDRESS,
+        tokenOutAmount: "0",
+        hops: [] as SorHop[],
+      } as SorRoute,
+    ],
     expectedAmountOut: TokenAmount.fromHumanAmount(nativeToken, "0"),
     amountIn: TokenAmount.fromHumanAmount(nativeToken, "0"),
     expectedAmountOutFormatted: "0",
@@ -140,14 +154,20 @@ export const usePollBalancerSwap = (
 
         // Fetch paths using Balancer API
         // TODO: if the V3 SDK brings back swap.findRouteGivenIn we might want to use that interface instead
-        const { paths: sorPaths, priceImpact } =
-          await balancerApi.sorSwapPaths.fetchSorSwapPaths({
-            chainId,
-            tokenIn: tokenInV3.address,
-            tokenOut: tokenOutV3.address,
-            swapKind,
-            swapAmount: tokenAmount,
-          });
+        const {
+          paths: sorPaths,
+          priceImpact,
+          routes,
+        }: SorSwapResult = await balancerApi.sorSwapPaths.fetchSorSwapPaths({
+          chainId,
+          tokenIn: tokenInV3.address,
+          tokenOut: tokenOutV3.address,
+          swapKind,
+          swapAmount: tokenAmount,
+        });
+
+        console.log("PRICE IMPACT", priceImpact);
+        console.log("ROUTES", routes);
 
         if (!sorPaths || sorPaths.length === 0) {
           throw new Error(
@@ -192,6 +212,7 @@ export const usePollBalancerSwap = (
             : priceImpactPercentage
             ? priceImpactPercentage
             : undefined,
+          routes,
           expectedAmountOutFormatted: formatUnits(
             queryOutput.expectedAmountOut.amount,
             tokenInDecimals,
