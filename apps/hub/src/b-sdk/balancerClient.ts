@@ -18,7 +18,7 @@ import {
 import { balancerSdkConfig } from "./v2-config";
 
 BALANCER_NETWORK_CONFIG[chainId as Network] = {
-  chainId, //1
+  chainId,
   addresses: {
     //Mainnet deployment addresses: https://docs.balancer.fi/reference/contracts/deployment-addresses/mainnet.html
     contracts: {
@@ -68,8 +68,8 @@ BALANCER_NETWORK_CONFIG[chainId as Network] = {
   },
   thirdParty: {
     coingecko: {
-      nativeAssetId: "eth",
-      platformId: "ethereum",
+      nativeAssetId: "berachain-bera", // CoinGecko ID for Berachain's native asset (https://www.coingecko.com/en/coins/berachain-bera)
+      platformId: "berachain-bera",
     },
   },
   pools: {

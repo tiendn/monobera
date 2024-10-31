@@ -9,6 +9,7 @@ import {
 import {
   balancerHelperAddress,
   balancerQueriesAddress,
+  balancerRelayerAddress,
   balancerSubgraphUrl,
   balancerVaultAddress,
   beraTokenAddress,
@@ -22,7 +23,7 @@ const contractAddresses: ContractAddresses = {
   multicall: multicallAddress,
   poolDataQueries: balancerQueriesAddress,
   balancerHelpers: balancerHelperAddress,
-  balancerRelayer: "0x0000000000000000000000000000000000000001", // https://docs.balancer.fi/concepts/advanced/relayers.html#authorizing-a-relayer
+  balancerRelayer: balancerRelayerAddress, // https://docs.balancer.fi/concepts/advanced/relayers.html#authorizing-a-relayer
 };
 
 export const balancerNetworkConfig: BalancerNetworkConfig = {
