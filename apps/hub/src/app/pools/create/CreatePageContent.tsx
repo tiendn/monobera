@@ -48,8 +48,12 @@ export default function CreatePageContent() {
   const handleTokenSelection = (token: Token | null, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
-      updatedTokens[index] = token;
-      return updatedTokens;
+      if (token === null) {
+        updatedTokens.splice(index, 1);
+      } else {
+        updatedTokens[index] = token;
+      }
+      return updatedTokens.slice(0, 3);
     });
   };
 
@@ -121,21 +125,10 @@ export default function CreatePageContent() {
   // update the form state if the user changes the pool type (i.e. let them input liquidity again)
   useEffect(() => {
     const requiredQuoteTokensLength = poolType === PoolType.Weighted ? 3 : 2;
+
     setTokens((prevTokens) => {
-      if (
-        prevTokens.length !== requiredQuoteTokensLength ||
-        prevTokens.some(
-          (token, index) =>
-            index >= requiredQuoteTokensLength && token !== null,
-        )
-      ) {
-        const updatedTokens = [
-          ...prevTokens.slice(0, requiredQuoteTokensLength),
-        ];
-        while (updatedTokens.length < requiredQuoteTokensLength) {
-          updatedTokens.push(null);
-        }
-        return updatedTokens;
+      if (prevTokens.length > requiredQuoteTokensLength) {
+        return prevTokens.slice(0, requiredQuoteTokensLength);
       }
       return prevTokens;
     });
@@ -255,27 +248,36 @@ export default function CreatePageContent() {
             <CreatePoolInput
               token={tokens[0]}
               selectedTokens={tokens}
-              onTokenSelection={(token) => handleTokenSelection(token, 0)}
+              onTokenSelection={(token) =>
+                handleTokenSelection(token ?? null, 0)
+              }
             />
             {poolType === PoolType.Weighted && (
               <>
                 <CreatePoolInput
                   token={tokens[1]}
                   selectedTokens={tokens}
-                  onTokenSelection={(token) => handleTokenSelection(token, 1)}
+                  onTokenSelection={(token) =>
+                    handleTokenSelection(token ?? null, 1)
+                  }
                 />
                 <CreatePoolInput
                   token={tokens[2]}
                   selectedTokens={tokens}
-                  onTokenSelection={(token) => handleTokenSelection(token, 2)}
+                  onTokenSelection={(token) =>
+                    handleTokenSelection(token ?? null, 2)
+                  }
                 />
               </>
             )}
-            {poolType === PoolType.Stable && (
+            {(poolType === PoolType.Stable ||
+              poolType === PoolType.MetaStable) && (
               <CreatePoolInput
                 token={tokens[1]}
                 selectedTokens={tokens}
-                onTokenSelection={(token) => handleTokenSelection(token, 1)}
+                onTokenSelection={(token) =>
+                  handleTokenSelection(token ?? null, 1)
+                }
               />
             )}
           </div>
