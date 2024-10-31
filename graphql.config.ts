@@ -15,7 +15,10 @@ module.exports = {
     },
     balancerApi: {
       schema: process.env.NEXT_PUBLIC_BALANCER_API_URL,
-      documents: "./packages/b-sdk/**/*.ts",
+      documents: [
+        "./packages/b-sdk/**/*.ts",
+        "./packages/graphql/src/modules/dex/backendQueries.ts",
+      ],
     },
   },
 };

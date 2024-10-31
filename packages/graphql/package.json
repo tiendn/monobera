@@ -49,6 +49,10 @@
     "./chain": {
       "import": "./dist/modules/chain/index.js",
       "types": "./dist/modules/chain/index.d.ts"
+    },
+    "./dex": {
+      "import": "./dist/modules/dex/index.js",
+      "types": "./dist/modules/dex/index.d.ts"
     }
   },
   "typesVersions": {
@@ -58,6 +62,9 @@
       ],
       "chain": [
         "dist/modules/chain/index.d.ts"
+      ],
+      "dex": [
+        "dist/modules/dex/index.d.ts"
       ]
     }
   }
