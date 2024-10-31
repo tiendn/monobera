@@ -223,6 +223,8 @@ export const balancerRelayerAddress = process.env
   .NEXT_PUBLIC_BALANCER_RELAYER as Address;
 export const balancerSubgraphUrl = process.env
   .NEXT_PUBLIC_BALANCER_SUBGRAPH as Address;
+export const balancerPoolCreationHelper = process.env
+  .NEXT_PUBLIC_BALANCER_POOL_CREATION_HELPER as Address;
 
 // Sentry && Mixpanel
 export const developmentAnalytics = process.env
