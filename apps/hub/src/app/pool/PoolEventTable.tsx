@@ -86,7 +86,7 @@ export const EventTable = ({
           ) : row.original.type === "ADD" ? (
             <span className="text-success-foreground">Add</span>
           ) : (
-            <span>Withdraw</span>
+            <span className="text-destructive-foreground">Withdraw</span>
           );
         },
       },

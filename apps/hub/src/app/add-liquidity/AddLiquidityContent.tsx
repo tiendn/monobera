@@ -315,6 +315,9 @@ export default function AddLiquidityContent({
               <ActionButton>
                 <Button
                   className="w-full"
+                  disabled={queryOutput?.amountsIn.every(
+                    (i) => i.amount === 0n,
+                  )}
                   onClick={() => {
                     const data = getCallData(slippage ?? 0, account!);
 
