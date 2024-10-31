@@ -14,7 +14,7 @@ export const ssrDexClient = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export const balancerClient = new ApolloClient({
+export const bexApiGraphqlClient = new ApolloClient({
   uri: balancerApiUrl,
   cache: new InMemoryCache(),
 });

@@ -269,9 +269,10 @@ export function HoneyMachine() {
                 value={isMint ? "mint" : "redeem"}
                 className="mb-1"
               >
-                <TabsList className="w-full">
+                <TabsList className="w-full" variant="compact">
                   <TabsTrigger
                     value={"mint"}
+                    variant="compact"
                     className="flex-1 capitalize data-[state=active]:bg-success-foreground"
                     onClick={() => {
                       if (!isMint) onSwitch();
@@ -281,6 +282,7 @@ export function HoneyMachine() {
                   </TabsTrigger>
                   <TabsTrigger
                     value={"redeem"}
+                    variant="compact"
                     className="flex-1 capitalize data-[state=active]:bg-destructive-foreground"
                     onClick={() => {
                       if (isMint) onSwitch();

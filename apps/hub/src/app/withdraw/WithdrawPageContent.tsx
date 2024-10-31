@@ -18,6 +18,8 @@ import {
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
+
+import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
@@ -35,6 +37,8 @@ import {
 import { pools } from "~/utils/constants";
 import { usePool } from "~/b-sdk/usePool";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
+import { useRemoveLiquidityProportional } from "./useWithdrawLiquidity";
+import { formatEther, formatUnits, parseEther } from "viem";
 
 interface ITokenSummary {
   title: string;
@@ -104,14 +108,16 @@ export default function WithdrawLiquidityContent({
 
   const slippage = useSlippage();
 
-  const baseToken = v2Pool?.tokens[0];
-  const quoteToken = v2Pool?.tokens[1];
-
   const {
     data: userPositionBreakdown,
     isLoading: isPositionBreakdownLoading,
     refresh,
   } = usePoolUserPosition({ pool: v3Pool });
+
+  const { bptIn, queryOutput, setBptIn, getCallData } =
+    useRemoveLiquidityProportional({
+      pool: v3Pool,
+    });
 
   const { write, ModalPortal } = useTxn({
     message: `Withdraw liquidity from ${v2Pool?.name}`,
@@ -122,36 +128,25 @@ export default function WithdrawLiquidityContent({
     actionType: TransactionActionType.WITHDRAW_LIQUIDITY,
   });
 
-  const client = usePublicClient();
-  const handleWithdrawLiquidity = useCallback(async () => {
-    // try {
-    //   // const withdrawLiquidityRequest = await getWithdrawLiquidityPayload({
-    //   //   args: {
-    //   //     slippage: slippage ?? 0,
-    //   //     poolPrice,
-    //   //     baseToken,
-    //   //     quoteToken,
-    //   //     poolIdx: pool?.poolIdx,
-    //   //     percentRemoval: amount,
-    //   //     seeds: userPositionBreakdown?.seeds.toString() ?? "0",
-    //   //     poolId: pool?.poolId,
-    //   //   },
-    //   //   publicClient: client,
-    //   // });
-    //   // write({
-    //   //   address: crocDexAddress,
-    //   //   abi: bexAbi,
-    //   //   functionName: "userCmd",
-    //   //   params: withdrawLiquidityRequest?.payload ?? [],
-    //   // });
-    // } catch (error) {
-    //   console.error("Error creating pool:", error);
-    // }
-  }, [write, client, userPositionBreakdown, slippage, baseToken, quoteToken]);
-
   const notDeposited =
     userPositionBreakdown === undefined ||
     userPositionBreakdown?.lpBalance?.balance === 0n;
+
+  useEffect(() => {
+    if (!userPositionBreakdown?.lpBalance) {
+      return;
+    }
+    if (percentage === 1) setBptIn(userPositionBreakdown.lpBalance.balance);
+    const share =
+      (Number(userPositionBreakdown?.lpBalance?.formattedBalance) *
+        percentage) /
+      100;
+    setBptIn(parseEther(share.toString()));
+  }, [v3Pool, userPositionBreakdown, percentage]);
+
+  useEffect(() => {
+    console.log({ queryOutput });
+  }, [queryOutput]);
 
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
@@ -190,7 +185,6 @@ export default function WithdrawLiquidityContent({
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
             Withdraw Liquidity
-            <SettingsPopover />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -241,14 +235,9 @@ export default function WithdrawLiquidityContent({
                 value={
                   <div className="flex flex-row items-center justify-end gap-1">
                     <FormattedNumber
-                      value={
-                        (Number(
-                          userPositionBreakdown?.tokenBalances?.at(token.index)
-                            ?.formattedBalance,
-                        ) *
-                          percentage) /
-                          100 ?? "0"
-                      }
+                      value={formatEther(
+                        queryOutput?.amountsOut[token.index].scale18 ?? 0n,
+                      )}
                       compact={false}
                     />
                     <TokenIcon
@@ -260,29 +249,6 @@ export default function WithdrawLiquidityContent({
                 }
               />
             ))}
-            {/* <InfoBoxListItem
-              title={"Pool Price"}
-              value={
-                0 ? (
-                  <>
-                    <FormattedNumber value={0} symbol={baseToken?.symbol} /> = 1{" "}
-                    {quoteToken?.symbol}
-                  </>
-                ) : (
-                  "-"
-                )
-              }
-            /> */}
-            {/* <InfoBoxListItem
-              title={"Estimated Value"}
-              value={
-                <FormattedNumber
-                  value={totalHoneyPrice}
-                  symbol="USD"
-                  compact={false}
-                />
-              }
-            /> */}
             <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
           </InfoBoxList>
           <TxnPreview
@@ -303,28 +269,13 @@ export default function WithdrawLiquidityContent({
                   key={token.address}
                   // @ts-ignore
                   token={token}
-                  value={Number(token)}
-                  // price={Number(token?.usdValue ?? 0)}
+                  value={formatEther(
+                    queryOutput?.amountsOut[token.index].scale18 ?? 0n,
+                  )}
                 />
               ))}
             </TokenList>
             <InfoBoxList>
-              <InfoBoxListItem
-                title={"Pool Price"}
-                value={
-                  percentage ? (
-                    <>
-                      <FormattedNumber
-                        value={percentage}
-                        symbol={baseToken?.symbol}
-                      />{" "}
-                      = 1 {quoteToken?.symbol}
-                    </>
-                  ) : (
-                    "-"
-                  )
-                }
-              />
               {/* <InfoBoxListItem
                 title={"Estimated Value"}
                 value={
@@ -340,7 +291,17 @@ export default function WithdrawLiquidityContent({
             <ActionButton>
               <Button
                 className="w-full"
-                onClick={() => handleWithdrawLiquidity()}
+                onClick={() => {
+                  const data = getCallData(slippage ?? 1);
+
+                  write({
+                    address: data.to,
+                    abi: vaultV2Abi,
+                    params: data.args!,
+                    functionName: "exitPool",
+                    value: data.value,
+                  });
+                }}
               >
                 Withdraw Liquidity
               </Button>

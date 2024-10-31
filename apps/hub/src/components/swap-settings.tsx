@@ -54,11 +54,16 @@ export default function SwapSettings() {
           defaultValue={slippageToleranceType as string}
           onValueChange={(value: string) => setSlippageToleranceType(value)}
         >
-          <TabsList>
-            <TabsTrigger value={SELECTION.AUTO}>Auto</TabsTrigger>
-            <TabsTrigger value={SELECTION.CUSTOM}>Custom</TabsTrigger>
+          <TabsList variant="ghost">
+            <TabsTrigger value={SELECTION.AUTO} variant="ghost">
+              Auto
+            </TabsTrigger>
+            <TabsTrigger value={SELECTION.CUSTOM} variant="ghost">
+              Custom
+            </TabsTrigger>
             <TabsTrigger
               value={SELECTION.DEGEN}
+              variant="ghost"
               className={cn(
                 slippageToleranceType === SELECTION.DEGEN &&
                   "data-[state=active]:bg-destructive-foreground",
@@ -132,10 +137,15 @@ export default function SwapSettings() {
           defaultValue={deadlineType as string}
           onValueChange={(value: string) => setDeadlineType(value)}
         >
-          <TabsList className="flex-shrink-0">
-            <TabsTrigger value={SELECTION.AUTO}>Auto</TabsTrigger>
-            <TabsTrigger value={SELECTION.CUSTOM}>Custom</TabsTrigger>
+          <TabsList variant="ghost" className="flex-shrink-0">
+            <TabsTrigger variant="ghost" value={SELECTION.AUTO}>
+              Auto
+            </TabsTrigger>
+            <TabsTrigger variant="ghost" value={SELECTION.CUSTOM}>
+              Custom
+            </TabsTrigger>
             <TabsTrigger
+              variant="ghost"
               value={SELECTION.INFINITY}
               className={cn(
                 deadlineType === SELECTION.INFINITY &&

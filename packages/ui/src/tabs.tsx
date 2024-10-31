@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & {
     variant?: "compact" | "ghost" | "outline";
   }
->(({ className, variant, ...props }, ref) => (
+>(({ className, variant = "compact", ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
@@ -32,7 +32,7 @@ const TabsTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & {
     variant?: "compact" | "ghost" | "outline";
   }
->(({ className, variant, ...props }, ref) => (
+>(({ className, variant = "compact", ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(

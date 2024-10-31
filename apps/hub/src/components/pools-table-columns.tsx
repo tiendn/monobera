@@ -5,31 +5,22 @@ import {
   ADDRESS_ZERO,
   BERA_VAULT_REWARDS_ABI,
   POOLID,
-  TransactionActionType,
-  useBeraJs,
-  useBgtInflation,
-  useSubgraphTokenInformation,
+  usePollBalance,
   type IUserPool,
   type PoolV2,
 } from "@bera/berajs";
-import { beraTokenAddress } from "@bera/config";
-import {
-  DataTableColumnHeader,
-  FormattedNumber,
-  TokenIconList,
-  apyTooltipText,
-  getRewardsVaultUrl,
-  useTxn,
-} from "@bera/shared-ui";
+import { DataTableColumnHeader, TokenIconList } from "@bera/shared-ui";
 import { Badge } from "@bera/ui/badge";
-import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Address } from "viem";
+import { PoolWithMethods } from "@balancer-labs/sdk";
 
-import { calculateApy } from "~/utils/calculateApy";
+export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
+  const { data: balance } = usePollBalance({
+    address: pool.address,
+  });
 
-const PoolSummary = ({ pool }: { pool: PoolV2 }) => {
   return (
     <div className="flex flex-row items-start gap-2">
       <TokenIconList
@@ -40,20 +31,17 @@ const PoolSummary = ({ pool }: { pool: PoolV2 }) => {
       <div className="flex flex-col items-start justify-start gap-1">
         <div className="flex flex-row items-center justify-start gap-1">
           <span className="w-fit max-w-[180px] truncate text-left text-sm font-semibold">
-            {pool?.poolName}
+            {pool?.name}
           </span>
-          {pool.wtv !== "0" && (
-            <Icons.bgt className="h-6 w-6 self-start rounded-sm border border-border p-1" />
-          )}
         </div>
         <div className="flex flex-row gap-1">
           <Badge
             variant={"secondary"}
             className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
           >
-            <span>{Number(pool?.feeRate).toFixed(2)}%</span>
+            <span>{Number(pool?.swapFee).toFixed(2)}%</span>
           </Badge>
-          {pool.poolIdx === POOLID.STABLE && (
+          {pool.bptIndex === POOLID.STABLE && (
             <Badge
               variant={"secondary"}
               className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
@@ -61,7 +49,7 @@ const PoolSummary = ({ pool }: { pool: PoolV2 }) => {
               <span>Stable</span>
             </Badge>
           )}
-          {pool.isDeposited && (
+          {balance && balance.balance !== 0n && (
             <Badge
               variant="success"
               className="border-none bg-success px-2 py-1 text-[10px] leading-[10px] "
@@ -75,156 +63,9 @@ const PoolSummary = ({ pool }: { pool: PoolV2 }) => {
   );
 };
 
-export const columns: ColumnDef<PoolV2>[] = [
-  {
-    accessorKey: "poolName",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        className="flex items-center gap-1"
-        // tooltip={"Base and Quote assets in the liquidity pool."}
-        title={"Pool Composition"}
-      />
-    ),
-    cell: ({ row }) => <PoolSummary pool={row.original} />,
-    enableSorting: false,
-    enableHiding: false,
-    maxSize: 250,
-    minSize: 250,
-  },
-  {
-    accessorKey: "tvlUsd",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        // tooltip="Total amount of assets currently locked in the Pool, valued in HONEY"
-        title="TVL"
-        className="min-w-[95px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="flex flex-col gap-1">
-        <div className="text-sm leading-5">
-          <FormattedNumber value={row.original?.tvlUsd ?? 0} symbol="USD" />
-        </div>
-      </div>
-    ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-    sortingFn: (rowA, rowB) => {
-      return 0;
-    },
-  },
-  {
-    accessorKey: "latestPoolDayData__feesUsd",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Fees (24H)"
-        // tooltip="Total trading fees this pool has generated in the last 24 hours, valued in HONEY"
-        className="whitespace-nowrap"
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="flex flex-col gap-1">
-        <div className="text-sm leading-5">
-          <FormattedNumber value={row.original?.fees24h ?? 0} symbol="USD" />
-        </div>
-      </div>
-    ),
-    enableSorting: true,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "latestPoolDayData__volumeUsd",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Volume (24H)"
-        // tooltip="Total trading or transaction volume in the last 24 hours"
-        className="whitespace-nowrap"
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="flex flex-col gap-1">
-        <div className="text-sm leading-5">
-          <FormattedNumber value={row.original?.volume24h ?? 0} symbol="USD" />
-        </div>
-      </div>
-    ),
-    enableSorting: true,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "wtv",
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="BGT APY"
-        tooltip={apyTooltipText()}
-        className="whitespace-nowrap"
-      />
-    ),
-    cell: ({ row }) => {
-      const { data: bgtInflation } = useBgtInflation();
-      return (
-        <div
-          className={`flex items-center justify-start text-sm ${
-            row.original.wtv === "0"
-              ? "text-muted-foreground"
-              : "text-warning-foreground"
-          }`}
-        >
-          <FormattedNumber
-            value={calculateApy(
-              row.original.wtv ?? "0",
-              bgtInflation?.usdPerYear ?? 0,
-            )}
-            percent
-            compact
-            showIsSmallerThanMin
-          />
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-    sortingFn: (rowA, rowB) => {
-      return 0;
-    },
-  },
-  // {
-  //   accessorKey: "btns",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader
-  //       column={column}
-  //       title="Actions"
-  //       className="text-center"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Link
-  //       href={getPoolAddLiquidityUrl(row.original)}
-  //       onClick={(e) => e.stopPropagation()}
-  //     >
-  //       <Button variant={"outline"} className="flex items-center gap-1">
-  //         <Icons.add className="h-5 w-5" /> Add
-  //       </Button>
-  //     </Link>
-  //   ),
-  //   enableSorting: false,
-  // },
-];
-
 export const getUserPoolColumns = (
   refresh: () => void,
-): ColumnDef<IUserPool>[] => {
+): ColumnDef<PoolWithMethods>[] => {
   return [
     {
       accessorKey: "poolName",
