@@ -5,7 +5,6 @@ import { notFound, useRouter } from "next/navigation";
 import {
   TXN_GAS_USED_ESTIMATES,
   TransactionActionType,
-  bexAbi,
   useBeraJs,
   useGasData,
   usePollWalletBalances,

@@ -12,7 +12,6 @@ import { useAccount, useChains } from "wagmi";
 import { defaultBeraConfig } from "~/config/defaultBeraConfig";
 import { TransactionStoreProvider } from "~/hooks";
 import { BeraConfig } from "~/types";
-import { CrocEnvContextProvider } from "../crocenv";
 import { SWRConfig } from "swr";
 import * as Sentry from "@sentry/nextjs";
 
@@ -83,9 +82,7 @@ export const BeraJsProvider: React.FC<
           config: configOverride ?? defaultBeraConfig,
         }}
       >
-        <TransactionStoreProvider>
-          <CrocEnvContextProvider>{children}</CrocEnvContextProvider>
-        </TransactionStoreProvider>
+        <TransactionStoreProvider>{children}</TransactionStoreProvider>
       </BeraJsContext.Provider>
     </SWRConfig>
   );

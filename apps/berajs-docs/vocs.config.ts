@@ -355,14 +355,6 @@ export default defineConfig({
           link: "/abi/bTokenAbi/",
         },
         {
-          text: "bexQueryAbi",
-          link: "/abi/bexQueryAbi/",
-        },
-        {
-          text: "bexAbi",
-          link: "/abi/bexAbi/",
-        },
-        {
           text: "honeyRouterAbi",
           link: "/abi/honeyRouterAbi",
         },

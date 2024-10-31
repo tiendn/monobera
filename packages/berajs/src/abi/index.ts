@@ -12,8 +12,6 @@ export * from "./bTokenAbi";
 export * from "./lendPoolImplementationAbi";
 export * from "./lendUiDataProviderAbi";
 export * from "./lendRewardHelperAbi";
-export * from "./bexAbi";
-export * from "./bexQueryAbi";
 export * from "./multiswapAbi";
 export * from "./referralsAbi";
 export * from "./pythAbi";

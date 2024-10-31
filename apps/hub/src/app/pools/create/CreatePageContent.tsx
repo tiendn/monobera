@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  bexAbi,
-  getSafeNumber,
-  POOLID,
-  Token,
-  TransactionActionType,
-} from "@bera/berajs";
+import { getSafeNumber, POOLID, TransactionActionType } from "@bera/berajs";
 import {
   ActionButton,
   ApproveButton,

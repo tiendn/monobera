@@ -4,12 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
-import {
-  TokenBalance,
-  TransactionActionType,
-  bexAbi,
-  type Token,
-} from "@bera/berajs";
+import { TokenBalance, TransactionActionType, type Token } from "@bera/berajs";
 import { cloudinaryUrl } from "@bera/config";
 import {
   ActionButton,
