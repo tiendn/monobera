@@ -5,7 +5,6 @@ import {
   useTokenHoneyPrice,
   type CuttingBoardWeight,
   type UserValidator,
-  type Validator,
 } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
 import {
@@ -23,32 +22,27 @@ import { BribesPopover } from "~/components/bribes-tooltip";
 import { CuttingBoardDisplay } from "~/app/validators/components/validators-table";
 import { useValidatorEstimatedBgtPerYear } from "~/hooks/useValidatorEstimatedBgtPerYear";
 
-const VALIDATOR_COLUMN: ColumnDef<Validator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader column={column} title="Validator" />
-  ),
+const VALIDATOR_COLUMN: ColumnDef<UserValidator> = {
+  header: "Validator",
   cell: ({ row }) => (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 overflow-hidden truncate">
       <ValidatorIcon
         address={row.original.id as Address}
-        className="h-8 w-8"
+        className="h-8 w-8 flex-shrink-0"
         imgOverride={row.original.metadata?.logoURI}
       />
-      {row.original.metadata?.name ?? truncateHash(row.original.id)}{" "}
+      <span className="flex-grow truncate">
+        {row.original.metadata?.name ?? truncateHash(row.original.id)}
+      </span>
     </div>
   ),
+  minSize: 200,
   accessorKey: "name",
   enableSorting: false,
 };
 
-const GLOBAL_VOTING_POWER_COLUMN: ColumnDef<Validator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader
-      column={column}
-      title="BGT delegated"
-      className="min-w-[200px] whitespace-nowrap"
-    />
-  ),
+const GLOBAL_VOTING_POWER_COLUMN: ColumnDef<UserValidator> = {
+  header: "BGT Delegated",
   cell: ({ row }) => (
     <div className="w-full text-start">
       <FormattedNumber
@@ -58,14 +52,13 @@ const GLOBAL_VOTING_POWER_COLUMN: ColumnDef<Validator> = {
       />
     </div>
   ),
+  minSize: 200,
   accessorKey: "votingpower",
   enableSorting: true,
 };
 
-const COMMISSION_COLUMN: ColumnDef<Validator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader column={column} title="Commission" />
-  ),
+const COMMISSION_COLUMN: ColumnDef<UserValidator> = {
+  header: "Commission",
   cell: ({ row }) => {
     return (
       <FormattedNumber
@@ -79,28 +72,24 @@ const COMMISSION_COLUMN: ColumnDef<Validator> = {
   enableSorting: true,
 };
 
-const APY_COLUMN: ColumnDef<Validator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader
-      column={column}
-      className="min-w-[150px] whitespace-nowrap"
-      title="vApy"
-      tooltip={bribeApyTooltipText()}
-    />
-  ),
+const APY_COLUMN: ColumnDef<UserValidator> = {
+  header: "vAPY",
   cell: ({ row }) => (
     <div className="flex h-full w-[91px] items-center">
       <FormattedNumber value={row.original.apy / 10000} percent />
     </div>
   ),
+  minSize: 150,
+  meta: {
+    tooltip: bribeApyTooltipText(),
+    headerClassname: "flex-initial",
+  },
   accessorKey: "apy",
   enableSorting: true,
 };
 
-const MOST_WEIGHTED_GAUGE_COLUMN: ColumnDef<Validator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader column={column} title="Most Weighted Vault" />
-  ),
+const MOST_WEIGHTED_GAUGE_COLUMN: ColumnDef<UserValidator> = {
+  header: "Most Weighted Vault",
   cell: ({ row }) => {
     const cuttingBoards: CuttingBoardWeight[] =
       row.original.cuttingBoard.weights ?? [];
@@ -113,10 +102,8 @@ const MOST_WEIGHTED_GAUGE_COLUMN: ColumnDef<Validator> = {
   enableSorting: false,
 };
 
-const BRIBES_COLUMN: ColumnDef<Validator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader column={column} title="Incentives" />
-  ),
+const BRIBES_COLUMN: ColumnDef<UserValidator> = {
+  header: "Incentives",
   cell: ({ row }) => {
     return <BribesPopover incentives={row.original.activeIncentives} />;
   },
@@ -124,7 +111,7 @@ const BRIBES_COLUMN: ColumnDef<Validator> = {
   enableSorting: false,
 };
 
-const CLAIMABLE_BRIBES_COLUMN: ColumnDef<Validator> = {
+const CLAIMABLE_BRIBES_COLUMN: ColumnDef<UserValidator> = {
   header: ({ column }) => (
     <DataTableColumnHeader column={column} title="Incentives" />
   ),
@@ -157,17 +144,18 @@ const USER_STAKED_COLUMN: ColumnDef<UserValidator> = {
     />
   ),
   cell: ({ row }) => {
+    console.log(row.original);
     return (
       <FormattedNumber
         showIsSmallerThanMin
-        value={row.original.userStaked}
+        value={row.original.amountQueued}
         symbol="BGT"
       />
     );
   },
-  accessorKey: "userStaked",
+  accessorKey: "amountQueued",
   sortingFn: (a, b) =>
-    Number(a.original.userStaked) - Number(b.original.userStaked),
+    Number(a.original.amountQueued) - Number(b.original.amountQueued),
   enableSorting: false,
 };
 
@@ -180,15 +168,15 @@ const USER_QUEUED_COLUMN: ColumnDef<UserValidator> = {
     />
   ),
   cell: ({ row }) => {
-    return <FormattedNumber value={row.original.userQueued} symbol="BGT" />;
+    return <FormattedNumber value={row.original.amountQueued} symbol="BGT" />;
   },
-  accessorKey: "userQueued",
+  accessorKey: "amountQueued",
   sortingFn: (a, b) =>
-    Number(a.original.userQueued) - Number(b.original.userQueued),
+    Number(a.original.amountQueued) - Number(b.original.amountQueued),
   enableSorting: false,
 };
 
-const ESTIMATED_BGT_GAUGE: ColumnDef<Validator> = {
+const ESTIMATED_BGT_GAUGE: ColumnDef<UserValidator> = {
   header: ({ column }) => (
     <DataTableColumnHeader
       column={column}
@@ -227,7 +215,7 @@ const ESTIMATED_BGT_GAUGE: ColumnDef<Validator> = {
   enableSorting: true,
 };
 
-const ESTIMATED_YEARLY_BGT_GAUGE: ColumnDef<Validator> = {
+const ESTIMATED_YEARLY_BGT_GAUGE: ColumnDef<UserValidator> = {
   header: ({ column }) => (
     <DataTableColumnHeader
       column={column}
@@ -266,7 +254,7 @@ const ESTIMATED_YEARLY_BGT_GAUGE: ColumnDef<Validator> = {
 };
 
 export const getGaugeValidatorColumns = (gauge: Gauge) => {
-  const gauge_validator_columns: ColumnDef<Validator>[] = [
+  const gauge_validator_columns: ColumnDef<UserValidator>[] = [
     VALIDATOR_COLUMN,
     {
       header: ({ column }) => (
@@ -381,7 +369,7 @@ export const getGaugeValidatorColumns = (gauge: Gauge) => {
   return gauge_validator_columns;
 };
 
-export const general_validator_columns: ColumnDef<Validator>[] = [
+export const generalValidatorColumns: ColumnDef<UserValidator>[] = [
   VALIDATOR_COLUMN,
   GLOBAL_VOTING_POWER_COLUMN,
   COMMISSION_COLUMN,

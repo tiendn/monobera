@@ -3,12 +3,12 @@ import {
   IContractWrite,
   TransactionActionType,
   useBgtUnstakedBalance,
-  useUserValidatorsSubgraph,
+  useUserActiveValidators,
 } from "@bera/berajs";
 import { useTxn } from "@bera/shared-ui";
 
 export const useHandleConfirmation = () => {
-  const { refresh } = useUserValidatorsSubgraph();
+  const { refresh } = useUserActiveValidators();
   const { refresh: refreshBalance } = useBgtUnstakedBalance();
   const [hasSubmittedTxn, setHasSubmittedTxn] = useState<
     Record<number, boolean>

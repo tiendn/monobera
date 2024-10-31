@@ -4,9 +4,9 @@ import {
   formatInputTokenValue,
   useBeraJs,
   useBgtUnstakedBalance,
-  useUserValidators,
+  useUserActiveValidators,
+  type UserValidator,
 } from "@bera/berajs";
-import { bgtTokenAddress } from "@bera/config";
 import { FormattedNumber, Tooltip } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { Input } from "@bera/ui/input";
@@ -43,13 +43,15 @@ export default function ValidatorInput({
   const { isReady } = useBeraJs();
   const { data: bgtBalance } = useBgtUnstakedBalance();
 
-  const { data } = useUserValidators();
+  const { data } = useUserActiveValidators();
 
   const selectedValidator = data?.find(
-    (validator) =>
+    (validator: UserValidator) =>
       validator.id.toLowerCase() === validatorAddress?.toLowerCase(),
   );
-  const bgtDelegated = selectedValidator ? selectedValidator.userStaked : "0";
+  const bgtDelegated = selectedValidator
+    ? selectedValidator.amountDeposited
+    : "0";
   return (
     <div className="relative">
       <div
@@ -62,7 +64,6 @@ export default function ValidatorInput({
             onSelectValidator?.(address as `0x${string}`)
           }
           showDelegated={showDelegated}
-          filter={filter}
           showSearch={showSearch}
           unselectable={unselectable}
         />

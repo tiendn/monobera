@@ -2,10 +2,10 @@
 
 import { notFound } from "next/navigation";
 import {
-  Gauge,
   truncateHash,
   useSelectedGauge,
   useSelectedGaugeValidators,
+  type UserValidator,
 } from "@bera/berajs";
 import { bgtVaultBlackList, blockExplorerUrl } from "@bera/config";
 import { DataTable, GaugeIcon, MarketIcon, PoolHeader } from "@bera/shared-ui";
@@ -22,19 +22,11 @@ import { MyGaugeDetails } from "./my-gauge-details";
 
 export const GaugeDetails = ({
   gaugeAddress,
-  gauge,
 }: {
   gaugeAddress: Address;
-  gauge?: Gauge;
 }) => {
   return (
-    <SWRConfig
-      value={{
-        fallback: {
-          [unstable_serialize(["useSelectedValidator", gaugeAddress])]: gauge,
-        },
-      }}
-    >
+    <SWRConfig value={{}}>
       <_GaugeDetails gaugeAddress={gaugeAddress} />
     </SWRConfig>
   );
@@ -57,7 +49,6 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
   if (gaugeError || !gaugeAddress || !isAddress(gaugeAddress))
     return notFound();
   if (!isGaugeLoading && !isGaugeValidating && !gauge) return notFound();
-  console.log("gauge", gauge, gaugeError);
   return (
     <>
       {gauge ? (
@@ -139,7 +130,7 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
                 columns={getGaugeValidatorColumns(gauge)}
                 loading={isValidatorsLoading}
                 validating={isValidatorsValidating}
-                data={validators}
+                data={validators as UserValidator[]}
                 className="min-w-[800px] shadow"
                 onRowClick={(row: any) =>
                   window.open(getHubValidatorPath(row.original.id), "_blank")

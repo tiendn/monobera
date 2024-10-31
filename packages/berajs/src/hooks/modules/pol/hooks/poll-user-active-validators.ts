@@ -4,7 +4,7 @@ import { getUserActiveValidators } from "~/actions/pol/get-user-active-validator
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
 import { type Validator } from "@bera/graphql/pol";
-import { UserValidator  } from "~/types";
+import { UserValidator } from "~/types";
 import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
 
 export interface UseUserActiveValidatorsResponse
