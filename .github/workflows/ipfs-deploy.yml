@@ -44,7 +44,7 @@ jobs:
     - name: Build all projects
       env:
         NODE_OPTIONS: "--max_old_space_size=8192"
-      run: NEXT_PUBLIC_HOST="ipfs" pnpm run build --filter='!berajs-docs' --filter='!storybook'
+      run: NEXT_PUBLIC_HOST="ipfs" pnpm run build --filter='!berajs-docs' --filter='!storybook' --filter='!apps/perp'
       
     - name: Deploy Berps
       run: cd apps/perp && fleek sites deploy
