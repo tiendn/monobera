@@ -8,6 +8,7 @@ import {
   truncateHash,
   useBeraJs,
   useBgtInflation,
+  usePollBalance,
   usePoolHistoricalData,
   usePoolRecentProvisions,
   usePoolRecentSwaps,
@@ -31,26 +32,18 @@ import { Card, CardContent } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Separator } from "@bera/ui/separator";
 import { Skeleton } from "@bera/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@bera/ui/table";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { Address } from "viem";
 
-import { calculateApy } from "~/utils/calculateApy";
-import formatTimeAgo from "~/utils/formatTimeAgo";
+import { EventTable } from "./PoolEventTable";
 import {
   getPoolAddLiquidityUrl,
   getPoolWithdrawUrl,
 } from "../pools/fetchPools";
 import { PoolChart } from "./PoolChart";
-import { usePoolEvents } from "./usePoolEvents";
 import { usePool } from "~/b-sdk/usePool";
+import { GqlPoolEventType } from "@bera/graphql/dex";
 
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,
@@ -173,83 +166,6 @@ const TokenView = ({
   );
 };
 
-const EventTable = ({
-  pool,
-  events,
-  isLoading,
-}: {
-  pool: PoolV2 | undefined;
-  events: (ISwapOrProvision[] | ISwaps[] | IProvision[]) | undefined;
-  isLoading: boolean | undefined;
-}) => {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Action</TableHead>
-          <TableHead>Value</TableHead>
-          <TableHead className="xs:hidden hidden sm:table-cell	 md:table-cell	 lg:table-cell">
-            Tokens
-          </TableHead>
-          <TableHead className="xs:hidden	 hidden	 sm:table-cell	 md:table-cell	 lg:table-cell">
-            Account
-          </TableHead>
-          <TableHead className="text-right">Time</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {events?.length ? (
-          events?.map((event: ISwapOrProvision | ISwaps | IProvision) => {
-            if (!event) return null;
-            const txHash = event.transactionHash;
-            return (
-              <TableRow
-                key={txHash}
-                onClick={() =>
-                  window.open(
-                    `${blockExplorerUrl}/tx/${txHash ?? ""}`,
-                    "_blank",
-                  )
-                }
-              >
-                <TableCell>{getAction(event)}</TableCell>
-                <TableCell>
-                  <FormattedNumber
-                    value={event.estimatedUsdValue ?? 0}
-                    symbol="USD"
-                  />
-                </TableCell>
-                <TableCell className="xs:hidden	 hidden	 font-medium	 sm:table-cell	 md:table-cell lg:table-cell">
-                  {getTokenDisplay(event, pool)}
-                </TableCell>
-                <TableCell className="xs:hidden	 hidden	 sm:table-cell	 md:table-cell	 lg:table-cell">
-                  {truncateHash(event?.user ?? "")}
-                </TableCell>
-                <TableCell
-                  className="overflow-hidden truncate whitespace-nowrap text-right "
-                  suppressHydrationWarning
-                >
-                  {formatTimeAgo(event.time ?? 0)}
-                </TableCell>
-              </TableRow>
-            );
-          })
-        ) : (
-          <TableRow>
-            <TableCell colSpan={5} className="h-24 text-center">
-              {isLoading && (events === undefined || events.length === 0) ? (
-                <p>Loading...</p>
-              ) : (
-                <p>No transactions found</p>
-              )}
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
-  );
-};
-
 type ISwapOrProvision = ISwaps | IProvision;
 
 export default function PoolPageContent({
@@ -263,6 +179,13 @@ export default function PoolPageContent({
 
   const { v2Pool: pool, v3Pool } = data ?? {};
   console.log("POOL", pool, v3Pool);
+
+  const { isConnected } = useBeraJs();
+  const { data: userBalance, isLoading: isUserBalanceLoading } = usePollBalance(
+    {
+      address: pool?.address,
+    },
+  );
 
   // const { data: swaps, isLoading: isRecentSwapsLoading } = usePoolRecentSwaps({
   //   pool,
@@ -369,10 +292,6 @@ export default function PoolPageContent({
   //   }
   // };
 
-  const { isReady, isConnected, isWrongNetwork } = useBeraJs();
-
-  const userPositionBreakdown = undefined;
-
   // const { data: userPositionBreakdown, isLoading: isPositionBreakdownLoading } =
   //   usePoolUserPosition({
   //     pool,
@@ -413,24 +332,24 @@ export default function PoolPageContent({
           )
         }
         subtitles={[
-          {
-            title: "BGT APY",
-            content: null,
-            // content: isPoolLoading ? (
-            //   <Skeleton className="h-4 w-8" />
-            // ) : (
-            //   <FormattedNumber
-            //     value={calculateApy(
-            //       pool?.wtv ?? "0",
-            //       bgtInflation?.usdPerYear ?? 0,
-            //     )}
-            //     colored
-            //     percent
-            //   />
-            // ),
-            color: "warning",
-            tooltip: <ApyTooltip />,
-          },
+          // {
+          //   title: "BGT APY",
+          //   content: null,
+          //   // content: isPoolLoading ? (
+          //   //   <Skeleton className="h-4 w-8" />
+          //   // ) : (
+          //   //   <FormattedNumber
+          //   //     value={calculateApy(
+          //   //       pool?.wtv ?? "0",
+          //   //       bgtInflation?.usdPerYear ?? 0,
+          //   //     )}
+          //   //     colored
+          //   //     percent
+          //   //   />
+          //   // ),
+          //   color: "warning",
+          //   tooltip: <ApyTooltip />,
+          // },
           {
             title: "Fee",
             content: isPoolLoading ? (
@@ -441,7 +360,7 @@ export default function PoolPageContent({
             color: "success",
           },
           {
-            title: "Receipt Token",
+            title: "Pool Contract",
             content: isPoolLoading ? (
               <Skeleton className="h-4 w-16" />
             ) : (
@@ -468,7 +387,7 @@ export default function PoolPageContent({
         }
       />
       <Separator />
-      {isPoolLoading ? (
+      {/* {isPoolLoading ? (
         <Skeleton className="h-16 w-full" />
       ) : (
         <BgtStationBanner
@@ -476,7 +395,7 @@ export default function PoolPageContent({
           receiptTokenAddress={pool?.address as Address}
           vaultAddress={pool?.id as Address}
         />
-      )}
+      )} */}
       <div className="flex w-full grid-cols-5 flex-col gap-4 lg:grid">
         <div className="col-span-5 flex w-full flex-col gap-4 lg:col-span-3">
           {/* <PoolChart
@@ -503,7 +422,7 @@ export default function PoolPageContent({
             <Card className="px-4 py-2">
               <div className="flex flex-row items-center justify-between">
                 <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
-                  Volume
+                  Volume (24h)
                 </div>
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
@@ -513,7 +432,7 @@ export default function PoolPageContent({
             <Card className="px-4 py-2">
               <div className="flex flex-row items-center justify-between">
                 <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
-                  Fees
+                  Fees (24h)
                 </div>
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
@@ -523,18 +442,11 @@ export default function PoolPageContent({
             <Card className="px-4 py-2">
               <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row items-center gap-1 overflow-hidden truncate whitespace-nowrap text-sm ">
-                  BGT APY <ApyTooltip />
+                  APR
                 </div>
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold text-warning-foreground">
-                {/* <FormattedNumber
-                  value={calculateApy(
-                    pool?.wtv ?? "0",
-                    bgtInflation?.usdPerYear ?? 0,
-                  )}
-                  colored
-                  percent
-                /> */}
+                <FormattedNumber value={0} colored percent />
               </div>
             </Card>
           </div>
@@ -586,33 +498,26 @@ export default function PoolPageContent({
               }
             />
           </Card>
-          {isConnected && !isWrongNetwork && userPositionBreakdown && (
-            // userPositionBreakdown.estimatedHoneyValue > 0 && (
+          {isConnected && (
             <Card>
               <CardContent className="flex items-center justify-between gap-4 p-4">
                 <div className="w-full ">
-                  <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold lg:mb-8">
+                  <div className="flex h-8 w-full items-center justify-between text-lg font-semibold">
                     <h3 className="text-sm font-medium text-muted-foreground">
                       My pool balance
                     </h3>
                     <div className="text-2xl">
-                      {/* {isReady ? (
-                        isPositionBreakdownLoading ? (
-                          <Skeleton className="h-[32px] w-[150px]" />
-                        ) : (
-                          <FormattedNumber
-                            value={
-                              userPositionBreakdown?.estimatedHoneyValue ?? 0
-                            }
-                            symbol="USD"
-                          />
-                        )
-                      ) : (
+                      {isUserBalanceLoading ? (
                         <Skeleton className="h-[32px] w-[150px]" />
-                      )} */}
+                      ) : (
+                        <FormattedNumber
+                          value={userBalance?.formattedBalance ?? 0}
+                          symbol="LP"
+                        />
+                      )}
                     </div>
                   </div>
-                  <div className="mt-4 lg:mt-8">
+                  {/* <div className="mt-4 lg:mt-8">
                     <TokenView
                       isLoading={true}
                       tokens={
@@ -644,7 +549,7 @@ export default function PoolPageContent({
                             ]
                       }
                     />
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
@@ -657,21 +562,24 @@ export default function PoolPageContent({
           defaultValue={Selection.AllTransactions}
           // onValueChange={(value: string) => setSelectedTab(value as Selection)}
         >
-          <TabsList className="w-full">
+          <TabsList className="w-full" variant="compact">
             <TabsTrigger
               value={Selection.AllTransactions}
               className="w-full text-xs sm:text-sm"
+              variant="compact"
             >
               All transactions
             </TabsTrigger>
             <TabsTrigger
               value={Selection.Swaps}
+              variant="compact"
               className="w-full text-xs sm:text-sm"
             >
               Swaps
             </TabsTrigger>
             <TabsTrigger
               value={Selection.AddsWithdrawals}
+              variant="compact"
               className="w-full text-xs sm:text-sm"
             >
               Adds &amp; Withdraws
@@ -682,23 +590,27 @@ export default function PoolPageContent({
               value={Selection.AllTransactions}
               className="mt-0 overflow-x-auto"
             >
-              {/* <EventTable pool={pool} events={allData} isLoading={isLoading} /> */}
+              <EventTable pool={pool} isLoading={isLoading} />
             </TabsContent>
             <TabsContent
               value={Selection.Swaps}
               className="mt-0 overflow-x-auto"
             >
-              {/* <EventTable pool={pool} events={swapData} isLoading={isLoading} /> */}
+              <EventTable
+                pool={pool}
+                types={[GqlPoolEventType.Swap]}
+                isLoading={isLoading}
+              />
             </TabsContent>
             <TabsContent
               value={Selection.AddsWithdrawals}
               className="mt-0 overflow-x-auto"
             >
-              {/* <EventTable
+              <EventTable
                 pool={pool}
-                events={provisionData}
+                types={[GqlPoolEventType.Add, GqlPoolEventType.Remove]}
                 isLoading={isLoading}
-              /> */}
+              />
             </TabsContent>
           </Card>
           {/* <div className="mt-4 flex justify-center">{getLoadMoreButton()}</div> */}
