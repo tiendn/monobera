@@ -1,4 +1,3 @@
-export * from "./usePoolTable";
 export * from "./usePoolRecentSwaps";
 export * from "./usePoolRecentProvisions";
 export * from "./usePoolHistoricalData";

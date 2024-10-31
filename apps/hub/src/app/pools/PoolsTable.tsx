@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { usePoolTable, useTotalPoolCount } from "@bera/berajs";
+import { useTotalPoolCount } from "@bera/berajs";
 import {
   DataTable,
   NotFoundBear,
@@ -17,9 +17,9 @@ import { Icons } from "@bera/ui/icons";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 
-import { columns } from "~/components/pools-table-columns";
 import MyPool from "./components/pools/my-pool";
 import { getPoolUrl } from "./fetchPools";
+import { usePoolTable } from "./usePoolTable";
 
 export const PoolSearch = ({
   poolType = "allPools",
@@ -48,9 +48,10 @@ export const PoolSearch = ({
   //   }
   // };
 
-  const { search, keyword, setKeyword, setSearch, data, isLoadingMore } =
+  const { search, keyword, isLoading, table, setKeyword, setSearch, data } =
     usePoolTable(
       sorting,
+
       parseFloat(page ?? "1"),
       parseFloat(pageSize ?? "10"),
     );
@@ -72,24 +73,6 @@ export const PoolSearch = ({
   };
 
   const router = useRouter();
-
-  const isLoading = useMemo(
-    () => isLoadingMore && (data.length === 0 || !data),
-    [isLoadingMore, data],
-  );
-
-  const table = useBaseTable({
-    data,
-    columns,
-    additionalTableProps: {
-      state: { sorting },
-      initialState: { sorting },
-      manualPagination: true,
-      onSortingChange: (sorting) => setSorting(sorting),
-    },
-    enablePagination: true,
-    enableRowSelection: false,
-  });
 
   return (
     <div
@@ -138,7 +121,7 @@ export const PoolSearch = ({
                     setIsTyping?.(false);
                   }
                 }}
-                isLoading={isTyping || (isLoadingMore && keyword !== "")}
+                isLoading={isTyping || (isLoading && keyword !== "")}
                 id="all-pool-search"
                 className="w-full sm:w-[400px]"
               />
@@ -159,7 +142,7 @@ export const PoolSearch = ({
           {isLoading ? (
             <div className="flex w-full flex-col items-center justify-center gap-4">
               <DataTableLoading
-                columns={columns.length}
+                columns={table.getAllColumns().length}
                 rowCount={parseFloat(pageSize ?? "10")}
               />
             </div>
@@ -168,7 +151,8 @@ export const PoolSearch = ({
               <SimpleTable
                 table={table}
                 flexTable
-                onRowClick={(row: any) => router.push(getPoolUrl(row.original))}
+                dynamicFlex
+                onRowClick={(row) => router.push(getPoolUrl(row.original))}
                 wrapperClassName="bg-transparent border-none"
                 showToolbar={true}
                 // toolbarContent={

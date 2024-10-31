@@ -130,7 +130,7 @@ export const EventTable = ({
     <SimpleTable
       dynamicFlex
       table={table}
-      wrapperClassName="hidden sm:flex rounded-none"
+      className=""
       flexTable
       showSelection={false}
     />

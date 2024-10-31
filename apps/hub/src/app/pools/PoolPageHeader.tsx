@@ -49,16 +49,6 @@ export default function PoolPageHeader() {
         />
       </div> */}
 
-      <div className="flex flex-col gap-4">
-        {pools?.map((pool) => (
-          <div key={pool.id}>
-            {pool.name}{" "}
-            <Button as={Link} href={`/pool/${pool.id}`}>
-              View
-            </Button>
-          </div>
-        ))}
-      </div>
       <PoolSearch poolType={poolType || "allPools"} />
     </div>
   );
