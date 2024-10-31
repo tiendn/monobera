@@ -1,10 +1,12 @@
 import {
   Abi,
   AbiStateMutability,
+  Address,
   ContractFunctionArgs,
   ContractFunctionName,
   ExtractAbiItem,
 } from "viem";
+
 import { BeraConfig } from "~/types";
 
 export interface IContractWrite<
@@ -18,6 +20,7 @@ export interface IContractWrite<
   txnName?: string;
   gasLimit?: bigint;
   value?: bigint;
+  data?: Address;
 }
 
 export interface IValueSend {

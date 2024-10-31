@@ -2,16 +2,10 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
-import {
-  TransactionActionType,
-  bexAbi,
-  usePoolUserPosition,
-  type Token,
-} from "@bera/berajs";
-import { getWithdrawLiquidityPayload } from "@bera/berajs/actions";
-import { cloudinaryUrl, crocDexAddress } from "@bera/config";
+import { TokenBalance, TransactionActionType, type Token } from "@bera/berajs";
+import { cloudinaryUrl } from "@bera/config";
 import {
   ActionButton,
   FormattedNumber,
@@ -33,117 +27,94 @@ import { usePublicClient } from "wagmi";
 
 import { SettingsPopover } from "~/components/settings-popover";
 import { getPoolUrl } from "../pools/fetchPools";
-import { useWithdrawLiquidity } from "./useWithdrawLiquidity";
-import { useSelectedPool } from "~/hooks/useSelectedPool";
-import { Address } from "viem";
 import { Skeleton } from "@bera/ui/skeleton";
+import {
+  PoolState,
+  PoolStateWithBalances,
+} from "@berachain-foundation/berancer-sdk";
+import { pools } from "~/utils/constants";
+import { usePool } from "~/b-sdk/usePool";
+import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 
 interface ITokenSummary {
   title: string;
-  baseToken: Token | undefined;
-  quoteToken: Token | undefined;
-  baseAmount: string;
-  quoteAmount: string;
+  pool: PoolStateWithBalances | undefined;
+  tokenBalances?: TokenBalance[];
   isLoading: boolean;
 }
+
 const TokenSummary = ({
   title,
-  baseToken,
-  quoteToken,
-  baseAmount,
-  quoteAmount,
+  pool,
+  tokenBalances,
   isLoading,
 }: ITokenSummary) => {
   return (
     <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg bg-muted p-3">
       <p className="w-full text-left text-lg font-semibold">{title}</p>
-      <div className="flex w-full flex-row items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Pooled {isLoading ? "..." : baseToken?.symbol}
-        </p>
-        <div className="flex flex-row items-center gap-1 font-medium">
-          {isLoading ? "..." : baseAmount}{" "}
-          <TokenIcon address={baseToken?.address} symbol={baseToken?.symbol} />
-        </div>
-      </div>
-      <div className="flex w-full flex-row items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Pooled {isLoading ? "..." : quoteToken?.symbol}
-        </p>
-        <div className="flex flex-row items-center gap-1 font-medium">
-          {isLoading ? "..." : quoteAmount}{" "}
-          <TokenIcon
-            address={quoteToken?.address}
-            symbol={quoteToken?.symbol}
-          />
-        </div>{" "}
-      </div>
+      {pool?.tokens.map((token, idx) => {
+        return (
+          <div
+            key={token.address}
+            className="flex w-full flex-row items-center justify-between"
+          >
+            <p className="text-sm text-muted-foreground">
+              Pooled {isLoading ? "..." : token?.symbol}
+            </p>
+            <div className="flex flex-row items-center gap-1 font-medium">
+              {isLoading
+                ? "..."
+                : tokenBalances?.[idx]?.formattedBalance ?? "0"}{" "}
+              <TokenIcon address={token?.address} symbol={token?.symbol} />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
 
 export default function WithdrawLiquidityContent({
-  shareAddress,
+  poolId,
 }: {
-  shareAddress: Address;
+  poolId: string;
 }) {
-  const { data: pool, isLoading } = useSelectedPool(shareAddress);
-  useEffect(() => {
-    if (!pool && !isLoading) {
-      notFound();
-    }
-  }, [pool, isLoading]);
+  const { data, isLoading } = usePool({ id: poolId });
+  const { v2Pool, v3Pool } = data ?? {};
 
   const reset = () => {
     setPreviewOpen(false);
-    setAmount(0);
+    setPercentage(0);
   };
+
+  useEffect(() => {
+    v2Pool &&
+      v3Pool &&
+      console.log({
+        v2Pool,
+        v3Pool,
+      });
+  }, [v2Pool, v3Pool]);
 
   const router = useRouter();
 
-  const { amount, setAmount, previewOpen, setPreviewOpen, poolPrice } =
-    useWithdrawLiquidity(pool);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const [percentage, setPercentage] = useState<number>(0);
 
   const slippage = useSlippage();
 
-  const baseToken = pool?.baseInfo;
-  const quoteToken = pool?.quoteInfo;
+  const baseToken = v2Pool?.tokens[0];
+  const quoteToken = v2Pool?.tokens[1];
 
   const {
     data: userPositionBreakdown,
     isLoading: isPositionBreakdownLoading,
     refresh,
-  } = usePoolUserPosition({ pool });
-
-  const baseAmountWithdrawn = useMemo(() => {
-    if (!userPositionBreakdown || amount === 0) {
-      return 0;
-    }
-    const bnAmountWithdrawn = userPositionBreakdown.baseAmount
-      .times(amount)
-      .div(100);
-    return bnAmountWithdrawn.div(10 ** (baseToken?.decimals ?? 18)).toString();
-  }, [userPositionBreakdown?.baseAmount, amount]);
-
-  const quoteAmountWithdrawn = useMemo(() => {
-    if (!userPositionBreakdown || amount === 0) {
-      return 0;
-    }
-    const bnAmountWithdrawn = userPositionBreakdown.quoteAmount
-      .times(amount)
-      .div(100);
-    return bnAmountWithdrawn.div(10 ** (quoteToken?.decimals ?? 18)).toString();
-  }, [userPositionBreakdown?.quoteAmount, amount]);
-
-  const totalHoneyPrice = useMemo(() => {
-    return (
-      Number(baseToken?.usdValue ?? 0) * Number(baseAmountWithdrawn) +
-      Number(quoteToken?.usdValue ?? 0) * Number(quoteAmountWithdrawn)
-    );
-  }, [baseToken, quoteToken, baseAmountWithdrawn, quoteAmountWithdrawn]);
+  } = usePoolUserPosition({ pool: v3Pool });
 
   const { write, ModalPortal } = useTxn({
-    message: `Withdraw liquidity from ${pool?.poolName}`,
+    message: `Withdraw liquidity from ${v2Pool?.name}`,
     onSuccess: () => {
       reset();
       refresh();
@@ -153,45 +124,35 @@ export default function WithdrawLiquidityContent({
 
   const client = usePublicClient();
   const handleWithdrawLiquidity = useCallback(async () => {
-    try {
-      const withdrawLiquidityRequest = await getWithdrawLiquidityPayload({
-        args: {
-          slippage: slippage ?? 0,
-          poolPrice,
-          baseToken,
-          quoteToken,
-          poolIdx: pool?.poolIdx,
-          percentRemoval: amount,
-          seeds: userPositionBreakdown?.seeds.toString() ?? "0",
-          shareAddress: pool?.shareAddress,
-        },
-        publicClient: client,
-      });
-
-      write({
-        address: crocDexAddress,
-        abi: bexAbi,
-        functionName: "userCmd",
-        params: withdrawLiquidityRequest?.payload ?? [],
-      });
-    } catch (error) {
-      console.error("Error creating pool:", error);
-    }
-  }, [
-    amount,
-    write,
-    client,
-    userPositionBreakdown,
-    slippage,
-    poolPrice,
-    baseToken,
-    quoteToken,
-  ]);
+    // try {
+    //   // const withdrawLiquidityRequest = await getWithdrawLiquidityPayload({
+    //   //   args: {
+    //   //     slippage: slippage ?? 0,
+    //   //     poolPrice,
+    //   //     baseToken,
+    //   //     quoteToken,
+    //   //     poolIdx: pool?.poolIdx,
+    //   //     percentRemoval: amount,
+    //   //     seeds: userPositionBreakdown?.seeds.toString() ?? "0",
+    //   //     poolId: pool?.poolId,
+    //   //   },
+    //   //   publicClient: client,
+    //   // });
+    //   // write({
+    //   //   address: crocDexAddress,
+    //   //   abi: bexAbi,
+    //   //   functionName: "userCmd",
+    //   //   params: withdrawLiquidityRequest?.payload ?? [],
+    //   // });
+    // } catch (error) {
+    //   console.error("Error creating pool:", error);
+    // }
+  }, [write, client, userPositionBreakdown, slippage, baseToken, quoteToken]);
 
   const notDeposited =
     userPositionBreakdown === undefined ||
-    userPositionBreakdown?.formattedBaseAmount === "0" ||
-    userPositionBreakdown?.formattedQuoteAmount === "0";
+    userPositionBreakdown?.lpBalance?.balance === 0n;
+
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
       {ModalPortal}
@@ -199,13 +160,13 @@ export default function WithdrawLiquidityContent({
         {isLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
-          <p className="text-center text-2xl font-semibold">{pool?.poolName}</p>
+          <p className="text-center text-2xl font-semibold">{v2Pool?.name}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
           {isLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
-            pool?.tokens?.map((token, i) => {
+            v2Pool?.tokens?.map((token, i) => {
               return (
                 <TokenIcon
                   address={token.address}
@@ -218,7 +179,7 @@ export default function WithdrawLiquidityContent({
           )}
         </div>
         <div
-          onClick={() => router.push(getPoolUrl(pool))}
+          onClick={() => router.push(getPoolUrl(v2Pool))}
           className="flex items-center justify-center text-sm font-normal leading-tight text-muted-foreground hover:cursor-pointer hover:underline"
         >
           View Pool Details
@@ -234,17 +195,15 @@ export default function WithdrawLiquidityContent({
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <TokenSummary
+            pool={v3Pool}
+            tokenBalances={userPositionBreakdown?.tokenBalances}
             title="Your Tokens In the Pool"
-            baseToken={baseToken}
-            quoteToken={quoteToken}
-            baseAmount={userPositionBreakdown?.formattedBaseAmount ?? "0"}
-            quoteAmount={userPositionBreakdown?.formattedQuoteAmount ?? "0"}
             isLoading={isPositionBreakdownLoading}
           />
           <div className="w-full rounded-lg border p-4">
             <div className="flex w-full flex-row items-center justify-between gap-1">
               <p className="text-sm font-semibold sm:text-lg">
-                {amount.toFixed(2)}%
+                {percentage.toFixed(2)}%
               </p>
               <div className="flex flex-row gap-2">
                 {[25, 50, 75, 100].map((percent) => {
@@ -255,7 +214,7 @@ export default function WithdrawLiquidityContent({
                       disabled={notDeposited}
                       size={"sm"}
                       className="w-full text-foreground"
-                      onClick={() => setAmount(percent)}
+                      onClick={() => setPercentage(percent)}
                     >
                       {percent.toString()}%
                     </Button>
@@ -265,65 +224,56 @@ export default function WithdrawLiquidityContent({
             </div>
             <Slider
               defaultValue={[0]}
-              value={[amount]}
+              value={[percentage]}
               disabled={notDeposited}
               max={100}
               min={0}
               onValueChange={(value: number[]) => {
-                setAmount(value[0] ?? 0);
+                setPercentage(value[0] ?? 0);
               }}
             />
           </div>
           <InfoBoxList>
-            <InfoBoxListItem
-              title={`Removing ${isLoading ? "..." : baseToken?.symbol}`}
-              value={
-                <div className="flex flex-row items-center justify-end gap-1">
-                  <FormattedNumber
-                    value={baseAmountWithdrawn}
-                    compact={false}
-                  />
-                  <TokenIcon
-                    address={baseToken?.address}
-                    size={"md"}
-                    symbol={baseToken?.symbol}
-                  />
-                </div>
-              }
-            />
-            <InfoBoxListItem
-              title={`Removing ${isLoading ? "..." : quoteToken?.symbol}`}
-              value={
-                <div className="flex flex-row items-center justify-end gap-1">
-                  <FormattedNumber
-                    value={quoteAmountWithdrawn}
-                    compact={false}
-                  />
-                  <TokenIcon
-                    address={quoteToken?.address}
-                    size={"md"}
-                    symbol={quoteToken?.symbol}
-                  />
-                </div>
-              }
-            />
-            <InfoBoxListItem
+            {v3Pool?.tokens.map((token) => (
+              <InfoBoxListItem
+                key={token.index}
+                title={`Removing ${isLoading ? "..." : token?.symbol ?? ""}`}
+                value={
+                  <div className="flex flex-row items-center justify-end gap-1">
+                    <FormattedNumber
+                      value={
+                        (Number(
+                          userPositionBreakdown?.tokenBalances?.at(token.index)
+                            ?.formattedBalance,
+                        ) *
+                          percentage) /
+                          100 ?? "0"
+                      }
+                      compact={false}
+                    />
+                    <TokenIcon
+                      address={token?.address}
+                      size={"md"}
+                      symbol={token?.symbol}
+                    />
+                  </div>
+                }
+              />
+            ))}
+            {/* <InfoBoxListItem
               title={"Pool Price"}
               value={
-                poolPrice ? (
+                0 ? (
                   <>
-                    <FormattedNumber
-                      value={poolPrice}
-                      symbol={baseToken?.symbol}
-                    />{" "}
-                    = 1 {quoteToken?.symbol}
+                    <FormattedNumber value={0} symbol={baseToken?.symbol} /> = 1{" "}
+                    {quoteToken?.symbol}
                   </>
                 ) : (
                   "-"
                 )
               }
-            />
-            <InfoBoxListItem
+            /> */}
+            {/* <InfoBoxListItem
               title={"Estimated Value"}
               value={
                 <FormattedNumber
@@ -332,7 +282,7 @@ export default function WithdrawLiquidityContent({
                   compact={false}
                 />
               }
-            />
+            /> */}
             <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
           </InfoBoxList>
           <TxnPreview
@@ -342,35 +292,30 @@ export default function WithdrawLiquidityContent({
             triggerText={"Preview"}
             setOpen={setPreviewOpen}
             disabled={
-              amount === 0 ||
+              percentage === 0 ||
               isPositionBreakdownLoading ||
-              userPositionBreakdown === undefined ||
-              userPositionBreakdown.baseAmount.toString() === "0" ||
-              userPositionBreakdown.quoteAmount.toString() === "0"
+              userPositionBreakdown === undefined
             }
           >
             <TokenList className="divide-muted bg-muted">
-              <PreviewToken
-                key={baseToken?.address}
-                token={baseToken}
-                value={Number(baseAmountWithdrawn)}
-                price={Number(baseToken?.usdValue ?? 0)}
-              />
-              <PreviewToken
-                key={quoteToken?.address}
-                token={quoteToken}
-                value={Number(quoteAmountWithdrawn)}
-                price={Number(quoteToken?.usdValue ?? 0)}
-              />
+              {v3Pool?.tokens.map((token) => (
+                <PreviewToken
+                  key={token.address}
+                  // @ts-ignore
+                  token={token}
+                  value={Number(token)}
+                  // price={Number(token?.usdValue ?? 0)}
+                />
+              ))}
             </TokenList>
             <InfoBoxList>
               <InfoBoxListItem
                 title={"Pool Price"}
                 value={
-                  poolPrice ? (
+                  percentage ? (
                     <>
                       <FormattedNumber
-                        value={poolPrice}
+                        value={percentage}
                         symbol={baseToken?.symbol}
                       />{" "}
                       = 1 {quoteToken?.symbol}
@@ -380,7 +325,7 @@ export default function WithdrawLiquidityContent({
                   )
                 }
               />
-              <InfoBoxListItem
+              {/* <InfoBoxListItem
                 title={"Estimated Value"}
                 value={
                   <FormattedNumber
@@ -389,7 +334,7 @@ export default function WithdrawLiquidityContent({
                     compact={false}
                   />
                 }
-              />
+              /> */}
               <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
             </InfoBoxList>
             <ActionButton>

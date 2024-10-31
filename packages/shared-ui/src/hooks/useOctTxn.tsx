@@ -18,6 +18,7 @@ import {
 } from "@bera/berajs";
 import toast from "react-hot-toast";
 import { useMediaQuery } from "usehooks-ts";
+import { Abi, ContractFunctionName } from "viem";
 
 import { ErrorToast, LoadingToast, SubmissionToast, SuccessToast } from "../";
 import {
@@ -34,7 +35,6 @@ import {
   modalReducer,
   type ModalName,
 } from "../utils/modalsReducer";
-import { Abi, ContractFunctionName } from "viem";
 
 interface IUseTxn {
   message?: string;

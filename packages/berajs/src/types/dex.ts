@@ -1,6 +1,8 @@
 import BigNumber from "bignumber.js";
 import { Address } from "viem";
 
+import { TokenBalance } from "./global";
+
 export type Token = {
   logoURI?: string;
   default?: boolean; // TODO: deprecate this
@@ -24,6 +26,8 @@ export interface SwapRequest {
   tokenInDecimals: number;
   tokenOutDecimals: number;
   amount: string;
+  isWrap: boolean;
+  wberaIsBera: boolean;
 }
 
 export interface AddLiquidityRequest {
@@ -73,18 +77,8 @@ export interface PoolV2 {
 }
 
 export interface IUserPosition {
-  baseAmount: BigNumber;
-  quoteAmount: BigNumber;
-  formattedBaseAmount: string;
-  formattedQuoteAmount: string;
-  baseHoneyValue?: string;
-  quoteHoneyValue?: string;
-  estimatedHoneyValue: number;
-  vaultBalance?: bigint;
-  formattedVaultBalance?: string;
-  estimatedDepositedHoneyValue?: number;
-  bgtEarned?: string;
-  seeds: BigNumber;
+  lpBalance?: TokenBalance;
+  tokenBalances?: TokenBalance[];
 }
 
 export interface ISwaps {

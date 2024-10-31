@@ -22,6 +22,7 @@ export type GetPoolRecentSwapsResult = ISwapWithHoneyValue[];
  * Fetchs a list of recent swaps for a given pool.
  * @param {PoolV2} param.args.pool - pool of which to fetch recent swaps
  * @param {BeraConfig} param.config - config: required config.subgraphs.dexSubgraph
+ * @deprecated this is crocswap only
  * @returns {Promise<GetPoolRecentSwapsResult | undefined>}
  */
 export const getPoolRecentSwaps = async ({

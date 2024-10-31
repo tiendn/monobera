@@ -8,7 +8,7 @@ import WithdrawPageContent from "../WithdrawPageContent";
 
 export function generateMetadata(): Metadata {
   return {
-    title: getMetaTitle("Withdraw Liquidity", dexName),
+    title: "Withdraw Liquidity",
     description: `Withdraw your liquidity from ${dexName}`,
   };
 }
@@ -25,10 +25,7 @@ export default async function Withdraw({
   }
 
   try {
-    if (!isAddress(params.shareAddress)) {
-      notFound();
-    }
-    return <WithdrawPageContent shareAddress={params.shareAddress} />;
+    return <WithdrawPageContent poolId={params.shareAddress!} />;
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);
     notFound();

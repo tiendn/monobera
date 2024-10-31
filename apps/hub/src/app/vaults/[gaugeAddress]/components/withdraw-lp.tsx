@@ -21,9 +21,11 @@ export const WithdrawLP = ({
 }) => {
   const [withdrawAmount, setWithdrawAmount] = useState<`${number}`>("0");
   const [withdrawPercent, setWithdrawPercent] = useState<number>(0);
+
   const { data, refresh } = usePollVaultsInfo({
     vaultAddress: gauge.vaultAddress,
   });
+
   const validAmount =
     BigNumber(withdrawAmount).gt(0) &&
     BigNumber(withdrawAmount).lte(data?.balance ?? "0");

@@ -1,33 +1,31 @@
-import { type PoolV2 } from "@bera/berajs";
 import { isIPFS } from "@bera/config";
+import { PoolState } from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 
 export const getPoolUrl = (
-  pool: PoolV2 | undefined,
+  pool: { id: string } | undefined,
   isMyPool = false,
 ): string => {
   if (!pool) return "";
   if (isIPFS) {
-    return `/pool?address=${pool?.shareAddress}${
-      isMyPool ? "&back=my-pools" : ""
-    }`;
+    return `/pool?address=${pool?.id}${isMyPool ? "&back=my-pools" : ""}`;
   }
-  return `/pool/${pool?.shareAddress}${isMyPool ? "?back=my-pools" : ""}`;
+  return `/pool/${pool?.id}${isMyPool ? "?back=my-pools" : ""}`;
 };
 
-export const getPoolAddLiquidityUrl = (pool: PoolV2 | undefined) => {
+export const getPoolAddLiquidityUrl = (pool: { id: string } | undefined) => {
   if (!pool) return "";
 
   if (isIPFS) {
-    return `/add-liquidity?address=${pool?.shareAddress}`;
+    return `/add-liquidity?address=${pool?.id}`;
   }
 
-  return `/add-liquidity/${pool?.shareAddress}`;
+  return `/add-liquidity/${pool?.id}`;
 };
 
-export const getPoolWithdrawUrl = (pool: PoolV2 | undefined) => {
+export const getPoolWithdrawUrl = (pool: { id: string } | undefined) => {
   if (!pool) return "";
-  return `/withdraw/${pool?.shareAddress}`;
+  return `/withdraw/${pool?.id}`;
 };
 
 export const getBaseCost = (initialPrice: number) => {

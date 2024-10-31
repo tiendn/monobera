@@ -45,6 +45,7 @@ export const getSubgraphTokenInformations = async ({
         id: swappedAddresses,
       },
     });
+
     return res.data?.tokenInformations.reduce(
       (allPrices: any, tokenInformation: Token) => ({
         ...allPrices,

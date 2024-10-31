@@ -215,7 +215,7 @@ export function TokenInput({
             type="number-enhanced"
             step="any"
             min="0"
-            placeholder="0.0"
+            placeholder="0.00" // NOTE: this determines what you see in the swap page as the default from token amount.
             disabled={disabled}
             className={cn(
               "ring-offset-none w-full grow border-0 bg-transparent p-0 text-right text-lg font-semibold shadow-none outline-none ring-0 drop-shadow-none focus-visible:ring-0 focus-visible:ring-offset-0",

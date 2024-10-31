@@ -24,8 +24,10 @@ export const governanceUrl = process.env.NEXT_PUBLIC_GOVERNANCE_URL as string;
 export const governanceName = process.env.NEXT_PUBLIC_GOVERNANCE_NAME as string;
 
 // Subgraphs
-export const crocSubgraphEndpoint = process.env
+export const crocSubgraphEndpoint = process.env // TODO (#): croc subgraph definition
   .NEXT_PUBLIC_RPC_CROC_SUBGRAPH as Address;
+export const balancerApiUrl = process.env
+  .NEXT_PUBLIC_BALANCER_API_URL as Address;
 export const honeySubgraphUrl = process.env
   .NEXT_PUBLIC_HONEY_SUBGRAPH_URL as string;
 export const lendSubgraphUrl = process.env
@@ -186,14 +188,6 @@ export const perpsPythPricesMocked = process.env
 export const perpsTradingviewEnabled = process.env
   .NEXT_PUBLIC_PERPS_TRADINGVIEW_ENABLED as string;
 
-// Validator clue
-export const validatorClueEndpoint = process.env
-  .NEXT_PUBLIC_VILIDATOR_CLUE_ENDPOINT as string;
-
-// gov authority
-export const governanceAuthority = process.env
-  .NEXT_PUBLIC_GOVERNANCE_AUTHORITY as string;
-
 export const bannerEnabled = Boolean(
   process.env.NEXT_PUBLIC_BANNER_ENABLED,
 ) as boolean;
@@ -216,20 +210,23 @@ export const governanceTimelockAddress = process.env
 export const beraChefAddress = process.env
   .NEXT_PUBLIC_BERA_CHEF_ADDRESS as Address;
 
-// Crocswap
-export const crocDexAddress = process.env.NEXT_PUBLIC_RPC_CROC_DEX as Address;
-export const crocQueryAddress = process.env
-  .NEXT_PUBLIC_RPC_CROC_QUERY as Address;
-export const crocImpactAddress = process.env
-  .NEXT_PUBLIC_RPC_CROC_IMPACT as Address;
-export const crocMultiPathAddress = process.env
-  .NEXT_PUBLIC_RPC_CROC_MULTIPATH as Address;
-export const crocMultiSwapAddress = process.env
-  .NEXT_PUBLIC_RPC_CROC_MULTISWAP as Address;
+// Crocswap TODO (#): remove croc definitions
 export const crocIndexerEndpoint = process.env
   .NEXT_PUBLIC_RPC_CROC_INDEXER_ENDPOINT as Address;
 export const crocRouterEndpoint = process.env
   .NEXT_PUBLIC_RPC_CROC_ROUTER_ENDPOINT as Address;
+
+// Balancer
+export const balancerVaultAddress = process.env
+  .NEXT_PUBLIC_BALANCER_VAULT_ADDRESS as Address;
+export const balancerHelperAddress = process.env
+  .NEXT_PUBLIC_BALANCER_HELPERS as Address;
+export const balancerQueriesAddress = process.env
+  .NEXT_PUBLIC_BALANCER_QUERIES as Address;
+export const balancerRelayerAddress = process.env
+  .NEXT_PUBLIC_BALANCER_RELAYER as Address;
+export const balancerSubgraphUrl = process.env
+  .NEXT_PUBLIC_BALANCER_SUBGRAPH as Address;
 
 // Sentry && Mixpanel
 export const developmentAnalytics = process.env

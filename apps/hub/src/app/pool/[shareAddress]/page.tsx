@@ -8,7 +8,7 @@ import PoolPageContent from "../PoolPageContent";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Pool | DEX | Berachain",
+    title: "Pool",
   };
 }
 
@@ -25,9 +25,10 @@ export default async function PoolPage({
   }
 
   try {
-    if (!isAddress(params.shareAddress)) {
-      notFound();
-    }
+    // if (!isAddress(params.shareAddress)) {
+    //   notFound();
+    // }
+
     return <PoolPageContent shareAddress={params.shareAddress as Address} />;
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);

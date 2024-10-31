@@ -284,64 +284,6 @@ export const searchFilteredPoolList = gql`
   }
 `;
 
-export const getCrocSelectedPoolOLD = gql`
-  query GetPoolList($baseAsset: Bytes!, $quoteAsset: Bytes!) {
-    pools(where: { base: $baseAsset, quote: $quoteAsset }) {
-      id
-      poolIdx
-      base
-      quote
-      timeCreate
-      template {
-        feeRate
-      }
-      baseInfo {
-        id
-        address
-        symbol
-        name
-        decimals
-      }
-      quoteInfo {
-        id
-        address
-        symbol
-        name
-        decimals
-      }
-    }
-  }
-`;
-
-export const getCrocSelectedPoolNEW = gql`
-  query GetPoolList($baseAsset: Bytes!, $quoteAsset: Bytes!, $poolIdx: String!) {
-    pools(where: { base: $baseAsset, quote: $quoteAsset, poolIdx: $poolIdx }) {
-      id
-      poolIdx
-      base
-      quote
-      timeCreate
-      template {
-        feeRate
-      }
-      baseInfo {
-        id
-        address
-        symbol
-        name
-        decimals
-      }
-      quoteInfo {
-        id
-        address
-        symbol
-        name
-        decimals
-      }
-    }
-  }
-`;
-
 export const getRecentSwaps = gql`
   query GetRecentSwaps($poolHash: Bytes!) {
     swaps(
@@ -384,23 +326,26 @@ export const getRecentProvisions = gql`
 // NEW QUERIES
 
 export const getFilteredPoolsBySymbol = gql`
- query GetPoolList(
+  query GetPoolList(
     $keyword: String
     $skip: Int!
     $first: Int!
     $order: String
     $orderDirection: String
   ) {
-    pools(where: {or: [
-        {baseInfo_: {name_contains_nocase: $keyword}},
-        {baseInfo_: {symbol_contains_nocase: $keyword}},
-        {quoteInfo_: {name_contains_nocase: $keyword}},
-        {quoteInfo_: {symbol_contains_nocase: $keyword}},
-    ]},
-    orderBy: $order,
-    orderDirection: $orderDirection,
-    skip: $skip,
-    first: $first
+    pools(
+      where: {
+        or: [
+          { baseInfo_: { name_contains_nocase: $keyword } }
+          { baseInfo_: { symbol_contains_nocase: $keyword } }
+          { quoteInfo_: { name_contains_nocase: $keyword } }
+          { quoteInfo_: { symbol_contains_nocase: $keyword } }
+        ]
+      }
+      orderBy: $order
+      orderDirection: $orderDirection
+      skip: $skip
+      first: $first
     ) {
       id
       poolIdx
@@ -444,22 +389,25 @@ export const getFilteredPoolsBySymbol = gql`
 `;
 
 export const getFilteredPoolsByAddress = gql`
- query GetPoolList(
+  query GetPoolList(
     $keyword: String
     $skip: Int!
     $first: Int!
     $order: String
     $orderDirection: String
   ) {
-    pools(where: {or: [
-        {baseInfo_: {address_contains: $keyword}},
-				{quoteInfo_: {address_contains: $keyword}},
-      	{shareAddress_: {address_contains: $keyword}}
-    ]},
-    orderBy: $order,
-    orderDirection: $orderDirection,
-    skip: $skip,
-    first: $first
+    pools(
+      where: {
+        or: [
+          { baseInfo_: { address_contains: $keyword } }
+          { quoteInfo_: { address_contains: $keyword } }
+          { shareAddress_: { address_contains: $keyword } }
+        ]
+      }
+      orderBy: $order
+      orderDirection: $orderDirection
+      skip: $skip
+      first: $first
     ) {
       id
       poolIdx
@@ -503,189 +451,193 @@ export const getFilteredPoolsByAddress = gql`
 `;
 
 export const GetHomepageData = gql`
-query HomepageData($beraAddress: String) {
-  bexGlobalData(id: "global") {
-    tvlUsd
+  query HomepageData($beraAddress: String) {
+    bexGlobalData(id: "global") {
+      tvlUsd
+    }
+    bexGlobalDayDatas(orderBy: date, orderDirection: desc, first: 1) {
+      volumeUsd
+    }
+    globalInfo(id: "global") {
+      totalBGTDistributed
+    }
+    tokenInformations(where: { address_contains: $beraAddress }) {
+      usdValue
+    }
   }
-  bexGlobalDayDatas(orderBy: date, orderDirection: desc, first: 1) {
-    volumeUsd
-  }
-  globalInfo(id: "global") {
-    totalBGTDistributed
-  }
-  tokenInformations(where: {address_contains: $beraAddress}) {
-    usdValue
-  }
-}
 `;
 
 export const GetUserPools = gql`
-query UserPools($user: String) {
-  userPools(id: $user) {
-    depositedPools {
-      pool {
-        id
-        poolIdx
-        base
-        quote
-        timeCreate
-        tvlUsd
-        baseAmount
-        quoteAmount
-        wtv
-        template {
-          feeRate
-        }
-        baseInfo {
+  query UserPools($user: String) {
+    userPools(id: $user) {
+      depositedPools {
+        pool {
           id
-          address
-          symbol
-          name
-          decimals
-          usdValue
-          beraValue
-        }
-        quoteInfo {
-          id
-          address
-          symbol
-          name
-          decimals
-          usdValue
-          beraValue
-        }
-        shareAddress {
-          address
-        }
-        latestPoolDayData {
+          poolIdx
+          base
+          quote
+          timeCreate
           tvlUsd
-          feesUsd
-          volumeUsd
-        }
-        vault {
-          id
-          vaultAddress
+          baseAmount
+          quoteAmount
+          wtv
+          template {
+            feeRate
+          }
+          baseInfo {
+            id
+            address
+            symbol
+            name
+            decimals
+            usdValue
+            beraValue
+          }
+          quoteInfo {
+            id
+            address
+            symbol
+            name
+            decimals
+            usdValue
+            beraValue
+          }
+          shareAddress {
+            address
+          }
+          latestPoolDayData {
+            tvlUsd
+            feesUsd
+            volumeUsd
+          }
+          vault {
+            id
+            vaultAddress
+          }
         }
       }
     }
   }
-}
 `;
 
 export const getSelectedPool = gql`
-query GetPoolList($shareAddress: String) {
-  pools(where: {shareAddress_: {address_contains: $shareAddress}}) {
-    id
-    poolIdx
-    base
-    quote
-    timeCreate
-    tvlUsd
-    baseAmount
-    quoteAmount
-    wtv
-    template {
-      feeRate
-    }
-    baseInfo {
+  query GetPoolList($shareAddress: String) {
+    pools(where: { shareAddress_: { address_contains: $shareAddress } }) {
       id
-      address
-      symbol
-      name
-      decimals
-      usdValue
-      beraValue
-    }
-    quoteInfo {
-      id
-      address
-      symbol
-      name
-      decimals
-      usdValue
-      beraValue
-    }
-    shareAddress {
-      address
-    }
-    vault {
-      id
-      vaultAddress
+      poolIdx
+      base
+      quote
+      timeCreate
+      tvlUsd
+      baseAmount
+      quoteAmount
+      wtv
+      template {
+        feeRate
+      }
+      baseInfo {
+        id
+        address
+        symbol
+        name
+        decimals
+        usdValue
+        beraValue
+      }
+      quoteInfo {
+        id
+        address
+        symbol
+        name
+        decimals
+        usdValue
+        beraValue
+      }
+      shareAddress {
+        address
+      }
+      vault {
+        id
+        vaultAddress
+      }
     }
   }
-}
 `;
 
 export const GetTokenInformation = gql`
-query GetTokenInformation($id: String) {
-  tokenInformation(id: $id) {
-    id
-    address
-    symbol
-    name
-    decimals
-    usdValue
-    beraValue
+  query GetTokenInformation($id: String) {
+    tokenInformation(id: $id) {
+      id
+      address
+      symbol
+      name
+      decimals
+      usdValue
+      beraValue
+    }
   }
-}
 `;
 
 export const GetTokenInformations = gql`
-query GetTokenInformation($id: [String!]) {
-  tokenInformations(where: { id_in: $id }) {
-    id
-    address
-    symbol
-    name
-    decimals
-    usdValue
-    beraValue
+  query GetTokenInformation($id: [String!]) {
+    tokenInformations(where: { id_in: $id }) {
+      id
+      address
+      symbol
+      name
+      decimals
+      usdValue
+      beraValue
+    }
   }
-}
 `;
 
 export const GetPoolDayDatas = gql`
-query PoolDayData($poolId: String) {
-  poolDayDatas(where: {pool: $poolId}, orderBy: date, orderDirection: desc) {
-    date
-    tvlUsd
-    volumeUsd
-    feesUsd
+  query PoolDayData($poolId: String) {
+    poolDayDatas(
+      where: { pool: $poolId }
+      orderBy: date
+      orderDirection: desc
+    ) {
+      date
+      tvlUsd
+      volumeUsd
+      feesUsd
+    }
   }
-}
 `;
 
 export const GetPoolCount = gql`
-query PoolCount {
-  bexGlobalUsages(interval: "day", first: 1) {
-    id
-    timestamp
-    poolCount
+  query PoolCount {
+    bexGlobalUsages(interval: "day", first: 1) {
+      id
+      timestamp
+      poolCount
+    }
   }
-}
 `;
 
 export const GetPoolHistory = gql`
-query PoolHistory($poolId: String) {
-  poolUsages(interval: "day", where: { pool_: { id: $poolId } }, first: 90) {
-    volumeUsd: dailyVolumeUsd
-    tvlUsd
-    feesUsd: dailyfeesUsd
-    date: timestamp
-    pool {
-      id
+  query PoolHistory($poolId: String) {
+    poolUsages(interval: "day", where: { pool_: { id: $poolId } }, first: 90) {
+      volumeUsd: dailyVolumeUsd
+      tvlUsd
+      feesUsd: dailyfeesUsd
+      date: timestamp
+      pool {
+        id
+      }
     }
   }
-}
 `;
 
 export const GetWeeklyBgtInflation = gql`
-query BgtInflation($wbera: String) {
-  globalIncentivesUsages(interval: "day", first: 7) {
-    bgtDistributed
+  query BgtInflation($wbera: String) {
+    globalIncentivesUsages(interval: "day", first: 7) {
+      bgtDistributed
+    }
+    tokenInformation(id: $wbera) {
+      usdValue
+    }
   }
-  tokenInformation(id: $wbera) {
-    usdValue
-  }
-}
 `;

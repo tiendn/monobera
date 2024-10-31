@@ -1,5 +1,5 @@
 import { useCallback, useReducer } from "react";
-import { usePublicClient, useWriteContract } from "wagmi";
+import { usePublicClient, useSendTransaction, useWriteContract } from "wagmi";
 
 import { getErrorMessage, getRevertReason } from "~/utils/errorMessages";
 import { ActionEnum, initialState, reducer } from "~/utils/stateReducer";
@@ -24,6 +24,7 @@ const useBeraContractWrite = ({
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const { writeContractAsync } = useWriteContract();
+  const { sendTransactionAsync } = useSendTransaction();
   const publicClient = usePublicClient();
   const { account, config } = useBeraJs();
 
@@ -38,26 +39,37 @@ const useBeraContractWrite = ({
       functionName,
       params,
       value = 0n,
+      data,
       gasLimit = 2000000n,
     }: IContractWrite): Promise<void> => {
       dispatch({ type: ActionEnum.LOADING });
       onLoading?.();
-      let receipt: any | undefined;
+      let receipt: Awaited<ReturnType<typeof sendTransactionAsync>>;
       if (!publicClient) return;
       try {
-        // TODO: figure out clean way to early detect errors and effectively show them on the UI
-        const { request } = await publicClient.simulateContract({
-          address: address,
-          abi: abi,
-          functionName: functionName,
-          args: params,
-          value: value,
-          account: account,
-        });
-        receipt = await writeContractAsync({
-          ...request,
-          gas: gasLimit ?? request.gas,
-        });
+        if (data) {
+          receipt = await sendTransactionAsync({
+            data,
+            to: address,
+            value,
+            gas: gasLimit,
+          });
+        } else {
+          // TODO: figure out clean way to early detect errors and effectively show them on the UI
+          const { request } = await publicClient.simulateContract({
+            address: address,
+            abi: abi,
+            functionName: functionName,
+            args: params,
+            value: value,
+            account: account,
+          });
+          receipt = await writeContractAsync({
+            ...request,
+            gas: gasLimit ?? request.gas,
+          });
+        }
+
         dispatch({ type: ActionEnum.SUBMITTING });
         if (receipt) {
           onSubmission?.(receipt);

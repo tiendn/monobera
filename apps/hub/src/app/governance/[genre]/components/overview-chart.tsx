@@ -6,7 +6,6 @@ import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { formatEther } from "viem";
 
 import { VoteColorMap, VoteEnum } from "../../types";
-import { number } from "yargs";
 
 const Options = {
   responsive: true,

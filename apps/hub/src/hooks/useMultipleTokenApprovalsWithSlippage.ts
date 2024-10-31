@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePollAllowances, type Token } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
 import { useSlippage } from "@bera/shared-ui";
@@ -12,11 +12,13 @@ const useMultipleTokenApprovalsWithSlippage = (
   tokenInput: TokenInput[],
   spender: Address,
 ) => {
-  const [needsApproval, setNeedsApproval] = useState<Token[]>([]);
-
-  const tokens = tokenInput
-    .filter((token: TokenInput) => token !== undefined)
-    .map((token) => token);
+  const tokens = useMemo(
+    () =>
+      tokenInput
+        .filter((token: TokenInput) => token !== undefined)
+        .map((token) => token),
+    [tokenInput],
+  );
 
   const { data: allowances, refresh } = usePollAllowances({
     spender: spender,
@@ -25,9 +27,9 @@ const useMultipleTokenApprovalsWithSlippage = (
 
   const slippage = useSlippage();
 
-  useEffect(() => {
-    if (allowances) {
-      const needsApproval = allowances
+  const needsApproval = useMemo(() => {
+    return (
+      (allowances
         ?.map((allowance) => {
           const token = tokens.find(
             (token: TokenInput) => token?.address === allowance.address,
@@ -45,9 +47,8 @@ const useMultipleTokenApprovalsWithSlippage = (
             return allowance;
           }
         })
-        .filter((token) => token !== undefined) as Token[];
-      setNeedsApproval(needsApproval);
-    }
+        .filter((token) => token !== undefined) as Token[]) ?? []
+    );
   }, [allowances, slippage, tokenInput]);
 
   return {

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { crocMultiSwapAddress, nativeTokenAddress } from "@bera/config";
 import {
   ContractFunctionArgs,
   EstimateContractGasParameters,
@@ -14,32 +13,6 @@ export enum TXN_GAS_USED_ESTIMATES {
   WRAP = 100000,
   SIMPLE = 25000,
 }
-
-const getGeneralGasEstimate = async (
-  publicClient: ReturnType<typeof usePublicClient>,
-  gasUsedOverride?: number,
-) => {
-  const feesPerGasEstimate = await publicClient?.estimateFeesPerGas();
-  const gas = gasUsedOverride
-    ? BigInt(gasUsedOverride)
-    : await publicClient?.estimateGas({
-        account: nativeTokenAddress,
-        to: crocMultiSwapAddress,
-        value: parseEther("1"),
-      });
-  const estimatedTxFeeInBera =
-    feesPerGasEstimate?.maxPriorityFeePerGas &&
-    gas &&
-    parseFloat(`${feesPerGasEstimate.maxPriorityFeePerGas * gas}`);
-
-  return estimatedTxFeeInBera
-    ? {
-        estimatedTxFeeInBera: parseFloat(
-          formatEther(BigInt(estimatedTxFeeInBera)),
-        ),
-      }
-    : undefined;
-};
 
 const getContractGasEstimate = async (
   publicClient: ReturnType<typeof usePublicClient>,
@@ -80,43 +53,15 @@ export const useGasData = ({
   contractArgs?: EstimateContractGasParameters<any> | null;
   gasUsedOverride?: number;
 } = {}): UseGasDataReturnType => {
-  const publicClient = usePublicClient();
-
   const [estimatedBeraFee, setEstimatedBeraFee] = useState<
     number | undefined
   >();
 
   useEffect(() => {
-    if (contractArgs === undefined) {
-      getGeneralGasEstimate(publicClient, gasUsedOverride)
-        .then((res: { estimatedTxFeeInBera: number } | undefined) => {
-          if (!res) {
-            throw new Error("failed to get general gas estimate");
-          }
-          setEstimatedBeraFee(res.estimatedTxFeeInBera);
-        })
-        .catch();
-      return;
-    }
-    getContractGasEstimate(publicClient, contractArgs, gasUsedOverride)
-      .then((res: { estimatedTxFeeInBera: number } | undefined) => {
-        if (!res) {
-          throw new Error("failed to get contract gas estimate");
-        }
-        setEstimatedBeraFee(res?.estimatedTxFeeInBera);
-      })
-      .catch((e: unknown) => {
-        setEstimatedBeraFee(undefined);
-
-        const isFalseAlarm =
-          `${e}`.includes("Unable to decode signature") ||
-          `${e}`.includes("insufficient allowance");
-
-        if (!isFalseAlarm) {
-          console.error("useGasData: ", e);
-        }
-      });
-  }, [contractArgs]);
+    console.error(
+      "failed to get general gas estimate. this was used with crocswap",
+    );
+  }, []);
 
   return { estimatedBeraFee };
 };

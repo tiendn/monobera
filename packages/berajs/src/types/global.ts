@@ -22,7 +22,7 @@ export interface BeraConfig {
   };
   contracts?: {
     multicallAddress?: Address;
-    crocMultiSwapAddress?: Address;
+    balancerVaultAddress?: Address;
     wrappedTokenAddress?: Address;
     dexAddress?: Address;
     bgtAddress?: Address;
@@ -45,7 +45,10 @@ export type DefaultHookOptions = {
   opts?: SWRConfiguration | undefined;
 };
 
-export type DefaultHookReturnType<T = any> = SWRResponse<T, any, any> & {
+export type DefaultHookReturnType<T = any> = Omit<
+  SWRResponse<T, any, any>,
+  "mutate"
+> & {
   refresh: () => void;
 };
 

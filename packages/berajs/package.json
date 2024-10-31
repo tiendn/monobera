@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.8.8",
-    "@bera/beracrocswap": "workspace:*",
     "@bera/config": "workspace:*",
     "@bera/graphql": "workspace:*",
     "@bera/wagmi": "workspace:*",
