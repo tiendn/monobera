@@ -20,6 +20,7 @@ export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
   const { data: balance } = usePollBalance({
     address: pool.address,
   });
+
   return (
     <div className="flex flex-row items-start gap-2">
       <TokenIconList
@@ -48,7 +49,7 @@ export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
               <span>Stable</span>
             </Badge>
           )}
-          {balance?.balance !== 0n && (
+          {balance && balance.balance !== 0n && (
             <Badge
               variant="success"
               className="border-none bg-success px-2 py-1 text-[10px] leading-[10px] "

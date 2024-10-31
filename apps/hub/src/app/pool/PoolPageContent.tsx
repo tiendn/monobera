@@ -187,126 +187,21 @@ export default function PoolPageContent({
     },
   );
 
-  // const { data: swaps, isLoading: isRecentSwapsLoading } = usePoolRecentSwaps({
-  //   pool,
-  // });
-
-  // const { data: provisions, isLoading: isRecentProvisionsLoading } =
-  //   usePoolRecentProvisions({ pool });
-
   const isLoading = isPoolLoading;
-
-  // const combinedEvents: ISwapOrProvision[] | undefined = useMemo(() => {
-  //   if (!swaps || !provisions) return undefined;
-  //   return [...swaps, ...provisions].sort((a, b) => b.time - a.time);
-  // }, [swaps, provisions]);
-  const [selectedTab, setSelectedTab] = useState(Selection.AllTransactions);
-  // const {
-  //   allData,
-  //   allDataSize,
-  //   setAllDataSize,
-  //   isAllDataLoadingMore,
-  //   isAllDataReachingEnd,
-  //   swapData,
-  //   swapDataSize,
-  //   setSwapDataSize,
-  //   isSwapDataLoadingMore,
-  //   isSwapDataReachingEnd,
-  //   provisionData,
-  //   provisionDataSize,
-  //   setProvisionDataSize,
-  //   isProvisionDataLoadingMore,
-  //   isProvisionDataReachingEnd,
-  // } = usePoolEvents({
-  //   pool,
-  //   swaps,
-  //   provisions,
-  //   combinedEvents,
-  // });
-
-  // const getLoadMoreButton = () => {
-  //   if (selectedTab === Selection.AllTransactions) {
-  //     return (
-  //       <>
-  //         {allData.length === 0 ? (
-  //           false
-  //         ) : (
-  //           <Button
-  //             onClick={() => setAllDataSize(allDataSize + 1)}
-  //             disabled={isAllDataLoadingMore || isAllDataReachingEnd}
-  //             variant="outline"
-  //           >
-  //             {isAllDataLoadingMore
-  //               ? "Loading..."
-  //               : isAllDataReachingEnd
-  //                 ? "No more transactions"
-  //                 : "Load more"}
-  //           </Button>
-  //         )}
-  //       </>
-  //     );
-  //   }
-  //   if (selectedTab === Selection.Swaps) {
-  //     return (
-  //       <>
-  //         {swapData.length === 0 ? (
-  //           false
-  //         ) : (
-  //           <Button
-  //             onClick={() => setSwapDataSize(swapDataSize + 1)}
-  //             disabled={isSwapDataLoadingMore || isSwapDataReachingEnd}
-  //             variant="outline"
-  //           >
-  //             {isSwapDataLoadingMore
-  //               ? "Loading..."
-  //               : isSwapDataReachingEnd
-  //                 ? "No more transactions"
-  //                 : "Load more"}
-  //           </Button>
-  //         )}
-  //       </>
-  //     );
-  //   }
-  //   if (selectedTab === Selection.AddsWithdrawals) {
-  //     return (
-  //       <>
-  //         {provisionData.length === 0 ? (
-  //           false
-  //         ) : (
-  //           <Button
-  //             onClick={() => setProvisionDataSize(provisionDataSize + 1)}
-  //             disabled={
-  //               isProvisionDataLoadingMore || isProvisionDataReachingEnd
-  //             }
-  //             variant="outline"
-  //           >
-  //             {isProvisionDataLoadingMore
-  //               ? "Loading..."
-  //               : isProvisionDataReachingEnd
-  //                 ? "No more transactions"
-  //                 : "Load more"}
-  //           </Button>
-  //         )}
-  //       </>
-  //     );
-  //   }
-  // };
-
-  // const { data: userPositionBreakdown, isLoading: isPositionBreakdownLoading } =
-  //   usePoolUserPosition({
-  //     pool,
-  //   });
-
-  // const { data: poolHistoryData, isLoading: isPoolHistoryLoading } =
-  //   usePoolHistoricalData({
-  //     poolId: pool?.id,
-  //   });
-
-  // const poolHistory = poolHistoryData;
-  // const timeCreated = pool?.timeCreate;
 
   const { data: bgtInflation } = useBgtInflation();
 
+  const userSharePercentage =
+    Number(userBalance?.formattedBalance ?? 0) /
+    Number(pool?.totalLiquidity ?? 0);
+
+  const tvlInUsd =
+    pool?.tokens.reduce((balance, curr) => {
+      return (
+        balance +
+        parseFloat(curr.balance) * parseFloat(curr.token?.latestUSDPrice ?? "0")
+      );
+    }, 0) ?? 0;
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
@@ -396,8 +291,8 @@ export default function PoolPageContent({
           vaultAddress={pool?.id as Address}
         />
       )} */}
-      <div className="flex w-full grid-cols-5 flex-col gap-4 lg:grid">
-        <div className="col-span-5 flex w-full flex-col gap-4 lg:col-span-3">
+      <div className="w-full grid-cols-1 lg:grid-cols-12  gap-4 grid auto-rows-min">
+        <div className="col-span-5 flex w-full flex-col gap-4 lg:col-span-7">
           {/* <PoolChart
             pool={pool}
             currentTvl={pool?.tvlUsd}
@@ -405,7 +300,7 @@ export default function PoolPageContent({
             timeCreated={timeCreated}
             isLoading={isPoolHistoryLoading}
           /> */}
-          <div className="mb-3 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Card className="px-4 py-2">
               <div className="flex flex-row items-center justify-between">
                 <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
@@ -451,7 +346,7 @@ export default function PoolPageContent({
             </Card>
           </div>
         </div>
-        <div className="col-span-5 flex w-full flex-col gap-5 lg:col-span-2">
+        <div className="flex w-full flex-col gap-5 lg:col-span-7 lg:col-start-1">
           <Card className="p-4">
             <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold lg:mb-8">
               Pool Liquidity
@@ -459,10 +354,7 @@ export default function PoolPageContent({
                 {isLoading ? (
                   <Skeleton className="h-10 w-20" />
                 ) : (
-                  <FormattedNumber
-                    value={pool?.totalLiquidity ?? 0}
-                    symbol="USD"
-                  />
+                  <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
                 )}
               </div>
             </div>
@@ -479,26 +371,12 @@ export default function PoolPageContent({
                         parseFloat(t.balance) *
                         parseFloat(t.token?.latestUSDPrice ?? "0"),
                     }))
-                // {
-                //   address: pool.baseInfo.address,
-                //   symbol: pool.baseInfo.symbol,
-                //   value: pool.baseTokens,
-                //   valueUSD:
-                //     parseFloat(pool.baseTokens) *
-                //     parseFloat(pool?.baseInfo?.usdValue ?? "0"),
-                // },
-                // {
-                //   address: pool.quoteInfo.address,
-                //   symbol: pool.quoteInfo.symbol,
-                //   value: pool.quoteTokens,
-                //   valueUSD:
-                //     parseFloat(pool.quoteTokens) *
-                //     parseFloat(pool?.quoteInfo?.usdValue ?? "0"),
-                // },
               }
             />
           </Card>
-          {isConnected && (
+        </div>
+        {isConnected && (
+          <div className="lg:col-span-5 lg:row-start-1 lg:col-start-8 lg:row-span-2">
             <Card>
               <CardContent className="flex items-center justify-between gap-4 p-4">
                 <div className="w-full ">
@@ -511,50 +389,33 @@ export default function PoolPageContent({
                         <Skeleton className="h-[32px] w-[150px]" />
                       ) : (
                         <FormattedNumber
-                          value={userBalance?.formattedBalance ?? 0}
-                          symbol="LP"
+                          value={tvlInUsd * userSharePercentage}
+                          symbol="USD"
                         />
                       )}
                     </div>
                   </div>
-                  {/* <div className="mt-4 lg:mt-8">
+                  <div className="mt-4 lg:mt-8">
                     <TokenView
-                      isLoading={true}
+                      isLoading={isUserBalanceLoading || isPoolLoading}
                       tokens={
-                        !pool
-                          ? []
-                          : [
-                              // {
-                              //   address: pool.baseInfo.address,
-                              //   symbol: pool.baseInfo.symbol,
-                              //   value:
-                              //     truncateFloat(
-                              //       userPositionBreakdown?.formattedBaseAmount,
-                              //       6,
-                              //     )?.toString() ?? "0",
-                              //   valueUSD:
-                              //     userPositionBreakdown?.baseHoneyValue ?? "0",
-                              // },
-                              // {
-                              //   address: pool.quoteInfo.address,
-                              //   symbol: pool.quoteInfo.symbol,
-                              //   value:
-                              //     truncateFloat(
-                              //       userPositionBreakdown?.formattedQuoteAmount,
-                              //       6,
-                              //     )?.toString() ?? "0",
-                              //   valueUSD:
-                              //     userPositionBreakdown?.quoteHoneyValue ?? "0",
-                              // },
-                            ]
+                        pool?.tokens?.map((t) => ({
+                          address: t.address!,
+                          symbol: t.symbol!,
+                          value: parseFloat(t.balance),
+                          valueUSD:
+                            parseFloat(t.balance) *
+                            parseFloat(t.token?.latestUSDPrice ?? "0") *
+                            userSharePercentage,
+                        })) ?? []
                       }
                     />
-                  </div> */}
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <Separator />
       <section>

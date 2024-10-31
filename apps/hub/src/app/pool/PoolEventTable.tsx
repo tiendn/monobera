@@ -58,9 +58,7 @@ export const EventTable = ({
       },
     },
     fetchData: async (state) => {
-      console.log("FETCHING DATA", state);
-
-      if (!pool?.id) return;
+      // if (!pool?.id) return;
 
       // const response = await bexApiGraphqlClient.query<GetPoolEventsQuery>({
       //   query: GetPoolEvents,
@@ -81,7 +79,7 @@ export const EventTable = ({
     columns: [
       {
         header: "Action",
-        accessorKey: "tx",
+        accessorKey: "type",
         cell: ({ row }) => {
           return row.original.type === "SWAP" ? (
             <span className="">Swap</span>
