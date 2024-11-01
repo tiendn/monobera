@@ -2,20 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PoolType, PoolWithMethods, parseFixed } from "@balancer-labs/sdk";
+import { PoolWithMethods } from "@balancer-labs/sdk";
+// FIXME: should use a v3 query for this!
 import {
+  ADDRESS_ZERO,
   TransactionActionType,
   balancerPoolCreationHelperAbi,
   useBeraJs,
-  type GetAllowances,
   type Token,
 } from "@bera/berajs";
-import {
-  getAllowance,
-  getAllowances,
-  getWalletBalances,
-} from "@bera/berajs/actions";
-import { balancerPoolCreationHelper } from "@bera/config";
+import { getAllowances, getWalletBalances } from "@bera/berajs/actions";
+import { balancerPoolCreationHelper, chainId } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -29,13 +26,63 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { formatUnits, parseUnits, zeroAddress } from "viem";
+import {
+  CreatePoolV2ComposableStableInput,
+  InitPoolInput,
+  PoolType,
+  composableStableFactoryV5Abi_V2,
+} from "@berachain-foundation/berancer-sdk";
+import {
+  Address,
+  Log,
+  TransactionReceipt,
+  decodeEventLog,
+  formatUnits,
+  parseUnits,
+  zeroAddress,
+} from "viem";
 import { usePublicClient } from "wagmi";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
-import { balancerClient } from "~/b-sdk/balancerClient";
+import {
+  balancerCreatePool,
+  balancerInitPool,
+  balancerInitPoolDataProvider,
+} from "~/b-sdk/b-sdk";
 import { usePools } from "~/b-sdk/usePools";
+
+// FIXME move to config
+const composableStablePoolFactory =
+  "0x7Fb491242a27AE4AfbC75a1281e655f701952e2E" as Address;
+const weightedPoolFactory =
+  "0x88F2f8C9e5c5F58c3A5C94aDa338c6c341667b10" as Address;
+
+export const findEventInReceiptLogs = ({
+  receipt,
+  to,
+  abi,
+  eventName,
+}: {
+  // NOTE: this source is https://github.com/balancer/b-sdk/blob/main/test/lib/utils/findEventInReceiptLogs.ts#L3
+  receipt: TransactionReceipt;
+  to: Address;
+  abi: readonly unknown[];
+  eventName: string;
+}): { eventName: string; args: any } => {
+  const event = receipt.logs
+    .filter((log: Log) => {
+      return log.address.toLowerCase() === to.toLowerCase();
+    })
+    .map((log) => {
+      return decodeEventLog({ abi, ...log });
+    })
+    .find((decodedLog) => decodedLog?.eventName === eventName);
+  if (!event) {
+    throw new Error("Event not found in logs");
+  }
+  return event;
+};
 
 export default function CreatePageContent() {
   const router = useRouter();
@@ -54,7 +101,7 @@ export default function CreatePageContent() {
     useState<boolean>(false);
 
   const slippage = useSlippage(); // FIXME
-  const { account, config: beraConfig, signer } = useBeraJs();
+  const { account, config: beraConfig } = useBeraJs();
   const publicClient = usePublicClient();
 
   const [baseToken, quoteTokens] = useMemo(() => {
@@ -175,17 +222,58 @@ export default function CreatePageContent() {
 
   const { write, ModalPortal } = useTxn({
     message: "Creating new pool...",
-    onSuccess: async (hash) => {
+    onSuccess: async (hash: string) => {
       try {
-        // FIXME probably not good to chain these like this?
-        // Manually retrieve the transaction receipt using the hash.... FIXME what is the useTxn way???
-        const receipt = await balancerClient.provider.waitForTransaction(hash);
+        // Retrieve the transaction receipt with the transaction hash
+        if (!publicClient) {
+          throw new Error("Public client not available!");
+        }
 
-        // If the transaction was successful, proceed to join the pool
-        if (receipt.status === 1) {
+        // we need the pool creation event
+        const maxAttempts = 60;
+        let attempts = 0;
+        let receipt = null;
+        let poolAddress = null;
+
+        while (!receipt || receipt.logs.length === 0 || !poolAddress) {
+          if (attempts >= maxAttempts) {
+            throw new Error("Transaction receipt not found in time");
+          }
+
+          console.log("Waiting for logs...");
+
+          // Poll with wait to avoid tight loop
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+
+          // Update receipt with a new call
+          receipt = await publicClient.getTransactionReceipt({
+            hash: hash as `0x${string}`,
+          });
+
+          // try and find the event
+          let poolCreatedEvent;
+          try {
+            poolCreatedEvent = findEventInReceiptLogs({
+              receipt: receipt,
+              eventName: "PoolCreated",
+              abi: composableStableFactoryV5Abi_V2, // FIXME should be v6
+              to: composableStablePoolFactory,
+            });
+            console.log("poolCreatedEvent", poolCreatedEvent);
+          } catch (e) {
+            console.log(e);
+          }
+          if (poolCreatedEvent) {
+            poolAddress = poolCreatedEvent.args.pool;
+          }
+
+          attempts += 1;
+        }
+
+        if (receipt.status === "success" && poolAddress) {
+          await initiateJoinTransaction(poolAddress);
           track("create_pool_success");
           router.push("/pools");
-          initiateJoinTransaction(receipt);
         } else {
           throw new Error("Transaction failed");
         }
@@ -203,35 +291,32 @@ export default function CreatePageContent() {
     },
     actionType: TransactionActionType.CREATE_POOL,
   });
-  // Using the custom hook for pool creation FIXME move this into a use hook!
-  const amplificationParameter = "72"; // FIXME what is the range on this supposed to be
-  const tokenRateCacheDurations = tokens.map(() => "100");
-  const exemptFromYieldProtocolFeeFlags = tokens.map(() => false); // No exemptions for stable pools
-  const swapFeePercentage = "1"; // FIXME need the swap fee FE for this (slider)
 
   async function createPool() {
+    // step 1: create pool
     try {
-      const poolFactory = balancerClient.pools.poolFactory.of(
-        PoolType.ComposableStable,
-      );
-
-      const createInfo = poolFactory.create({
+      const createPoolInput: CreatePoolV2ComposableStableInput = {
         name: poolName,
         symbol: poolSymbol,
-        tokenAddresses: tokens.map((token) => token.address),
-        rateProviders: tokens.map(() => zeroAddress),
-        swapFeeEvm: parseFixed(swapFeePercentage, 16).toString(),
-        tokenRateCacheDurations,
-        exemptFromYieldProtocolFeeFlags,
-        amplificationParameter,
-        owner: account,
-      });
+        poolType: PoolType.ComposableStable, // FIXME
+        tokens: tokens.map((token) => ({
+          address: token.address as `0x${string}`,
+          rateProvider: ADDRESS_ZERO as `0x${string}`,
+          tokenRateCacheDuration: BigInt(100), // FIXME: from example
+        })),
+        amplificationParameter: BigInt(62), // FIXME: between 0 and 5k need to validate
+        exemptFromYieldProtocolFeeFlag: false,
+        swapFee: "0.01", // FIXME
+        poolOwnerAddress: account as `0x${string}`,
+        protocolVersion: 2,
+        chainId,
+      };
 
-      console.log("createInfo", createInfo);
-
+      console.log("createPoolInput", createPoolInput);
+      const callData = balancerCreatePool.buildCall(createPoolInput);
       write({
-        address: balancerPoolCreationHelper,
-        data: createInfo.data,
+        data: callData.callData,
+        address: composableStablePoolFactory, // FIXME callData.to is ZERO address
       });
     } catch (err) {
       setErrorMessage(`Error creating pool: ${err}`);
@@ -239,45 +324,45 @@ export default function CreatePageContent() {
     }
   }
 
-  // @ts-ignore
-  function initiateJoinTransaction(reciept: any) {
-    // FIXME: this is a pos TransactionReciept class from inside balancer sdk @ethersproject/abstract-provider
-    try {
-      const signer = balancerClient.provider.getSigner();
-      const poolFactory = balancerClient.pools.poolFactory.of(
-        PoolType.ComposableStable,
-      );
-
-      // Get pool address and pool ID
-      poolFactory
-        .getPoolAddressAndIdWithReceipt(signer.provider, reciept)
-        .then(({ poolAddress, poolId }) => {
-          const joinInfo = poolFactory.buildInitJoin({
-            joiner: account,
-            poolId,
-            poolAddress,
-            tokensIn: tokens,
-            amountsIn: tokens.map((token) =>
-              formatUnits(token, token.decimals ?? 18),
-            ),
-          });
-
-          console.log("joinInfo", joinInfo);
-
-          write({
-            address: joinInfo.to,
-            data: joinInfo.data,
-            value: joinInfo.value,
-          });
-        })
-        .catch((err) => {
-          setErrorMessage(`Error joining pool: ${err?.message}`);
-          console.error("Error joining pool:", err);
-        });
-    } catch (err) {
-      setErrorMessage(`Error joining pool: ${err}`);
-      console.error("Error joining pool:", err);
+  async function initiateJoinTransaction(poolAddress: `0x${string}`) {
+    // NOTE: this is chained in useTxn so we need to throw and catch there
+    // step 2: init join
+    if (!publicClient || !account) {
+      throw new Error("Public client not available!");
     }
+    console.log("initiateJoinTransaction with poolAddress", poolAddress);
+
+    const poolType = PoolType.ComposableStable; // FIXME
+    const amountsIn = tokens.map((token, index) => ({
+      address: token.address,
+      decimals: token.decimals ?? 18,
+      rawAmount: parseUnits(
+        token === baseToken
+          ? baseAmount ?? "0"
+          : quoteAmounts[index - 1] ?? "0",
+        token.decimals ?? 18,
+      ),
+    }));
+    const initPoolInput: InitPoolInput = {
+      sender: account,
+      recipient: account,
+      amountsIn,
+      chainId,
+    };
+    const poolState = await balancerInitPoolDataProvider.getInitPoolData(
+      poolAddress,
+      poolType,
+      2,
+    );
+    const callData = await balancerInitPool.buildCall(initPoolInput, poolState);
+
+    console.log("initPoolInput", initPoolInput, poolState, callData);
+
+    write({
+      data: callData.callData,
+      address: callData.to,
+      value: callData.value,
+    });
   }
 
   // check for duplicates
@@ -289,7 +374,8 @@ export default function CreatePageContent() {
       const hasAllTokens = [baseToken, ...quoteTokens].every((token) =>
         pool?.tokenAddresses?.includes(token?.address.toLowerCase()),
       );
-      if (hasAllTokens && pool?.poolType === poolType) {
+      if (hasAllTokens && pool?.poolType.toString() === poolType.toString()) {
+        // FIXME: switch to v3 query for this reason
         setDupePool(pool);
         return true;
       }
@@ -589,7 +675,7 @@ export default function CreatePageContent() {
             <Button
               disabled={false}
               className="w-full"
-              onClick={() => createPool()}
+              onClick={() => createPool()} // step 1 create, step 2 init
             >
               Create Pool
             </Button>

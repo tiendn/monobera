@@ -18,6 +18,9 @@ import {
   BalancerApi,
   CHAINS,
   COMPOSABLE_STABLE_POOL_FACTORY,
+  CreatePool,
+  InitPool,
+  InitPoolDataProvider,
   NATIVE_ASSETS,
   Token,
   VAULT,
@@ -45,4 +48,8 @@ export const nativeToken = new Token(
 // @ts-expect-error not in network list
 NATIVE_ASSETS[chainId] = nativeToken;
 
+// NOTE: functionally this is the V3 Balancer SDK (js)
 export const balancerApi = new BalancerApi(balancerApiUrl, chainId);
+export const balancerCreatePool = new CreatePool();
+export const balancerInitPool = new InitPool();
+export const balancerInitPoolDataProvider = new InitPoolDataProvider(chainId, balancerApiUrl);
