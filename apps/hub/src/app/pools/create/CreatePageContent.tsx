@@ -2,9 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PoolType, PoolWithMethods } from "@balancer-labs/sdk";
-import { TransactionActionType, type Token } from "@bera/berajs";
-import { balancerVaultAddress } from "@bera/config";
+import { PoolType, PoolWithMethods, parseFixed } from "@balancer-labs/sdk";
+import {
+  TransactionActionType,
+  balancerPoolCreationHelperAbi,
+  useBeraJs,
+  type GetAllowances,
+  type Token,
+} from "@bera/berajs";
+import {
+  getAllowance,
+  getAllowances,
+  getWalletBalances,
+} from "@bera/berajs/actions";
+import { balancerPoolCreationHelper } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -18,10 +29,12 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { parseUnits } from "viem";
+import { formatUnits, parseUnits, zeroAddress } from "viem";
+import { usePublicClient } from "wagmi";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
+import { balancerClient } from "~/b-sdk/balancerClient";
 import { usePools } from "~/b-sdk/usePools";
 
 export default function CreatePageContent() {
@@ -29,21 +42,83 @@ export default function CreatePageContent() {
   const { captureException, track } = useAnalytics();
 
   const [tokens, setTokens] = useState<Token[]>([]); // NOTE: functionally max is 3 tokens
-  const [poolType, setPoolType] = useState<PoolType>(PoolType.Stable);
+  const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [baseAmount, setBaseAmount] = useState<string>("");
   const [quoteAmounts, setQuoteAmounts] = useState<string[]>([]);
   const [needsApproval, setNeedsApproval] = useState<Token[]>([]);
+  const [insufficientBalance, setInsufficientBalance] = useState<Token[]>([]);
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
 
-  const slippage = useSlippage();
+  const slippage = useSlippage(); // FIXME
+  const { account, config: beraConfig, signer } = useBeraJs();
+  const publicClient = usePublicClient();
 
   const [baseToken, quoteTokens] = useMemo(() => {
+    // FIXME
     return [tokens[0], tokens.slice(1)];
   }, [tokens]);
+
+  // check balance and allowance for each token that we are trying to add liquidity with
+  useEffect(() => {
+    const checkBalancesAndAllowances = async () => {
+      const requiredAmounts = tokens.map((token, index) =>
+        parseUnits(
+          token === baseToken
+            ? baseAmount ?? "0"
+            : quoteAmounts[index - 1] ?? "0",
+          token.decimals ?? 18,
+        ),
+      );
+
+      // Fetch allowances and balances
+      const [allowances, balances] = await Promise.all([
+        getAllowances({
+          tokens,
+          account,
+          config: beraConfig,
+          spender: balancerPoolCreationHelper,
+          publicClient,
+        }),
+        getWalletBalances({
+          account,
+          tokenList: tokens,
+          config: beraConfig,
+          publicClient,
+        }),
+      ]);
+
+      // Identify tokens needing approval and with insufficient balance
+      const tokensRequiringApproval: Token[] = [];
+      const tokensWithInsufficientBalance: Token[] = [];
+
+      tokens.forEach((token, index) => {
+        if (
+          allowances &&
+          BigInt(allowances[index]?.allowance ?? "0") < requiredAmounts[index]
+        ) {
+          tokensRequiringApproval.push(token);
+        }
+
+        if (
+          balances &&
+          BigInt(balances[index]?.balance ?? "0") < requiredAmounts[index]
+        ) {
+          tokensWithInsufficientBalance.push(token);
+        }
+      });
+
+      setNeedsApproval(tokensRequiringApproval);
+      setInsufficientBalance(tokensWithInsufficientBalance);
+    };
+
+    if (account && tokens.length > 0) {
+      checkBalancesAndAllowances();
+    }
+  }, [account, tokens, baseAmount, quoteAmounts, baseToken]);
 
   const handleTokenSelection = (token: Token | null, index: number) => {
     setTokens((prevTokens) => {
@@ -80,25 +155,130 @@ export default function CreatePageContent() {
     }
   }, [pools]);
 
-  // FIXME: untested
+  const generatePoolName = (tokens: Token[], poolType: PoolType) => {
+    const tokenSymbols = tokens.map((token) => token.symbol).join(" | ");
+    return `${tokenSymbols} ${poolType}`;
+  };
+
+  // symbol has no spaces
+  const generatePoolSymbol = (tokens: Token[], poolType: PoolType) => {
+    const tokenSymbols = tokens.map((token) => token.symbol).join("-");
+    return `${tokenSymbols}-${poolType.toUpperCase()}`;
+  };
+
+  const [poolName, poolSymbol] = useMemo(() => {
+    return [
+      generatePoolName(tokens, poolType),
+      generatePoolSymbol(tokens, poolType),
+    ];
+  }, [tokens, poolType]);
+
   const { write, ModalPortal } = useTxn({
-    message: "Create new pool",
-    onSuccess: () => {
-      track("create_pool_success");
-      router.push("/pools");
+    message: "Creating new pool...",
+    onSuccess: async (hash) => {
+      try {
+        // FIXME probably not good to chain these like this?
+        // Manually retrieve the transaction receipt using the hash.... FIXME what is the useTxn way???
+        const receipt = await balancerClient.provider.waitForTransaction(hash);
+
+        // If the transaction was successful, proceed to join the pool
+        if (receipt.status === 1) {
+          track("create_pool_success");
+          router.push("/pools");
+          initiateJoinTransaction(receipt);
+        } else {
+          throw new Error("Transaction failed");
+        }
+      } catch (e) {
+        setErrorMessage(`Error retrieving transaction receipt: ${e}`);
+        console.error("Error retrieving transaction receipt:", e);
+      }
     },
-    onError: (e: Error | undefined) => {
+    onError: (e) => {
       track("create_pool_failed");
-      captureException(new Error("create pool failed"), {
+      captureException(new Error("Create pool failed"), {
         data: { rawError: e },
       });
+      setErrorMessage(`Error creating pool: ${e?.message}`);
     },
     actionType: TransactionActionType.CREATE_POOL,
   });
-  const handleCreatePool = useCallback(async () => {
-    console.log("CREATING POOL FIXME");
-    return; // FIXME
-  }, [slippage, write]);
+  // Using the custom hook for pool creation FIXME move this into a use hook!
+  const amplificationParameter = "72"; // FIXME what is the range on this supposed to be
+  const tokenRateCacheDurations = tokens.map(() => "100");
+  const exemptFromYieldProtocolFeeFlags = tokens.map(() => false); // No exemptions for stable pools
+  const swapFeePercentage = "1"; // FIXME need the swap fee FE for this (slider)
+
+  async function createPool() {
+    try {
+      const poolFactory = balancerClient.pools.poolFactory.of(
+        PoolType.ComposableStable,
+      );
+
+      const createInfo = poolFactory.create({
+        name: poolName,
+        symbol: poolSymbol,
+        tokenAddresses: tokens.map((token) => token.address),
+        rateProviders: tokens.map(() => zeroAddress),
+        swapFeeEvm: parseFixed(swapFeePercentage, 16).toString(),
+        tokenRateCacheDurations,
+        exemptFromYieldProtocolFeeFlags,
+        amplificationParameter,
+        owner: account,
+      });
+
+      console.log("createInfo", createInfo);
+
+      write({
+        address: balancerPoolCreationHelper,
+        data: createInfo.data,
+      });
+    } catch (err) {
+      setErrorMessage(`Error creating pool: ${err}`);
+      console.error("Error creating pool:", err);
+    }
+  }
+
+  // @ts-ignore
+  function initiateJoinTransaction(reciept: any) {
+    // FIXME: this is a pos TransactionReciept class from inside balancer sdk @ethersproject/abstract-provider
+    try {
+      const signer = balancerClient.provider.getSigner();
+      const poolFactory = balancerClient.pools.poolFactory.of(
+        PoolType.ComposableStable,
+      );
+
+      // Get pool address and pool ID
+      poolFactory
+        .getPoolAddressAndIdWithReceipt(signer.provider, reciept)
+        .then(({ poolAddress, poolId }) => {
+          const joinInfo = poolFactory.buildInitJoin({
+            joiner: account,
+            poolId,
+            poolAddress,
+            tokensIn: tokens,
+            amountsIn: tokens.map((token) =>
+              formatUnits(token, token.decimals ?? 18),
+            ),
+          });
+
+          console.log("joinInfo", joinInfo);
+
+          write({
+            address: joinInfo.to,
+            data: joinInfo.data,
+            value: joinInfo.value,
+          });
+        })
+        .catch((err) => {
+          setErrorMessage(`Error joining pool: ${err?.message}`);
+          console.error("Error joining pool:", err);
+        });
+    } catch (err) {
+      setErrorMessage(`Error joining pool: ${err}`);
+      console.error("Error joining pool:", err);
+    }
+  }
 
   // check for duplicates
   useEffect(() => {
@@ -153,6 +333,11 @@ export default function CreatePageContent() {
       return prevAmounts;
     });
 
+    setNeedsApproval((prev) => {
+      const requiredApprovals = tokens.filter((token) => !prev.includes(token));
+      return [...prev, ...requiredApprovals];
+    });
+
     // Determine if liquidity input should be enabled
     if (
       baseToken &&
@@ -195,13 +380,14 @@ export default function CreatePageContent() {
           </h1>
           <div className="flex w-full flex-row gap-6">
             <Card
-              onClick={() => setPoolType(PoolType.Stable)}
+              onClick={() => setPoolType(PoolType.ComposableStable)}
               className={cn(
                 "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
-                poolType === PoolType.Stable && "border-sky-600",
+                poolType === PoolType.ComposableStable && "border-sky-600",
               )}
             >
               <span className="text-lg font-semibold">Stable</span>
+              {/* NOTE: we are actually creating ComposableStable pools under the hood. */}
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Recommended for stable pairs
               </span>
@@ -270,7 +456,7 @@ export default function CreatePageContent() {
                 />
               </>
             )}
-            {(poolType === PoolType.Stable ||
+            {(poolType === PoolType.ComposableStable ||
               poolType === PoolType.MetaStable) && (
               <CreatePoolInput
                 token={tokens[1]}
@@ -364,61 +550,51 @@ export default function CreatePageContent() {
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
                 <span className="text-lg font-semibold">Pool Name</span>
                 <span className="mt-[-4px] text-sm text-muted-foreground">
-                  Name of the pool
+                  {poolName}
                 </span>
               </Card>
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
                 <span className="text-lg font-semibold">Pool Symbol</span>
                 <span className="mt-[-4px] text-sm text-muted-foreground">
-                  Symbol
+                  {poolSymbol}
                 </span>
               </Card>
             </div>
           </section>
 
-          {
-            // Handle approvals for each token before creating the pool
-            baseAmount && quoteAmounts.length ? (
-              <ActionButton>
-                {needsApproval.map((token, index) => (
-                  <ApproveButton
-                    key={token.address}
-                    amount={parseUnits(
-                      token.address === baseToken?.address
-                        ? baseAmount
-                        : quoteAmounts[index] || "0",
-                      token.decimals ?? 18,
-                    )}
-                    spender={balancerVaultAddress}
-                    token={token}
-                    onApproval={() => {
-                      // Remove token from needsApproval once approved
-                      setNeedsApproval((prev) =>
-                        prev.filter((t) => t.address !== token.address),
-                      );
-                    }}
-                  />
-                ))}
-                <Button
-                  disabled={needsApproval.length > 0}
-                  className="mt-4 w-full"
-                  onClick={() => handleCreatePool()}
-                >
-                  Create Pool
-                </Button>
-              </ActionButton>
-            ) : (
-              <ActionButton>
-                <Button
-                  disabled={false}
-                  className="w-full"
-                  onClick={() => handleCreatePool()}
-                >
-                  Create Pool
-                </Button>
-              </ActionButton>
-            )
-          }
+          {/* // Handle approvals for each token before creating the pool FIXME: this UX sucks */}
+          {needsApproval.map((token, index) => (
+            <ApproveButton
+              key={token.address}
+              amount={parseUnits(
+                // FIXME: THIS IS VERY HACKY
+                token.address === baseToken?.address
+                  ? baseAmount
+                  : quoteAmounts[index] || "0",
+                token.decimals ?? 18,
+              )}
+              spender={balancerPoolCreationHelper}
+              token={token}
+              onApproval={() => {
+                // Remove token from needsApproval once approved
+                setNeedsApproval((prev) =>
+                  prev.filter((t) => t.address !== token.address),
+                );
+              }}
+            />
+          ))}
+
+          {/* {needsApproval.length == 0 && !insufficientBalance && (  FIXME */}
+          <ActionButton>
+            <Button
+              disabled={false}
+              className="w-full"
+              onClick={() => createPool()}
+            >
+              Create Pool
+            </Button>
+          </ActionButton>
+          {/* )} */}
         </section>
       </div>
     </div>
