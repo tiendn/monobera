@@ -2,15 +2,20 @@ import { useMemo, useState } from "react";
 import {
   BGT_ABI,
   IContractWrite,
-  SubgraphUserValidator,
+  type UserValidator,
   TransactionActionType,
   truncateHash,
   useBgtUnstakedBalance,
-  useUserValidatorsSubgraph,
+  useUserActiveValidators,
   useValidatorList,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
-import { FormattedNumber, ValidatorIcon, useTxn } from "@bera/shared-ui";
+import {
+  FormattedNumber,
+  Spinner,
+  ValidatorIcon,
+  useTxn,
+} from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Skeleton } from "@bera/ui/skeleton";
@@ -21,10 +26,14 @@ export const HISTORY_BUFFER = 8192;
 
 export const BoostQueue = ({
   selectedValidator,
+  isValidatorDataLoading,
+  setIsValidatorDataLoading,
 }: {
   selectedValidator?: string | undefined;
+  isValidatorDataLoading?: boolean;
+  setIsValidatorDataLoading: (loading: boolean) => void;
 }) => {
-  const { data = [], refresh, isLoading } = useUserValidatorsSubgraph();
+  const { data = [], refresh } = useUserActiveValidators();
   const { refresh: refreshBalance } = useBgtUnstakedBalance();
 
   const result = useBlock();
@@ -34,10 +43,10 @@ export const BoostQueue = ({
     return !data || !blockNumber || !data.length
       ? []
       : data
-          .filter((validator: SubgraphUserValidator) => {
+          .filter((validator: UserValidator) => {
             return parseFloat(validator.amountQueued) !== 0;
           })
-          .map((validator: SubgraphUserValidator) => {
+          .map((validator: UserValidator) => {
             return {
               ...validator,
               canActivate:
@@ -47,11 +56,11 @@ export const BoostQueue = ({
                 0,
             };
           })
-          .filter((validator: SubgraphUserValidator) => {
+          .filter((validator: UserValidator) => {
             return selectedValidator !== undefined
               ? validator.coinbase.toLowerCase() ===
                   selectedValidator.toLowerCase()
-              : false;
+              : true;
           });
   }, [data, blockNumber]);
 
@@ -67,10 +76,12 @@ export const BoostQueue = ({
     message: "Activating queued BGT to Validator",
     actionType: TransactionActionType.DELEGATE,
     onSuccess: () => {
+      setIsValidatorDataLoading(true);
       setTimeout(() => {
         refresh();
         refreshBalance();
         setHasSubmittedTxn({} as any);
+        setIsValidatorDataLoading(false);
       }, 5000);
     },
   });
@@ -83,10 +94,12 @@ export const BoostQueue = ({
     message: "Cancelling queued BGT to Validator",
     actionType: TransactionActionType.DELEGATE,
     onSuccess: () => {
+      setIsValidatorDataLoading(true);
       setTimeout(() => {
         refresh();
         refreshBalance();
         setHasSubmittedTxn({} as any);
+        setIsValidatorDataLoading(false);
       }, 5000);
     },
   });
@@ -108,7 +121,13 @@ export const BoostQueue = ({
     <div className="flex flex-col gap-3">
       {ActivateModalPortal}
       {CancelModalPortal}
-      <div className="text-lg font-semibold leading-7">Delegation Queue</div>
+      <div className="flex items-center">
+        <div className="mr-2 text-lg font-semibold leading-7">
+          Delegation Queue
+        </div>
+        {isValidatorDataLoading && <Spinner size={18} color="white" />}
+      </div>
+
       {!queuedList ? (
         <div>
           <Skeleton className="h-28 w-full rounded-md" />
@@ -116,23 +135,21 @@ export const BoostQueue = ({
         </div>
       ) : (
         <>
-          {queuedList?.map(
-            (validator: SubgraphUserValidator, index: number) => (
-              <ConfirmationCard
-                key={validator.coinbase}
-                userValidator={validator}
-                index={index}
-                hasSubmittedTxn={hasSubmittedTxn[index] ?? false}
-                blocksLeft={
-                  parseInt(validator.latestBlock) +
-                  HISTORY_BUFFER -
-                  Number(blockNumber)
-                }
-                isTxnLoading={isActivationLoading || isCancelLoading}
-                handleTransaction={handleTransaction}
-              />
-            ),
-          )}
+          {queuedList?.map((validator: UserValidator, index: number) => (
+            <ConfirmationCard
+              key={validator.coinbase}
+              userValidator={validator}
+              index={index}
+              hasSubmittedTxn={hasSubmittedTxn[index] ?? false}
+              blocksLeft={
+                parseInt(validator.latestBlock) +
+                HISTORY_BUFFER -
+                Number(blockNumber)
+              }
+              isTxnLoading={isActivationLoading || isCancelLoading}
+              handleTransaction={handleTransaction}
+            />
+          ))}
           {!queuedList?.length && (
             <div className="text-muted-foreground">No validators in queue</div>
           )}
@@ -150,7 +167,7 @@ const ConfirmationCard = ({
   hasSubmittedTxn,
   handleTransaction,
 }: {
-  userValidator: SubgraphUserValidator;
+  userValidator: UserValidator;
   blocksLeft: number;
   isTxnLoading: boolean;
   index: number;
@@ -175,7 +192,7 @@ const ConfirmationCard = ({
   const validatorInfo = data?.validatorDictionary
     ? data.validatorDictionary[coinbase]
     : undefined;
-  console.log(validatorInfo, data);
+
   return (
     <div className="w-full rounded-md border border-border p-4">
       <div className="flex w-full justify-between">

@@ -1,7 +1,7 @@
 import {
   BGT_ABI,
   IContractWrite,
-  SubgraphUserValidator,
+  UserValidator,
   truncateHash,
   useBlockTime,
   useValidatorList,
@@ -22,7 +22,7 @@ export const ConfirmationCard = ({
   hasSubmittedTxn,
   handleTransaction,
 }: {
-  userValidator: SubgraphUserValidator;
+  userValidator: UserValidator;
   isTxnLoading: boolean;
   index: number;
   hasSubmittedTxn: boolean;

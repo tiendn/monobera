@@ -2,12 +2,10 @@ import React from "react";
 import Image from "next/image";
 import {
   BGT_ABI,
-  SubgraphUserValidator,
   TransactionActionType,
-  UserValidator,
+  type UserValidator,
   useBeraJs,
   useUserActiveValidators,
-  useUserValidatorsSubgraph,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
 import { ActionButton, useTxn } from "@bera/shared-ui";
@@ -21,15 +19,17 @@ import { DelegateEnum, ImageMapEnum } from "./types";
 
 export const UnDelegateContent = ({
   userValidator,
+  setIsValidatorDataLoading,
 }: {
-  userValidator: SubgraphUserValidator;
+  userValidator: UserValidator;
+  setIsValidatorDataLoading: (loading: boolean) => void;
 }) => {
   const { isConnected } = useBeraJs();
   const { theme, systemTheme } = useTheme();
   const t = theme === "system" ? systemTheme : theme;
 
   const [amount, setAmount] = React.useState<string | undefined>(undefined);
-  const { data, refresh } = useUserValidatorsSubgraph();
+  const { data, refresh } = useUserActiveValidators();
 
   const {
     write: unbondWrite,
@@ -39,7 +39,11 @@ export const UnDelegateContent = ({
     message: "Unbonding from Validator",
     actionType: TransactionActionType.UNBONDING,
     onSuccess: () => {
-      refresh();
+      setIsValidatorDataLoading(true);
+      setTimeout(() => {
+        refresh();
+        setIsValidatorDataLoading(false);
+      }, 5000);
     },
   });
 

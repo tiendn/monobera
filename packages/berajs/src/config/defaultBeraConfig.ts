@@ -1,8 +1,8 @@
 import {
   balancerVaultAddress,
   beraTokenAddress,
-  bgtEndpointUrl,
-  bgtSubgraphUrl,
+  polEndpointUrl,
+  polSubgraphUrl,
   bgtTokenAddress,
   // TODO: remove the croc addresses & endpoints
   crocIndexerEndpoint,
@@ -36,13 +36,13 @@ export const defaultBeraConfig: BeraConfig = {
     validatorList: validatorListUrl,
     marketList: marketListUrl,
     validatorInfo: validatorListUrl,
-    bgtEndpoint: bgtEndpointUrl,
+    polEndpoint: polEndpointUrl,
   },
   subgraphs: {
     honeySubgraph: honeySubgraphUrl,
     dexSubgraph: crocSubgraphEndpoint, // TODO (#): swap to balancer subgraph
     lendSubgraph: lendSubgraphUrl,
-    bgtSubgraph: bgtSubgraphUrl,
+    polSubgraph: polSubgraphUrl,
     governanceSubgraph: governanceSubgraphUrl,
   },
   contracts: {

@@ -53,12 +53,19 @@
     "./dex": {
       "import": "./dist/modules/dex/index.js",
       "types": "./dist/modules/dex/index.d.ts"
+    },
+    "./pol": {
+      "import": "./dist/modules/pol/index.js",
+      "types": "./dist/modules/pol/index.d.ts"
     }
   },
   "typesVersions": {
     "*": {
       "governance": [
         "dist/modules/governance/index.d.ts"
+      ],
+      "pol": [
+        "dist/modules/pol/index.d.ts"
       ],
       "chain": [
         "dist/modules/chain/index.d.ts"

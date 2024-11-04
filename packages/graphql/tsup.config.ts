@@ -4,6 +4,7 @@ const entryPoints = [
   "./src/modules/governance/index.ts",
   "./src/modules/chain/index.ts",
   "./src/modules/dex/index.ts",
+  "./src/modules/pol/index.ts",
 ];
 const config = {
   entryPoints: ["./src/index.ts", ...entryPoints], // The entry point(s) of your library
