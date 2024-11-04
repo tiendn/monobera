@@ -165,7 +165,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
 
               return (
                 <TokenInput
-                  key={token?.address}
+                  key={token?.address ?? idx}
                   // @ts-expect-error FIXME: fix token typings
                   selected={token}
                   selectable={false}

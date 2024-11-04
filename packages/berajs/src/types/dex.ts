@@ -79,6 +79,7 @@ export interface PoolV2 {
 export interface IUserPosition {
   lpBalance?: TokenBalance;
   tokenBalances?: TokenBalance[];
+  userSharePercentage?: number;
 }
 
 export interface ISwaps {

@@ -104,7 +104,7 @@ export default function WithdrawLiquidityContent({
     data: userPositionBreakdown,
     isLoading: isPositionBreakdownLoading,
     refresh,
-  } = usePoolUserPosition({ pool: v3Pool });
+  } = usePoolUserPosition({ pool: v2Pool });
 
   const { bptIn, queryOutput, setBptIn, getCallData } =
     useRemoveLiquidityProportional({

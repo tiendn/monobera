@@ -1,17 +1,14 @@
+import { PoolWithMethods } from "@balancer-labs/sdk";
 import {
   DefaultHookOptions,
   DefaultHookReturnType,
   usePollBalance,
   type IUserPosition,
 } from "@bera/berajs";
-import {
-  PoolState,
-  PoolStateWithBalances,
-} from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 
 type IUsePoolUserPositionArgs = {
-  pool: PoolStateWithBalances | undefined;
+  pool: PoolWithMethods | undefined;
 };
 
 /**
@@ -25,21 +22,22 @@ export const usePoolUserPosition = (
     address: pool?.address,
   });
 
+  const tokenRatioPerLp =
+    Number(userPosition?.formattedBalance) / Number(pool?.totalShares);
+
   return {
     data: {
+      userSharePercentage: tokenRatioPerLp,
       lpBalance: userPosition,
       tokenBalances: pool?.tokens.map((token) => {
-        const tokenRatioPerLp =
-          Number(token.balance) / Number(pool.totalShares);
-
-        const userBalance = BigNumber(userPosition?.formattedBalance ?? "0")
+        const userBalance = BigNumber(token.balance ?? "0")
           .times(tokenRatioPerLp)
-          .precision(token.decimals);
+          .precision(token.decimals!);
 
         return {
           balance: BigInt(
             userBalance
-              .times(10 ** token.decimals)
+              .times(10 ** token.decimals!)
               .toFixed(0)
               .toString(),
           ),

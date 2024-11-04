@@ -40,6 +40,7 @@ import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType } from "@bera/graphql/dex";
+import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,
@@ -174,7 +175,9 @@ export default function PoolPageContent({
   });
 
   const { v2Pool: pool, v3Pool } = data ?? {};
-  console.log("POOL", pool, v3Pool);
+  useEffect(() => {
+    console.log("POOL", pool, v3Pool);
+  }, [v3Pool]);
 
   const { isConnected } = useBeraJs();
   const { data: userBalance, isLoading: isUserBalanceLoading } = usePollBalance(
@@ -185,12 +188,6 @@ export default function PoolPageContent({
 
   const isLoading = isPoolLoading;
 
-  const { data: bgtInflation } = useBgtInflation();
-
-  const userSharePercentage =
-    Number(userBalance?.formattedBalance ?? 0) /
-    Number(pool?.totalLiquidity ?? 0);
-
   const tvlInUsd =
     pool?.tokens.reduce((balance, curr) => {
       return (
@@ -198,10 +195,15 @@ export default function PoolPageContent({
         parseFloat(curr.balance) * parseFloat(curr.token?.latestUSDPrice ?? "0")
       );
     }, 0) ?? 0;
+
+  const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
+
+  const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
+
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
-        backHref="/pools"
+        backHref="/pools/"
         title={
           isPoolLoading ? (
             <Skeleton className="h-10 w-40" />
@@ -395,7 +397,7 @@ export default function PoolPageContent({
                         pool?.tokens?.map((t) => ({
                           address: t.address!,
                           symbol: t.symbol!,
-                          value: parseFloat(t.balance),
+                          value: parseFloat(t.balance) * userSharePercentage,
                           valueUSD:
                             parseFloat(t.balance) *
                             parseFloat(t.token?.latestUSDPrice ?? "0") *
