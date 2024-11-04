@@ -27,7 +27,16 @@ export type UseApproveRelayerArgs = {
 export const usePoolCreationRelayerApproval = (
   { relayerAddress, poolCreationHelper }: UseApproveRelayerArgs,
   options?: DefaultHookOptions,
-): DefaultHookReturnType<boolean> => {
+): {
+  writeApproval: () => Promise<void>;
+  ModalPortal: any;
+  isLoading: boolean;
+  isError: boolean;
+  isSuccess: boolean;
+  refresh: () => void;
+  swr: DefaultHookReturnType<boolean>;
+} => {
+  // TODO: this ought to be split into two things: a usePoll... and a useApproval...
   const { account } = useBeraJs();
   const publicClient = usePublicClient();
 
@@ -69,12 +78,17 @@ export const usePoolCreationRelayerApproval = (
     });
   };
 
-  const swrResponse = useSWR(QUERY_KEY, checkApprovalStatus, {
-    ...options?.opts,
-  });
+  // @ts-ignore typing hell FIXME
+  const swrResponse: DefaultHookReturnType<boolean> = useSWR(
+    QUERY_KEY,
+    checkApprovalStatus,
+    {
+      ...options?.opts,
+    },
+  );
 
   return {
-    ...swrResponse,
+    swr: swrResponse,
     writeApproval,
     ModalPortal,
     isLoading,

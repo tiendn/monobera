@@ -7,11 +7,9 @@ import {
   ADDRESS_ZERO,
   TransactionActionType,
   balancerPoolCreationHelperAbi,
-  balancerVaultAbi,
   useBeraJs,
   type Token,
 } from "@bera/berajs";
-import { getAllowances, getWalletBalances } from "@bera/berajs/actions";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
 import {
   ActionButton,
@@ -25,87 +23,53 @@ import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import {
-  Address,
-  Log,
-  TransactionReceipt,
-  decodeEventLog,
-  keccak256,
-  parseUnits,
-} from "viem";
+import { keccak256, parseUnits } from "viem";
 import { usePublicClient } from "wagmi";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import { usePools } from "~/b-sdk/usePools";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
+import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePoolCreationRelayerApproval } from "~/hooks/usePoolCreationRelayerApproval";
-
-export const findEventInReceiptLogs = ({
-  receipt,
-  to,
-  abi,
-  eventName,
-}: {
-  // NOTE: this source is https://github.com/balancer/b-sdk/blob/main/test/lib/utils/findEventInReceiptLogs.ts#L3
-  receipt: TransactionReceipt;
-  to: Address;
-  abi: readonly unknown[];
-  eventName: string;
-}): { eventName: string; args: any } => {
-  const event = receipt.logs
-    .filter((log: Log) => {
-      return log.address.toLowerCase() === to.toLowerCase();
-    })
-    .map((log) => {
-      return decodeEventLog({ abi, ...log });
-    })
-    .find((decodedLog) => decodedLog?.eventName === eventName);
-  if (!event) {
-    throw new Error("Event not found in logs");
-  }
-  return event;
-};
 
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics(); // FIXME: analytics
 
-  const [tokens, setTokens] = useState<Token[]>([]); // NOTE: functionally max is 3 tokens
+  const [tokens, setTokens] = useState<Token[]>([]); // NOTE: functionally max is 3 tokens FIXME: use TokenInput!!!
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
-  const [baseAmount, setBaseAmount] = useState<string>("");
-  const [quoteAmounts, setQuoteAmounts] = useState<string[]>([]);
+  const [tokenAmounts, setTokenAmounts] = useState<string[]>([]);
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
 
-  const { account, config: beraConfig } = useBeraJs();
+  const { account } = useBeraJs();
   const publicClient = usePublicClient();
 
-  const [baseToken, quoteTokens] = useMemo(() => {
-    // FIXME this is an awkward way to store these, and we should really be storing BigInt amounts as well
-    return [tokens[0], tokens.slice(1)];
-  }, [tokens]);
-
-  // check for token approvals
+  // check for token approvals FIXME: we should not be including slippage in this calculation, its messing up the approval amount check
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(
-      tokens.map((token, index) => ({
-        address: token.address,
-        amount:
-          token === baseToken ? baseAmount : quoteAmounts[index - 1] ?? "0",
-        decimals: token.decimals,
-        exceeding: false,
-      })),
+      tokens.map(
+        (token, index) =>
+          ({
+            symbol: token.symbol,
+            name: token.name,
+            address: token.address,
+            amount: tokenAmounts[index] ?? "0",
+            decimals: token.decimals,
+            exceeding: false,
+          } as TokenInput),
+      ),
       balancerVaultAddress,
     );
 
   // Check relayer approval
   const {
     ModalPortal: ModalPortalRelayerApproval,
-    data: isRelayerApproved,
+    swr: { data: isRelayerApproved, isLoading: isLoadingRelayerStatus },
     writeApproval: approveRelayer,
     isLoading: isRelayerApprovalLoading,
     isError: isRelayerApprovalError,
@@ -116,7 +80,7 @@ export default function CreatePageContent() {
   useEffect(() => {
     if (isRelayerApprovalError) {
       setErrorMessage(
-        `Error approving pool creation helper on vault: ${isRelayerApprovalError?.message}`,
+        `Error approving pool creation helper on vault: ${isRelayerApprovalError}`,
       );
     }
   }, [isRelayerApprovalError]);
@@ -133,12 +97,8 @@ export default function CreatePageContent() {
     });
   };
 
-  const handleBaseAssetAmountChange = (amount: string) => {
-    setBaseAmount(amount);
-  };
-
-  const handleQuoteAssetAmountChange = (amount: string, index: number) => {
-    setQuoteAmounts((prev) => {
+  const handleTokenAmountChange = (amount: string, index: number) => {
+    setTokenAmounts((prev) => {
       const newAmounts = [...prev];
       newAmounts[index] = amount;
       return newAmounts;
@@ -192,17 +152,16 @@ export default function CreatePageContent() {
     actionType: TransactionActionType.CREATE_POOL,
   });
 
-  // check for duplicates
+  // Check for duplicate pools
   useEffect(() => {
-    if (!baseToken || !quoteTokens.length) return;
+    if (tokens.length === 0) return;
     if (isLoadingPools) return;
 
     const isDupe = pools?.find((pool) => {
-      const hasAllTokens = [baseToken, ...quoteTokens].every((token) =>
-        pool?.tokenAddresses?.includes(token?.address.toLowerCase()),
+      const hasAllTokens = tokens.every((token) =>
+        pool?.tokenAddresses?.includes(token.address.toLowerCase()),
       );
       if (hasAllTokens && pool?.poolType.toString() === poolType.toString()) {
-        // FIXME: switch to v3 query for this reason
         setDupePool(pool);
         return true;
       }
@@ -211,34 +170,24 @@ export default function CreatePageContent() {
     });
 
     setIsDupePool(!!isDupe);
-  }, [baseToken, quoteTokens, pools, isLoadingPools]);
-
-  // FIXME: we need to raise if the amount exceeds balance as an error message
+  }, [tokens, pools, isLoadingPools]);
 
   // update the form state if the user changes the pool type (i.e. let them input liquidity again)
   useEffect(() => {
-    const requiredQuoteTokensLength = poolType === PoolType.Weighted ? 3 : 2;
+    // FIXME this max/min doesnt follow the rules
+    const requiredTokensLength = poolType === PoolType.Weighted ? 3 : 2;
 
     setTokens((prevTokens) => {
-      if (prevTokens.length > requiredQuoteTokensLength) {
-        return prevTokens.slice(0, requiredQuoteTokensLength);
+      if (prevTokens.length > requiredTokensLength) {
+        return prevTokens.slice(0, requiredTokensLength);
       }
       return prevTokens;
     });
 
-    setQuoteAmounts((prevAmounts) => {
-      const requiredQuoteAmountsLength = requiredQuoteTokensLength - 1;
-      if (
-        prevAmounts.length !== requiredQuoteAmountsLength ||
-        prevAmounts.some(
-          (amount, index) =>
-            index >= requiredQuoteAmountsLength && amount !== "",
-        )
-      ) {
-        const updatedAmounts = [
-          ...prevAmounts.slice(0, requiredQuoteAmountsLength),
-        ];
-        while (updatedAmounts.length < requiredQuoteAmountsLength) {
+    setTokenAmounts((prevAmounts) => {
+      if (prevAmounts.length !== requiredTokensLength) {
+        const updatedAmounts = prevAmounts.slice(0, requiredTokensLength);
+        while (updatedAmounts.length < requiredTokensLength) {
           updatedAmounts.push("");
         }
         return updatedAmounts;
@@ -248,8 +197,8 @@ export default function CreatePageContent() {
 
     // Determine if liquidity input should be enabled
     if (
-      baseToken &&
-      tokens.length === requiredQuoteTokensLength &&
+      tokens &&
+      tokens.length === requiredTokensLength &&
       tokens.every((token) => token) &&
       !isLoadingPools &&
       !isDupePool &&
@@ -260,9 +209,8 @@ export default function CreatePageContent() {
       setEnableLiquidityInput(false);
     }
   }, [
-    baseToken,
     tokens,
-    quoteAmounts,
+    tokenAmounts,
     poolType,
     isLoadingPools,
     isDupePool,
@@ -407,21 +355,14 @@ export default function CreatePageContent() {
           </h1>
           <div className="flex flex-col gap-4">
             <ul className="divide divide-y divide-border rounded-lg border">
-              <CreatePoolInitialLiquidityInput
-                disabled={!enableLiquidityInput}
-                key={0}
-                token={baseToken as Token}
-                tokenAmount={baseAmount}
-                onTokenBalanceChange={handleBaseAssetAmountChange}
-              />
-              {quoteTokens.map((token, index) => (
+              {tokens.map((token, index) => (
                 <CreatePoolInitialLiquidityInput
                   disabled={!enableLiquidityInput}
-                  key={index + 1}
+                  key={index}
                   token={token as Token}
-                  tokenAmount={quoteAmounts[index] || ""}
+                  tokenAmount={tokenAmounts[index] || ""}
                   onTokenBalanceChange={(amount) =>
-                    handleQuoteAssetAmountChange(amount, index)
+                    handleTokenAmountChange(amount, index)
                   }
                 />
               ))}
@@ -453,7 +394,7 @@ export default function CreatePageContent() {
           </section>
 
           {/* FIXME: pool name and pool symbol input */}
-          <section className="flex w-full flex-col gap-10">
+          <section className="flex w-full flex-col gap-10 pb-16">
             <p className="self-start text-3xl font-semibold">Pool Name</p>
             <div className="flex flex-col gap-4">
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
@@ -478,32 +419,32 @@ export default function CreatePageContent() {
               onClick={approveRelayer}
               className="mt-4 w-full"
             >
-              {isRelayerApprovalLoading
+              {isRelayerApprovalLoading || isLoadingRelayerStatus
                 ? "Approving..."
                 : "Approve Pool Creation Helper"}
             </Button>
           )}
 
-          {tokensNeedApproval.length > 0 && (
-            // FIXME this has the WORST logic going on thanks to this base quote crap. it will never resolve quote above 1 right
-            <ApproveButton
-              amount={
-                tokensNeedApproval[0].address === baseToken?.address
-                  ? parseUnits(baseAmount, baseToken?.decimals ?? 18)
-                  : parseUnits(
-                      quoteAmounts[0] || "0", // BAD!
-                      tokensNeedApproval[0].decimals ?? 18,
-                    )
-              }
-              token={
-                tokens.find(
-                  (t) => t.address === tokensNeedApproval.at(0)?.address,
-                ) as Token
-              }
-              spender={balancerVaultAddress}
-              onApproval={() => refreshAllowances()}
-            />
-          )}
+          {tokensNeedApproval.length > 0 &&
+            (() => {
+              const approvalTokenIndex = tokens.findIndex(
+                (t) => t.address === tokensNeedApproval[0]?.address,
+              );
+              const approvalToken = tokens[approvalTokenIndex] as Token;
+              const approvalAmount = parseUnits(
+                tokenAmounts[approvalTokenIndex] || "0",
+                approvalToken?.decimals ?? 18,
+              );
+
+              return (
+                <ApproveButton
+                  amount={approvalAmount}
+                  token={approvalToken}
+                  spender={balancerVaultAddress}
+                  onApproval={() => refreshAllowances()}
+                />
+              );
+            })()}
 
           {/* Pool creation button itself */}
           <ActionButton>
@@ -531,12 +472,9 @@ export default function CreatePageContent() {
                 const tokenRateCacheDurations = tokens.map(() => BigInt(100));
                 const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
                 const amplificationParameter = BigInt(62);
-                const amountsIn = [
-                  parseUnits(baseAmount, baseToken?.decimals ?? 18),
-                  ...quoteAmounts.map((amt, idx) =>
-                    parseUnits(amt, quoteTokens[idx]?.decimals ?? 18),
-                  ),
-                ];
+                const amountsIn = tokens.map((token, index) =>
+                  parseUnits(tokenAmounts[index] || "0", token.decimals ?? 18),
+                );
                 const owner = account;
                 const isStablePool =
                   poolType === PoolType.ComposableStable ||
