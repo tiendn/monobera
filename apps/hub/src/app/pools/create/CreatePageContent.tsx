@@ -648,6 +648,7 @@ export default function CreatePageContent() {
                 const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
 
                 let args = [];
+                const salt = keccak256(Buffer.from(`${name}-${owner}`));
                 if (isStablePool) {
                   // FIXME: for some reason stable pools are not going through rn.
                   args = [
@@ -661,7 +662,7 @@ export default function CreatePageContent() {
                     swapFeePercentage,
                     sortedAmountsIn,
                     owner,
-                    keccak256(Buffer.from(`${name}-${owner}`)),
+                    salt,
                   ];
                 } else {
                   args = [
@@ -673,7 +674,7 @@ export default function CreatePageContent() {
                     swapFeePercentage,
                     sortedAmountsIn,
                     owner,
-                    keccak256(Buffer.from(`${name}-${owner}`)),
+                    salt,
                   ];
                 }
 
