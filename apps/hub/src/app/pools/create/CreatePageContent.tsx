@@ -7,6 +7,8 @@ import {
   ADDRESS_ZERO,
   TransactionActionType,
   balancerPoolCreationHelperAbi,
+  balancerVaultAbi,
+  useBeraContractWrite,
   useBeraJs,
   type Token,
 } from "@bera/berajs";
@@ -310,9 +312,30 @@ export default function CreatePageContent() {
     errorLoadingPools,
   ]);
 
+  // // approve relayer (PoolCreationHelper) to spend tokens on your behalf
+  // // FIXME: we need to move this into an approval button or into the multi-approval hook for tokens
+  const {
+    write: writeApproveRelayer,
+    ModalPortal: ModalPortalRelayerApproval,
+    isSuccess: isApproveRelayerSuccess,
+    isError: isApproveRelayerError,
+    isLoading: isApproveRelayerLoading,
+  } = useTxn({
+    message: "Creating new pool...",
+    onSuccess: async (hash: string) => {
+      console.log("APPROVED RELAYER");
+    },
+    onError: (e) => {
+      setErrorMessage(
+        `Error approving pool creation helper on vault: ${e?.message}`,
+      );
+    },
+  });
+
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
       {ModalPortal}
+      {ModalPortalRelayerApproval}
       <Button
         variant={"ghost"}
         size="sm"
@@ -511,7 +534,7 @@ export default function CreatePageContent() {
             </div>
           </section>
 
-          {/* // Handle approvals for each token before creating the pool FIXME: this UX sucks */}
+          {/* Handle approvals -- FIXME: this UX sucks, merge all of these together like in add-liquidity */}
           {needsApproval.map((token, index) => (
             <ApproveButton
               key={token.address}
@@ -532,8 +555,27 @@ export default function CreatePageContent() {
               }}
             />
           ))}
-
-          {/* FIXME: we need to approve the relayer on vault for the user as well ex: https://bartio.beratrail.io/tx/0x11ea0fde40ca83bf530b31bf550a1bb033c7fb019ec21d1b1a68d8ab4c486d57*/}
+          <ActionButton>
+            <Button
+              disabled={isApproveRelayerSuccess || isApproveRelayerLoading}
+              className="w-full"
+              onClick={() => {
+                // FIXME: this is strange, we either need to bundle with the token amount approvals or we need to useTxn
+                writeApproveRelayer({
+                  address: balancerVaultAddress,
+                  abi: balancerVaultAbi,
+                  functionName: "setRelayerApproval",
+                  params: [
+                    account as `0x${string}`,
+                    balancerPoolCreationHelper,
+                    true,
+                  ],
+                });
+              }}
+            >
+              Approve PoolCreationHelper
+            </Button>
+          </ActionButton>
 
           <ActionButton>
             <Button
