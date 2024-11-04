@@ -23,7 +23,7 @@ import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { keccak256, parseUnits } from "viem";
+import { Address, keccak256, parseUnits } from "viem";
 import { usePublicClient } from "wagmi";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
@@ -37,9 +37,8 @@ export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics(); // FIXME: analytics
 
-  const [tokens, setTokens] = useState<Token[]>([]); // NOTE: functionally max is 3 tokens FIXME: use TokenInput!!!
+  const [tokens, setTokens] = useState<TokenInput[]>([]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
-  const [tokenAmounts, setTokenAmounts] = useState<string[]>([]);
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -51,20 +50,7 @@ export default function CreatePageContent() {
 
   // check for token approvals FIXME: we should not be including slippage in this calculation, its messing up the approval amount check
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
-    useMultipleTokenApprovalsWithSlippage(
-      tokens.map(
-        (token, index) =>
-          ({
-            symbol: token.symbol,
-            name: token.name,
-            address: token.address,
-            amount: tokenAmounts[index] ?? "0",
-            decimals: token.decimals,
-            exceeding: false,
-          } as TokenInput),
-      ),
-      balancerVaultAddress,
-    );
+    useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
 
   // Check relayer approval
   const {
@@ -85,23 +71,24 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  const handleTokenSelection = (token: Token | null, index: number) => {
+  const minTokensLength = poolType === PoolType.Weighted ? 3 : 2;
+  const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
-      if (token === null) {
+
+      if (!token) {
+        // remove a token
         updatedTokens.splice(index, 1);
       } else {
-        updatedTokens[index] = token;
+        // add a new token
+        updatedTokens[index] = {
+          amount: "0",
+          exceeding: false,
+          ...token,
+        } as TokenInput;
       }
-      return updatedTokens.slice(0, 3);
-    });
-  };
 
-  const handleTokenAmountChange = (amount: string, index: number) => {
-    setTokenAmounts((prev) => {
-      const newAmounts = [...prev];
-      newAmounts[index] = amount;
-      return newAmounts;
+      return updatedTokens.slice(0, minTokensLength);
     });
   };
 
@@ -172,33 +159,11 @@ export default function CreatePageContent() {
     setIsDupePool(!!isDupe);
   }, [tokens, pools, isLoadingPools]);
 
-  // update the form state if the user changes the pool type (i.e. let them input liquidity again)
+  // Determine if liquidity input should be enabled
   useEffect(() => {
-    // FIXME this max/min doesnt follow the rules
-    const requiredTokensLength = poolType === PoolType.Weighted ? 3 : 2;
-
-    setTokens((prevTokens) => {
-      if (prevTokens.length > requiredTokensLength) {
-        return prevTokens.slice(0, requiredTokensLength);
-      }
-      return prevTokens;
-    });
-
-    setTokenAmounts((prevAmounts) => {
-      if (prevAmounts.length !== requiredTokensLength) {
-        const updatedAmounts = prevAmounts.slice(0, requiredTokensLength);
-        while (updatedAmounts.length < requiredTokensLength) {
-          updatedAmounts.push("");
-        }
-        return updatedAmounts;
-      }
-      return prevAmounts;
-    });
-
-    // Determine if liquidity input should be enabled
     if (
       tokens &&
-      tokens.length === requiredTokensLength &&
+      tokens.length >= minTokensLength &&
       tokens.every((token) => token) &&
       !isLoadingPools &&
       !isDupePool &&
@@ -208,14 +173,7 @@ export default function CreatePageContent() {
     } else {
       setEnableLiquidityInput(false);
     }
-  }, [
-    tokens,
-    tokenAmounts,
-    poolType,
-    isLoadingPools,
-    isDupePool,
-    errorLoadingPools,
-  ]);
+  }, [tokens, poolType, isLoadingPools, isDupePool, errorLoadingPools]);
 
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
@@ -288,29 +246,26 @@ export default function CreatePageContent() {
         <section className="flex w-full flex-col gap-4">
           <h1 className="self-start text-3xl font-semibold">Select Tokens</h1>
           <div className="flex w-full flex-col gap-6">
+            {/* FIXME: this is wrong, it's min satisfying but we need a +/- button */}
             <CreatePoolInput
               token={tokens[0]}
               selectedTokens={tokens}
-              onTokenSelection={(token) =>
-                handleTokenSelection(token ?? null, 0)
-              }
+              onTokenSelection={(token) => handleTokenSelection(token, 0)}
             />
             {poolType === PoolType.Weighted && (
               <>
                 <CreatePoolInput
                   token={tokens[1]}
                   selectedTokens={tokens}
-                  onTokenSelection={(token) =>
-                    handleTokenSelection(token ?? null, 1)
-                  }
+                  onTokenSelection={(token) => handleTokenSelection(token, 1)}
                 />
-                <CreatePoolInput
-                  token={tokens[2]}
-                  selectedTokens={tokens}
-                  onTokenSelection={(token) =>
-                    handleTokenSelection(token ?? null, 2)
-                  }
-                />
+                {poolType === PoolType.Weighted && (
+                  <CreatePoolInput
+                    token={tokens[2]}
+                    selectedTokens={tokens}
+                    onTokenSelection={(token) => handleTokenSelection(token, 2)}
+                  />
+                )}
               </>
             )}
             {(poolType === PoolType.ComposableStable ||
@@ -318,9 +273,7 @@ export default function CreatePageContent() {
               <CreatePoolInput
                 token={tokens[1]}
                 selectedTokens={tokens}
-                onTokenSelection={(token) =>
-                  handleTokenSelection(token ?? null, 1)
-                }
+                onTokenSelection={(token) => handleTokenSelection(token, 1)}
               />
             )}
           </div>
@@ -360,10 +313,18 @@ export default function CreatePageContent() {
                   disabled={!enableLiquidityInput}
                   key={index}
                   token={token as Token}
-                  tokenAmount={tokenAmounts[index] || ""}
-                  onTokenBalanceChange={(amount) =>
-                    handleTokenAmountChange(amount, index)
-                  }
+                  tokenAmount={token.amount}
+                  onTokenBalanceChange={(amount) => {
+                    // NOTE: doing the update in this way triggers a re-render
+                    setTokens((prevTokens) => {
+                      const updatedTokens = [...prevTokens];
+                      updatedTokens[index] = {
+                        ...updatedTokens[index],
+                        amount,
+                      };
+                      return updatedTokens;
+                    });
+                  }}
                 />
               ))}
             </ul>
@@ -430,9 +391,9 @@ export default function CreatePageContent() {
               const approvalTokenIndex = tokens.findIndex(
                 (t) => t.address === tokensNeedApproval[0]?.address,
               );
-              const approvalToken = tokens[approvalTokenIndex] as Token;
+              const approvalToken = tokens[approvalTokenIndex];
               const approvalAmount = parseUnits(
-                tokenAmounts[approvalTokenIndex] || "0",
+                approvalToken.amount,
                 approvalToken?.decimals ?? 18,
               );
 
@@ -472,8 +433,8 @@ export default function CreatePageContent() {
                 const tokenRateCacheDurations = tokens.map(() => BigInt(100));
                 const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
                 const amplificationParameter = BigInt(62);
-                const amountsIn = tokens.map((token, index) =>
-                  parseUnits(tokenAmounts[index] || "0", token.decimals ?? 18),
+                const amountsIn = tokens.map((token) =>
+                  parseUnits(token.amount || "0", token.decimals ?? 18),
                 );
                 const owner = account;
                 const isStablePool =
