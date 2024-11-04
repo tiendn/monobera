@@ -28,7 +28,7 @@ import { usePublicClient } from "wagmi";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
-import { usePools } from "~/b-sdk/usePools";
+import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePoolCreationRelayerApproval } from "~/hooks/usePoolCreationRelayerApproval";
@@ -39,8 +39,6 @@ export default function CreatePageContent() {
 
   const [tokens, setTokens] = useState<TokenInput[]>([]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
-  const [isDupePool, setIsDupePool] = useState<boolean>(false);
-  const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
@@ -92,36 +90,6 @@ export default function CreatePageContent() {
     });
   };
 
-  // pull down the pools we have to check for duplicates
-  const {
-    data: pools,
-    isLoading: isLoadingPools,
-    error: errorLoadingPools,
-  } = usePools();
-  useEffect(() => {
-    if (!isLoadingPools) {
-      console.log("POOLS LOADED:", pools);
-    }
-  }, [pools]);
-
-  const generatePoolName = (tokens: Token[], poolType: PoolType) => {
-    const tokenSymbols = tokens.map((token) => token.symbol).join(" | ");
-    return `${tokenSymbols} ${poolType}`;
-  };
-
-  // symbol has no spaces
-  const generatePoolSymbol = (tokens: Token[], poolType: PoolType) => {
-    const tokenSymbols = tokens.map((token) => token.symbol).join("-");
-    return `${tokenSymbols}-${poolType.toUpperCase()}`;
-  };
-
-  const [poolName, poolSymbol] = useMemo(() => {
-    return [
-      generatePoolName(tokens, poolType),
-      generatePoolSymbol(tokens, poolType),
-    ];
-  }, [tokens, poolType]);
-
   // on success we'll redirect to the pool page
   const { write, ModalPortal } = useTxn({
     message: "Creating new pool...",
@@ -139,25 +107,29 @@ export default function CreatePageContent() {
     actionType: TransactionActionType.CREATE_POOL,
   });
 
-  // Check for duplicate pools
-  useEffect(() => {
-    if (tokens.length === 0) return;
-    if (isLoadingPools) return;
-
-    const isDupe = pools?.find((pool) => {
-      const hasAllTokens = tokens.every((token) =>
-        pool?.tokenAddresses?.includes(token.address.toLowerCase()),
-      );
-      if (hasAllTokens && pool?.poolType.toString() === poolType.toString()) {
-        setDupePool(pool);
-        return true;
-      }
-      setDupePool(null);
-      return false;
-    });
-
-    setIsDupePool(!!isDupe);
-  }, [tokens, pools, isLoadingPools]);
+  const {
+    poolName,
+    poolSymbol,
+    isDupePool,
+    dupePool,
+    createPool,
+    isLoadingPools,
+    errorLoadingPools,
+  } = useCreatePool({
+    tokens,
+    weights: [0.33333333333, 0.33333333333, 0.33333333333], // FIXME need to expose this as an input
+    poolType,
+    onSuccess: () => {
+      track("create_pool_success");
+      router.push("/pools");
+    },
+    onError: (e) => {
+      track("create_pool_failed");
+      captureException(new Error("Create pool failed"), {
+        data: { rawError: e },
+      });
+    },
+  });
 
   // Determine if liquidity input should be enabled
   useEffect(() => {
@@ -166,8 +138,8 @@ export default function CreatePageContent() {
       tokens.length >= minTokensLength &&
       tokens.every((token) => token) &&
       !isLoadingPools &&
-      !isDupePool &&
-      !errorLoadingPools
+      !errorLoadingPools &&
+      !isDupePool
     ) {
       setEnableLiquidityInput(true);
     } else {
@@ -412,112 +384,7 @@ export default function CreatePageContent() {
             <Button
               disabled={tokensNeedApproval.length > 0 || !isRelayerApproved}
               className="w-full"
-              onClick={() => {
-                if (!publicClient) {
-                  return;
-                }
-                // FIXME this belongs in a use hook, we're creating a pool using the PoolCreationHelper contract
-                const name = poolName;
-                const symbol = poolSymbol;
-                const tokensAddresses = tokens.map((token) => token.address);
-                const normalizedWeights = [
-                  // FIXME we need weight inputs
-                  BigInt(parseFixed("0.333333333333333333", 18).toString()),
-                  BigInt(parseFixed("0.333333333333333333", 18).toString()),
-                  BigInt(parseFixed("0.333333333333333334", 18).toString()),
-                ];
-                const rateProviders = tokens.map(() => ADDRESS_ZERO);
-                const swapFeePercentage = BigInt(
-                  parseFixed("0.01", 16).toString(),
-                );
-                const tokenRateCacheDurations = tokens.map(() => BigInt(100));
-                const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
-                const amplificationParameter = BigInt(62);
-                const amountsIn = tokens.map((token) =>
-                  parseUnits(token.amount || "0", token.decimals ?? 18),
-                );
-                const owner = account;
-                const isStablePool =
-                  poolType === PoolType.ComposableStable ||
-                  poolType === PoolType.MetaStable;
-
-                // Sort tokens and related arrays by address
-                const sortedData = tokensAddresses
-                  .map((token, index) => ({
-                    token,
-                    amountIn: amountsIn[index],
-                    rateProvider: rateProviders[index],
-                    weight: normalizedWeights[index],
-                    cacheDuration: tokenRateCacheDurations[index],
-                    feeFlag: exemptFromYieldProtocolFeeFlag[index],
-                  }))
-                  .sort((a, b) => {
-                    // FIXME: this is dumb
-                    const tokenAA = BigInt(a.token);
-                    const tokenBB = BigInt(b.token);
-                    if (tokenAA < tokenBB) return -1;
-                    if (tokenAA > tokenBB) return 1;
-                    return 0;
-                  });
-
-                // Extract sorted arrays from sortedData
-                const sortedTokens = sortedData.map((item) => item.token);
-                const sortedAmountsIn = sortedData.map((item) => item.amountIn);
-                const sortedRateProviders = sortedData.map(
-                  (item) => item.rateProvider,
-                );
-                const sortedWeights = sortedData.map((item) => item.weight);
-                const sortedCacheDurations = sortedData.map(
-                  (item) => item.cacheDuration,
-                );
-                const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
-
-                let args = [];
-                const salt = keccak256(Buffer.from(`${name}-${owner}`));
-                if (isStablePool) {
-                  // FIXME: for some reason stable pools are not going through rn.
-                  args = [
-                    name,
-                    symbol,
-                    sortedTokens,
-                    amplificationParameter,
-                    sortedRateProviders,
-                    sortedCacheDurations,
-                    sortedFeeFlags,
-                    swapFeePercentage,
-                    sortedAmountsIn,
-                    owner,
-                    salt,
-                  ];
-                } else {
-                  args = [
-                    name,
-                    symbol,
-                    sortedTokens,
-                    sortedWeights,
-                    sortedRateProviders,
-                    swapFeePercentage,
-                    sortedAmountsIn,
-                    owner,
-                    salt,
-                  ];
-                }
-
-                const writeData = {
-                  abi: balancerPoolCreationHelperAbi,
-                  address: balancerPoolCreationHelper,
-                  functionName: isStablePool
-                    ? "createAndJoinStablePool"
-                    : "createAndJoinWeightedPool",
-                  params: args,
-                  account: account,
-                  value: 0n,
-                  gasLimit: 7920027n, // NOTE: this costs a fair bit, so the default limit is way too low.
-                }; //as IContractWrite<TAbi, TFunctionName>;
-
-                console.log("writeData", writeData);
-                write(writeData);
-              }}
+              onClick={createPool}
             >
               Create Pool
             </Button>
