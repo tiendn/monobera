@@ -2,9 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { chainId, jsonRpcUrl } from "@bera/config";
 import {
   AddLiquidity,
+  AddLiquidityInput,
   AddLiquidityKind,
   AddLiquidityQueryOutput,
   PoolState,
+  PriceImpact,
+  PriceImpactAmount,
   Slippage,
 } from "@berachain-foundation/berancer-sdk";
 import { Address, parseUnits } from "viem";
@@ -21,11 +24,16 @@ export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
     }[]
   >([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [priceImpact, setPriceImpact] = useState<PriceImpactAmount>();
+
   const [queryOutput, setQueryOutput] = useState<AddLiquidityQueryOutput>();
 
   const fetch = useCallback(async () => {
     if (!pool || !input) return;
     // console.log("POOL", pool);
+
+    setIsLoading(true);
 
     const addLiquidity = new AddLiquidity();
 
@@ -37,26 +45,30 @@ export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
       throw new Error("Some input tokens are not in the pool");
     }
 
-    const queryOutput = await addLiquidity.query(
-      {
-        chainId,
-        kind: AddLiquidityKind.Unbalanced,
-        rpcUrl: jsonRpcUrl,
-        amountsIn: pool.tokens
-          .filter((t) => input.findIndex((i) => i.address === t.address) !== -1)
-          .map((t) => {
-            const i = input.find((i) => i.address === t.address)!;
-            return {
-              rawAmount: parseUnits(i.amount, t.decimals),
-              decimals: t?.decimals,
-              address: i.address as Address,
-            };
-          }),
-      },
-      pool,
-    );
+    const addLiquidityInput: AddLiquidityInput = {
+      chainId,
+      kind: AddLiquidityKind.Unbalanced,
+      rpcUrl: jsonRpcUrl,
+      amountsIn: pool.tokens
+        .filter((t) => input.findIndex((i) => i.address === t.address) !== -1)
+        .map((t) => {
+          const i = input.find((i) => i.address === t.address)!;
+          return {
+            rawAmount: parseUnits(i.amount, t.decimals),
+            decimals: t?.decimals,
+            address: i.address as Address,
+          };
+        }),
+    };
 
+    const [queryOutput, priceImpact] = await Promise.all([
+      addLiquidity.query(addLiquidityInput, pool),
+      PriceImpact.addLiquidityUnbalanced(addLiquidityInput, pool),
+    ]);
+
+    setPriceImpact(priceImpact);
     setQueryOutput(queryOutput);
+    setIsLoading(false);
   }, [pool, input]);
 
   const getCallData = useCallback(
@@ -87,6 +99,8 @@ export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
   return {
     getCallData,
     queryOutput,
+    priceImpact,
+    isLoading,
     input,
     setInput,
   };

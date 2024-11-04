@@ -308,10 +308,7 @@ export default function PoolPageContent({
                 </div>
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
-                <FormattedNumber
-                  value={pool?.totalLiquidity ?? 0}
-                  symbol="USD"
-                />
+                <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
               </div>
             </Card>
             <Card className="px-4 py-2">

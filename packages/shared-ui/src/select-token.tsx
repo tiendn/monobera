@@ -42,6 +42,7 @@ export function SelectToken({
         className={cn(
           "flex h-10 w-full shrink-0 gap-1 border-border bg-background p-2 text-secondary-foreground shadow",
           btnClassName,
+          !selectable && "!cursor-default pointer-events-none",
         )}
         variant={"outline"}
         onClick={() => selectable && setOpen(true)}

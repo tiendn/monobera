@@ -39,7 +39,8 @@ import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
-import { useAddLiquidityUnbalanced } from "~/b-sdk/useAddLiquidityUnbalanced";
+import { useAddLiquidityUnbalanced } from "./useAddLiquidityUnbalanced";
+import { AddLiquidityDetails } from "./AddLiquidiyDetails";
 
 interface IAddLiquidityContent {
   shareAddress: Address;
@@ -59,7 +60,7 @@ export default function AddLiquidityContent({
     console.log("POOL", pool, v3Pool);
   }, [pool, v3Pool]);
 
-  const { queryOutput, input, setInput, getCallData } =
+  const { queryOutput, priceImpact, input, setInput, getCallData } =
     useAddLiquidityUnbalanced({
       pool: v3Pool,
     });
@@ -86,27 +87,9 @@ export default function AddLiquidityContent({
     }
   }, [pool, isLoading]);
 
-  // const {
-  //   baseToken,
-  //   quoteToken,
-  //   poolPrice,
-  //   error,
-  //   previewOpen,
-  //   tokenInputs,
-  //   needsApproval,
-  //   areAllInputsEmpty,
-  //   isBaseInput,
-  //   setIsBaseInput,
-  //   refreshAllowances,
-  //   reset,
-  //   updateTokenAmount,
-  //   updateTokenExceeding,
-  //   setPreviewOpen,
-  //   beraToken,
-  //   wBeraToken,
-  //   isNativeBera,
-  //   setIsNativeBera,
-  // } = useAddLiquidity(pool);
+  useEffect(() => {
+    console.log({ priceImpact, queryOutput });
+  }, [priceImpact]);
 
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
@@ -124,8 +107,18 @@ export default function AddLiquidityContent({
     actionType: TransactionActionType.ADD_LIQUIDITY,
   });
 
-  console.log({ needsApproval });
   const slippage = useSlippage();
+
+  const totalValue = queryOutput?.amountsIn.reduce((acc, curr) => {
+    return (
+      acc +
+      Number(formatEther(curr.scale18)) *
+        Number(
+          pool?.tokens.find((t) => t.address === curr.token.address)?.token
+            ?.latestUSDPrice ?? 0,
+        )
+    );
+  }, 0);
 
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
@@ -213,36 +206,11 @@ export default function AddLiquidityContent({
               );
             })}
           </TokenList>
-          <InfoBoxList>
-            {/* <InfoBoxListItem
-              title={"Pool Price"}
-              value={
-                poolPrice ? (
-                  <span>
-                    <FormattedNumber
-                      value={poolPrice}
-                      symbol={baseToken?.symbol ?? ""}
-                    />{" "}
-                    = 1 {quoteToken?.symbol}
-                  </span>
-                ) : (
-                  <span>{"-"}</span>
-                )
-              }
-            />
-            <InfoBoxListItem
-              title={"Total Value"}
-              value={
-                <FormattedNumber
-                  value={totalHoneyPrice}
-                  symbol="USD"
-                  compact={false}
-                />
-              }
-            /> */}
-
-            <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
-          </InfoBoxList>
+          <AddLiquidityDetails
+            totalValue={totalValue?.toString()}
+            priceImpact={priceImpact}
+            exchangeRate="0"
+          />
           {/* {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
