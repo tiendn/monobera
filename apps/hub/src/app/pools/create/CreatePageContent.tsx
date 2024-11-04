@@ -8,22 +8,15 @@ import {
   TransactionActionType,
   balancerPoolCreationHelperAbi,
   balancerVaultAbi,
-  useBeraContractWrite,
   useBeraJs,
   type Token,
 } from "@bera/berajs";
 import { getAllowances, getWalletBalances } from "@bera/berajs/actions";
-import {
-  balancerPoolCreationHelper,
-  balancerVaultAddress,
-  chainId,
-} from "@bera/config";
+import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
-  SSRSpinner,
   useAnalytics,
-  useSlippage,
   useTxn,
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
@@ -31,26 +24,21 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import {
-  PoolType,
-  composableStableFactoryV5Abi_V2,
-} from "@berachain-foundation/berancer-sdk";
+import { PoolType } from "@berachain-foundation/berancer-sdk";
 import {
   Address,
   Log,
   TransactionReceipt,
   decodeEventLog,
-  encodeFunctionData,
-  formatUnits,
   keccak256,
   parseUnits,
-  zeroAddress,
 } from "viem";
 import { usePublicClient } from "wagmi";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import { usePools } from "~/b-sdk/usePools";
+import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 
 export const findEventInReceiptLogs = ({
   receipt,
@@ -86,8 +74,6 @@ export default function CreatePageContent() {
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [baseAmount, setBaseAmount] = useState<string>("");
   const [quoteAmounts, setQuoteAmounts] = useState<string[]>([]);
-  const [needsApproval, setNeedsApproval] = useState<Token[]>([]);
-  const [insufficientBalance, setInsufficientBalance] = useState<Token[]>([]);
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -102,63 +88,17 @@ export default function CreatePageContent() {
     return [tokens[0], tokens.slice(1)];
   }, [tokens]);
 
-  // check balance and allowance for each token that we are trying to add liquidity with
-  useEffect(() => {
-    const checkBalancesAndAllowances = async () => {
-      const requiredAmounts = tokens.map((token, index) =>
-        parseUnits(
-          token === baseToken
-            ? baseAmount ?? "0"
-            : quoteAmounts[index - 1] ?? "0",
-          token.decimals ?? 18,
-        ),
-      );
-
-      // Fetch allowances and balances
-      const [allowances, balances] = await Promise.all([
-        getAllowances({
-          tokens,
-          account,
-          config: beraConfig,
-          spender: balancerVaultAddress,
-          publicClient,
-        }),
-        getWalletBalances({
-          account,
-          tokenList: tokens,
-          config: beraConfig,
-          publicClient,
-        }),
-      ]);
-
-      // Identify tokens needing approval and with insufficient balance
-      const tokensRequiringApproval: Token[] = [];
-      const tokensWithInsufficientBalance: Token[] = [];
-
-      tokens.forEach((token, index) => {
-        if (
-          allowances &&
-          BigInt(allowances[index]?.allowance ?? "0") < requiredAmounts[index]
-        ) {
-          tokensRequiringApproval.push(token);
-        }
-
-        if (
-          balances &&
-          BigInt(balances[index]?.balance ?? "0") < requiredAmounts[index]
-        ) {
-          tokensWithInsufficientBalance.push(token);
-        }
-      });
-
-      setNeedsApproval(tokensRequiringApproval);
-      setInsufficientBalance(tokensWithInsufficientBalance);
-    };
-
-    if (account && tokens.length > 0) {
-      checkBalancesAndAllowances();
-    }
-  }, [account, tokens, baseAmount, quoteAmounts, baseToken]);
+  const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
+    useMultipleTokenApprovalsWithSlippage(
+      tokens.map((token, index) => ({
+        address: token.address,
+        amount:
+          token === baseToken ? baseAmount : quoteAmounts[index - 1] ?? "0",
+        decimals: token.decimals,
+        exceeding: false,
+      })),
+      balancerVaultAddress,
+    );
 
   const handleTokenSelection = (token: Token | null, index: number) => {
     setTokens((prevTokens) => {
@@ -282,11 +222,6 @@ export default function CreatePageContent() {
         return updatedAmounts;
       }
       return prevAmounts;
-    });
-
-    setNeedsApproval((prev) => {
-      const requiredApprovals = tokens.filter((token) => !prev.includes(token));
-      return [...prev, ...requiredApprovals];
     });
 
     // Determine if liquidity input should be enabled
@@ -534,33 +469,11 @@ export default function CreatePageContent() {
             </div>
           </section>
 
-          {/* Handle approvals -- FIXME: this UX sucks, merge all of these together like in add-liquidity */}
-          {needsApproval.map((token, index) => (
-            <ApproveButton
-              key={token.address}
-              amount={parseUnits(
-                // FIXME: THIS IS VERY HACKY
-                token.address === baseToken?.address
-                  ? baseAmount
-                  : quoteAmounts[index] || "0",
-                token.decimals ?? 18,
-              )}
-              spender={balancerVaultAddress}
-              token={token}
-              onApproval={() => {
-                // Remove token from needsApproval once approved
-                setNeedsApproval((prev) =>
-                  prev.filter((t) => t.address !== token.address),
-                );
-              }}
-            />
-          ))}
           <ActionButton>
             <Button
               disabled={isApproveRelayerSuccess || isApproveRelayerLoading}
               className="w-full"
               onClick={() => {
-                // FIXME: this is strange, we either need to bundle with the token amount approvals or we need to useTxn
                 writeApproveRelayer({
                   address: balancerVaultAddress,
                   abi: balancerVaultAbi,
@@ -573,131 +486,154 @@ export default function CreatePageContent() {
                 });
               }}
             >
-              Approve PoolCreationHelper
+              Approve Pool Creation Helper
             </Button>
           </ActionButton>
 
-          <ActionButton>
-            <Button
-              disabled={
-                false
-                // FIXME: we need to enable only once approval and balancer checks + amounts are good
+          {tokensNeedApproval.length > 0 ? (
+            <ApproveButton
+              amount={
+                tokensNeedApproval[0].address === baseToken?.address
+                  ? parseUnits(baseAmount, baseToken?.decimals ?? 18)
+                  : parseUnits(
+                      quoteAmounts[0] || "0",
+                      tokensNeedApproval[0].decimals ?? 18,
+                    )
               }
-              className="w-full"
-              onClick={() => {
-                if (!publicClient) {
-                  return;
+              token={
+                tokens.find(
+                  (t) => t.address === tokensNeedApproval.at(0)?.address,
+                ) as Token
+              }
+              spender={balancerVaultAddress}
+              onApproval={() => refreshAllowances()}
+            />
+          ) : (
+            <ActionButton>
+              <Button
+                disabled={
+                  false
+                  // FIXME: we need to enable only once approval and balancer checks + amounts are good
                 }
-                // FIXME this belongs in a use hook, we're creating a pool using the PoolCreationHelper contract
-                const name = poolName;
-                const symbol = poolSymbol;
-                const tokensAddresses = tokens.map((token) => token.address);
-                const normalizedWeights = [
-                  // FIXME we need weight inputs
-                  BigInt(parseFixed("0.333333333333333333", 18).toString()),
-                  BigInt(parseFixed("0.333333333333333333", 18).toString()),
-                  BigInt(parseFixed("0.333333333333333334", 18).toString()),
-                ];
-                const rateProviders = tokens.map(() => ADDRESS_ZERO);
-                const swapFeePercentage = BigInt(
-                  parseFixed("0.01", 16).toString(),
-                );
-                const tokenRateCacheDurations = tokens.map(() => BigInt(100));
-                const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
-                const amplificationParameter = BigInt(62);
-                const amountsIn = [
-                  parseUnits(baseAmount, baseToken?.decimals ?? 18),
-                  ...quoteAmounts.map((amt, idx) =>
-                    parseUnits(amt, quoteTokens[idx]?.decimals ?? 18),
-                  ),
-                ];
-                const owner = account;
-                const isStablePool =
-                  poolType === PoolType.ComposableStable ||
-                  poolType === PoolType.MetaStable;
-
-                // Sort tokens and related arrays by address
-                const sortedData = tokensAddresses
-                  .map((token, index) => ({
-                    token,
-                    amountIn: amountsIn[index],
-                    rateProvider: rateProviders[index],
-                    weight: normalizedWeights[index],
-                    cacheDuration: tokenRateCacheDurations[index],
-                    feeFlag: exemptFromYieldProtocolFeeFlag[index],
-                  }))
-                  .sort((a, b) => {
-                    // FIXME: this is dumb
-                    const tokenAA = BigInt(a.token);
-                    const tokenBB = BigInt(b.token);
-                    if (tokenAA < tokenBB) return -1;
-                    if (tokenAA > tokenBB) return 1;
-                    return 0;
-                  });
-
-                // Extract sorted arrays from sortedData
-                const sortedTokens = sortedData.map((item) => item.token);
-                const sortedAmountsIn = sortedData.map((item) => item.amountIn);
-                const sortedRateProviders = sortedData.map(
-                  (item) => item.rateProvider,
-                );
-                const sortedWeights = sortedData.map((item) => item.weight);
-                const sortedCacheDurations = sortedData.map(
-                  (item) => item.cacheDuration,
-                );
-                const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
-
-                let args = [];
-                const salt = keccak256(Buffer.from(`${name}-${owner}`));
-                if (isStablePool) {
-                  // FIXME: for some reason stable pools are not going through rn.
-                  args = [
-                    name,
-                    symbol,
-                    sortedTokens,
-                    amplificationParameter,
-                    sortedRateProviders,
-                    sortedCacheDurations,
-                    sortedFeeFlags,
-                    swapFeePercentage,
-                    sortedAmountsIn,
-                    owner,
-                    salt,
+                className="w-full"
+                onClick={() => {
+                  if (!publicClient) {
+                    return;
+                  }
+                  // FIXME this belongs in a use hook, we're creating a pool using the PoolCreationHelper contract
+                  const name = poolName;
+                  const symbol = poolSymbol;
+                  const tokensAddresses = tokens.map((token) => token.address);
+                  const normalizedWeights = [
+                    // FIXME we need weight inputs
+                    BigInt(parseFixed("0.333333333333333333", 18).toString()),
+                    BigInt(parseFixed("0.333333333333333333", 18).toString()),
+                    BigInt(parseFixed("0.333333333333333334", 18).toString()),
                   ];
-                } else {
-                  args = [
-                    name,
-                    symbol,
-                    sortedTokens,
-                    sortedWeights,
-                    sortedRateProviders,
-                    swapFeePercentage,
-                    sortedAmountsIn,
-                    owner,
-                    salt,
+                  const rateProviders = tokens.map(() => ADDRESS_ZERO);
+                  const swapFeePercentage = BigInt(
+                    parseFixed("0.01", 16).toString(),
+                  );
+                  const tokenRateCacheDurations = tokens.map(() => BigInt(100));
+                  const exemptFromYieldProtocolFeeFlag = tokens.map(
+                    () => false,
+                  );
+                  const amplificationParameter = BigInt(62);
+                  const amountsIn = [
+                    parseUnits(baseAmount, baseToken?.decimals ?? 18),
+                    ...quoteAmounts.map((amt, idx) =>
+                      parseUnits(amt, quoteTokens[idx]?.decimals ?? 18),
+                    ),
                   ];
-                }
+                  const owner = account;
+                  const isStablePool =
+                    poolType === PoolType.ComposableStable ||
+                    poolType === PoolType.MetaStable;
 
-                const writeData = {
-                  abi: balancerPoolCreationHelperAbi,
-                  address: balancerPoolCreationHelper,
-                  functionName: isStablePool
-                    ? "createAndJoinStablePool"
-                    : "createAndJoinWeightedPool",
-                  params: args,
-                  account: account,
-                  value: 0n,
-                  gasLimit: 7920027n, // NOTE: this costs a fair bit, so the default limit is way too low.
-                }; //as IContractWrite<TAbi, TFunctionName>;
+                  // Sort tokens and related arrays by address
+                  const sortedData = tokensAddresses
+                    .map((token, index) => ({
+                      token,
+                      amountIn: amountsIn[index],
+                      rateProvider: rateProviders[index],
+                      weight: normalizedWeights[index],
+                      cacheDuration: tokenRateCacheDurations[index],
+                      feeFlag: exemptFromYieldProtocolFeeFlag[index],
+                    }))
+                    .sort((a, b) => {
+                      // FIXME: this is dumb
+                      const tokenAA = BigInt(a.token);
+                      const tokenBB = BigInt(b.token);
+                      if (tokenAA < tokenBB) return -1;
+                      if (tokenAA > tokenBB) return 1;
+                      return 0;
+                    });
 
-                console.log("writeData", writeData);
-                write(writeData);
-              }}
-            >
-              Create Pool
-            </Button>
-          </ActionButton>
-          {/* )} */}
+                  // Extract sorted arrays from sortedData
+                  const sortedTokens = sortedData.map((item) => item.token);
+                  const sortedAmountsIn = sortedData.map(
+                    (item) => item.amountIn,
+                  );
+                  const sortedRateProviders = sortedData.map(
+                    (item) => item.rateProvider,
+                  );
+                  const sortedWeights = sortedData.map((item) => item.weight);
+                  const sortedCacheDurations = sortedData.map(
+                    (item) => item.cacheDuration,
+                  );
+                  const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
+
+                  let args = [];
+                  const salt = keccak256(Buffer.from(`${name}-${owner}`));
+                  if (isStablePool) {
+                    // FIXME: for some reason stable pools are not going through rn.
+                    args = [
+                      name,
+                      symbol,
+                      sortedTokens,
+                      amplificationParameter,
+                      sortedRateProviders,
+                      sortedCacheDurations,
+                      sortedFeeFlags,
+                      swapFeePercentage,
+                      sortedAmountsIn,
+                      owner,
+                      salt,
+                    ];
+                  } else {
+                    args = [
+                      name,
+                      symbol,
+                      sortedTokens,
+                      sortedWeights,
+                      sortedRateProviders,
+                      swapFeePercentage,
+                      sortedAmountsIn,
+                      owner,
+                      salt,
+                    ];
+                  }
+
+                  const writeData = {
+                    abi: balancerPoolCreationHelperAbi,
+                    address: balancerPoolCreationHelper,
+                    functionName: isStablePool
+                      ? "createAndJoinStablePool"
+                      : "createAndJoinWeightedPool",
+                    params: args,
+                    account: account,
+                    value: 0n,
+                    gasLimit: 7920027n, // NOTE: this costs a fair bit, so the default limit is way too low.
+                  }; //as IContractWrite<TAbi, TFunctionName>;
+
+                  console.log("writeData", writeData);
+                  write(writeData);
+                }}
+              >
+                Create Pool
+              </Button>
+            </ActionButton>
+          )}
         </section>
       </div>
     </div>
