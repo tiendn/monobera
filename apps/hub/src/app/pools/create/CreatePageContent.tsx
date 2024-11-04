@@ -39,6 +39,7 @@ import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-poo
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import { usePools } from "~/b-sdk/usePools";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
+import { usePoolCreationRelayerApproval } from "~/hooks/usePoolCreationRelayerApproval";
 
 export const findEventInReceiptLogs = ({
   receipt,
@@ -68,7 +69,7 @@ export const findEventInReceiptLogs = ({
 
 export default function CreatePageContent() {
   const router = useRouter();
-  const { captureException, track } = useAnalytics();
+  const { captureException, track } = useAnalytics(); // FIXME: analytics
 
   const [tokens, setTokens] = useState<Token[]>([]); // NOTE: functionally max is 3 tokens
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
@@ -88,6 +89,7 @@ export default function CreatePageContent() {
     return [tokens[0], tokens.slice(1)];
   }, [tokens]);
 
+  // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(
       tokens.map((token, index) => ({
@@ -99,6 +101,25 @@ export default function CreatePageContent() {
       })),
       balancerVaultAddress,
     );
+
+  // Check relayer approval
+  const {
+    ModalPortal: ModalPortalRelayerApproval,
+    data: isRelayerApproved,
+    writeApproval: approveRelayer,
+    isLoading: isRelayerApprovalLoading,
+    isError: isRelayerApprovalError,
+  } = usePoolCreationRelayerApproval({
+    relayerAddress: balancerVaultAddress,
+    poolCreationHelper: balancerPoolCreationHelper,
+  });
+  useEffect(() => {
+    if (isRelayerApprovalError) {
+      setErrorMessage(
+        `Error approving pool creation helper on vault: ${isRelayerApprovalError?.message}`,
+      );
+    }
+  }, [isRelayerApprovalError]);
 
   const handleTokenSelection = (token: Token | null, index: number) => {
     setTokens((prevTokens) => {
@@ -124,6 +145,7 @@ export default function CreatePageContent() {
     });
   };
 
+  // pull down the pools we have to check for duplicates
   const {
     data: pools,
     isLoading: isLoadingPools,
@@ -246,26 +268,6 @@ export default function CreatePageContent() {
     isDupePool,
     errorLoadingPools,
   ]);
-
-  // // approve relayer (PoolCreationHelper) to spend tokens on your behalf
-  // // FIXME: we need to move this into an approval button or into the multi-approval hook for tokens
-  const {
-    write: writeApproveRelayer,
-    ModalPortal: ModalPortalRelayerApproval,
-    isSuccess: isApproveRelayerSuccess,
-    isError: isApproveRelayerError,
-    isLoading: isApproveRelayerLoading,
-  } = useTxn({
-    message: "Creating new pool...",
-    onSuccess: async (hash: string) => {
-      console.log("APPROVED RELAYER");
-    },
-    onError: (e) => {
-      setErrorMessage(
-        `Error approving pool creation helper on vault: ${e?.message}`,
-      );
-    },
-  });
 
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
@@ -469,34 +471,27 @@ export default function CreatePageContent() {
             </div>
           </section>
 
-          <ActionButton>
+          {/* Approvals */}
+          {!isRelayerApproved && (
             <Button
-              disabled={isApproveRelayerSuccess || isApproveRelayerLoading}
-              className="w-full"
-              onClick={() => {
-                writeApproveRelayer({
-                  address: balancerVaultAddress,
-                  abi: balancerVaultAbi,
-                  functionName: "setRelayerApproval",
-                  params: [
-                    account as `0x${string}`,
-                    balancerPoolCreationHelper,
-                    true,
-                  ],
-                });
-              }}
+              disabled={isRelayerApprovalLoading}
+              onClick={approveRelayer}
+              className="mt-4 w-full"
             >
-              Approve Pool Creation Helper
+              {isRelayerApprovalLoading
+                ? "Approving..."
+                : "Approve Pool Creation Helper"}
             </Button>
-          </ActionButton>
+          )}
 
-          {tokensNeedApproval.length > 0 ? (
+          {tokensNeedApproval.length > 0 && (
+            // FIXME this has the WORST logic going on thanks to this base quote crap. it will never resolve quote above 1 right
             <ApproveButton
               amount={
                 tokensNeedApproval[0].address === baseToken?.address
                   ? parseUnits(baseAmount, baseToken?.decimals ?? 18)
                   : parseUnits(
-                      quoteAmounts[0] || "0",
+                      quoteAmounts[0] || "0", // BAD!
                       tokensNeedApproval[0].decimals ?? 18,
                     )
               }
@@ -508,132 +503,126 @@ export default function CreatePageContent() {
               spender={balancerVaultAddress}
               onApproval={() => refreshAllowances()}
             />
-          ) : (
-            <ActionButton>
-              <Button
-                disabled={
-                  false
-                  // FIXME: we need to enable only once approval and balancer checks + amounts are good
-                }
-                className="w-full"
-                onClick={() => {
-                  if (!publicClient) {
-                    return;
-                  }
-                  // FIXME this belongs in a use hook, we're creating a pool using the PoolCreationHelper contract
-                  const name = poolName;
-                  const symbol = poolSymbol;
-                  const tokensAddresses = tokens.map((token) => token.address);
-                  const normalizedWeights = [
-                    // FIXME we need weight inputs
-                    BigInt(parseFixed("0.333333333333333333", 18).toString()),
-                    BigInt(parseFixed("0.333333333333333333", 18).toString()),
-                    BigInt(parseFixed("0.333333333333333334", 18).toString()),
-                  ];
-                  const rateProviders = tokens.map(() => ADDRESS_ZERO);
-                  const swapFeePercentage = BigInt(
-                    parseFixed("0.01", 16).toString(),
-                  );
-                  const tokenRateCacheDurations = tokens.map(() => BigInt(100));
-                  const exemptFromYieldProtocolFeeFlag = tokens.map(
-                    () => false,
-                  );
-                  const amplificationParameter = BigInt(62);
-                  const amountsIn = [
-                    parseUnits(baseAmount, baseToken?.decimals ?? 18),
-                    ...quoteAmounts.map((amt, idx) =>
-                      parseUnits(amt, quoteTokens[idx]?.decimals ?? 18),
-                    ),
-                  ];
-                  const owner = account;
-                  const isStablePool =
-                    poolType === PoolType.ComposableStable ||
-                    poolType === PoolType.MetaStable;
-
-                  // Sort tokens and related arrays by address
-                  const sortedData = tokensAddresses
-                    .map((token, index) => ({
-                      token,
-                      amountIn: amountsIn[index],
-                      rateProvider: rateProviders[index],
-                      weight: normalizedWeights[index],
-                      cacheDuration: tokenRateCacheDurations[index],
-                      feeFlag: exemptFromYieldProtocolFeeFlag[index],
-                    }))
-                    .sort((a, b) => {
-                      // FIXME: this is dumb
-                      const tokenAA = BigInt(a.token);
-                      const tokenBB = BigInt(b.token);
-                      if (tokenAA < tokenBB) return -1;
-                      if (tokenAA > tokenBB) return 1;
-                      return 0;
-                    });
-
-                  // Extract sorted arrays from sortedData
-                  const sortedTokens = sortedData.map((item) => item.token);
-                  const sortedAmountsIn = sortedData.map(
-                    (item) => item.amountIn,
-                  );
-                  const sortedRateProviders = sortedData.map(
-                    (item) => item.rateProvider,
-                  );
-                  const sortedWeights = sortedData.map((item) => item.weight);
-                  const sortedCacheDurations = sortedData.map(
-                    (item) => item.cacheDuration,
-                  );
-                  const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
-
-                  let args = [];
-                  const salt = keccak256(Buffer.from(`${name}-${owner}`));
-                  if (isStablePool) {
-                    // FIXME: for some reason stable pools are not going through rn.
-                    args = [
-                      name,
-                      symbol,
-                      sortedTokens,
-                      amplificationParameter,
-                      sortedRateProviders,
-                      sortedCacheDurations,
-                      sortedFeeFlags,
-                      swapFeePercentage,
-                      sortedAmountsIn,
-                      owner,
-                      salt,
-                    ];
-                  } else {
-                    args = [
-                      name,
-                      symbol,
-                      sortedTokens,
-                      sortedWeights,
-                      sortedRateProviders,
-                      swapFeePercentage,
-                      sortedAmountsIn,
-                      owner,
-                      salt,
-                    ];
-                  }
-
-                  const writeData = {
-                    abi: balancerPoolCreationHelperAbi,
-                    address: balancerPoolCreationHelper,
-                    functionName: isStablePool
-                      ? "createAndJoinStablePool"
-                      : "createAndJoinWeightedPool",
-                    params: args,
-                    account: account,
-                    value: 0n,
-                    gasLimit: 7920027n, // NOTE: this costs a fair bit, so the default limit is way too low.
-                  }; //as IContractWrite<TAbi, TFunctionName>;
-
-                  console.log("writeData", writeData);
-                  write(writeData);
-                }}
-              >
-                Create Pool
-              </Button>
-            </ActionButton>
           )}
+
+          {/* Pool creation button itself */}
+          <ActionButton>
+            <Button
+              disabled={tokensNeedApproval.length > 0 || !isRelayerApproved}
+              className="w-full"
+              onClick={() => {
+                if (!publicClient) {
+                  return;
+                }
+                // FIXME this belongs in a use hook, we're creating a pool using the PoolCreationHelper contract
+                const name = poolName;
+                const symbol = poolSymbol;
+                const tokensAddresses = tokens.map((token) => token.address);
+                const normalizedWeights = [
+                  // FIXME we need weight inputs
+                  BigInt(parseFixed("0.333333333333333333", 18).toString()),
+                  BigInt(parseFixed("0.333333333333333333", 18).toString()),
+                  BigInt(parseFixed("0.333333333333333334", 18).toString()),
+                ];
+                const rateProviders = tokens.map(() => ADDRESS_ZERO);
+                const swapFeePercentage = BigInt(
+                  parseFixed("0.01", 16).toString(),
+                );
+                const tokenRateCacheDurations = tokens.map(() => BigInt(100));
+                const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
+                const amplificationParameter = BigInt(62);
+                const amountsIn = [
+                  parseUnits(baseAmount, baseToken?.decimals ?? 18),
+                  ...quoteAmounts.map((amt, idx) =>
+                    parseUnits(amt, quoteTokens[idx]?.decimals ?? 18),
+                  ),
+                ];
+                const owner = account;
+                const isStablePool =
+                  poolType === PoolType.ComposableStable ||
+                  poolType === PoolType.MetaStable;
+
+                // Sort tokens and related arrays by address
+                const sortedData = tokensAddresses
+                  .map((token, index) => ({
+                    token,
+                    amountIn: amountsIn[index],
+                    rateProvider: rateProviders[index],
+                    weight: normalizedWeights[index],
+                    cacheDuration: tokenRateCacheDurations[index],
+                    feeFlag: exemptFromYieldProtocolFeeFlag[index],
+                  }))
+                  .sort((a, b) => {
+                    // FIXME: this is dumb
+                    const tokenAA = BigInt(a.token);
+                    const tokenBB = BigInt(b.token);
+                    if (tokenAA < tokenBB) return -1;
+                    if (tokenAA > tokenBB) return 1;
+                    return 0;
+                  });
+
+                // Extract sorted arrays from sortedData
+                const sortedTokens = sortedData.map((item) => item.token);
+                const sortedAmountsIn = sortedData.map((item) => item.amountIn);
+                const sortedRateProviders = sortedData.map(
+                  (item) => item.rateProvider,
+                );
+                const sortedWeights = sortedData.map((item) => item.weight);
+                const sortedCacheDurations = sortedData.map(
+                  (item) => item.cacheDuration,
+                );
+                const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
+
+                let args = [];
+                const salt = keccak256(Buffer.from(`${name}-${owner}`));
+                if (isStablePool) {
+                  // FIXME: for some reason stable pools are not going through rn.
+                  args = [
+                    name,
+                    symbol,
+                    sortedTokens,
+                    amplificationParameter,
+                    sortedRateProviders,
+                    sortedCacheDurations,
+                    sortedFeeFlags,
+                    swapFeePercentage,
+                    sortedAmountsIn,
+                    owner,
+                    salt,
+                  ];
+                } else {
+                  args = [
+                    name,
+                    symbol,
+                    sortedTokens,
+                    sortedWeights,
+                    sortedRateProviders,
+                    swapFeePercentage,
+                    sortedAmountsIn,
+                    owner,
+                    salt,
+                  ];
+                }
+
+                const writeData = {
+                  abi: balancerPoolCreationHelperAbi,
+                  address: balancerPoolCreationHelper,
+                  functionName: isStablePool
+                    ? "createAndJoinStablePool"
+                    : "createAndJoinWeightedPool",
+                  params: args,
+                  account: account,
+                  value: 0n,
+                  gasLimit: 7920027n, // NOTE: this costs a fair bit, so the default limit is way too low.
+                }; //as IContractWrite<TAbi, TFunctionName>;
+
+                console.log("writeData", writeData);
+                write(writeData);
+              }}
+            >
+              Create Pool
+            </Button>
+          </ActionButton>
         </section>
       </div>
     </div>
