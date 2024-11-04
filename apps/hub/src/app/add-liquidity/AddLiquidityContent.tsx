@@ -157,7 +157,7 @@ export default function AddLiquidityContent({
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
             Add Liquidity
-            <SettingsPopover />
+            <SettingsPopover showDeadline={false} />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
