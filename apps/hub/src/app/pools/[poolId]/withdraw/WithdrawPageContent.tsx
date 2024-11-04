@@ -31,7 +31,7 @@ import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { useRemoveLiquidityProportional } from "./useWithdrawLiquidity";
 import { formatEther, parseEther } from "viem";
 import { getPoolUrl } from "../../fetchPools";
-
+import { BigNumber } from "bignumber.js";
 interface ITokenSummary {
   title: string;
   pool: PoolStateWithBalances | undefined;
@@ -128,12 +128,12 @@ export default function WithdrawLiquidityContent({
     if (!userPositionBreakdown?.lpBalance) {
       return;
     }
-    if (percentage === 1) setBptIn(userPositionBreakdown.lpBalance.balance);
-    const share =
-      (Number(userPositionBreakdown?.lpBalance?.formattedBalance) *
-        percentage) /
-      100;
-    setBptIn(parseEther(share.toString()));
+    if (percentage === 100) setBptIn(userPositionBreakdown.lpBalance.balance);
+    const share = BigNumber(
+      userPositionBreakdown?.lpBalance?.formattedBalance,
+    ).times(percentage / 100);
+
+    setBptIn(parseEther(share.toFixed(18)));
   }, [v3Pool, userPositionBreakdown, percentage]);
 
   useEffect(() => {

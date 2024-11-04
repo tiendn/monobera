@@ -1,8 +1,6 @@
 import {
   DefaultHookOptions,
   DefaultHookReturnType,
-  PoolV2,
-  useBeraJs,
   usePollBalance,
   type IUserPosition,
 } from "@bera/berajs";
@@ -11,7 +9,6 @@ import {
   PoolStateWithBalances,
 } from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
-import { useAccount, usePublicClient } from "wagmi";
 
 type IUsePoolUserPositionArgs = {
   pool: PoolStateWithBalances | undefined;
@@ -24,12 +21,6 @@ export const usePoolUserPosition = (
   { pool }: IUsePoolUserPositionArgs,
   options?: DefaultHookOptions,
 ): DefaultHookReturnType<IUserPosition> => {
-  const { address: account } = useAccount();
-  const publicClient = usePublicClient();
-  const { config: beraConfig } = useBeraJs();
-  const config = options?.beraConfigOverride ?? beraConfig;
-  const QUERY_KEY = ["usePoolUserPosition", account, pool?.id];
-
   const { data: userPosition, ...rest } = usePollBalance({
     address: pool?.address,
   });

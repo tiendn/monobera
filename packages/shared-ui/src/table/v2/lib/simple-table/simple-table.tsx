@@ -119,7 +119,6 @@ export function SimpleTable<TData>({
             })
           ) : loading ? (
             <tr>
-              {" "}
               <td className="flex h-24 items-center justify-center">
                 {table.options.meta?.loadingText ?? "Loading Table Data..."}
               </td>

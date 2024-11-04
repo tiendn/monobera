@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PoolWithMethods } from "@balancer-labs/sdk";
-import { useBgtInflation, useTotalPoolCount, type PoolV2 } from "@bera/berajs";
+import { useBgtInflation, type PoolV2 } from "@bera/berajs";
 import {
   DataTableColumnHeader,
   FormattedNumber,
@@ -19,7 +19,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   const sortOption =
     sorting[0] !== undefined && sorting[0].id !== undefined
       ? sorting[0].id
-      : "tvlUsd";
+      : "totalLiquidity";
   const sortOrder =
     sorting[0] !== undefined && sorting[0].desc !== undefined
       ? sorting[0].desc === true
@@ -32,8 +32,6 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
       setKeyword(search);
     }
   };
-
-  const { data: poolCount } = useTotalPoolCount();
 
   const { data, isLoading } = useSWR(["usePoolTable"], async () => {
     const pools = await balancerClient.pools.all();
@@ -97,7 +95,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Fees (24H)"
+            title="Fees"
             // tooltip="Total trading fees this pool has generated in the last 24 hours, valued in HONEY"
             className="whitespace-nowrap"
           />
@@ -105,7 +103,10 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         cell: ({ row }) => (
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
-              <FormattedNumber value={0} symbol="USD" />
+              <FormattedNumber
+                value={row.original.totalSwapFee ?? "0"}
+                symbol="USD"
+              />
             </div>
           </div>
         ),
@@ -113,13 +114,19 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
         },
+        sortingFn: (rowA, rowB) => {
+          return (
+            Number(rowA.original.totalSwapFee ?? "0") -
+            Number(rowB.original.totalSwapFee ?? "0")
+          );
+        },
       },
       {
         accessorKey: "latestPoolDayData__volumeUsd",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Volume (24H)"
+            title="Volume"
             // tooltip="Total trading or transaction volume in the last 24 hours"
             className="whitespace-nowrap"
           />
@@ -127,13 +134,22 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         cell: ({ row }) => (
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
-              <FormattedNumber value={0} symbol="USD" />
+              <FormattedNumber
+                value={row.original.totalSwapVolume ?? "0"}
+                symbol="USD"
+              />
             </div>
           </div>
         ),
         enableSorting: true,
         filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
+        },
+        sortingFn: (rowA, rowB) => {
+          return (
+            Number(rowA.original.totalSwapVolume ?? "0") -
+            Number(rowB.original.totalSwapVolume ?? "0")
+          );
         },
       },
       {
@@ -202,7 +218,6 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   return {
     data,
     table,
-    poolCount,
     search,
     setSearch,
     isLoading,
