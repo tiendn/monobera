@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { dexName } from "@bera/config";
 import { Address, isAddress } from "viem";
 
-import AddLiquidityContent from "../AddLiquidityContent";
+import AddLiquidityContent from "./AddLiquidityContent";
 import { balancerClient } from "~/b-sdk/balancerClient";
 
 export function generateMetadata(): Metadata {
@@ -18,30 +18,22 @@ export const fetchCache = "force-no-store";
 export default async function PoolPage({
   params,
 }: {
-  params: { shareAddress: string };
+  params: { poolId: string };
 }) {
   try {
-    // if (!isAddress(params.shareAddress)) {
+    // if (!isAddress(params.poolId)) {
     //   notFound();
     // }
-    const pool = await balancerClient.pools.find(params.shareAddress);
+    const pool = await balancerClient.pools.find(params.poolId);
     if (!pool) {
       notFound();
     }
 
-    return (
-      <AddLiquidityContent shareAddress={params.shareAddress as Address} />
-    );
+    return <AddLiquidityContent poolId={params.poolId as Address} />;
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);
     notFound();
   }
 }
 
-export function generateStaticParams() {
-  return [
-    {
-      shareAddress: "0x",
-    },
-  ];
-}
+export { generateStaticParams } from "../details/page";

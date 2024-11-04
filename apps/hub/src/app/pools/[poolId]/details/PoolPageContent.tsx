@@ -37,11 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { Address } from "viem";
 
 import { EventTable } from "./PoolEventTable";
-import {
-  getPoolAddLiquidityUrl,
-  getPoolWithdrawUrl,
-} from "../pools/fetchPools";
-import { PoolChart } from "./PoolChart";
+import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType } from "@bera/graphql/dex";
 
@@ -169,12 +165,12 @@ const TokenView = ({
 type ISwapOrProvision = ISwaps | IProvision;
 
 export default function PoolPageContent({
-  shareAddress,
+  poolId,
 }: {
-  shareAddress: Address;
+  poolId: string;
 }) {
   const { data, isLoading: isPoolLoading } = usePool({
-    id: shareAddress,
+    id: poolId,
   });
 
   const { v2Pool: pool, v3Pool } = data ?? {};

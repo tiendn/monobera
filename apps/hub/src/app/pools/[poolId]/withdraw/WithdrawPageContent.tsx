@@ -1,9 +1,7 @@
-/* eslint no-use-before-define: 0 */ // --> OFF
-
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { notFound, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { TokenBalance, TransactionActionType, type Token } from "@bera/berajs";
 import { cloudinaryUrl } from "@bera/config";
 import {
@@ -25,20 +23,14 @@ import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Slider } from "@bera/ui/slider";
-import { usePublicClient } from "wagmi";
 
-import { SettingsPopover } from "~/components/settings-popover";
-import { getPoolUrl } from "../pools/fetchPools";
 import { Skeleton } from "@bera/ui/skeleton";
-import {
-  PoolState,
-  PoolStateWithBalances,
-} from "@berachain-foundation/berancer-sdk";
-import { pools } from "~/utils/constants";
+import { PoolStateWithBalances } from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { useRemoveLiquidityProportional } from "./useWithdrawLiquidity";
-import { formatEther, formatUnits, parseEther } from "viem";
+import { formatEther, parseEther } from "viem";
+import { getPoolUrl } from "../../fetchPools";
 
 interface ITokenSummary {
   title: string;

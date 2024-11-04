@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO } from "@bera/berajs";
+import { ADDRESS_ZERO } from "@bera/berajs/config";
 import {
   balancerApiUrl,
   balancerQueriesAddress,

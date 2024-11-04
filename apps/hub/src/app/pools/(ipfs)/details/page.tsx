@@ -5,7 +5,7 @@ import { notFound, useSearchParams } from "next/navigation";
 import { isIPFS } from "@bera/config";
 import { isAddress } from "viem";
 
-import PoolPageContent from "./PoolPageContent";
+import PoolPageContent from "../../[poolId]/details/PoolPageContent";
 
 const _PoolStaticPage = () => {
   if (!isIPFS) {
@@ -18,7 +18,7 @@ const _PoolStaticPage = () => {
   if (!poolId || !isAddress(poolId)) {
     return notFound();
   }
-  return <PoolPageContent shareAddress={poolId} />;
+  return <PoolPageContent poolId={poolId} />;
 };
 
 export default function PoolStaticPage() {

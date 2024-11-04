@@ -32,7 +32,6 @@ import { Icons } from "@bera/ui/icons";
 import { Address, formatEther, parseUnits } from "viem";
 
 import { SettingsPopover } from "~/components/settings-popover";
-import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
 import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui";
 import Link from "next/link";
@@ -41,15 +40,14 @@ import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
 import { useAddLiquidityUnbalanced } from "./useAddLiquidityUnbalanced";
 import { AddLiquidityDetails } from "./AddLiquidiyDetails";
+import { getPoolUrl } from "../../fetchPools";
 
 interface IAddLiquidityContent {
-  shareAddress: Address;
+  poolId: Address;
 }
 
-export default function AddLiquidityContent({
-  shareAddress,
-}: IAddLiquidityContent) {
-  const { data, isLoading } = usePool({ id: shareAddress });
+export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
+  const { data, isLoading } = usePool({ id: poolId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const { v2Pool: pool, v3Pool } = data ?? {};

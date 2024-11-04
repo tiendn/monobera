@@ -1,5 +1,4 @@
 import { isIPFS } from "@bera/config";
-import { PoolState } from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
 
 export const getPoolUrl = (
@@ -8,24 +7,26 @@ export const getPoolUrl = (
 ): string => {
   if (!pool) return "";
   if (isIPFS) {
-    return `/pool?address=${pool?.id}${isMyPool ? "&back=my-pools" : ""}`;
+    return `/pools/details/?address=${pool?.id}${
+      isMyPool ? "&back=my-pools" : ""
+    }`;
   }
-  return `/pool/${pool?.id}${isMyPool ? "?back=my-pools" : ""}`;
+  return `/pools/${pool?.id}/details/${isMyPool ? "?back=my-pools" : ""}`;
 };
 
 export const getPoolAddLiquidityUrl = (pool: { id: string } | undefined) => {
   if (!pool) return "";
 
   if (isIPFS) {
-    return `/add-liquidity?address=${pool?.id}`;
+    return `/pools/deposit/?address=${pool?.id}`;
   }
 
-  return `/add-liquidity/${pool?.id}`;
+  return `/pools/${pool?.id}/deposit/`;
 };
 
 export const getPoolWithdrawUrl = (pool: { id: string } | undefined) => {
   if (!pool) return "";
-  return `/withdraw/${pool?.id}`;
+  return `/pools/${pool?.id}/withdraw/`;
 };
 
 export const getBaseCost = (initialPrice: number) => {

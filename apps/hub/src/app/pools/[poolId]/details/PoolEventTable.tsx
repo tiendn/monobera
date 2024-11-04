@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@bera/ui/table";
 import formatTimeAgo from "~/utils/formatTimeAgo";
-import { usePoolEvents } from "./../../b-sdk/usePoolEvents";
+import { usePoolEvents } from "~/b-sdk/usePoolEvents";
 import { blockExplorerUrl } from "@bera/config";
 import { FormattedNumber, SimpleTable, useAsyncTable } from "@bera/shared-ui";
 import { PoolWithMethods } from "@balancer-labs/sdk";
