@@ -34,7 +34,7 @@ import { Address, formatEther, parseUnits } from "viem";
 import { SettingsPopover } from "~/components/settings-popover";
 import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
 import { Skeleton } from "@bera/ui/skeleton";
-import { AddLiquiditySuccess } from "@bera/shared-ui/src/txn-modals";
+import { AddLiquiditySuccess } from "@bera/shared-ui";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
