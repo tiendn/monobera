@@ -22,8 +22,9 @@ export const usePoolUserPosition = (
     address: pool?.address,
   });
 
-  const tokenRatioPerLp =
-    Number(userPosition?.formattedBalance) / Number(pool?.totalShares);
+  const tokenRatioPerLp = pool?.totalShares
+    ? Number(userPosition?.formattedBalance) / Number(pool?.totalShares)
+    : 0;
 
   return {
     data: {
@@ -35,12 +36,14 @@ export const usePoolUserPosition = (
           .precision(token.decimals!);
 
         return {
-          balance: BigInt(
-            userBalance
-              .times(10 ** token.decimals!)
-              .toFixed(0)
-              .toString(),
-          ),
+          balance: userBalance.isGreaterThan(0)
+            ? BigInt(
+                userBalance
+                  .times(10 ** token.decimals!)
+                  .toFixed(0)
+                  .toString(),
+              )
+            : 0n,
           formattedBalance: userBalance.toString(),
         };
       }),
