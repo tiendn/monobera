@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PoolWithMethods, parseFixed } from "@balancer-labs/sdk";
-import {
-  ADDRESS_ZERO,
-  TransactionActionType,
-  balancerPoolCreationHelperAbi,
-  useBeraJs,
-  type Token,
-} from "@bera/berajs";
+import { TransactionActionType, useBeraJs, type Token } from "@bera/berajs";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
 import {
   ActionButton,
@@ -22,9 +15,9 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
+import { InputWithLabel } from "@bera/ui/input";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { Address, keccak256, parseUnits } from "viem";
-import { usePublicClient } from "wagmi";
+import { formatUnits, parseUnits } from "viem";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
@@ -38,19 +31,21 @@ export default function CreatePageContent() {
   const { captureException, track } = useAnalytics(); // FIXME: analytics
 
   const [tokens, setTokens] = useState<TokenInput[]>([]);
+  const [weights, setWeights] = useState<number[]>([]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
 
-  const { account } = useBeraJs();
-  const publicClient = usePublicClient();
+  // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
+  const minTokensLength = poolType === PoolType.Weighted ? 3 : 2; // i.e. for stable/composable stable it's 2
+  const maxTokensLength = poolType === PoolType.Weighted ? 8 : 4; // i.e. for stable/composable stable it's 4 w/ BPT as a token
 
   // check for token approvals FIXME: we should not be including slippage in this calculation, its messing up the approval amount check
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
 
-  // Check relayer approval
+  // Check relayer approval and prompt for approval if needed
   const {
     ModalPortal: ModalPortalRelayerApproval,
     swr: { data: isRelayerApproved, isLoading: isLoadingRelayerStatus },
@@ -69,16 +64,13 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  const minTokensLength = poolType === PoolType.Weighted ? 3 : 2;
+  // add or remove token information when we select a token
   const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
-
       if (!token) {
-        // remove a token
         updatedTokens.splice(index, 1);
       } else {
-        // add a new token
         updatedTokens[index] = {
           amount: "0",
           exceeding: false,
@@ -88,24 +80,22 @@ export default function CreatePageContent() {
 
       return updatedTokens.slice(0, minTokensLength);
     });
+    setWeights((prevWeights) => {
+      const updatedWeights = [...prevWeights];
+      if (!token) {
+        updatedWeights.slice(0, index);
+      } else {
+        updatedWeights[index] = 1 / minTokensLength;
+      }
+      return updatedWeights.slice(0, minTokensLength);
+    });
   };
 
-  // on success we'll redirect to the pool page
-  const { write, ModalPortal } = useTxn({
-    message: "Creating new pool...",
-    onSuccess: async (hash: string) => {
-      track("create_pool_success");
-      router.push("/pools");
-    },
-    onError: (e) => {
-      track("create_pool_failed");
-      captureException(new Error("Create pool failed"), {
-        data: { rawError: e },
-      });
-      setErrorMessage(`Error creating pool: ${e?.message}`);
-    },
-    actionType: TransactionActionType.CREATE_POOL,
-  });
+  // if the pool type changes we need to reset the tokens
+  useEffect(() => {
+    setTokens([]);
+    setWeights([]);
+  }, [poolType]);
 
   const {
     poolName,
@@ -115,9 +105,11 @@ export default function CreatePageContent() {
     createPool,
     isLoadingPools,
     errorLoadingPools,
+    ModalPortal,
+    formattedNormalizedWeights,
   } = useCreatePool({
     tokens,
-    weights: [0.33333333333, 0.33333333333, 0.33333333333], // FIXME need to expose this as an input
+    weights: weights,
     poolType,
     onSuccess: () => {
       track("create_pool_success");
@@ -131,7 +123,7 @@ export default function CreatePageContent() {
     },
   });
 
-  // Determine if liquidity input should be enabled
+  // Determine if liquidity input should be enabled (i.e. we have selected enough tokens)
   useEffect(() => {
     if (
       tokens &&
@@ -174,7 +166,7 @@ export default function CreatePageContent() {
               )}
             >
               <span className="text-lg font-semibold">Stable</span>
-              {/* NOTE: we are actually creating ComposableStable pools under the hood. */}
+              {/* NOTE: we are actually creating ComposableStable pools under the hood, which are functionally the same. */}
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Recommended for stable pairs
               </span>
@@ -279,25 +271,58 @@ export default function CreatePageContent() {
             Set Initial Liquidity
           </h1>
           <div className="flex flex-col gap-4">
-            <ul className="divide divide-y divide-border rounded-lg border">
+            <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                <CreatePoolInitialLiquidityInput
-                  disabled={!enableLiquidityInput}
+                <li
                   key={index}
-                  token={token as Token}
-                  tokenAmount={token.amount}
-                  onTokenBalanceChange={(amount) => {
-                    // NOTE: doing the update in this way triggers a re-render
-                    setTokens((prevTokens) => {
-                      const updatedTokens = [...prevTokens];
-                      updatedTokens[index] = {
-                        ...updatedTokens[index],
-                        amount,
-                      };
-                      return updatedTokens;
-                    });
-                  }}
-                />
+                  className="flex items-center gap-4 space-x-4 border-b p-4 last:border-b-0"
+                >
+                  {/* Token Input with Border */}
+                  <div className="flex-1">
+                    <CreatePoolInitialLiquidityInput
+                      disabled={!enableLiquidityInput}
+                      token={token as Token}
+                      tokenAmount={token.amount}
+                      onTokenBalanceChange={(amount) => {
+                        setTokens((prevTokens) => {
+                          const updatedTokens = [...prevTokens];
+                          updatedTokens[index] = {
+                            ...updatedTokens[index],
+                            amount,
+                          };
+                          return updatedTokens;
+                        });
+                      }}
+                    />
+                  </div>
+
+                  {/* Weight Input */}
+                  {poolType === PoolType.Weighted && (
+                    <>
+                      <div className="w-1/6">
+                        <InputWithLabel
+                          className="w-full"
+                          outerClassName=""
+                          label="Weight"
+                          type="number"
+                          value={weights[index]}
+                          onChange={(e) => {
+                            const newWeights = [...weights];
+                            newWeights[index] = Math.min(
+                              Number(e.target.value),
+                              100,
+                            );
+                            setWeights(newWeights);
+                          }}
+                        />
+                      </div>
+
+                      <div className="w-1/6 text-right text-sm text-gray-400">
+                        <p>{`Normalized:\n${formattedNormalizedWeights[index]}`}</p>
+                      </div>
+                    </>
+                  )}
+                </li>
               ))}
             </ul>
           </div>

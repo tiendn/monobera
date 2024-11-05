@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import { PoolWithMethods, parseFixed } from "@balancer-labs/sdk";
 import {
   ADDRESS_ZERO,
@@ -10,9 +10,10 @@ import {
 import { balancerPoolCreationHelper } from "@bera/config";
 import { useTxn } from "@bera/shared-ui";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { keccak256, parseUnits } from "viem";
+import { formatUnits, keccak256, parseUnits } from "viem";
 
 import { usePools } from "~/b-sdk/usePools";
+import { TokenInput } from "./useMultipleTokenInput";
 
 interface UseCreatePoolProps {
   tokens: TokenInput[];
@@ -27,15 +28,12 @@ interface UseCreatePoolReturn {
   poolSymbol: string;
   isDupePool: boolean;
   dupePool: PoolWithMethods | null;
-  errorMessage: string | null;
+  normalizedWeights: bigint[];
+  formattedNormalizedWeights: string[];
   createPool: () => void;
   isLoadingPools: boolean;
   errorLoadingPools: boolean;
-}
-
-interface TokenInput extends Token {
-  amount: string;
-  exceeding: boolean;
+  ModalPortal: ReactElement<any, any>;
 }
 
 export const useCreatePool = ({
@@ -48,7 +46,6 @@ export const useCreatePool = ({
   const { account } = useBeraJs();
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const generatePoolName = (tokens: Token[], poolType: PoolType): string => {
     const tokenSymbols = tokens.map((token) => token.symbol).join(" | ");
@@ -72,7 +69,7 @@ export const useCreatePool = ({
     data: pools,
     isLoading: isLoadingPools,
     error: errorLoadingPools,
-  } = usePools(); // FIXME we should use v3 of this for better typing
+  } = usePools();
 
   useEffect(() => {
     if (tokens.length === 0) return;
@@ -93,36 +90,46 @@ export const useCreatePool = ({
     setIsDupePool(!!isDupe);
   }, [tokens, pools, isLoadingPools]);
 
-  const { write } = useTxn({
+  const { write, ModalPortal } = useTxn({
     message: "Creating new pool...",
     onSuccess,
     onError,
     actionType: TransactionActionType.CREATE_POOL,
   });
 
-  const normalizedWeights = useMemo(() => {
+  // apply a correction for repeating weights like .3r and .7r by adding the difference to the smallest weight
+  const { normalizedWeights, formattedNormalizedWeights } = useMemo(() => {
+    if (weights.length === 0) {
+      return { normalizedWeights: [], formattedNormalizedWeights: [] };
+    }
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-    const fixedWeights = weights.map((weight) =>
-      BigInt(parseFixed((weight / totalWeight).toFixed(18), 18).toString()),
+    const normalizedWeights = weights.map((weight) =>
+      parseUnits((weight / totalWeight).toString(), 18),
     );
-
-    const weightSum = fixedWeights.reduce(
+    const weightSum = normalizedWeights.reduce(
       (sum, weight) => sum + weight,
-      BigInt(0),
+      0n,
     );
-    const correction = BigInt(parseFixed("1", 18).toString()) - weightSum;
+    const oneIn18Decimals = parseUnits("1", 18);
+    const correction = oneIn18Decimals - weightSum;
 
-    if (correction !== BigInt(0)) {
-      // Find the index of the smallest weight and do +1 there
-      const minWeightIndex = fixedWeights.reduce(
+    if (correction !== 0n && normalizedWeights.length > 0) {
+      const minWeightIndex = normalizedWeights.reduce(
         (minIndex, weight, index, array) =>
           weight < array[minIndex] ? index : minIndex,
         0,
       );
-      fixedWeights[minWeightIndex] += correction;
+      if (normalizedWeights[minWeightIndex] !== undefined) {
+        normalizedWeights[minWeightIndex] += correction;
+      }
     }
 
-    return fixedWeights;
+    const formattedNormalizedWeights = normalizedWeights.map((weight) => {
+      const percentage = formatUnits(weight, 18);
+      return `${(parseFloat(percentage) * 100).toFixed(6)}%`;
+    });
+
+    return { normalizedWeights, formattedNormalizedWeights };
   }, [weights]);
 
   const createPool = () => {
@@ -195,18 +202,20 @@ export const useCreatePool = ({
       params: args,
       account,
       value: 0n,
-      gasLimit: 7920027n,
+      gasLimit: 7920027n, // NOTE: previous examples get up to 72% of this amount, which is the metamask maximum.
     };
 
     write(writeData);
   };
 
   return {
+    ModalPortal,
+    normalizedWeights,
+    formattedNormalizedWeights,
     poolName,
     poolSymbol,
     isDupePool,
     dupePool,
-    errorMessage,
     createPool,
     isLoadingPools,
     errorLoadingPools,
