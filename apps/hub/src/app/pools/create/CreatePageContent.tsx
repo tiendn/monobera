@@ -2,23 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TransactionActionType, useBeraJs, type Token } from "@bera/berajs";
+import { type Token } from "@bera/berajs";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
-import {
-  ActionButton,
-  ApproveButton,
-  useAnalytics,
-  useTxn,
-} from "@bera/shared-ui";
+import { ActionButton, ApproveButton, useAnalytics } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
-import { wBeraToken } from "@bera/wagmi";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { formatUnits, parseUnits } from "viem";
+import { parseUnits } from "viem";
 
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
@@ -27,11 +21,20 @@ import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenAppro
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePoolCreationRelayerApproval } from "~/hooks/usePoolCreationRelayerApproval";
 
+const emptyToken: TokenInput = {
+  address: "" as `0x${string}`,
+  amount: "0",
+  decimals: 18,
+  exceeding: false,
+  name: "",
+  symbol: "",
+};
+
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics(); // FIXME: analytics
 
-  const [tokens, setTokens] = useState<TokenInput[]>([]); // FIXME: we should support undefined tokens as this is how TokenInput works
+  const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [weights, setWeights] = useState<number[]>([]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -114,8 +117,10 @@ export default function CreatePageContent() {
 
   // if the pool type changes we need to reset the tokens
   useEffect(() => {
-    setTokens([]);
-    setWeights([]);
+    const initialTokens = Array(minTokensLength).fill(emptyToken);
+    const initialWeights = Array(minTokensLength).fill(1 / minTokensLength);
+    setTokens(initialTokens);
+    setWeights(initialWeights);
   }, [poolType]);
 
   const {
@@ -149,7 +154,7 @@ export default function CreatePageContent() {
     if (
       tokens &&
       tokens.length >= minTokensLength &&
-      tokens.every((token) => token) &&
+      tokens.every((token) => token.address) &&
       !isLoadingPools &&
       !errorLoadingPools &&
       !isDupePool
@@ -241,15 +246,13 @@ export default function CreatePageContent() {
                   }
                 />
                 {tokens.length > minTokensLength && (
-                  <Button onClick={() => removeTokenInput(index)}>-</Button>
+                  <Button onClick={() => removeTokenInput(index)}>⨂</Button>
                 )}
               </div>
             ))}
             {tokens.length < maxTokensLength && (
-              <div className="ml-auto">
-                <Button onClick={addTokenInput} className="w-12">
-                  +
-                </Button>
+              <div className="mr-auto">
+                <Button onClick={addTokenInput}>+ Add Token</Button>
               </div>
             )}
           </div>
@@ -285,7 +288,7 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                <li
+                <div
                   key={index}
                   className="flex items-center gap-4 space-x-4 border-b p-4 last:border-b-0"
                 >
@@ -334,7 +337,7 @@ export default function CreatePageContent() {
                       </div>
                     </>
                   )}
-                </li>
+                </div>
               ))}
             </ul>
           </div>
