@@ -9,7 +9,7 @@ const config = {
   trailingSlash: true,
   transpilePackages: ["@bera/ui", "@bera/berajs", "@bera/wagmi"],
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
+    // removeConsole: process.env.NODE_ENV === "production",
   },
   output: process.env.NEXT_PUBLIC_HOST === "ipfs" ? "export" : undefined,
   experimental: {
