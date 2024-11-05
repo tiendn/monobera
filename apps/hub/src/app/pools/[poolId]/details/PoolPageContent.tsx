@@ -336,7 +336,11 @@ export default function PoolPageContent({
                 </div>
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold text-warning-foreground">
-                <FormattedNumber value={0} colored percent />
+                <FormattedNumber
+                  value={v3Pool?.aprItems.at(0)?.apr ?? 0}
+                  colored
+                  percent
+                />
               </div>
             </Card>
           </div>
