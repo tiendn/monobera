@@ -113,8 +113,8 @@ export default function CreatePageContent() {
   }, [poolType]);
 
   const {
-    poolName,
-    poolSymbol,
+    poolName: generatedPoolName,
+    poolSymbol: generatedPoolSymbol,
     isDupePool,
     dupePool,
     createPool,
@@ -137,6 +137,13 @@ export default function CreatePageContent() {
       });
     },
   });
+
+  const [poolName, setPoolName] = useState<string>(generatedPoolName);
+  const [poolSymbol, setPoolSymbol] = useState<string>(generatedPoolSymbol);
+  useEffect(() => {
+    setPoolName(generatedPoolName);
+    setPoolSymbol(generatedPoolSymbol);
+  }, [generatedPoolName, generatedPoolSymbol]);
 
   // Determine if liquidity input should be enabled (i.e. we have selected enough tokens)
   useEffect(() => {
@@ -355,70 +362,81 @@ export default function CreatePageContent() {
             </div>
           </section>
 
-          {/* FIXME: pool name and pool symbol input */}
-          <section className="flex w-full flex-col gap-10 pb-16">
-            <p className="self-start text-3xl font-semibold">Pool Name</p>
+          <section className="flex w-full flex-col gap-10 py-12">
             <div className="flex flex-col gap-4">
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
-                {/* <span className="text-lg font-semibold">Pool Name</span>
-                <span className="mt-[-4px] text-sm text-muted-foreground">
-                  {poolName}
-                </span> */}
-                <InputWithLabel label="Pool Name" value={poolName} />
+                <InputWithLabel
+                  label="Pool Name"
+                  value={poolName}
+                  maxLength={85}
+                  onChange={(e) => {
+                    setPoolName(e.target.value);
+                  }}
+                />
               </Card>
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
-                <span className="text-lg font-semibold">Pool Symbol</span>
-                <span className="mt-[-4px] text-sm text-muted-foreground">
-                  {poolSymbol}
-                </span>
+                <InputWithLabel
+                  label="Pool Symbol"
+                  value={poolSymbol}
+                  maxLength={85}
+                  onChange={(e) => {
+                    setPoolSymbol(e.target.value.replace(" ", "-"));
+                  }}
+                />
               </Card>
             </div>
           </section>
 
-          {/* Approvals */}
-          {!isRelayerApproved && (
-            <Button
-              disabled={isRelayerApprovalLoading}
-              onClick={approveRelayer}
-              className="mt-4 w-full"
-            >
-              {isRelayerApprovalLoading || isLoadingRelayerStatus
-                ? "Approving..."
-                : "Approve Pool Creation Helper"}
-            </Button>
-          )}
+          <section className="flex w-full flex-col gap-10">
+            <h1 className="self-start text-3xl font-semibold">
+              Approve & Submit
+            </h1>
 
-          {tokensNeedApproval.length > 0 &&
-            (() => {
-              const approvalTokenIndex = tokens.findIndex(
-                (t) => t.address === tokensNeedApproval[0]?.address,
-              );
-              const approvalToken = tokens[approvalTokenIndex];
-              const approvalAmount = parseUnits(
-                approvalToken.amount,
-                approvalToken?.decimals ?? 18,
-              );
+            {/* Approvals FIXME this and below belong inside a preview page*/}
+            {!isRelayerApproved && (
+              <Button
+                disabled={isRelayerApprovalLoading}
+                onClick={approveRelayer}
+                className="mt-4 w-full"
+              >
+                {isRelayerApprovalLoading || isLoadingRelayerStatus
+                  ? "Approving..."
+                  : "Approve Pool Creation Helper"}
+              </Button>
+            )}
 
-              return (
-                <ApproveButton
-                  amount={approvalAmount}
-                  token={approvalToken}
-                  spender={balancerVaultAddress}
-                  onApproval={() => refreshAllowances()}
-                />
-              );
-            })()}
+            {tokensNeedApproval.length > 0 &&
+              (() => {
+                const approvalTokenIndex = tokens.findIndex(
+                  (t) => t.address === tokensNeedApproval[0]?.address,
+                );
+                const approvalToken = tokens[approvalTokenIndex];
+                const approvalAmount = parseUnits(
+                  approvalToken.amount,
+                  approvalToken?.decimals ?? 18,
+                );
 
-          {/* Pool creation button itself */}
-          <ActionButton>
-            <Button
-              disabled={tokensNeedApproval.length > 0 || !isRelayerApproved}
-              className="w-full"
-              onClick={createPool}
-            >
-              Create Pool
-            </Button>
-          </ActionButton>
+                return (
+                  <ApproveButton
+                    amount={approvalAmount}
+                    token={approvalToken}
+                    spender={balancerVaultAddress}
+                    onApproval={() => refreshAllowances()}
+                  />
+                );
+              })()}
+
+            {/* Pool creation button itself FIXME: move into a preview page*/}
+            <ActionButton>
+              <Button
+                disabled={tokensNeedApproval.length > 0 || !isRelayerApproved}
+                className="w-full"
+                onClick={createPool}
+              >
+                Create Pool
+              </Button>
+            </ActionButton>
+          </section>
         </section>
       </div>
     </div>

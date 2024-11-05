@@ -47,23 +47,6 @@ export const useCreatePool = ({
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
 
-  const generatePoolName = (tokens: Token[], poolType: PoolType): string => {
-    const tokenSymbols = tokens.map((token) => token.symbol).join(" | ");
-    return `${tokenSymbols} ${poolType}`;
-  };
-
-  const generatePoolSymbol = (tokens: Token[], poolType: PoolType): string => {
-    const tokenSymbols = tokens.map((token) => token.symbol).join("-");
-    return `${tokenSymbols}-${poolType.toUpperCase()}`;
-  };
-
-  const [poolName, poolSymbol] = useMemo(() => {
-    return [
-      generatePoolName(tokens, poolType),
-      generatePoolSymbol(tokens, poolType),
-    ];
-  }, [tokens, poolType]);
-
   // pull down the pools we have to check for duplicates
   const {
     data: pools,
@@ -131,6 +114,42 @@ export const useCreatePool = ({
 
     return { normalizedWeights, formattedNormalizedWeights };
   }, [weights]);
+
+  const generatePoolName = (tokens: Token[], poolType: PoolType): string => {
+    if (tokens.length === 0) {
+      return "";
+    }
+    const tokenSymbols = tokens.map((token) => token.symbol).join(" | ");
+    return `${tokenSymbols} ${poolType}`;
+  };
+
+  const generatePoolSymbol = (
+    tokens: Token[],
+    weights: bigint[],
+    poolType: PoolType,
+  ): string => {
+    const poolTypeString = poolType.toString().toUpperCase();
+    if (poolType === PoolType.Weighted) {
+      if (weights.length === 0) {
+        return "";
+      }
+      return `${tokens
+        .map((token, index) => {
+          const weight = weights[index];
+          const weightPercentage = parseFloat(formatUnits(weight, 18)) * 100;
+          return `${weightPercentage.toFixed(0)}${token.symbol}`;
+        })
+        .join("-")}-${poolTypeString}`;
+    }
+    return `${tokens.map((token) => token.symbol).join("-")}-${poolTypeString}`;
+  };
+
+  const [poolName, poolSymbol] = useMemo(() => {
+    return [
+      generatePoolName(tokens, poolType),
+      generatePoolSymbol(tokens, normalizedWeights, poolType),
+    ];
+  }, [tokens, poolType, normalizedWeights]);
 
   const createPool = () => {
     if (!account) return;
