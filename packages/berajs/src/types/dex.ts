@@ -13,6 +13,7 @@ export type Token = {
   name: string;
   usdValue?: string;
   beraValue?: string;
+  weight?: number;
 };
 
 export interface BalanceToken extends Token {

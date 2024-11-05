@@ -37,7 +37,7 @@ export function SelectToken({
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className={cn("w-fit max-w-[150px]", className)}>
+    <div className={cn("w-fit", className)}>
       <Button
         className={cn(
           "flex h-10 w-full shrink-0 gap-1 border-border bg-background p-2 text-secondary-foreground shadow",
@@ -53,6 +53,11 @@ export function SelectToken({
             <span className="w-fit max-w-[140px] overflow-hidden truncate">
               {token?.symbol}{" "}
             </span>
+            {token.weight && (
+              <span className="text-muted-foreground ml-1">
+                {(token.weight * 100).toFixed(0)}%
+              </span>
+            )}
           </div>
         ) : (
           <p
