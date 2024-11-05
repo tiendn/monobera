@@ -57,9 +57,6 @@ const useMultipleTokenApprovalsWithSlippage = (
 
   return {
     needsApproval,
-    needsApprovalNoBera: needsApproval.filter(
-      (token) => token.address.toLowerCase() !== beraTokenAddress.toLowerCase(),
-    ),
     refresh,
   };
 };

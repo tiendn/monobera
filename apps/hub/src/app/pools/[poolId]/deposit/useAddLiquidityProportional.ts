@@ -11,11 +11,12 @@ import {
 } from "@berachain-foundation/berancer-sdk";
 import { Address, parseUnits } from "viem";
 
-export interface UseAddLiquidityArgs {
-  pool: PoolState | undefined;
-}
+import { UseAddLiquidityArgs } from "./useAddLiquidityUnbalanced";
 
-export const useAddLiquidityProportional = ({ pool }: UseAddLiquidityArgs) => {
+export const useAddLiquidityProportional = ({
+  pool,
+  wethIsEth,
+}: UseAddLiquidityArgs) => {
   const [input, setInput] = useState<{
     address: Address;
     amount: string;
@@ -72,11 +73,11 @@ export const useAddLiquidityProportional = ({ pool }: UseAddLiquidityArgs) => {
         sender,
         poolId: pool.id,
         recipient: sender,
-        wethIsEth: input.address === ADDRESS_ZERO,
+        wethIsEth: wethIsEth,
         slippage: Slippage.fromPercentage("0"),
       });
     },
-    [queryOutput, pool],
+    [queryOutput, pool, wethIsEth],
   );
 
   useEffect(() => {

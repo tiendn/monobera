@@ -14,9 +14,13 @@ import { Address, parseUnits } from "viem";
 
 export interface UseAddLiquidityArgs {
   pool: PoolState | undefined;
+  wethIsEth: boolean;
 }
 
-export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
+export const useAddLiquidityUnbalanced = ({
+  pool,
+  wethIsEth,
+}: UseAddLiquidityArgs) => {
   const [input, setInput] = useState<
     {
       address: Address;
@@ -85,11 +89,11 @@ export const useAddLiquidityUnbalanced = ({ pool }: UseAddLiquidityArgs) => {
         sender,
         poolId: pool.id,
         recipient: sender,
-        wethIsEth: false,
+        wethIsEth,
         slippage: Slippage.fromPercentage(slippage.toString() as `${number}`),
       });
     },
-    [queryOutput, pool],
+    [queryOutput, pool, wethIsEth],
   );
 
   useEffect(() => {
