@@ -16,6 +16,7 @@ import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
+import { wBeraToken } from "@bera/wagmi";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { formatUnits, parseUnits } from "viem";
 
@@ -30,7 +31,7 @@ export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics(); // FIXME: analytics
 
-  const [tokens, setTokens] = useState<TokenInput[]>([]);
+  const [tokens, setTokens] = useState<TokenInput[]>([]); // FIXME: we should support undefined tokens as this is how TokenInput works
   const [weights, setWeights] = useState<number[]>([]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -68,27 +69,47 @@ export default function CreatePageContent() {
   const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
-      if (!token) {
-        updatedTokens.splice(index, 1);
-      } else {
+      if (token) {
         updatedTokens[index] = {
           amount: "0",
           exceeding: false,
           ...token,
         } as TokenInput;
       }
-
-      return updatedTokens.slice(0, minTokensLength);
+      return updatedTokens;
     });
     setWeights((prevWeights) => {
       const updatedWeights = [...prevWeights];
-      if (!token) {
-        updatedWeights.slice(0, index);
-      } else {
+      if (token) {
         updatedWeights[index] = 1 / minTokensLength;
       }
-      return updatedWeights.slice(0, minTokensLength);
+      return updatedWeights;
     });
+  };
+
+  const addTokenInput = () => {
+    if (tokens.length < maxTokensLength) {
+      setTokens([
+        ...tokens,
+        // @ts-ignore FIXME: we should support undefined tokens as this is how TokenInput works
+        {
+          address: "",
+          decimals: 18,
+          symbol: "",
+          name: "",
+          amount: "0",
+          exceeding: false,
+        } as TokenInput,
+      ]);
+      setWeights([...weights, 1 / maxTokensLength]);
+    }
+  };
+
+  const removeTokenInput = (index: number) => {
+    if (tokens.length > minTokensLength) {
+      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
+      setWeights((prevWeights) => prevWeights.filter((_, i) => i !== index));
+    }
   };
 
   // if the pool type changes we need to reset the tokens
@@ -210,35 +231,26 @@ export default function CreatePageContent() {
         <section className="flex w-full flex-col gap-4">
           <h1 className="self-start text-3xl font-semibold">Select Tokens</h1>
           <div className="flex w-full flex-col gap-6">
-            {/* FIXME: this is wrong, it's min satisfying but we need a +/- button */}
-            <CreatePoolInput
-              token={tokens[0]}
-              selectedTokens={tokens}
-              onTokenSelection={(token) => handleTokenSelection(token, 0)}
-            />
-            {poolType === PoolType.Weighted && (
-              <>
+            {tokens.map((token, index) => (
+              <div key={index} className="flex items-center gap-2">
                 <CreatePoolInput
-                  token={tokens[1]}
+                  token={token}
                   selectedTokens={tokens}
-                  onTokenSelection={(token) => handleTokenSelection(token, 1)}
+                  onTokenSelection={(selectedToken: Token | undefined) =>
+                    handleTokenSelection(selectedToken, index)
+                  }
                 />
-                {poolType === PoolType.Weighted && (
-                  <CreatePoolInput
-                    token={tokens[2]}
-                    selectedTokens={tokens}
-                    onTokenSelection={(token) => handleTokenSelection(token, 2)}
-                  />
+                {tokens.length > minTokensLength && (
+                  <Button onClick={() => removeTokenInput(index)}>-</Button>
                 )}
-              </>
-            )}
-            {(poolType === PoolType.ComposableStable ||
-              poolType === PoolType.MetaStable) && (
-              <CreatePoolInput
-                token={tokens[1]}
-                selectedTokens={tokens}
-                onTokenSelection={(token) => handleTokenSelection(token, 1)}
-              />
+              </div>
+            ))}
+            {tokens.length < maxTokensLength && (
+              <div className="ml-auto">
+                <Button onClick={addTokenInput} className="w-12">
+                  +
+                </Button>
+              </div>
             )}
           </div>
         </section>
