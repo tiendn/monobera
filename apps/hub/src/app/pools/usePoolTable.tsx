@@ -63,8 +63,8 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         cell: ({ row }) => <PoolSummary pool={row.original} />,
         enableSorting: false,
         enableHiding: false,
-        maxSize: 250,
-        minSize: 250,
+        // maxSize: 250,
+        minSize: 280,
       },
       {
         accessorKey: "totalLiquidity",

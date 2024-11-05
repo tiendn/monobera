@@ -1,12 +1,9 @@
 import {
   balancerVaultAddress,
   beraTokenAddress,
-  polEndpointUrl,
-  polSubgraphUrl,
   bgtTokenAddress,
   // TODO: remove the croc addresses & endpoints
   crocIndexerEndpoint,
-  crocRouterEndpoint,
   crocSubgraphEndpoint,
   governanceSubgraphUrl,
   governanceTimelockAddress,
@@ -21,6 +18,8 @@ import {
   lendUIDataProviderAddress,
   marketListUrl,
   multicallAddress,
+  polEndpointUrl,
+  polSubgraphUrl,
   tokenListUrl,
   tradingContractAddress,
   validatorListUrl,
@@ -30,7 +29,6 @@ import type { BeraConfig } from "..";
 
 export const defaultBeraConfig: BeraConfig = {
   endpoints: {
-    dexRouter: crocRouterEndpoint, // TODO (#): more croc-specific endpoints here
     dexIndexer: crocIndexerEndpoint,
     tokenList: tokenListUrl,
     validatorList: validatorListUrl,

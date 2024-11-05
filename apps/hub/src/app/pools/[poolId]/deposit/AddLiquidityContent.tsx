@@ -41,6 +41,7 @@ import { usePool } from "~/b-sdk/usePool";
 import { useAddLiquidityUnbalanced } from "./useAddLiquidityUnbalanced";
 import { AddLiquidityDetails } from "./AddLiquidiyDetails";
 import { getPoolUrl } from "../../fetchPools";
+import { useAddLiquidityProportional } from "./useAddLiquidityProportional";
 
 interface IAddLiquidityContent {
   poolId: Address;
@@ -50,6 +51,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   const { data, isLoading } = usePool({ id: poolId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [isProportional, setIsProportional] = useState(false);
   const { v2Pool: pool, v3Pool } = data ?? {};
 
   const { account } = useBeraJs();
@@ -64,11 +66,23 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
     });
 
   const {
+    queryOutput: balancedQueryOutput,
+    getCallData: getBalancedCallData,
+    setInput: setBalancedInput,
+    input: balancedInput,
+  } = useAddLiquidityProportional({
+    pool: v3Pool,
+  });
+
+  const activeQueryOutput = isProportional ? balancedQueryOutput : queryOutput;
+
+  const {
     needsApproval,
     needsApprovalNoBera,
+
     refresh: refreshAllowances,
   } = useMultipleTokenApprovalsWithSlippage(
-    queryOutput?.amountsIn?.map((amount) => ({
+    activeQueryOutput?.amountsIn?.map((amount) => ({
       symbol: "token",
       name: "token",
       ...amount.token,
@@ -86,8 +100,8 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   }, [pool, isLoading]);
 
   useEffect(() => {
-    console.log({ priceImpact, queryOutput });
-  }, [priceImpact]);
+    console.log({ priceImpact, queryOutput, balancedQueryOutput });
+  }, [priceImpact, balancedQueryOutput]);
 
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
@@ -171,8 +185,26 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                   selectable={false}
                   // @ts-expect-error FIXME: fix token typings
                   customTokenList={[token]}
-                  amount={currInput?.amount}
+                  amount={
+                    !isProportional
+                      ? currInput?.amount
+                      : balancedInput?.address === token.address
+                        ? balancedInput.amount
+                        : formatEther(
+                            balancedQueryOutput?.amountsIn.find(
+                              (t) => t.token.address === token.address,
+                            )?.scale18 ?? 0n,
+                          )
+                  }
                   setAmount={(amount: string) => {
+                    if (isProportional) {
+                      setBalancedInput({
+                        address: token.address as Address,
+                        amount,
+                      });
+                      return;
+                    }
+
                     setInput((prev) => {
                       const prevIdx = prev.findIndex(
                         (i) => i.address === token.address,
@@ -224,7 +256,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
             setOpen={setPreviewOpen}
           >
             <TokenList className="bg-muted">
-              {queryOutput?.amountsIn.map((amount) => (
+              {activeQueryOutput?.amountsIn.map((amount) => (
                 <PreviewToken
                   token={{
                     symbol: "",
@@ -268,7 +300,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
             </InfoBoxList> */}
             {needsApprovalNoBera.length > 0 ? (
               <ApproveButton
-                amount={queryOutput?.amountsIn.at(0)?.amount}
+                amount={needsApprovalNoBera.at(0)!.maxAmountIn}
                 token={
                   v3Pool!.tokens.find(
                     (t) => t.address === needsApprovalNoBera.at(0)!.address,
@@ -281,11 +313,13 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
               <ActionButton>
                 <Button
                   className="w-full"
-                  disabled={queryOutput?.amountsIn.every(
+                  disabled={activeQueryOutput?.amountsIn.every(
                     (i) => i.amount === 0n,
                   )}
                   onClick={() => {
-                    const data = getCallData(slippage ?? 0, account!);
+                    const data = isProportional
+                      ? getBalancedCallData(account!)
+                      : getCallData(slippage ?? 0, account!);
 
                     write({
                       params: data.args,
