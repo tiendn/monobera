@@ -1,20 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import {
-  ADDRESS_ZERO,
-  BERA_VAULT_REWARDS_ABI,
-  POOLID,
-  usePollBalance,
-  type IUserPool,
-  type PoolV2,
-} from "@bera/berajs";
+import { usePollBalance } from "@bera/berajs";
 import { DataTableColumnHeader, TokenIconList } from "@bera/shared-ui";
 import { Badge } from "@bera/ui/badge";
-import { Icons } from "@bera/ui/icons";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Address } from "viem";
-import { PoolWithMethods } from "@balancer-labs/sdk";
 import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex";
 
 export const PoolSummary = ({ pool }: { pool: MinimalPoolFragment }) => {
