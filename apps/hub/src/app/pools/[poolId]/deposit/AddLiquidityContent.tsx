@@ -25,7 +25,6 @@ import {
   useTxn,
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
-import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
@@ -36,13 +35,15 @@ import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
+import {
+  AddLiquidityKind,
+  vaultV2Abi,
+} from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
-import { useAddLiquidityUnbalanced } from "./useAddLiquidityUnbalanced";
 import { AddLiquidityDetails } from "./AddLiquidiyDetails";
 import { getPoolUrl } from "../../fetchPools";
-import { useAddLiquidityProportional } from "./useAddLiquidityProportional";
 import { beraToken, wBeraToken } from "@bera/wagmi";
+import { useAddLiquidity } from "./useAddLiquidity";
 
 interface IAddLiquidityContent {
   poolId: Address;
@@ -52,7 +53,6 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   const { data, isLoading } = usePool({ id: poolId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [isProportional, setIsProportional] = useState(true);
   const { v2Pool: pool, v3Pool } = data ?? {};
 
   const [wethIsEth, setWethIsEth] = useState(false);
@@ -62,23 +62,15 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
     console.log("POOL", pool, v3Pool);
   }, [pool, v3Pool]);
 
-  const { queryOutput, priceImpact, input, setInput, getCallData } =
-    useAddLiquidityUnbalanced({
+  const { queryOutput, priceImpact, input, type, setInput, getCallData } =
+    useAddLiquidity({
       pool: v3Pool,
       wethIsEth,
     });
 
-  const {
-    queryOutput: balancedQueryOutput,
-    getCallData: getBalancedCallData,
-    setInput: setBalancedInput,
-    input: balancedInput,
-  } = useAddLiquidityProportional({
-    pool: v3Pool,
-    wethIsEth,
-  });
+  const isProportional = type === AddLiquidityKind.Proportional;
 
-  const activeQueryOutput = isProportional ? balancedQueryOutput : queryOutput;
+  const activeQueryOutput = queryOutput;
 
   const { needsApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(
@@ -106,8 +98,10 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   }, [pool, isLoading]);
 
   useEffect(() => {
-    console.log({ priceImpact, queryOutput, balancedQueryOutput });
-  }, [priceImpact, balancedQueryOutput]);
+    console.log({ priceImpact, queryOutput });
+  }, [priceImpact]);
+
+  const balancedInput = input.at(0);
 
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
@@ -190,7 +184,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                     token.address.toLowerCase() ===
                     wBeraToken.address.toLowerCase()
                       ? wethIsEth
-                        ? beraToken
+                        ? { ...token, ...beraToken }
                         : token
                       : token
                   }
@@ -210,7 +204,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                       : balancedInput?.address === token.address
                         ? balancedInput.amount
                         : formatEther(
-                            balancedQueryOutput?.amountsIn.find(
+                            queryOutput?.amountsIn.find(
                               (t) => t.token.address === token.address,
                             )?.scale18 ?? 0n,
                           )
@@ -225,10 +219,12 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                   }}
                   setAmount={(amount: string) => {
                     if (isProportional) {
-                      setBalancedInput({
-                        address: token.address as Address,
-                        amount,
-                      });
+                      setInput([
+                        {
+                          address: token.address as Address,
+                          amount,
+                        },
+                      ]);
                       return;
                     }
 
@@ -318,9 +314,10 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                     (i) => i.amount === 0n,
                   )}
                   onClick={() => {
-                    const data = isProportional
-                      ? getBalancedCallData(account!)
-                      : getCallData(slippage ?? 0, account!);
+                    const data = getCallData({
+                      slippage: slippage ?? 0,
+                      sender: account!,
+                    });
 
                     write({
                       params: data.args,
