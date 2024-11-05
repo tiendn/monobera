@@ -16,7 +16,7 @@ const config = {
   minify: process.env.NODE_ENV !== "development", // Whether to minify the output
   sourcemap: process.env.NODE_ENV !== "development", // Whether to generate sourcemaps
   // splitting: true, // Whether to split the bundle into chunks
-  dts: true, // Whether to generate TypeScript declaration files
+  dts: process.env.VERCEL !== "1", // Whether to generate TypeScript declaration files
   // target: "node18", // Specify your target environment
 
   async onSuccess() {
