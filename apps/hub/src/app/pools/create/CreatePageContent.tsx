@@ -37,7 +37,7 @@ const emptyToken: TokenInput = {
 
 export default function CreatePageContent() {
   const router = useRouter();
-  const { captureException, track } = useAnalytics(); // FIXME: analytics
+  const { captureException, track } = useAnalytics();
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [weights, setWeights] = useState<number[]>([]);
@@ -359,7 +359,6 @@ export default function CreatePageContent() {
             </Alert>
           )}
 
-          {/*  FIXME: Set Swap Fee section */}
           <section className="flex w-full flex-col gap-10">
             <h1 className="self-start text-3xl font-semibold">Set Swap Fee</h1>
             <div className="flex flex-col gap-4">
@@ -404,7 +403,7 @@ export default function CreatePageContent() {
               Approve & Submit
             </h1>
 
-            {/* Approvals FIXME this and below belong inside a preview page*/}
+            {/* Approvals TODO: this and below belong inside a preview page*/}
             {!isRelayerApproved && (
               <Button
                 disabled={isRelayerApprovalLoading}
@@ -439,7 +438,6 @@ export default function CreatePageContent() {
                 );
               })()}
 
-            {/* Pool creation button itself FIXME: move into a preview page*/}
             <ActionButton>
               <Button
                 disabled={tokensNeedApproval.length > 0 || !isRelayerApproved}
