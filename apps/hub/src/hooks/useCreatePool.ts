@@ -19,6 +19,7 @@ interface UseCreatePoolProps {
   tokens: TokenInput[];
   weights: number[]; // NOTE: weights are an array of percentages summing to 100
   poolType: PoolType;
+  swapFee: number;
   onSuccess?: (hash: string) => void;
   onError?: (e?: Error) => void;
 }
@@ -40,6 +41,7 @@ export const useCreatePool = ({
   tokens,
   weights,
   poolType,
+  swapFee,
   onSuccess,
   onError,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
@@ -156,10 +158,13 @@ export const useCreatePool = ({
 
     const tokensAddresses = tokens.map((token) => token.address);
     const rateProviders = tokens.map(() => ADDRESS_ZERO);
-    const swapFeePercentage = BigInt(parseFixed("0.01", 16).toString());
+    const swapFeePercentage = parseUnits(swapFee.toString(), 16);
+
+    // TODO: the below 3 inputs will be connected as a part of stable pool create PR
     const tokenRateCacheDurations = tokens.map(() => BigInt(100));
     const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
     const amplificationParameter = BigInt(62);
+
     const amountsIn = tokens.map((token) =>
       parseUnits(token.amount || "0", token.decimals ?? 18),
     );

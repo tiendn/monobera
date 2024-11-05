@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { type Token } from "@bera/berajs";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
-import { ActionButton, ApproveButton, useAnalytics } from "@bera/shared-ui";
+import {
+  ActionButton,
+  ApproveButton,
+  SwapFeeInput,
+  useAnalytics,
+} from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
@@ -40,10 +45,11 @@ export default function CreatePageContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
+  const [swapFee, setSwapFee] = useState<number>(0.01);
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
-  const minTokensLength = poolType === PoolType.Weighted ? 3 : 2; // i.e. for stable/composable stable it's 2
-  const maxTokensLength = poolType === PoolType.Weighted ? 8 : 4; // i.e. for stable/composable stable it's 4 w/ BPT as a token
+  const minTokensLength = poolType === PoolType.Weighted ? 3 : 2; // i.e. for meta/stable it's 2
+  const maxTokensLength = poolType === PoolType.Weighted ? 8 : 5; // i.e. for meta/stable it's 5
 
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
@@ -126,6 +132,7 @@ export default function CreatePageContent() {
     tokens,
     weights: weights,
     poolType,
+    swapFee,
     onSuccess: () => {
       track("create_pool_success");
       router.push("/pools");
@@ -183,7 +190,7 @@ export default function CreatePageContent() {
             <Card
               onClick={() => setPoolType(PoolType.ComposableStable)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
+                "flex w-full cursor-pointer flex-col gap-0 border p-4",
                 poolType === PoolType.ComposableStable && "border-sky-600",
               )}
             >
@@ -199,7 +206,7 @@ export default function CreatePageContent() {
             <Card
               onClick={() => setPoolType(PoolType.Weighted)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
+                "flex w-full cursor-pointer flex-col gap-0 border p-4",
                 poolType === PoolType.Weighted && "border-sky-600",
               )}
             >
@@ -214,7 +221,7 @@ export default function CreatePageContent() {
             <Card
               onClick={() => setPoolType(PoolType.MetaStable)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border-2 p-4",
+                "flex w-full cursor-pointer flex-col gap-0 border p-4",
                 poolType === PoolType.MetaStable && "border-sky-600",
               )}
             >
@@ -242,13 +249,20 @@ export default function CreatePageContent() {
                   }
                 />
                 {tokens.length > minTokensLength && (
-                  <Button onClick={() => removeTokenInput(index)}>⨂</Button>
+                  <Button
+                    onClick={() => removeTokenInput(index)}
+                    variant="ghost"
+                  >
+                    x
+                  </Button>
                 )}
               </div>
             ))}
             {tokens.length < maxTokensLength && (
               <div className="mr-auto">
-                <Button onClick={addTokenInput}>+ Add Token</Button>
+                <Button onClick={addTokenInput} variant="ghost">
+                  + Add Token
+                </Button>
               </div>
             )}
           </div>
@@ -349,22 +363,20 @@ export default function CreatePageContent() {
           <section className="flex w-full flex-col gap-10">
             <h1 className="self-start text-3xl font-semibold">Set Swap Fee</h1>
             <div className="flex flex-col gap-4">
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
-                <span className="text-lg font-semibold">Swap Fee</span>
-                <span className="mt-[-4px] text-sm text-muted-foreground">
-                  Fee charged on each swap
-                </span>
-                <span className="mt-[24px] text-sm text-muted-foreground">
-                  Fee:{" "}
-                  <span className="font-medium text-foreground">0.01%</span>
-                </span>
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+                <SwapFeeInput
+                  initialFee={swapFee}
+                  onFeeChange={(fee) => {
+                    setSwapFee(fee);
+                  }}
+                />
               </Card>
             </div>
           </section>
 
           <section className="flex w-full flex-col gap-10 py-12">
             <div className="flex flex-col gap-4">
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
                 <InputWithLabel
                   label="Pool Name"
                   value={poolName}
@@ -374,7 +386,7 @@ export default function CreatePageContent() {
                   }}
                 />
               </Card>
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
                 <InputWithLabel
                   label="Pool Symbol"
                   value={poolSymbol}
@@ -407,6 +419,7 @@ export default function CreatePageContent() {
 
             {tokensNeedApproval.length > 0 &&
               (() => {
+                // NOTE: we might avoid doing this if we can return TokenInput amount in the ApprovalToken[]
                 const approvalTokenIndex = tokens.findIndex(
                   (t) => t.address === tokensNeedApproval[0]?.address,
                 );
