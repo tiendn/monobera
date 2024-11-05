@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePollAllowances, type Token } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
-import { useSlippage } from "@bera/shared-ui";
 import { Address, parseUnits } from "viem";
 
 import { type TokenInput } from "./useMultipleTokenInput";
@@ -15,6 +14,7 @@ export type NeedsApprovalToken = Token & {
 const useMultipleTokenApprovalsWithSlippage = (
   tokenInput: TokenInput[],
   spender: Address,
+  slippage?: number,
 ) => {
   const tokens = useMemo(
     () =>
@@ -28,8 +28,6 @@ const useMultipleTokenApprovalsWithSlippage = (
     spender: spender,
     tokens,
   });
-
-  const slippage = useSlippage();
 
   const needsApproval = useMemo(() => {
     return (

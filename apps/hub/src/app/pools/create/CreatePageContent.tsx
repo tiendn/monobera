@@ -45,7 +45,7 @@ export default function CreatePageContent() {
   const minTokensLength = poolType === PoolType.Weighted ? 3 : 2; // i.e. for stable/composable stable it's 2
   const maxTokensLength = poolType === PoolType.Weighted ? 8 : 4; // i.e. for stable/composable stable it's 4 w/ BPT as a token
 
-  // check for token approvals FIXME: we should not be including slippage in this calculation, its messing up the approval amount check
+  // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
 
@@ -68,7 +68,7 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  // add or remove token information when we select a token
+  // update the correct token within the tokens array when we select/re-select a token
   const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
@@ -92,18 +92,7 @@ export default function CreatePageContent() {
 
   const addTokenInput = () => {
     if (tokens.length < maxTokensLength) {
-      setTokens([
-        ...tokens,
-        // @ts-ignore FIXME: we should support undefined tokens as this is how TokenInput works
-        {
-          address: "",
-          decimals: 18,
-          symbol: "",
-          name: "",
-          amount: "0",
-          exceeding: false,
-        } as TokenInput,
-      ]);
+      setTokens([...tokens, emptyToken]);
       setWeights([...weights, 1 / maxTokensLength]);
     }
   };
@@ -371,10 +360,11 @@ export default function CreatePageContent() {
             <p className="self-start text-3xl font-semibold">Pool Name</p>
             <div className="flex flex-col gap-4">
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
-                <span className="text-lg font-semibold">Pool Name</span>
+                {/* <span className="text-lg font-semibold">Pool Name</span>
                 <span className="mt-[-4px] text-sm text-muted-foreground">
                   {poolName}
-                </span>
+                </span> */}
+                <InputWithLabel label="Pool Name" value={poolName} />
               </Card>
               <Card className="flex w-full cursor-pointer flex-col gap-0 border-2 p-4">
                 <span className="text-lg font-semibold">Pool Symbol</span>

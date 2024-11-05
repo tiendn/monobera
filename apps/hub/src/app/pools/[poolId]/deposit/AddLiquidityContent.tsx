@@ -60,6 +60,8 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   const [wethIsEth, setWethIsEth] = useState(false);
   const { account } = useBeraJs();
 
+  const slippage = useSlippage();
+
   useEffect(() => {
     console.log("POOL", pool, v3Pool);
   }, [pool, v3Pool]);
@@ -94,6 +96,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
         amount: formatEther(amount.scale18),
       })) ?? [],
       balancerVaultAddress,
+      slippage,
     );
 
   const needsApprovalNoBera = wethIsEth
@@ -133,8 +136,6 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
       : undefined,
     actionType: TransactionActionType.ADD_LIQUIDITY,
   });
-
-  const slippage = useSlippage();
 
   const totalValue = queryOutput?.amountsIn.reduce((acc, curr) => {
     return (
