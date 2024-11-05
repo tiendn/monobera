@@ -1,9 +1,7 @@
-/* eslint no-use-before-define: 0 */ // --> OFF
-
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { notFound, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { TokenBalance, TransactionActionType, type Token } from "@bera/berajs";
 import { cloudinaryUrl } from "@bera/config";
 import {
@@ -25,21 +23,15 @@ import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Slider } from "@bera/ui/slider";
-import { usePublicClient } from "wagmi";
 
-import { SettingsPopover } from "~/components/settings-popover";
-import { getPoolUrl } from "../pools/fetchPools";
 import { Skeleton } from "@bera/ui/skeleton";
-import {
-  PoolState,
-  PoolStateWithBalances,
-} from "@berachain-foundation/berancer-sdk";
-import { pools } from "~/utils/constants";
+import { PoolStateWithBalances } from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { useRemoveLiquidityProportional } from "./useWithdrawLiquidity";
-import { formatEther, formatUnits, parseEther } from "viem";
-
+import { formatEther, parseEther } from "viem";
+import { getPoolUrl } from "../../fetchPools";
+import { BigNumber } from "bignumber.js";
 interface ITokenSummary {
   title: string;
   pool: PoolStateWithBalances | undefined;
@@ -112,7 +104,7 @@ export default function WithdrawLiquidityContent({
     data: userPositionBreakdown,
     isLoading: isPositionBreakdownLoading,
     refresh,
-  } = usePoolUserPosition({ pool: v3Pool });
+  } = usePoolUserPosition({ pool: v2Pool });
 
   const { bptIn, queryOutput, setBptIn, getCallData } =
     useRemoveLiquidityProportional({
@@ -136,12 +128,12 @@ export default function WithdrawLiquidityContent({
     if (!userPositionBreakdown?.lpBalance) {
       return;
     }
-    if (percentage === 1) setBptIn(userPositionBreakdown.lpBalance.balance);
-    const share =
-      (Number(userPositionBreakdown?.lpBalance?.formattedBalance) *
-        percentage) /
-      100;
-    setBptIn(parseEther(share.toString()));
+    if (percentage === 100) setBptIn(userPositionBreakdown.lpBalance.balance);
+    const share = BigNumber(
+      userPositionBreakdown?.lpBalance?.formattedBalance,
+    ).times(percentage / 100);
+
+    setBptIn(parseEther(share.toFixed(18)));
   }, [v3Pool, userPositionBreakdown, percentage]);
 
   useEffect(() => {

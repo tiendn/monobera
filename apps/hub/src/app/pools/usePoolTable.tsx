@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { PoolWithMethods } from "@balancer-labs/sdk";
-import { useBgtInflation, useTotalPoolCount, type PoolV2 } from "@bera/berajs";
+import { useBgtInflation, type PoolV2 } from "@bera/berajs";
+import { POLLING } from "@bera/shared-ui";
 import {
   DataTableColumnHeader,
   FormattedNumber,
@@ -8,9 +8,14 @@ import {
   useAsyncTable,
 } from "@bera/shared-ui";
 import useSWR from "swr";
-import { balancerClient } from "../../b-sdk/balancerClient";
 import { calculateApy } from "../../utils/calculateApy";
 import { PoolSummary } from "../../components/pools-table-columns";
+import { bexApiGraphqlClient } from "@bera/graphql";
+import {
+  GetPools,
+  GetPoolsQuery,
+  MinimalPoolFragment,
+} from "@bera/graphql/dex";
 
 export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   const [search, setSearch] = useState("");
@@ -19,7 +24,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   const sortOption =
     sorting[0] !== undefined && sorting[0].id !== undefined
       ? sorting[0].id
-      : "tvlUsd";
+      : "totalLiquidity";
   const sortOrder =
     sorting[0] !== undefined && sorting[0].desc !== undefined
       ? sorting[0].desc === true
@@ -33,14 +38,20 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
     }
   };
 
-  const { data: poolCount } = useTotalPoolCount();
+  const { data, isLoading } = useSWR(
+    ["usePoolTable"],
+    async () => {
+      const pools = await bexApiGraphqlClient.query<GetPoolsQuery>({
+        query: GetPools,
+      });
+      return pools.data?.poolGetPools ?? [];
+    },
+    {
+      refreshInterval: POLLING.SLOW,
+    },
+  );
 
-  const { data, isLoading } = useSWR(["usePoolTable"], async () => {
-    const pools = await balancerClient.pools.all();
-    return pools;
-  });
-
-  const table = useAsyncTable<PoolWithMethods>({
+  const table = useAsyncTable<MinimalPoolFragment>({
     data: data ?? [],
     fetchData: async () => {},
     additionalTableProps: {
@@ -65,8 +76,8 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         cell: ({ row }) => <PoolSummary pool={row.original} />,
         enableSorting: false,
         enableHiding: false,
-        maxSize: 250,
-        minSize: 250,
+        // maxSize: 250,
+        minSize: 280,
       },
       {
         accessorKey: "totalLiquidity",
@@ -82,7 +93,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
               <FormattedNumber
-                value={row.original?.totalLiquidity ?? 0}
+                value={row.original?.dynamicData?.totalShares ?? 0}
                 symbol="USD"
               />
             </div>
@@ -93,11 +104,11 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         },
       },
       {
-        accessorKey: "latestPoolDayData__feesUsd",
+        accessorKey: "dynamicData.fees24h",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Fees (24H)"
+            title="Fees"
             // tooltip="Total trading fees this pool has generated in the last 24 hours, valued in HONEY"
             className="whitespace-nowrap"
           />
@@ -105,7 +116,10 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         cell: ({ row }) => (
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
-              <FormattedNumber value={0} symbol="USD" />
+              <FormattedNumber
+                value={row.original.dynamicData.fees24h ?? "0"}
+                symbol="USD"
+              />
             </div>
           </div>
         ),
@@ -113,13 +127,19 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
         },
+        sortingFn: (rowA, rowB) => {
+          return (
+            Number(rowA.original.dynamicData.fees24h ?? "0") -
+            Number(rowB.original.dynamicData.fees24h ?? "0")
+          );
+        },
       },
       {
-        accessorKey: "latestPoolDayData__volumeUsd",
+        accessorKey: "dynamicData.volume24h",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Volume (24H)"
+            title="Volume"
             // tooltip="Total trading or transaction volume in the last 24 hours"
             className="whitespace-nowrap"
           />
@@ -127,13 +147,22 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         cell: ({ row }) => (
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
-              <FormattedNumber value={0} symbol="USD" />
+              <FormattedNumber
+                value={row.original.dynamicData.volume24h ?? "0"}
+                symbol="USD"
+              />
             </div>
           </div>
         ),
         enableSorting: true,
         filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
+        },
+        sortingFn: (rowA, rowB) => {
+          return (
+            Number(rowA.original.dynamicData.volume24h ?? "0") -
+            Number(rowB.original.dynamicData.volume24h ?? "0")
+          );
         },
       },
       {
@@ -151,14 +180,15 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
           return (
             <div
               className={`flex items-center justify-start text-sm ${
-                row.original.apr?.protocolApr === 0
+                row.original.dynamicData.aprItems?.at(0)?.apr === 0
                   ? "text-muted-foreground"
                   : "text-warning-foreground"
               }`}
             >
               <FormattedNumber
                 value={calculateApy(
-                  row.original.apr?.protocolApr?.toString() ?? "0",
+                  row.original.dynamicData.aprItems?.at(0)?.apr?.toString() ??
+                    "0",
                   bgtInflation?.usdPerYear ?? 0,
                 )}
                 percent
@@ -202,7 +232,6 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   return {
     data,
     table,
-    poolCount,
     search,
     setSearch,
     isLoading,

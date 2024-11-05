@@ -8,6 +8,10 @@ import { Address, parseUnits } from "viem";
 
 import { type TokenInput } from "./useMultipleTokenInput";
 
+export type NeedsApprovalToken = Token & {
+  maxAmountIn: bigint;
+};
+
 const useMultipleTokenApprovalsWithSlippage = (
   tokenInput: TokenInput[],
   spender: Address,
@@ -44,18 +48,15 @@ const useMultipleTokenApprovalsWithSlippage = (
             ((sI ?? 0n) * s) / BigInt(100 * 10 ** (token?.decimals ?? 18));
 
           if (allowance.allowance === 0n || allowance.allowance < maxAmountIn) {
-            return allowance;
+            return { ...allowance, maxAmountIn };
           }
         })
-        .filter((token) => token !== undefined) as Token[]) ?? []
+        .filter((token) => token !== undefined) as NeedsApprovalToken[]) ?? []
     );
   }, [allowances, slippage, tokenInput]);
 
   return {
     needsApproval,
-    needsApprovalNoBera: needsApproval.filter(
-      (token) => token.address.toLowerCase() !== beraTokenAddress.toLowerCase(),
-    ),
     refresh,
   };
 };

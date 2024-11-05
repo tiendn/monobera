@@ -5,7 +5,7 @@ import { notFound, useSearchParams } from "next/navigation";
 import { isIPFS } from "@bera/config";
 import { isAddress } from "viem";
 
-import AddLiquidityContent from "./AddLiquidityContent";
+import AddLiquidityContent from "../../[poolId]/deposit/AddLiquidityContent";
 
 const _AddLiquidityStaticPage = () => {
   if (!isIPFS) {
@@ -18,7 +18,7 @@ const _AddLiquidityStaticPage = () => {
   if (!poolId || !isAddress(poolId)) {
     return notFound();
   }
-  return <AddLiquidityContent shareAddress={poolId} />;
+  return <AddLiquidityContent poolId={poolId} />;
 };
 
 export default function AddLiquidityStaticPage() {

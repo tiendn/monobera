@@ -5,7 +5,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@bera/ui/popover";
 
 import SwapSettings from "./swap-settings";
 
-export function SettingsPopover() {
+export function SettingsPopover({
+  showDeadline = true,
+}: {
+  showDeadline?: boolean;
+}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -18,7 +22,7 @@ export function SettingsPopover() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
-        <SwapSettings />
+        <SwapSettings showDeadline={showDeadline} />
       </PopoverContent>
     </Popover>
   );

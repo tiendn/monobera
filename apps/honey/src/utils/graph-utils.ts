@@ -43,16 +43,8 @@ function fillData(
   return data.sort((a: HoneyEntry, b: HoneyEntry) => a.timestamp - b.timestamp);
 }
 
-export function fillVolumeDataByHour(list: HoneyEntry[], endUnix: number) {
-  return fillData(list, endUnix, 3600, "HoneyVolumeHourData");
-}
-
 export function fillVolumeDataByDay(list: HoneyEntry[], endUnix: number) {
   return fillData(list, endUnix, 86400, "HoneyVolumeDayData");
-}
-
-export function fillSupplyDataByHour(list: HoneyEntry[], endUnix: number) {
-  return fillData(list, endUnix, 3600, "HoneySupplyHourData");
 }
 
 export function fillSupplyDataByDay(list: HoneyEntry[], endUnix: number) {

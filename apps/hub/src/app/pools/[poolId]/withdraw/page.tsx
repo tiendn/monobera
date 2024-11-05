@@ -1,10 +1,11 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { dexName, isIPFS } from "@bera/config";
-import { getMetaTitle } from "@bera/shared-ui";
-import { isAddress } from "viem";
 
-import WithdrawPageContent from "../WithdrawPageContent";
+import WithdrawPageContent from "../../[poolId]/withdraw/WithdrawPageContent";
+import { balancerApi } from "~/b-sdk/b-sdk";
+
+export { generateStaticParams } from "../details/page";
 
 export function generateMetadata(): Metadata {
   return {
@@ -18,24 +19,22 @@ export const fetchCache = "force-no-store";
 export default async function Withdraw({
   params,
 }: {
-  params: { shareAddress: string };
+  params: { poolId: string };
 }) {
   if (isIPFS) {
     return null;
   }
 
+  const pool = await balancerApi.pools.fetchPoolState(params.poolId);
+
+  if (!pool) {
+    notFound();
+  }
+
   try {
-    return <WithdrawPageContent poolId={params.shareAddress!} />;
+    return <WithdrawPageContent poolId={params.poolId!} />;
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);
     notFound();
   }
-}
-
-export function generateStaticParams() {
-  return [
-    {
-      shareAddress: "0x",
-    },
-  ];
 }

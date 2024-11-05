@@ -1,3 +1,9 @@
+import {
+  gasTokenDecimals,
+  gasTokenName,
+  gasTokenSymbol,
+  nativeTokenAddress,
+} from "@bera/config";
 import useSWRImmutable from "swr/immutable";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
@@ -9,12 +15,6 @@ import {
   Token,
   useBeraJs,
 } from "../..";
-import {
-  gasTokenDecimals,
-  gasTokenName,
-  gasTokenSymbol,
-  nativeTokenAddress,
-} from "@bera/config";
 
 export type UseTokenInformationResponse = DefaultHookReturnType<
   Token | undefined
@@ -29,12 +29,11 @@ export const useTokenInformation = (
 ): UseTokenInformationResponse => {
   const publicClient = usePublicClient();
   const { config: beraConfig } = useBeraJs();
-  const QUERY_KEY = [args?.address, publicClient];
+  const QUERY_KEY = args?.address ? [args.address, publicClient] : null;
   const swrResponse = useSWRImmutable<Token | undefined>(
     QUERY_KEY,
     async () => {
-      if (!args?.address) return undefined;
-      if (!isAddress(args.address, { strict: false })) {
+      if (!args?.address || !isAddress(args.address, { strict: false })) {
         throw new Error("Invalid address");
       }
       return await getTokenInformation({

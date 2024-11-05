@@ -1,20 +1,14 @@
+import { PoolWithMethods } from "@balancer-labs/sdk";
 import {
   DefaultHookOptions,
   DefaultHookReturnType,
-  PoolV2,
-  useBeraJs,
   usePollBalance,
   type IUserPosition,
 } from "@bera/berajs";
-import {
-  PoolState,
-  PoolStateWithBalances,
-} from "@berachain-foundation/berancer-sdk";
 import BigNumber from "bignumber.js";
-import { useAccount, usePublicClient } from "wagmi";
 
 type IUsePoolUserPositionArgs = {
-  pool: PoolStateWithBalances | undefined;
+  pool: PoolWithMethods | undefined;
 };
 
 /**
@@ -24,34 +18,32 @@ export const usePoolUserPosition = (
   { pool }: IUsePoolUserPositionArgs,
   options?: DefaultHookOptions,
 ): DefaultHookReturnType<IUserPosition> => {
-  const { address: account } = useAccount();
-  const publicClient = usePublicClient();
-  const { config: beraConfig } = useBeraJs();
-  const config = options?.beraConfigOverride ?? beraConfig;
-  const QUERY_KEY = ["usePoolUserPosition", account, pool?.id];
-
   const { data: userPosition, ...rest } = usePollBalance({
     address: pool?.address,
   });
 
+  const tokenRatioPerLp = pool?.totalShares
+    ? Number(userPosition?.formattedBalance) / Number(pool?.totalShares)
+    : 0;
+
   return {
     data: {
+      userSharePercentage: tokenRatioPerLp,
       lpBalance: userPosition,
       tokenBalances: pool?.tokens.map((token) => {
-        const tokenRatioPerLp =
-          Number(token.balance) / Number(pool.totalShares);
-
-        const userBalance = BigNumber(userPosition?.formattedBalance ?? "0")
+        const userBalance = BigNumber(token.balance ?? "0")
           .times(tokenRatioPerLp)
-          .precision(token.decimals);
+          .precision(token.decimals!);
 
         return {
-          balance: BigInt(
-            userBalance
-              .times(10 ** token.decimals)
-              .toFixed(0)
-              .toString(),
-          ),
+          balance: userBalance.isGreaterThan(0)
+            ? BigInt(
+                userBalance
+                  .times(10 ** token.decimals!)
+                  .toFixed(0)
+                  .toString(),
+              )
+            : 0n,
           formattedBalance: userBalance.toString(),
         };
       }),

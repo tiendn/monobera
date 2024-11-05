@@ -211,8 +211,6 @@ export const beraChefAddress = process.env
 // Crocswap TODO (#): remove croc definitions
 export const crocIndexerEndpoint = process.env
   .NEXT_PUBLIC_RPC_CROC_INDEXER_ENDPOINT as Address;
-export const crocRouterEndpoint = process.env
-  .NEXT_PUBLIC_RPC_CROC_ROUTER_ENDPOINT as Address;
 
 // Balancer
 export const balancerVaultAddress = process.env

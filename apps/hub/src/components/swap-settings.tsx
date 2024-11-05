@@ -21,7 +21,11 @@ export enum SELECTION {
   INFINITY = "infinity",
 }
 
-export default function SwapSettings() {
+export default function SwapSettings({
+  showDeadline = true,
+}: {
+  showDeadline?: boolean;
+}) {
   const [slippageToleranceType, setSlippageToleranceType] = useLocalStorage<
     number | string
   >(LOCAL_STORAGE_KEYS.SLIPPAGE_TOLERANCE_TYPE, SELECTION.AUTO);
@@ -126,75 +130,82 @@ export default function SwapSettings() {
           </div>
         </Alert>
       )}
-      <div className="space-y-2">
-        <h4 className="flex items-center gap-1 font-medium leading-none">
-          Transaction Deadline
-          <Tooltip text="Maximum amount of time that can elapse during a swap" />
-        </h4>
-      </div>
-      <div className="flex h-[40px] flex-row items-center gap-4">
-        <Tabs
-          defaultValue={deadlineType as string}
-          onValueChange={(value: string) => setDeadlineType(value)}
-        >
-          <TabsList variant="ghost" className="flex-shrink-0">
-            <TabsTrigger variant="ghost" value={SELECTION.AUTO}>
-              Auto
-            </TabsTrigger>
-            <TabsTrigger variant="ghost" value={SELECTION.CUSTOM}>
-              Custom
-            </TabsTrigger>
-            <TabsTrigger
-              variant="ghost"
-              value={SELECTION.INFINITY}
-              className={cn(
-                deadlineType === SELECTION.INFINITY &&
-                  "data-[state=active]:bg-destructive-foreground",
-              )}
-            >
-              Infinity
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <Input
-          type="number"
-          step="any"
-          min={0.1}
-          max={100}
-          className="h-[40px] pl-1 pr-9 text-right"
-          disabled={deadlineType !== SELECTION.CUSTOM}
-          placeholder="1"
-          value={
-            deadlineType === SELECTION.AUTO ? DEFAULT_DEADLINE : deadlineValue
-          }
-          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
-            e.key === "-" && e.preventDefault()
-          }
-          endAdornment={
-            <p
-              className={cn(
-                "ml-2 self-center pl-1 text-xs text-foreground",
-                deadlineType === SELECTION.AUTO && "opacity-50",
-              )}
-            >
-              min
-            </p>
-          }
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setDeadlineValue(Number(e.target.value))
-          }
-        />
-      </div>
-      {deadlineType === SELECTION.INFINITY && (
-        <Alert variant={"destructive"} className="flex gap-2">
-          <Icons.info className="h-4 w-4 flex-shrink-0 text-destructive-foreground" />
-          <div>
-            <AlertTitle>No Txn Deadline</AlertTitle>
-            <AlertDescription className="text-xs">
-              Please be aware this could result in the txn being active forever.
-            </AlertDescription>
+      {showDeadline && (
+        <>
+          <div className="space-y-2">
+            <h4 className="flex items-center gap-1 font-medium leading-none">
+              Transaction Deadline
+              <Tooltip text="Maximum amount of time that can elapse during a swap" />
+            </h4>
           </div>
-        </Alert>
+          <div className="flex h-[40px] flex-row items-center gap-4">
+            <Tabs
+              defaultValue={deadlineType as string}
+              onValueChange={(value: string) => setDeadlineType(value)}
+            >
+              <TabsList variant="ghost" className="flex-shrink-0">
+                <TabsTrigger variant="ghost" value={SELECTION.AUTO}>
+                  Auto
+                </TabsTrigger>
+                <TabsTrigger variant="ghost" value={SELECTION.CUSTOM}>
+                  Custom
+                </TabsTrigger>
+                <TabsTrigger
+                  variant="ghost"
+                  value={SELECTION.INFINITY}
+                  className={cn(
+                    deadlineType === SELECTION.INFINITY &&
+                      "data-[state=active]:bg-destructive-foreground",
+                  )}
+                >
+                  Infinity
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <Input
+              type="number"
+              step="any"
+              min={0.1}
+              max={100}
+              className="h-[40px] pl-1 pr-9 text-right"
+              disabled={deadlineType !== SELECTION.CUSTOM}
+              placeholder="1"
+              value={
+                deadlineType === SELECTION.AUTO
+                  ? DEFAULT_DEADLINE
+                  : deadlineValue
+              }
+              onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
+                e.key === "-" && e.preventDefault()
+              }
+              endAdornment={
+                <p
+                  className={cn(
+                    "ml-2 self-center pl-1 text-xs text-foreground",
+                    deadlineType === SELECTION.AUTO && "opacity-50",
+                  )}
+                >
+                  min
+                </p>
+              }
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setDeadlineValue(Number(e.target.value))
+              }
+            />
+          </div>
+          {deadlineType === SELECTION.INFINITY && (
+            <Alert variant={"destructive"} className="flex gap-2">
+              <Icons.info className="h-4 w-4 flex-shrink-0 text-destructive-foreground" />
+              <div>
+                <AlertTitle>No Txn Deadline</AlertTitle>
+                <AlertDescription className="text-xs">
+                  Please be aware this could result in the txn being active
+                  forever.
+                </AlertDescription>
+              </div>
+            </Alert>
+          )}
+        </>
       )}
     </div>
   );

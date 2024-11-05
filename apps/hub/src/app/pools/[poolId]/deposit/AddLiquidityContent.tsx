@@ -25,60 +25,71 @@ import {
   useTxn,
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
-import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Address, formatEther, parseUnits } from "viem";
 
 import { SettingsPopover } from "~/components/settings-popover";
-import { getBaseCost, getPoolUrl, getQuoteCost } from "../pools/fetchPools";
 import { Skeleton } from "@bera/ui/skeleton";
 import { AddLiquiditySuccess } from "@bera/shared-ui";
 import Link from "next/link";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
+import {
+  AddLiquidityKind,
+  vaultV2Abi,
+} from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
-import { useAddLiquidityUnbalanced } from "~/b-sdk/useAddLiquidityUnbalanced";
+import { AddLiquidityDetails } from "./AddLiquidiyDetails";
+import { getPoolUrl } from "../../fetchPools";
+import { beraToken, wBeraToken } from "@bera/wagmi";
+import { useAddLiquidity } from "./useAddLiquidity";
 
 interface IAddLiquidityContent {
-  shareAddress: Address;
+  poolId: Address;
 }
 
-export default function AddLiquidityContent({
-  shareAddress,
-}: IAddLiquidityContent) {
-  const { data, isLoading } = usePool({ id: shareAddress });
+export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
+  const { data, isLoading } = usePool({ id: poolId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const { v2Pool: pool, v3Pool } = data ?? {};
 
+  const [wethIsEth, setWethIsEth] = useState(false);
   const { account } = useBeraJs();
 
   useEffect(() => {
     console.log("POOL", pool, v3Pool);
   }, [pool, v3Pool]);
 
-  const { queryOutput, input, setInput, getCallData } =
-    useAddLiquidityUnbalanced({
+  const { queryOutput, priceImpact, input, type, setInput, getCallData } =
+    useAddLiquidity({
       pool: v3Pool,
+      wethIsEth,
     });
 
-  const {
-    needsApproval,
-    needsApprovalNoBera,
-    refresh: refreshAllowances,
-  } = useMultipleTokenApprovalsWithSlippage(
-    queryOutput?.amountsIn?.map((amount) => ({
-      symbol: "token",
-      name: "token",
-      ...amount.token,
-      exceeding: false,
-      decimals: amount.token.decimals,
-      amount: formatEther(amount.scale18),
-    })) ?? [],
-    balancerVaultAddress,
-  );
+  const isProportional = type === AddLiquidityKind.Proportional;
+
+  const activeQueryOutput = queryOutput;
+
+  const { needsApproval, refresh: refreshAllowances } =
+    useMultipleTokenApprovalsWithSlippage(
+      activeQueryOutput?.amountsIn?.map((amount) => ({
+        symbol: "token",
+        name: "token",
+        ...amount.token,
+        exceeding: false,
+        decimals: amount.token.decimals,
+        amount: formatEther(amount.scale18),
+      })) ?? [],
+      balancerVaultAddress,
+    );
+
+  const needsApprovalNoBera = wethIsEth
+    ? needsApproval.filter(
+        (n) => n.address.toLowerCase() !== wBeraToken.address.toLowerCase(),
+      )
+    : needsApproval;
 
   useEffect(() => {
     if (!pool && !isLoading) {
@@ -86,27 +97,11 @@ export default function AddLiquidityContent({
     }
   }, [pool, isLoading]);
 
-  // const {
-  //   baseToken,
-  //   quoteToken,
-  //   poolPrice,
-  //   error,
-  //   previewOpen,
-  //   tokenInputs,
-  //   needsApproval,
-  //   areAllInputsEmpty,
-  //   isBaseInput,
-  //   setIsBaseInput,
-  //   refreshAllowances,
-  //   reset,
-  //   updateTokenAmount,
-  //   updateTokenExceeding,
-  //   setPreviewOpen,
-  //   beraToken,
-  //   wBeraToken,
-  //   isNativeBera,
-  //   setIsNativeBera,
-  // } = useAddLiquidity(pool);
+  useEffect(() => {
+    console.log({ priceImpact, queryOutput });
+  }, [priceImpact]);
+
+  const balancedInput = input.at(0);
 
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
@@ -124,8 +119,18 @@ export default function AddLiquidityContent({
     actionType: TransactionActionType.ADD_LIQUIDITY,
   });
 
-  console.log({ needsApproval });
   const slippage = useSlippage();
+
+  const totalValue = queryOutput?.amountsIn.reduce((acc, curr) => {
+    return (
+      acc +
+      Number(formatEther(curr.scale18)) *
+        Number(
+          pool?.tokens.find((t) => t.address === curr.token.address)?.token
+            ?.latestUSDPrice ?? 0,
+        )
+    );
+  }, 0);
 
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
@@ -164,7 +169,7 @@ export default function AddLiquidityContent({
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
             Add Liquidity
-            <SettingsPopover />
+            <SettingsPopover showDeadline={false} />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -174,14 +179,55 @@ export default function AddLiquidityContent({
 
               return (
                 <TokenInput
-                  key={token?.address}
-                  // @ts-expect-error FIXME: fix token typings
-                  selected={token}
-                  selectable={false}
-                  // @ts-expect-error FIXME: fix token typings
-                  customTokenList={[token]}
-                  amount={currInput?.amount}
+                  key={token?.address ?? idx}
+                  selected={
+                    token.address.toLowerCase() ===
+                    wBeraToken.address.toLowerCase()
+                      ? wethIsEth
+                        ? { ...token, ...beraToken }
+                        : token
+                      : token
+                  }
+                  selectable={
+                    token.address.toLowerCase() ===
+                    wBeraToken.address.toLowerCase()
+                  }
+                  customTokenList={
+                    token.address.toLowerCase() ===
+                    wBeraToken.address.toLowerCase()
+                      ? [wBeraToken, beraToken]
+                      : [token]
+                  }
+                  amount={
+                    !isProportional
+                      ? currInput?.amount
+                      : balancedInput?.address === token.address
+                        ? balancedInput.amount
+                        : formatEther(
+                            queryOutput?.amountsIn.find(
+                              (t) => t.token.address === token.address,
+                            )?.scale18 ?? 0n,
+                          )
+                  }
+                  onTokenSelection={(tk) => {
+                    if (
+                      token?.address.toLowerCase() ===
+                      wBeraToken.address.toLowerCase()
+                    ) {
+                      setWethIsEth(tk?.address === beraToken.address);
+                    }
+                  }}
                   setAmount={(amount: string) => {
+                    if (isProportional) {
+                      setInput([
+                        {
+                          address: token.address as Address,
+                          amount,
+                        },
+                      ]);
+                      return;
+                    }
+
                     setInput((prev) => {
                       const prevIdx = prev.findIndex(
                         (i) => i.address === token.address,
@@ -213,36 +259,11 @@ export default function AddLiquidityContent({
               );
             })}
           </TokenList>
-          <InfoBoxList>
-            {/* <InfoBoxListItem
-              title={"Pool Price"}
-              value={
-                poolPrice ? (
-                  <span>
-                    <FormattedNumber
-                      value={poolPrice}
-                      symbol={baseToken?.symbol ?? ""}
-                    />{" "}
-                    = 1 {quoteToken?.symbol}
-                  </span>
-                ) : (
-                  <span>{"-"}</span>
-                )
-              }
-            />
-            <InfoBoxListItem
-              title={"Total Value"}
-              value={
-                <FormattedNumber
-                  value={totalHoneyPrice}
-                  symbol="USD"
-                  compact={false}
-                />
-              }
-            /> */}
-
-            <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
-          </InfoBoxList>
+          <AddLiquidityDetails
+            totalValue={totalValue?.toString()}
+            priceImpact={priceImpact}
+            exchangeRate="0"
+          />
           {/* {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
@@ -258,51 +279,25 @@ export default function AddLiquidityContent({
             setOpen={setPreviewOpen}
           >
             <TokenList className="bg-muted">
-              {queryOutput?.amountsIn.map((amount) => (
+              {activeQueryOutput?.amountsIn.map((amount) => (
                 <PreviewToken
-                  token={{
-                    symbol: "",
-                    name: "",
-                    ...amount.token,
-                    address: amount.token.wrapped as Address,
-                  }}
+                  token={
+                    wethIsEth &&
+                    amount.token.address.toLowerCase() ===
+                      wBeraToken.address.toLowerCase()
+                      ? beraToken
+                      : pool?.tokens.find(
+                          (t) => t.address === amount.token.address,
+                        )
+                  }
                   value={formatEther(amount.scale18)}
                   // price={Number(baseToken?.usdValue ?? 0)}
                 />
               ))}
             </TokenList>
-            {/* <InfoBoxList>
-              <InfoBoxListItem
-                title={"Pool Price"}
-                value={
-                  poolPrice ? (
-                    <span>
-                      <FormattedNumber
-                        value={poolPrice}
-                        symbol={baseToken?.symbol ?? ""}
-                      />{" "}
-                      = 1 {quoteToken?.symbol}
-                    </span>
-                  ) : (
-                    <span>{"-"}</span>
-                  )
-                }
-              />
-              <InfoBoxListItem
-                title={"Total Value"}
-                value={
-                  <FormattedNumber
-                    value={totalHoneyPrice}
-                    symbol="USD"
-                    compact={false}
-                  />
-                }
-              />
-              <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
-            </InfoBoxList> */}
             {needsApprovalNoBera.length > 0 ? (
               <ApproveButton
-                amount={queryOutput?.amountsIn.at(0)?.amount}
+                amount={needsApprovalNoBera.at(0)!.maxAmountIn}
                 token={
                   v3Pool!.tokens.find(
                     (t) => t.address === needsApprovalNoBera.at(0)!.address,
@@ -315,11 +310,14 @@ export default function AddLiquidityContent({
               <ActionButton>
                 <Button
                   className="w-full"
-                  disabled={queryOutput?.amountsIn.every(
+                  disabled={activeQueryOutput?.amountsIn.every(
                     (i) => i.amount === 0n,
                   )}
                   onClick={() => {
-                    const data = getCallData(slippage ?? 0, account!);
+                    const data = getCallData({
+                      slippage: slippage ?? 0,
+                      sender: account!,
+                    });
 
                     write({
                       params: data.args,

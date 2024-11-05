@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTotalPoolCount } from "@bera/berajs";
-import {
-  NotFoundBear,
-  SearchInput,
-  SimpleTable,
-  useBaseTable,
-} from "@bera/shared-ui";
+import { NotFoundBear, SearchInput, SimpleTable } from "@bera/shared-ui";
 import { DataTableLoading } from "@bera/shared-ui/table/legacy";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
@@ -33,7 +27,7 @@ export const PoolSearch = ({
 
   const [sorting, setSorting] = useState([
     {
-      id: sort === null ? "tvlUsd" : sort,
+      id: sort === null ? "totalLiquidity" : sort,
       desc: direction === null ? true : direction === "desc" ? true : false,
     },
   ]);
@@ -53,8 +47,6 @@ export const PoolSearch = ({
       parseFloat(page ?? "1"),
       parseFloat(pageSize ?? "10"),
     );
-
-  const { data: poolCount } = useTotalPoolCount();
 
   const [isTyping, setIsTyping] = useState(false);
 
