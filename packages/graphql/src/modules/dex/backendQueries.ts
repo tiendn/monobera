@@ -17,3 +17,38 @@ export const GetPoolEvents = gql`
     }
   }
 `;
+gql`
+  fragment MinimalPool on GqlPoolMinimal {
+    id
+    name
+
+    allTokens {
+      address
+      symbol
+      name
+      decimals
+    }
+
+    address
+    protocolVersion
+    type
+    dynamicData {
+      totalShares
+      fees24h
+      volume24h
+      swapFee
+      aprItems {
+        apr
+        id
+      }
+    }
+  }
+`;
+
+export const GetPools = gql`
+  query GetPools {
+    poolGetPools {
+      ...MinimalPool
+    }
+  }
+`;

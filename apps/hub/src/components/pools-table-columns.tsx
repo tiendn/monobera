@@ -15,8 +15,9 @@ import { Icons } from "@bera/ui/icons";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Address } from "viem";
 import { PoolWithMethods } from "@balancer-labs/sdk";
+import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex";
 
-export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
+export const PoolSummary = ({ pool }: { pool: MinimalPoolFragment }) => {
   const { data: balance } = usePollBalance({
     address: pool.address,
   });
@@ -24,7 +25,7 @@ export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
   return (
     <div className="flex flex-row items-start gap-2">
       <TokenIconList
-        tokenList={pool?.tokens}
+        tokenList={pool?.allTokens}
         size="xl"
         className="self-center"
       />
@@ -39,9 +40,9 @@ export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
             variant={"secondary"}
             className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
           >
-            <span>{Number(pool?.swapFee).toFixed(2)}%</span>
+            <span>{Number(pool?.dynamicData?.swapFee).toFixed(2)}%</span>
           </Badge>
-          {pool.bptIndex === POOLID.STABLE && (
+          {pool.type === GqlPoolType.Stable && (
             <Badge
               variant={"secondary"}
               className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
@@ -65,7 +66,7 @@ export const PoolSummary = ({ pool }: { pool: PoolWithMethods }) => {
 
 export const getUserPoolColumns = (
   refresh: () => void,
-): ColumnDef<PoolWithMethods>[] => {
+): ColumnDef<MinimalPoolFragment>[] => {
   return [
     {
       accessorKey: "poolName",

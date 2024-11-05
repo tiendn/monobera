@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { PoolWithMethods } from "@balancer-labs/sdk";
 import { useBgtInflation, type PoolV2 } from "@bera/berajs";
+import { POLLING } from "@bera/shared-ui";
 import {
   DataTableColumnHeader,
   FormattedNumber,
@@ -8,9 +8,14 @@ import {
   useAsyncTable,
 } from "@bera/shared-ui";
 import useSWR from "swr";
-import { balancerClient } from "../../b-sdk/balancerClient";
 import { calculateApy } from "../../utils/calculateApy";
 import { PoolSummary } from "../../components/pools-table-columns";
+import { bexApiGraphqlClient } from "@bera/graphql";
+import {
+  GetPools,
+  GetPoolsQuery,
+  MinimalPoolFragment,
+} from "@bera/graphql/dex";
 
 export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   const [search, setSearch] = useState("");
@@ -33,12 +38,20 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
     }
   };
 
-  const { data, isLoading } = useSWR(["usePoolTable"], async () => {
-    const pools = await balancerClient.pools.all();
-    return pools;
-  });
+  const { data, isLoading } = useSWR(
+    ["usePoolTable"],
+    async () => {
+      const pools = await bexApiGraphqlClient.query<GetPoolsQuery>({
+        query: GetPools,
+      });
+      return pools.data?.poolGetPools ?? [];
+    },
+    {
+      refreshInterval: POLLING.SLOW,
+    },
+  );
 
-  const table = useAsyncTable<PoolWithMethods>({
+  const table = useAsyncTable<MinimalPoolFragment>({
     data: data ?? [],
     fetchData: async () => {},
     additionalTableProps: {
@@ -80,7 +93,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
               <FormattedNumber
-                value={row.original?.totalLiquidity ?? 0}
+                value={row.original?.dynamicData?.totalShares ?? 0}
                 symbol="USD"
               />
             </div>
@@ -91,7 +104,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         },
       },
       {
-        accessorKey: "latestPoolDayData__feesUsd",
+        accessorKey: "dynamicData.fees24h",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -104,7 +117,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
               <FormattedNumber
-                value={row.original.totalSwapFee ?? "0"}
+                value={row.original.dynamicData.fees24h ?? "0"}
                 symbol="USD"
               />
             </div>
@@ -116,13 +129,13 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         },
         sortingFn: (rowA, rowB) => {
           return (
-            Number(rowA.original.totalSwapFee ?? "0") -
-            Number(rowB.original.totalSwapFee ?? "0")
+            Number(rowA.original.dynamicData.fees24h ?? "0") -
+            Number(rowB.original.dynamicData.fees24h ?? "0")
           );
         },
       },
       {
-        accessorKey: "latestPoolDayData__volumeUsd",
+        accessorKey: "dynamicData.volume24h",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -135,7 +148,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
               <FormattedNumber
-                value={row.original.totalSwapVolume ?? "0"}
+                value={row.original.dynamicData.volume24h ?? "0"}
                 symbol="USD"
               />
             </div>
@@ -147,8 +160,8 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         },
         sortingFn: (rowA, rowB) => {
           return (
-            Number(rowA.original.totalSwapVolume ?? "0") -
-            Number(rowB.original.totalSwapVolume ?? "0")
+            Number(rowA.original.dynamicData.volume24h ?? "0") -
+            Number(rowB.original.dynamicData.volume24h ?? "0")
           );
         },
       },
@@ -167,14 +180,15 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
           return (
             <div
               className={`flex items-center justify-start text-sm ${
-                row.original.apr?.protocolApr === 0
+                row.original.dynamicData.aprItems?.at(0)?.apr === 0
                   ? "text-muted-foreground"
                   : "text-warning-foreground"
               }`}
             >
               <FormattedNumber
                 value={calculateApy(
-                  row.original.apr?.protocolApr?.toString() ?? "0",
+                  row.original.dynamicData.aprItems?.at(0)?.apr?.toString() ??
+                    "0",
                   bgtInflation?.usdPerYear ?? 0,
                 )}
                 percent
