@@ -1,36 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useBgtInflation, type PoolV2 } from "@bera/berajs";
 import { POLLING } from "@bera/shared-ui";
 import {
   DataTableColumnHeader,
   FormattedNumber,
-  apyTooltipText,
   useAsyncTable,
 } from "@bera/shared-ui";
 import useSWR from "swr";
-import { calculateApy } from "../../utils/calculateApy";
 import { PoolSummary } from "../../components/pools-table-columns";
 import { bexApiGraphqlClient } from "@bera/graphql";
 import {
   GetPools,
   GetPoolsQuery,
-  MinimalPoolFragment,
+  MinimalPoolInListFragment,
 } from "@bera/graphql/dex";
 
-export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
+export const usePoolTable = ({
+  sorting,
+}: { sorting: any; page: number; pageSize: number; textSearch?: string }) => {
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
-
-  const sortOption =
-    sorting[0] !== undefined && sorting[0].id !== undefined
-      ? sorting[0].id
-      : "totalLiquidity";
-  const sortOrder =
-    sorting[0] !== undefined && sorting[0].desc !== undefined
-      ? sorting[0].desc === true
-        ? "desc"
-        : "asc"
-      : "desc";
 
   const handleEnter = (e: any) => {
     if (e.key === "Enter") {
@@ -39,10 +28,13 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
   };
 
   const { data, isLoading } = useSWR(
-    ["usePoolTable"],
+    ["usePoolTable", keyword],
     async () => {
       const pools = await bexApiGraphqlClient.query<GetPoolsQuery>({
         query: GetPools,
+        variables: {
+          textSearch: keyword,
+        },
       });
       return pools.data?.poolGetPools ?? [];
     },
@@ -51,7 +43,7 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
     },
   );
 
-  const table = useAsyncTable<MinimalPoolFragment>({
+  const table = useAsyncTable<MinimalPoolInListFragment>({
     data: data ?? [],
     fetchData: async () => {},
     additionalTableProps: {
@@ -170,8 +162,8 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="BGT APY"
-            tooltip={apyTooltipText()}
+            title="APR"
+            // tooltip={apyTooltipText()}
             className="whitespace-nowrap"
           />
         ),
@@ -186,11 +178,10 @@ export const usePoolTable = (sorting: any, page: number, pageSize: number) => {
               }`}
             >
               <FormattedNumber
-                value={calculateApy(
+                value={
                   row.original.dynamicData.aprItems?.at(0)?.apr?.toString() ??
-                    "0",
-                  bgtInflation?.usdPerYear ?? 0,
-                )}
+                  "0"
+                }
                 percent
                 compact
                 showIsSmallerThanMin

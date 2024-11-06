@@ -2669,7 +2669,7 @@ export type GetPoolEventsQuery = {
   >;
 };
 
-export type MinimalPoolFragment = {
+export type MinimalPoolInListFragment = {
   __typename?: "GqlPoolMinimal";
   id: string;
   name: string;
@@ -2693,7 +2693,276 @@ export type MinimalPoolFragment = {
   };
 };
 
-export type GetPoolsQueryVariables = Exact<{ [key: string]: never }>;
+type MinimalPool_GqlPoolComposableStable_Fragment = {
+  __typename?: "GqlPoolComposableStable";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolElement_Fragment = {
+  __typename?: "GqlPoolElement";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolFx_Fragment = {
+  __typename?: "GqlPoolFx";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolGyro_Fragment = {
+  __typename?: "GqlPoolGyro";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolLiquidityBootstrapping_Fragment = {
+  __typename?: "GqlPoolLiquidityBootstrapping";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolMetaStable_Fragment = {
+  __typename?: "GqlPoolMetaStable";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolStable_Fragment = {
+  __typename?: "GqlPoolStable";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+type MinimalPool_GqlPoolWeighted_Fragment = {
+  __typename?: "GqlPoolWeighted";
+  id: string;
+  name: string;
+  address: any;
+  protocolVersion: number;
+  type: GqlPoolType;
+  poolTokens: Array<{
+    __typename?: "GqlPoolTokenDetail";
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }>;
+  dynamicData: {
+    __typename?: "GqlPoolDynamicData";
+    totalShares: any;
+    totalLiquidity: any;
+    swapsCount: any;
+    fees24h: any;
+    volume24h: any;
+    swapFee: any;
+    aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+  };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
+};
+
+export type MinimalPoolFragment =
+  | MinimalPool_GqlPoolComposableStable_Fragment
+  | MinimalPool_GqlPoolElement_Fragment
+  | MinimalPool_GqlPoolFx_Fragment
+  | MinimalPool_GqlPoolGyro_Fragment
+  | MinimalPool_GqlPoolLiquidityBootstrapping_Fragment
+  | MinimalPool_GqlPoolMetaStable_Fragment
+  | MinimalPool_GqlPoolStable_Fragment
+  | MinimalPool_GqlPoolWeighted_Fragment;
+
+export type GetPoolsQueryVariables = Exact<{
+  textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  userAddress?: InputMaybe<Scalars["String"]["input"]>;
+}>;
 
 export type GetPoolsQuery = {
   __typename?: "Query";
@@ -2726,8 +2995,298 @@ export type GetPoolsQuery = {
   }>;
 };
 
-export const MinimalPoolFragmentDoc = gql`
-    fragment MinimalPool on GqlPoolMinimal {
+export type GetPoolQueryVariables = Exact<{
+  id: Scalars["String"]["input"];
+  userAddress?: InputMaybe<Scalars["String"]["input"]>;
+}>;
+
+export type GetPoolQuery = {
+  __typename?: "Query";
+  poolGetPool:
+    | {
+        __typename?: "GqlPoolComposableStable";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolElement";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolFx";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolGyro";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolLiquidityBootstrapping";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolMetaStable";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolStable";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      }
+    | {
+        __typename?: "GqlPoolWeighted";
+        id: string;
+        name: string;
+        address: any;
+        protocolVersion: number;
+        type: GqlPoolType;
+        poolTokens: Array<{
+          __typename?: "GqlPoolTokenDetail";
+          address: string;
+          symbol: string;
+          name: string;
+          decimals: number;
+        }>;
+        dynamicData: {
+          __typename?: "GqlPoolDynamicData";
+          totalShares: any;
+          totalLiquidity: any;
+          swapsCount: any;
+          fees24h: any;
+          volume24h: any;
+          swapFee: any;
+          aprItems: Array<{
+            __typename?: "GqlPoolAprItem";
+            apr: number;
+            id: string;
+          }>;
+        };
+        userBalance?: {
+          __typename?: "GqlPoolUserBalance";
+          totalBalanceUsd: number;
+          walletBalance: any;
+          walletBalanceUsd: number;
+        } | null;
+      };
+};
+
+export const MinimalPoolInListFragmentDoc = gql`
+    fragment MinimalPoolInList on GqlPoolMinimal {
   id
   name
   allTokens {
@@ -2748,6 +3307,38 @@ export const MinimalPoolFragmentDoc = gql`
       apr
       id
     }
+  }
+}
+    `;
+export const MinimalPoolFragmentDoc = gql`
+    fragment MinimalPool on GqlPoolBase {
+  id
+  name
+  poolTokens {
+    address
+    symbol
+    name
+    decimals
+  }
+  address
+  protocolVersion
+  type
+  dynamicData {
+    totalShares
+    totalLiquidity
+    swapsCount
+    fees24h
+    volume24h
+    swapFee
+    aprItems {
+      apr
+      id
+    }
+  }
+  userBalance {
+    totalBalanceUsd
+    walletBalance
+    walletBalanceUsd
   }
 }
     `;
@@ -2845,12 +3436,12 @@ export type GetPoolEventsQueryResult = Apollo.QueryResult<
   GetPoolEventsQueryVariables
 >;
 export const GetPoolsDocument = gql`
-    query GetPools {
-  poolGetPools {
-    ...MinimalPool
+    query GetPools($textSearch: String, $userAddress: String) {
+  poolGetPools(textSearch: $textSearch, where: {userAddress: $userAddress}) {
+    ...MinimalPoolInList
   }
 }
-    ${MinimalPoolFragmentDoc}`;
+    ${MinimalPoolInListFragmentDoc}`;
 
 /**
  * __useGetPoolsQuery__
@@ -2864,6 +3455,8 @@ export const GetPoolsDocument = gql`
  * @example
  * const { data, loading, error } = useGetPoolsQuery({
  *   variables: {
+ *      textSearch: // value for 'textSearch'
+ *      userAddress: // value for 'userAddress'
  *   },
  * });
  */
@@ -2913,8 +3506,78 @@ export type GetPoolsQueryResult = Apollo.QueryResult<
   GetPoolsQuery,
   GetPoolsQueryVariables
 >;
-export const MinimalPool = gql`
-    fragment MinimalPool on GqlPoolMinimal {
+export const GetPoolDocument = gql`
+    query GetPool($id: String!, $userAddress: String) {
+  poolGetPool(id: $id, userAddress: $userAddress) {
+    ...MinimalPool
+  }
+}
+    ${MinimalPoolFragmentDoc}`;
+
+/**
+ * __useGetPoolQuery__
+ *
+ * To run a query within a React component, call `useGetPoolQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPoolQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPoolQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      userAddress: // value for 'userAddress'
+ *   },
+ * });
+ */
+export function useGetPoolQuery(
+  baseOptions: Apollo.QueryHookOptions<GetPoolQuery, GetPoolQueryVariables> &
+    ({ variables: GetPoolQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetPoolQuery, GetPoolQueryVariables>(
+    GetPoolDocument,
+    options,
+  );
+}
+export function useGetPoolLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPoolQuery,
+    GetPoolQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetPoolQuery, GetPoolQueryVariables>(
+    GetPoolDocument,
+    options,
+  );
+}
+export function useGetPoolSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<GetPoolQuery, GetPoolQueryVariables>,
+) {
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<GetPoolQuery, GetPoolQueryVariables>(
+    GetPoolDocument,
+    options,
+  );
+}
+export type GetPoolQueryHookResult = ReturnType<typeof useGetPoolQuery>;
+export type GetPoolLazyQueryHookResult = ReturnType<typeof useGetPoolLazyQuery>;
+export type GetPoolSuspenseQueryHookResult = ReturnType<
+  typeof useGetPoolSuspenseQuery
+>;
+export type GetPoolQueryResult = Apollo.QueryResult<
+  GetPoolQuery,
+  GetPoolQueryVariables
+>;
+export const MinimalPoolInList = gql`
+    fragment MinimalPoolInList on GqlPoolMinimal {
   id
   name
   allTokens {
@@ -2938,6 +3601,38 @@ export const MinimalPool = gql`
   }
 }
     `;
+export const MinimalPool = gql`
+    fragment MinimalPool on GqlPoolBase {
+  id
+  name
+  poolTokens {
+    address
+    symbol
+    name
+    decimals
+  }
+  address
+  protocolVersion
+  type
+  dynamicData {
+    totalShares
+    totalLiquidity
+    swapsCount
+    fees24h
+    volume24h
+    swapFee
+    aprItems {
+      apr
+      id
+    }
+  }
+  userBalance {
+    totalBalanceUsd
+    walletBalance
+    walletBalanceUsd
+  }
+}
+    `;
 export const GetPoolEvents = gql`
     query GetPoolEvents($poolId: String!, $typeIn: [GqlPoolEventType!]!) {
   poolGetEvents(
@@ -2956,8 +3651,15 @@ export const GetPoolEvents = gql`
 }
     `;
 export const GetPools = gql`
-    query GetPools {
-  poolGetPools {
+    query GetPools($textSearch: String, $userAddress: String) {
+  poolGetPools(textSearch: $textSearch, where: {userAddress: $userAddress}) {
+    ...MinimalPoolInList
+  }
+}
+    ${MinimalPoolInList}`;
+export const GetPool = gql`
+    query GetPool($id: String!, $userAddress: String) {
+  poolGetPool(id: $id, userAddress: $userAddress) {
     ...MinimalPool
   }
 }

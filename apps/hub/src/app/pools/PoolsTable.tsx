@@ -41,12 +41,11 @@ export const PoolSearch = ({
   // };
 
   const { search, keyword, isLoading, table, setKeyword, setSearch, data } =
-    usePoolTable(
+    usePoolTable({
       sorting,
-
-      parseFloat(page ?? "1"),
-      parseFloat(pageSize ?? "10"),
-    );
+      page: parseFloat(page ?? "1"),
+      pageSize: parseFloat(pageSize ?? "10"),
+    });
 
   const [isTyping, setIsTyping] = useState(false);
 
@@ -86,7 +85,7 @@ export const PoolSearch = ({
               variant="ghost"
               onClick={handleClearSearch}
             >
-              <Link href="/pools?pool=userPools">My Pools</Link>
+              <Link href="/pools/?pool=userPools">My Pools</Link>
             </TabsTrigger>
           </TabsList>
 

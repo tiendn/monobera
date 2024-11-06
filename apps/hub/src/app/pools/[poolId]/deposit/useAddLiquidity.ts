@@ -10,7 +10,7 @@ import {
   PriceImpactAmount,
   Slippage,
 } from "@berachain-foundation/berancer-sdk";
-import { Address, BaseError, parseUnits } from "viem";
+import { Address, ContractFunctionExecutionError, parseUnits } from "viem";
 
 export interface UseAddLiquidityArgs {
   pool: PoolState | undefined;
@@ -19,7 +19,7 @@ export interface UseAddLiquidityArgs {
 
 export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
   const [type, setType] = useState<AddLiquidityKind>(
-    AddLiquidityKind.Unbalanced,
+    AddLiquidityKind.Proportional,
   );
 
   const [input, setInput] = useState<
@@ -31,6 +31,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{
+    error?: unknown;
     balanceError?: string;
     message?: string;
   }>();
@@ -39,7 +40,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
   const [queryOutput, setQueryOutput] = useState<AddLiquidityQueryOutput>();
 
   const fetch = useCallback(async () => {
-    if (!pool || !input) return;
+    if (!pool || !input || input.length === 0) return;
 
     setIsLoading(true);
 
@@ -83,6 +84,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
         const tokenInput = pool.tokens.find(
           (t) => t.address === singleInput.address,
         );
+
         if (!tokenInput) {
           throw new Error("Input token is not in the pool");
         }
@@ -101,21 +103,33 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
 
       const [queryOutput, priceImpact] = await Promise.all([
         addLiquidity.query(addLiquidityInput, pool),
-        addLiquidityInput.kind !== AddLiquidityKind.Proportional
+        addLiquidityInput.kind === AddLiquidityKind.Unbalanced
           ? PriceImpact.addLiquidityUnbalanced(addLiquidityInput, pool)
           : undefined,
       ]);
 
+      process.env.NODE_ENV === "development" &&
+        console.log({ queryOutput, priceImpact });
+
+      setError(undefined);
       setPriceImpact(priceImpact);
       setQueryOutput(queryOutput);
     } catch (error) {
-      if (error instanceof BaseError) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        // @ts-expect-error
+        error.shortMessage
+      ) {
+        const e = error as ContractFunctionExecutionError;
         setError({
-          balanceError: error?.shortMessage?.split("\n").at(1),
-          message: error.shortMessage,
+          error: e,
+          balanceError: e?.shortMessage?.split("\n").at(1),
+          message: e.shortMessage,
         });
+      } else {
+        setError({ message: String(error), error });
       }
-      setError({ message: String(error) });
     } finally {
       setIsLoading(false);
     }

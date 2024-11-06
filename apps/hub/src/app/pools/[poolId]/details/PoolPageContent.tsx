@@ -114,7 +114,6 @@ const TokenView = ({
 }) => {
   return (
     <>
-      <div className="mb-4 text-sm font-medium">Tokens</div>
       <div>
         {isLoading ? (
           <div>
@@ -248,7 +247,7 @@ export default function PoolPageContent({
             content: isPoolLoading ? (
               <Skeleton className="h-4 w-8" />
             ) : (
-              <>{pool?.swapFee}%</>
+              <>{Number(pool?.swapFee ?? 0) * 100}%</>
             ),
             color: "success",
           },
@@ -262,22 +261,6 @@ export default function PoolPageContent({
             externalLink: `${blockExplorerUrl}/address/${pool?.address}`,
           },
         ]}
-        actions={
-          <>
-            <Link href={getPoolAddLiquidityUrl(pool)} target="_self">
-              <Button variant="outline">
-                <Icons.add />
-                <span className="ml-1">Add</span>
-              </Button>
-            </Link>
-            <Link href={getPoolWithdrawUrl(pool)} target="_self">
-              <Button variant="outline">
-                <Icons.subtract />
-                <span className="ml-1">Withdraw</span>
-              </Button>
-            </Link>
-          </>
-        }
       />
       <Separator />
       {/* {isPoolLoading ? (
@@ -347,7 +330,7 @@ export default function PoolPageContent({
         </div>
         <div className="flex w-full flex-col gap-5 lg:col-span-7 lg:col-start-1">
           <Card className="p-4">
-            <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold lg:mb-8">
+            <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold">
               Pool Liquidity
               <div className="text-2xl">
                 {isLoading ? (
@@ -375,45 +358,61 @@ export default function PoolPageContent({
           </Card>
         </div>
         {isConnected && (
-          <div className="lg:col-span-5 lg:row-start-1 lg:col-start-8 lg:row-span-2">
-            <Card>
-              <CardContent className="flex items-center justify-between gap-4 p-4">
-                <div className="w-full ">
-                  <div className="flex h-8 w-full items-center justify-between text-lg font-semibold">
-                    <h3 className="text-sm font-medium text-muted-foreground">
-                      My pool balance
-                    </h3>
-                    <div className="text-2xl">
-                      {isUserBalanceLoading ? (
-                        <Skeleton className="h-[32px] w-[150px]" />
-                      ) : (
-                        <FormattedNumber
-                          value={tvlInUsd * userSharePercentage}
-                          symbol="USD"
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4 lg:mt-8">
-                    <TokenView
-                      isLoading={isUserBalanceLoading || isPoolLoading}
-                      tokens={
-                        pool?.tokens?.map((t) => ({
-                          address: t.address!,
-                          symbol: t.symbol!,
-                          value: parseFloat(t.balance) * userSharePercentage,
-                          valueUSD:
-                            parseFloat(t.balance) *
-                            parseFloat(t.token?.latestUSDPrice ?? "0") *
-                            userSharePercentage,
-                        })) ?? []
-                      }
-                    />
-                  </div>
+          <Card className="lg:col-span-5 lg:row-start-1 lg:col-start-8 lg:row-span-2">
+            <CardContent className="flex h-full items-center flex-col justify-between gap-4 p-4">
+              <div className="flex h-8 w-full items-center justify-between text-lg font-semibold">
+                <h3 className="text-md font-medium ">My deposits</h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="md"
+                    as={Link}
+                    href={getPoolAddLiquidityUrl(pool)}
+                  >
+                    Deposit
+                  </Button>
+                  {userSharePercentage ? (
+                    <Button
+                      variant="outline"
+                      size="md"
+                      as={Link}
+                      href={getPoolWithdrawUrl(pool)}
+                    >
+                      Withdraw
+                    </Button>
+                  ) : null}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <div className="mt-4 grow self-stretch">
+                <TokenView
+                  isLoading={isUserBalanceLoading || isPoolLoading}
+                  tokens={
+                    pool?.tokens?.map((t) => ({
+                      address: t.address!,
+                      symbol: t.symbol!,
+                      value: parseFloat(t.balance) * userSharePercentage,
+                      valueUSD:
+                        parseFloat(t.balance) *
+                        parseFloat(t.token?.latestUSDPrice ?? "0") *
+                        userSharePercentage,
+                    })) ?? []
+                  }
+                />
+              </div>
+              <div className="flex justify-between w-full font-medium">
+                <span>Total</span>
+                {isUserBalanceLoading ? (
+                  <Skeleton className="h-[32px] w-[150px]" />
+                ) : (
+                  <FormattedNumber
+                    className="text-muted-foreground"
+                    value={tvlInUsd * userSharePercentage}
+                    symbol="USD"
+                  />
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
       <Separator />

@@ -4,9 +4,9 @@ import { usePollBalance } from "@bera/berajs";
 import { DataTableColumnHeader, TokenIconList } from "@bera/shared-ui";
 import { Badge } from "@bera/ui/badge";
 import { type ColumnDef } from "@tanstack/react-table";
-import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex";
+import { GqlPoolType, MinimalPoolInListFragment } from "@bera/graphql/dex";
 
-export const PoolSummary = ({ pool }: { pool: MinimalPoolFragment }) => {
+export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
   const { data: balance } = usePollBalance({
     address: pool.address,
   });
@@ -29,7 +29,9 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolFragment }) => {
             variant={"secondary"}
             className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
           >
-            <span>{Number(pool?.dynamicData?.swapFee).toFixed(2)}%</span>
+            <span>
+              {(Number(pool?.dynamicData?.swapFee) * 100).toFixed(2)}%
+            </span>
           </Badge>
           {pool.type === GqlPoolType.Stable && (
             <Badge
@@ -55,7 +57,7 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolFragment }) => {
 
 export const getUserPoolColumns = (
   refresh: () => void,
-): ColumnDef<MinimalPoolFragment>[] => {
+): ColumnDef<MinimalPoolInListFragment>[] => {
   return [
     {
       accessorKey: "poolName",
