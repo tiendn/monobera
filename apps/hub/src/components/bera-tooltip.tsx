@@ -11,9 +11,13 @@ import {
 export default function BeraTooltip({
   text,
   children,
+  size = "md",
+  wrap = false,
 }: {
   text: string;
   children?: React.ReactNode;
+  size?: "sm" | "md" | "lg";
+  wrap?: boolean;
 }) {
   const [tooltipOpen, setTooltipOpen] = React.useState(false);
   return (
@@ -22,7 +26,9 @@ export default function BeraTooltip({
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            className="h-5 w-5 rounded-full p-0"
+            className={`h-5 w-5 rounded-full p-0 ${
+              size === "sm" ? "h-3 w-3" : size === "md" ? "h-5 w-5" : "h-7 w-7"
+            }`}
             onMouseEnter={() => setTooltipOpen(true)}
             onMouseLeave={() => setTooltipOpen(false)}
           >
@@ -30,7 +36,9 @@ export default function BeraTooltip({
             <span className="sr-only">Tooltip</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{children ? children : <p>{text}</p>}</TooltipContent>
+        <TooltipContent className={wrap ? "max-w-md break-words" : ""}>
+          {children ? children : <p>{text}</p>}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

@@ -21,3 +21,4 @@ export * from "./berps/pythErrorsAbi";
 export * from "./pol/beraChef";
 export * from "./bex/wberaAbi";
 export * from "./bex/balancerVaultAbi";
+export * from "./bex/balancerPoolCreationHelperAbi";
