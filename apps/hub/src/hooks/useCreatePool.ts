@@ -1,14 +1,11 @@
-import { ReactElement, useEffect, useMemo, useState } from "react";
-import { PoolWithMethods, parseFixed } from "@balancer-labs/sdk";
+import { useEffect, useMemo, useState } from "react";
+import { PoolWithMethods } from "@balancer-labs/sdk";
 import {
   ADDRESS_ZERO,
-  TransactionActionType,
   balancerPoolCreationHelperAbi,
-  useBeraJs,
   type Token,
 } from "@bera/berajs";
 import { balancerPoolCreationHelper } from "@bera/config";
-import { useTxn } from "@bera/shared-ui";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { formatUnits, keccak256, parseUnits } from "viem";
 
@@ -17,14 +14,12 @@ import { TokenInput } from "./useMultipleTokenInput";
 
 interface UseCreatePoolProps {
   tokens: TokenInput[];
-  weights: number[]; // NOTE: weights are an array of percentages summing to 100
+  weights: number[];
   poolType: PoolType;
   swapFee: number;
   owner: string;
   poolSymbol: string;
   poolName: string;
-  onSuccess?: (hash: string) => void;
-  onError?: (e?: Error) => void;
 }
 
 interface UseCreatePoolReturn {
@@ -34,10 +29,9 @@ interface UseCreatePoolReturn {
   dupePool: PoolWithMethods | null;
   normalizedWeights: bigint[];
   formattedNormalizedWeights: string[];
-  createPool: () => void;
+  createPoolArgs: any;
   isLoadingPools: boolean;
   errorLoadingPools: boolean;
-  ModalPortal: ReactElement<any, any>;
 }
 
 export const useCreatePool = ({
@@ -48,8 +42,6 @@ export const useCreatePool = ({
   poolSymbol,
   swapFee,
   owner,
-  onSuccess,
-  onError,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
@@ -62,8 +54,7 @@ export const useCreatePool = ({
   } = usePools();
 
   useEffect(() => {
-    if (tokens.length === 0) return;
-    if (isLoadingPools) return;
+    if (tokens.length === 0 || isLoadingPools) return;
 
     const isDupe = pools?.find((pool) => {
       const hasAllTokens = tokens.every((token) =>
@@ -81,14 +72,6 @@ export const useCreatePool = ({
     setIsDupePool(!!isDupe);
   }, [tokens, pools, isLoadingPools]);
 
-  const { write, ModalPortal } = useTxn({
-    message: "Creating new pool...",
-    onSuccess,
-    onError,
-    actionType: TransactionActionType.CREATE_POOL,
-  });
-
-  // apply a correction for repeating weights like .3r and .7r by adding the difference to the smallest weight
   const { normalizedWeights, formattedNormalizedWeights } = useMemo(() => {
     if (weights.length === 0) {
       return { normalizedWeights: [], formattedNormalizedWeights: [] };
@@ -158,26 +141,15 @@ export const useCreatePool = ({
     ];
   }, [tokens, poolType, normalizedWeights]);
 
-  const createPool = () => {
-    // FIXME: we need better handling here
-    if (!owner) return;
-    if (poolName === "" || poolSymbol === "") return;
-
+  const sharedCalculations = useMemo(() => {
+    // FIXME: we need a preview page for all of this information
+    // Shared data preparation for both pool types
     const tokensAddresses = tokens.map((token) => token.address);
     const rateProviders = tokens.map(() => ADDRESS_ZERO);
     const swapFeePercentage = parseUnits(swapFee.toString(), 16);
-
-    // TODO: the below 3 inputs will be connected as a part of stable pool create PR
-    const tokenRateCacheDurations = tokens.map(() => BigInt(100));
-    const exemptFromYieldProtocolFeeFlag = false;
-    const amplificationParameter = BigInt(62);
-
     const amountsIn = tokens.map((token) =>
       parseUnits(token.amount || "0", token.decimals ?? 18),
     );
-    const isStablePool =
-      poolType === PoolType.ComposableStable ||
-      poolType === PoolType.MetaStable;
 
     const sortedData = tokensAddresses
       .map((token, index) => ({
@@ -185,70 +157,85 @@ export const useCreatePool = ({
         amountIn: amountsIn[index],
         rateProvider: rateProviders[index],
         weight: normalizedWeights[index],
-        cacheDuration: tokenRateCacheDurations[index],
+        cacheDuration: BigInt(100), // Only used in stable pools
       }))
-      .sort((a, b) => (BigInt(a.token) < BigInt(b.token) ? -1 : 1));
+      .sort((a, b) =>
+        a.token.toLowerCase().localeCompare(b.token.toLowerCase()),
+      );
 
-    const sortedTokens = sortedData.map((item) => item.token);
-    const sortedAmountsIn = sortedData.map((item) => item.amountIn);
-    const sortedRateProviders = sortedData.map((item) => item.rateProvider);
-    const sortedWeights = sortedData.map((item) => item.weight);
-    const sortedCacheDurations = sortedData.map((item) => item.cacheDuration);
+    return {
+      sortedTokens: sortedData.map((item) => item.token),
+      sortedAmountsIn: sortedData.map((item) => item.amountIn),
+      sortedRateProviders: sortedData.map((item) => item.rateProvider),
+      sortedWeights: sortedData.map((item) => item.weight),
+      sortedCacheDurations: sortedData.map((item) => item.cacheDuration),
+      swapFeePercentage,
+      salt: keccak256(Buffer.from(`${poolName}-${owner}`)),
+    };
+  }, [tokens, normalizedWeights, swapFee, poolName, owner]);
 
-    const salt = keccak256(Buffer.from(`${poolName}-${owner}`));
-    const args = isStablePool
-      ? ([
-          poolName,
-          poolSymbol,
-          sortedTokens,
-          amplificationParameter,
-          sortedRateProviders,
-          sortedCacheDurations,
-          exemptFromYieldProtocolFeeFlag,
-          swapFeePercentage,
-          sortedAmountsIn,
-          owner,
-          salt,
-        ] as const)
-      : ([
-          poolName,
-          poolSymbol,
-          sortedTokens,
-          sortedWeights,
-          sortedRateProviders,
-          swapFeePercentage,
-          sortedAmountsIn,
-          owner,
-          salt,
-        ] as const);
+  const isStablePool =
+    poolType === PoolType.ComposableStable || poolType === PoolType.MetaStable;
+  const exemptFromYieldProtocolFeeFlag = false;
+  const amplificationParameter = BigInt(62);
 
-    const writeData = {
+  const createPoolArgs = useMemo(() => {
+    if (!owner || poolName === "" || poolSymbol === "") return null;
+
+    const {
+      sortedTokens,
+      sortedAmountsIn,
+      sortedRateProviders,
+      sortedWeights,
+      sortedCacheDurations,
+      swapFeePercentage,
+      salt,
+    } = sharedCalculations;
+
+    return {
       abi: balancerPoolCreationHelperAbi,
       address: balancerPoolCreationHelper,
       functionName: isStablePool
-        ? ("createAndJoinStablePool" as const)
-        : ("createAndJoinWeightedPool" as const),
-      params: args,
-      owner,
+        ? "createAndJoinStablePool"
+        : "createAndJoinWeightedPool",
+      params: isStablePool
+        ? [
+            poolName,
+            poolSymbol,
+            sortedTokens,
+            amplificationParameter,
+            sortedRateProviders,
+            sortedCacheDurations,
+            exemptFromYieldProtocolFeeFlag,
+            swapFeePercentage,
+            sortedAmountsIn,
+            owner,
+            salt,
+          ]
+        : [
+            poolName,
+            poolSymbol,
+            sortedTokens,
+            sortedWeights,
+            sortedRateProviders,
+            swapFeePercentage,
+            sortedAmountsIn,
+            owner,
+            salt,
+          ],
       value: 0n,
-      gasLimit: 7920027n, // NOTE: previous examples get up to 72% of this amount, which is the metamask maximum.
+      gasLimit: 7920027n, // NOTE: this is metamask mask, which we use for an upper limit in simulation because this is an expensive tx
     };
-
-    console.log("writeData", writeData);
-
-    // @ts-ignore FIXME: need to return to this when we have stable, we should split up the writes for better type-safety.
-    write(writeData);
-  };
+  }, [owner, poolName, poolSymbol, isStablePool, sharedCalculations]);
 
   return {
-    ModalPortal,
-    normalizedWeights,
-    formattedNormalizedWeights,
     generatedPoolName,
     generatedPoolSymbol,
     isDupePool,
     dupePool,
-    createPool,
+    normalizedWeights,
+    formattedNormalizedWeights,
+    createPoolArgs,
     isLoadingPools,
     errorLoadingPools,
   };

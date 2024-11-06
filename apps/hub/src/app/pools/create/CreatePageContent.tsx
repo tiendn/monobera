@@ -50,6 +50,8 @@ export default function CreatePageContent() {
     useState<boolean>(false);
   const [swapFee, setSwapFee] = useState<number>(0.1);
   const [owner, setOwner] = useState<string>("");
+  const [poolName, setPoolName] = useState<string>("");
+  const [poolSymbol, setPoolSymbol] = useState<string>("");
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
@@ -164,26 +166,40 @@ export default function CreatePageContent() {
     setWeights(initialWeights);
   }, [poolType]);
 
-  const [poolName, setPoolName] = useState<string>("");
-  const [poolSymbol, setPoolSymbol] = useState<string>("");
+  // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
     generatedPoolName,
     generatedPoolSymbol,
     isDupePool,
     dupePool,
-    createPool,
+    createPoolArgs,
+    formattedNormalizedWeights,
     isLoadingPools,
     errorLoadingPools,
-    ModalPortal,
-    formattedNormalizedWeights,
   } = useCreatePool({
     tokens,
-    weights: weights,
+    weights,
     poolType,
     swapFee,
     poolName,
     poolSymbol,
     owner,
+  });
+
+  // Synchronize the generated pool name and symbol with state
+  useEffect(() => {
+    setPoolName(generatedPoolName);
+    setPoolSymbol(generatedPoolSymbol);
+  }, [generatedPoolName, generatedPoolSymbol]);
+
+  // Create the pool with UX feedback
+  const {
+    write: writeCreatePool,
+    ModalPortal,
+    isLoading: isLoadingCreatePoolTx,
+    isSubmitting: isSubmittingCreatePoolTx,
+  } = useTxn({
+    message: "Creating new pool...",
     onSuccess: () => {
       track("create_pool_success");
       router.push("/pools");
@@ -193,12 +209,9 @@ export default function CreatePageContent() {
       captureException(new Error("Create pool failed"), {
         data: { rawError: e },
       });
+      setErrorMessage(`Error creating pool: ${e?.message}`);
     },
   });
-  useEffect(() => {
-    setPoolName(generatedPoolName);
-    setPoolSymbol(generatedPoolSymbol);
-  }, [generatedPoolName, generatedPoolSymbol]);
 
   // Determine if liquidity input should be enabled (i.e. we have selected enough tokens)
   useEffect(() => {
@@ -553,17 +566,25 @@ export default function CreatePageContent() {
             <ActionButton>
               <Button
                 disabled={
+                  !createPoolArgs ||
                   tokensNeedApproval.length > 0 ||
                   !isRelayerApproved ||
                   !isAddress(owner) ||
                   poolName.length === 0 ||
                   poolSymbol.length === 0 ||
-                  !enableLiquidityInput
+                  !enableLiquidityInput ||
+                  isLoadingCreatePoolTx ||
+                  isSubmittingCreatePoolTx ||
+                  isLoadingPools ||
+                  errorLoadingPools
                 }
                 className="w-full"
-                onClick={createPool}
+                onClick={() => {
+                  writeCreatePool(createPoolArgs);
+                }}
               >
                 Create Pool
+                {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
               </Button>
             </ActionButton>
           </section>
