@@ -44,6 +44,8 @@ import { AddLiquidityDetails } from "./AddLiquidiyDetails";
 import { getPoolUrl } from "../../fetchPools";
 import { beraToken, wBeraToken } from "@bera/wagmi";
 import { useAddLiquidity } from "./useAddLiquidity";
+import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
+import { Checkbox } from "@bera/ui/checkbox";
 
 interface IAddLiquidityContent {
   poolId: Address;
@@ -62,11 +64,20 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
     console.log("POOL", pool, v3Pool);
   }, [pool, v3Pool]);
 
-  const { queryOutput, priceImpact, input, type, setInput, getCallData } =
-    useAddLiquidity({
-      pool: v3Pool,
-      wethIsEth,
-    });
+  const {
+    queryOutput,
+    priceImpact,
+    input,
+    type,
+    setInput,
+    getCallData,
+    setType,
+    error,
+    isLoading: isLoadingAddLiquidity,
+  } = useAddLiquidity({
+    pool: v3Pool,
+    wethIsEth,
+  });
 
   const isProportional = type === AddLiquidityKind.Proportional;
 
@@ -103,11 +114,15 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
 
   const balancedInput = input.at(0);
 
+  const reset = () => {
+    setPreviewOpen(false);
+    setInput([]);
+  };
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
     message: `Add liquidity to ${pool?.name}`,
     onSuccess: () => {
-      // reset();
+      reset();
       refresh();
     },
     CustomSuccessModal: pool?.address ? AddLiquiditySuccess : undefined,
@@ -259,11 +274,39 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
               );
             })}
           </TokenList>
+          {process.env.NODE_ENV === "development" && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="balance-amounts"
+                checked={type === AddLiquidityKind.Proportional}
+                onClick={() =>
+                  setType((t) =>
+                    t === AddLiquidityKind.Proportional
+                      ? AddLiquidityKind.Unbalanced
+                      : AddLiquidityKind.Proportional,
+                  )
+                }
+              />
+              <label htmlFor="balance-amounts">Balance amounts</label>
+            </div>
+          )}
           <AddLiquidityDetails
             totalValue={totalValue?.toString()}
             priceImpact={priceImpact}
             exchangeRate="0"
           />
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>
+                <Icons.tooltip className="mt-[-4px] inline h-4 w-4" /> Error
+              </AlertTitle>
+              <AlertDescription className="text-xs">
+                {error.balanceError
+                  ? `Balancer error ${error.balanceError}`
+                  : error.message}
+              </AlertDescription>
+            </Alert>
+          )}
           {/* {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
@@ -272,7 +315,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
           )} */}
           <TxnPreview
             open={previewOpen}
-            // disabled={}
+            disabled={error !== undefined || isLoadingAddLiquidity}
             title={"Confirm LP Addition Details"}
             imgURI={`${cloudinaryUrl}/placeholder/preview-swap-img_ucrnla`}
             triggerText={"Preview"}

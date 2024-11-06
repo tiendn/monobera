@@ -46,7 +46,7 @@ const TokenSummary = ({
   isLoading,
 }: ITokenSummary) => {
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg bg-muted p-3">
+    <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg border border-border p-3">
       <p className="w-full text-left text-lg font-semibold">{title}</p>
       {pool?.tokens.map((token, idx) => {
         return (
@@ -180,12 +180,6 @@ export default function WithdrawLiquidityContent({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <TokenSummary
-            pool={v3Pool}
-            tokenBalances={userPositionBreakdown?.tokenBalances}
-            title="Your Tokens In the Pool"
-            isLoading={isPositionBreakdownLoading}
-          />
           <div className="w-full rounded-lg border p-4">
             <div className="flex w-full flex-row items-center justify-between gap-1">
               <p className="text-sm font-semibold sm:text-lg">
@@ -301,6 +295,14 @@ export default function WithdrawLiquidityContent({
           </TxnPreview>
         </CardContent>
       </Card>
+      <div className=" sm:w-[480px] mx-auto">
+        <TokenSummary
+          pool={v3Pool}
+          tokenBalances={userPositionBreakdown?.tokenBalances}
+          title="Your Tokens In the Pool"
+          isLoading={isPositionBreakdownLoading}
+        />
+      </div>
     </div>
   );
 }

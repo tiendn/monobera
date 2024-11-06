@@ -3,10 +3,12 @@ import useSWR from "swr";
 
 import { balancerClient } from "./balancerClient";
 
+/**
+ * @deprecated we should move to query pools from the api
+ */
 export const usePools = () => {
   return useSWR("pools", async () => {
     const pools = await balancerClient.pools.all();
-    console.log("USEPOOLS", pools);
     return pools;
   });
 };

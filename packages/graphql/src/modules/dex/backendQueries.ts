@@ -18,7 +18,25 @@ export const GetPoolEvents = gql`
   }
 `;
 gql`
-  fragment MinimalPool on GqlPoolMinimal {
+  fragment UserBalance on GqlPoolUserBalance {
+    totalBalanceUsd
+    walletBalance
+    walletBalanceUsd
+  }
+
+  fragment DynamicData on GqlPoolDynamicData {
+    totalShares
+    fees24h
+    volume24h
+    swapFee
+    totalLiquidity
+    aprItems {
+      apr
+      id
+    }
+  }
+
+  fragment MinimalPoolInList on GqlPoolMinimal {
     id
     name
 
@@ -33,21 +51,47 @@ gql`
     protocolVersion
     type
     dynamicData {
-      totalShares
-      fees24h
-      volume24h
-      swapFee
-      aprItems {
-        apr
-        id
-      }
+      ...DynamicData
+    }
+    userBalance {
+      ...UserBalance
+    }
+  }
+
+  fragment MinimalPool on GqlPoolBase {
+    id
+    name
+    poolTokens {
+      address
+      symbol
+      name
+      decimals
+    }
+    address
+    protocolVersion
+    type
+    dynamicData {
+      ...DynamicData
+    }
+    userBalance {
+      ...UserBalance
     }
   }
 `;
 
 export const GetPools = gql`
-  query GetPools {
-    poolGetPools {
+  query GetPools($textSearch: String, $userAddress: String) {
+    poolGetPools(
+      textSearch: $textSearch
+      where: { userAddress: $userAddress }
+    ) {
+      ...MinimalPoolInList
+    }
+  }
+`;
+export const GetPool = gql`
+  query GetPool($id: String!, $userAddress: String) {
+    poolGetPool(id: $id, userAddress: $userAddress) {
       ...MinimalPool
     }
   }
