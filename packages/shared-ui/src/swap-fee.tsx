@@ -48,7 +48,7 @@ export function SwapFeeInput({
             onChange={(e) => handleFeeChange(e.target.value)}
             placeholder="Enter swap fee"
             className={cn(
-              "w-full rounded-md border-2 p-2 pr-10 text-2xl",
+              "w-full rounded-md border border-border p-2 pr-10 text-2xl",
               isInvalid ? "border-red-500" : "border-gray-300",
             )}
             aria-label="Swap Fee Input"
@@ -65,7 +65,7 @@ export function SwapFeeInput({
               key={preset}
               onClick={() => handlePredefinedFeeClick(preset)}
               className={cn(
-                "rounded-md border-2 px-4 py-2",
+                "rounded-md border border-border px-4 py-2",
                 fee === preset ? "border-blue-500" : "border-gray-300",
               )}
               aria-label="Swap Fee Input"

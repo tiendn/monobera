@@ -187,8 +187,9 @@ export default function CreatePageContent() {
             <Card
               onClick={() => setPoolType(PoolType.ComposableStable)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border p-4",
-                poolType === PoolType.ComposableStable && "border-sky-600",
+                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                poolType === PoolType.ComposableStable &&
+                  "border-info-foreground ",
               )}
             >
               <span className="text-lg font-semibold">Stable</span>
@@ -203,8 +204,8 @@ export default function CreatePageContent() {
             <Card
               onClick={() => setPoolType(PoolType.Weighted)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border p-4",
-                poolType === PoolType.Weighted && "border-sky-600",
+                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                poolType === PoolType.Weighted && "border-info-foreground ",
               )}
             >
               <span className="text-lg font-semibold">Weighted</span>
@@ -218,8 +219,8 @@ export default function CreatePageContent() {
             <Card
               onClick={() => setPoolType(PoolType.MetaStable)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border p-4",
-                poolType === PoolType.MetaStable && "border-sky-600",
+                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                poolType === PoolType.MetaStable && "border-info-foreground ",
               )}
             >
               <span className="text-lg font-semibold">MetaStable</span>
