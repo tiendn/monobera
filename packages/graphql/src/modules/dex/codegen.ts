@@ -2669,6 +2669,23 @@ export type GetPoolEventsQuery = {
   >;
 };
 
+export type UserBalanceFragment = {
+  __typename?: "GqlPoolUserBalance";
+  totalBalanceUsd: number;
+  walletBalance: any;
+  walletBalanceUsd: number;
+};
+
+export type DynamicDataFragment = {
+  __typename?: "GqlPoolDynamicData";
+  totalShares: any;
+  fees24h: any;
+  volume24h: any;
+  swapFee: any;
+  totalLiquidity: any;
+  aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
+};
+
 export type MinimalPoolInListFragment = {
   __typename?: "GqlPoolMinimal";
   id: string;
@@ -2689,8 +2706,15 @@ export type MinimalPoolInListFragment = {
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
+  userBalance?: {
+    __typename?: "GqlPoolUserBalance";
+    totalBalanceUsd: number;
+    walletBalance: any;
+    walletBalanceUsd: number;
+  } | null;
 };
 
 type MinimalPool_GqlPoolComposableStable_Fragment = {
@@ -2710,11 +2734,10 @@ type MinimalPool_GqlPoolComposableStable_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2742,11 +2765,10 @@ type MinimalPool_GqlPoolElement_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2774,11 +2796,10 @@ type MinimalPool_GqlPoolFx_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2806,11 +2827,10 @@ type MinimalPool_GqlPoolGyro_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2838,11 +2858,10 @@ type MinimalPool_GqlPoolLiquidityBootstrapping_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2870,11 +2889,10 @@ type MinimalPool_GqlPoolMetaStable_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2902,11 +2920,10 @@ type MinimalPool_GqlPoolStable_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2934,11 +2951,10 @@ type MinimalPool_GqlPoolWeighted_Fragment = {
   dynamicData: {
     __typename?: "GqlPoolDynamicData";
     totalShares: any;
-    totalLiquidity: any;
-    swapsCount: any;
     fees24h: any;
     volume24h: any;
     swapFee: any;
+    totalLiquidity: any;
     aprItems: Array<{ __typename?: "GqlPoolAprItem"; apr: number; id: string }>;
   };
   userBalance?: {
@@ -2986,12 +3002,19 @@ export type GetPoolsQuery = {
       fees24h: any;
       volume24h: any;
       swapFee: any;
+      totalLiquidity: any;
       aprItems: Array<{
         __typename?: "GqlPoolAprItem";
         apr: number;
         id: string;
       }>;
     };
+    userBalance?: {
+      __typename?: "GqlPoolUserBalance";
+      totalBalanceUsd: number;
+      walletBalance: any;
+      walletBalanceUsd: number;
+    } | null;
   }>;
 };
 
@@ -3020,11 +3043,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3055,11 +3077,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3090,11 +3111,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3125,11 +3145,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3160,11 +3179,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3195,11 +3213,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3230,11 +3247,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3265,11 +3281,10 @@ export type GetPoolQuery = {
         dynamicData: {
           __typename?: "GqlPoolDynamicData";
           totalShares: any;
-          totalLiquidity: any;
-          swapsCount: any;
           fees24h: any;
           volume24h: any;
           swapFee: any;
+          totalLiquidity: any;
           aprItems: Array<{
             __typename?: "GqlPoolAprItem";
             apr: number;
@@ -3285,6 +3300,26 @@ export type GetPoolQuery = {
       };
 };
 
+export const DynamicDataFragmentDoc = gql`
+    fragment DynamicData on GqlPoolDynamicData {
+  totalShares
+  fees24h
+  volume24h
+  swapFee
+  totalLiquidity
+  aprItems {
+    apr
+    id
+  }
+}
+    `;
+export const UserBalanceFragmentDoc = gql`
+    fragment UserBalance on GqlPoolUserBalance {
+  totalBalanceUsd
+  walletBalance
+  walletBalanceUsd
+}
+    `;
 export const MinimalPoolInListFragmentDoc = gql`
     fragment MinimalPoolInList on GqlPoolMinimal {
   id
@@ -3299,17 +3334,14 @@ export const MinimalPoolInListFragmentDoc = gql`
   protocolVersion
   type
   dynamicData {
-    totalShares
-    fees24h
-    volume24h
-    swapFee
-    aprItems {
-      apr
-      id
-    }
+    ...DynamicData
+  }
+  userBalance {
+    ...UserBalance
   }
 }
-    `;
+    ${DynamicDataFragmentDoc}
+${UserBalanceFragmentDoc}`;
 export const MinimalPoolFragmentDoc = gql`
     fragment MinimalPool on GqlPoolBase {
   id
@@ -3324,24 +3356,14 @@ export const MinimalPoolFragmentDoc = gql`
   protocolVersion
   type
   dynamicData {
-    totalShares
-    totalLiquidity
-    swapsCount
-    fees24h
-    volume24h
-    swapFee
-    aprItems {
-      apr
-      id
-    }
+    ...DynamicData
   }
   userBalance {
-    totalBalanceUsd
-    walletBalance
-    walletBalanceUsd
+    ...UserBalance
   }
 }
-    `;
+    ${DynamicDataFragmentDoc}
+${UserBalanceFragmentDoc}`;
 export const GetPoolEventsDocument = gql`
     query GetPoolEvents($poolId: String!, $typeIn: [GqlPoolEventType!]!) {
   poolGetEvents(
@@ -3576,6 +3598,26 @@ export type GetPoolQueryResult = Apollo.QueryResult<
   GetPoolQuery,
   GetPoolQueryVariables
 >;
+export const DynamicData = gql`
+    fragment DynamicData on GqlPoolDynamicData {
+  totalShares
+  fees24h
+  volume24h
+  swapFee
+  totalLiquidity
+  aprItems {
+    apr
+    id
+  }
+}
+    `;
+export const UserBalance = gql`
+    fragment UserBalance on GqlPoolUserBalance {
+  totalBalanceUsd
+  walletBalance
+  walletBalanceUsd
+}
+    `;
 export const MinimalPoolInList = gql`
     fragment MinimalPoolInList on GqlPoolMinimal {
   id
@@ -3590,17 +3632,14 @@ export const MinimalPoolInList = gql`
   protocolVersion
   type
   dynamicData {
-    totalShares
-    fees24h
-    volume24h
-    swapFee
-    aprItems {
-      apr
-      id
-    }
+    ...DynamicData
+  }
+  userBalance {
+    ...UserBalance
   }
 }
-    `;
+    ${DynamicData}
+${UserBalance}`;
 export const MinimalPool = gql`
     fragment MinimalPool on GqlPoolBase {
   id
@@ -3615,24 +3654,14 @@ export const MinimalPool = gql`
   protocolVersion
   type
   dynamicData {
-    totalShares
-    totalLiquidity
-    swapsCount
-    fees24h
-    volume24h
-    swapFee
-    aprItems {
-      apr
-      id
-    }
+    ...DynamicData
   }
   userBalance {
-    totalBalanceUsd
-    walletBalance
-    walletBalanceUsd
+    ...UserBalance
   }
 }
-    `;
+    ${DynamicData}
+${UserBalance}`;
 export const GetPoolEvents = gql`
     query GetPoolEvents($poolId: String!, $typeIn: [GqlPoolEventType!]!) {
   poolGetEvents(

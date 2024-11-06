@@ -18,6 +18,24 @@ export const GetPoolEvents = gql`
   }
 `;
 gql`
+  fragment UserBalance on GqlPoolUserBalance {
+    totalBalanceUsd
+    walletBalance
+    walletBalanceUsd
+  }
+
+  fragment DynamicData on GqlPoolDynamicData {
+    totalShares
+    fees24h
+    volume24h
+    swapFee
+    totalLiquidity
+    aprItems {
+      apr
+      id
+    }
+  }
+
   fragment MinimalPoolInList on GqlPoolMinimal {
     id
     name
@@ -33,14 +51,10 @@ gql`
     protocolVersion
     type
     dynamicData {
-      totalShares
-      fees24h
-      volume24h
-      swapFee
-      aprItems {
-        apr
-        id
-      }
+      ...DynamicData
+    }
+    userBalance {
+      ...UserBalance
     }
   }
 
@@ -57,21 +71,10 @@ gql`
     protocolVersion
     type
     dynamicData {
-      totalShares
-      totalLiquidity
-      swapsCount
-      fees24h
-      volume24h
-      swapFee
-      aprItems {
-        apr
-        id
-      }
+      ...DynamicData
     }
     userBalance {
-      totalBalanceUsd
-      walletBalance
-      walletBalanceUsd
+      ...UserBalance
     }
   }
 `;

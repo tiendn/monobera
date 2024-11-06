@@ -85,7 +85,7 @@ export const usePoolTable = ({
           <div className="flex flex-col gap-1">
             <div className="text-sm leading-5">
               <FormattedNumber
-                value={row.original?.dynamicData?.totalShares ?? 0}
+                value={row.original?.dynamicData?.totalLiquidity ?? 0}
                 symbol="USD"
               />
             </div>
