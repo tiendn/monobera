@@ -62,10 +62,7 @@ export default function CreatePageContent() {
     writeApproval: approveRelayer,
     isLoading: isRelayerApprovalLoading,
     isError: isRelayerApprovalError,
-  } = usePoolCreationRelayerApproval({
-    relayerAddress: balancerVaultAddress,
-    poolCreationHelper: balancerPoolCreationHelper,
-  });
+  } = usePoolCreationRelayerApproval();
   useEffect(() => {
     if (isRelayerApprovalError) {
       setErrorMessage(
