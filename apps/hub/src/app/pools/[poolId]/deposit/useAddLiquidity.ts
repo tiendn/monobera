@@ -35,12 +35,18 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
     balanceError?: string;
     message?: string;
   }>();
+
   const [priceImpact, setPriceImpact] = useState<PriceImpactAmount>();
 
   const [queryOutput, setQueryOutput] = useState<AddLiquidityQueryOutput>();
 
   const fetch = useCallback(async () => {
-    if (!pool || !input || input.length === 0) return;
+    if (!pool || !input) return;
+
+    if (input.length === 0) {
+      setQueryOutput(undefined);
+      return;
+    }
 
     setIsLoading(true);
 
