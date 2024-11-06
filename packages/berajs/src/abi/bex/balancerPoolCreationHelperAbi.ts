@@ -200,4 +200,4 @@ export const balancerPoolCreationHelperAbi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
