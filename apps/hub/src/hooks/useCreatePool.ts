@@ -65,6 +65,7 @@ export const useCreatePool = ({
         pool?.tokenAddresses?.includes(token.address.toLowerCase()),
       );
       if (hasAllTokens && pool?.poolType.toString() === poolType.toString()) {
+        // TODO: use subgraph to query similar pools vs doing this in JS
         setDupePool(pool);
         return true;
       }
@@ -192,7 +193,7 @@ export const useCreatePool = ({
 
     const salt = keccak256(Buffer.from(`${poolName}-${account}`));
     const args = isStablePool
-      ? [
+      ? ([
           poolName,
           poolSymbol,
           sortedTokens,
@@ -204,8 +205,8 @@ export const useCreatePool = ({
           sortedAmountsIn,
           account,
           salt,
-        ]
-      : [
+        ] as const)
+      : ([
           poolName,
           poolSymbol,
           sortedTokens,
@@ -215,20 +216,21 @@ export const useCreatePool = ({
           sortedAmountsIn,
           account,
           salt,
-        ];
+        ] as const);
 
     const writeData = {
       abi: balancerPoolCreationHelperAbi,
       address: balancerPoolCreationHelper,
       functionName: isStablePool
-        ? "createAndJoinStablePool"
-        : "createAndJoinWeightedPool",
+        ? ("createAndJoinStablePool" as const)
+        : ("createAndJoinWeightedPool" as const),
       params: args,
       account,
       value: 0n,
       gasLimit: 7920027n, // NOTE: previous examples get up to 72% of this amount, which is the metamask maximum.
     };
 
+    // @ts-ignore FIXME: need to return to this when we have stable, we should split up the writes for better type-safety.
     write(writeData);
   };
 
