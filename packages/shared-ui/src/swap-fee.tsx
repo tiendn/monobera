@@ -38,8 +38,6 @@ export function SwapFeeInput({
 
   return (
     <section className="flex w-full flex-col gap-6">
-      <h1 className="self-start text-3xl font-semibold">Set Swap Fee</h1>
-
       <div className="flex flex-col gap-4">
         <div className="relative">
           <input
@@ -48,12 +46,19 @@ export function SwapFeeInput({
             onChange={(e) => handleFeeChange(e.target.value)}
             placeholder="Enter swap fee"
             className={cn(
-              "w-full rounded-md border border-border p-2 pr-10 text-2xl",
-              isInvalid ? "border-red-500" : "border-gray-300",
+              "w-full rounded-md border p-2 pr-10 text-2xl",
+              isInvalid
+                ? "border-destructive-foreground text-destructive-foreground"
+                : "border-border",
             )}
             aria-label="Swap Fee Input"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 transform text-lg text-gray-500">
+          <span
+            className={cn(
+              "absolute right-4 top-1/2 -translate-y-1/2 transform text-lg text-gray-500",
+              isInvalid && "text-destructive-foreground",
+            )}
+          >
             %
           </span>
         </div>
@@ -65,8 +70,8 @@ export function SwapFeeInput({
               key={preset}
               onClick={() => handlePredefinedFeeClick(preset)}
               className={cn(
-                "rounded-md border border-border px-4 py-2",
-                fee === preset ? "border-info-foreground" : "border-gray-300",
+                "rounded-md border px-4 py-2",
+                fee === preset ? "border-info-foreground" : "border-border",
               )}
               aria-label="Swap Fee Input"
             >
@@ -76,7 +81,7 @@ export function SwapFeeInput({
         </div>
 
         {isInvalid && (
-          <div className="-destructive-foreground mt-2 rounded-md border border-red-500 p-2 text-sm text-red-500">
+          <div className="mt-2 rounded-md border border-destructive-foreground p-2 text-sm text-destructive-foreground">
             <i className="mr-2">⚠️</i>
             Invalid fee. Ensure the entered fee is between 0.00001% and 10%.
           </div>

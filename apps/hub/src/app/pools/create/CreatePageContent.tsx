@@ -373,7 +373,7 @@ export default function CreatePageContent() {
           {errorMessage && (
             <Alert
               variant="destructive"
-              className="-destructive-foreground my-4"
+              className="my-4 text-destructive-foreground"
             >
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
@@ -438,10 +438,7 @@ export default function CreatePageContent() {
                   }}
                 />
                 {invalidAddressErrorMessage && (
-                  <Alert
-                    variant="destructive"
-                    className="-destructive-foreground my-4"
-                  >
+                  <Alert variant="destructive" className="my-4">
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>
                       {invalidAddressErrorMessage}
