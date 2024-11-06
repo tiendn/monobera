@@ -169,7 +169,7 @@ export const useCreatePool = ({
 
     // TODO: the below 3 inputs will be connected as a part of stable pool create PR
     const tokenRateCacheDurations = tokens.map(() => BigInt(100));
-    const exemptFromYieldProtocolFeeFlag = tokens.map(() => false);
+    const exemptFromYieldProtocolFeeFlag = false;
     const amplificationParameter = BigInt(62);
 
     const amountsIn = tokens.map((token) =>
@@ -186,7 +186,6 @@ export const useCreatePool = ({
         rateProvider: rateProviders[index],
         weight: normalizedWeights[index],
         cacheDuration: tokenRateCacheDurations[index],
-        feeFlag: exemptFromYieldProtocolFeeFlag[index],
       }))
       .sort((a, b) => (BigInt(a.token) < BigInt(b.token) ? -1 : 1));
 
@@ -195,7 +194,6 @@ export const useCreatePool = ({
     const sortedRateProviders = sortedData.map((item) => item.rateProvider);
     const sortedWeights = sortedData.map((item) => item.weight);
     const sortedCacheDurations = sortedData.map((item) => item.cacheDuration);
-    const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
 
     const salt = keccak256(Buffer.from(`${poolName}-${owner}`));
     const args = isStablePool
@@ -206,7 +204,7 @@ export const useCreatePool = ({
           amplificationParameter,
           sortedRateProviders,
           sortedCacheDurations,
-          sortedFeeFlags,
+          exemptFromYieldProtocolFeeFlag,
           swapFeePercentage,
           sortedAmountsIn,
           owner,

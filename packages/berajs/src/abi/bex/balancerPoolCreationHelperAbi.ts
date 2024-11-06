@@ -12,7 +12,7 @@ export const balancerPoolCreationHelperAbi = [
         type: "address",
       },
       {
-        internalType: "contract ComposableStablePoolFactory",
+        internalType: "contract IComposableStablePoolFactoryCreateV6",
         name: "_composableStablePoolFactory",
         type: "address",
       },
@@ -38,7 +38,7 @@ export const balancerPoolCreationHelperAbi = [
     name: "composableStablePoolFactory",
     outputs: [
       {
-        internalType: "contract ComposableStablePoolFactory",
+        internalType: "contract IComposableStablePoolFactoryCreateV6",
         name: "",
         type: "address",
       },
@@ -79,9 +79,9 @@ export const balancerPoolCreationHelperAbi = [
         type: "uint256[]",
       },
       {
-        internalType: "bool[]",
-        name: "exemptFromYieldProtocolFeeFlags",
-        type: "bool[]",
+        internalType: "bool",
+        name: "exemptFromYieldProtocolFeeFlag",
+        type: "bool",
       },
       {
         internalType: "uint256",
