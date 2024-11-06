@@ -58,7 +58,11 @@ export default function CreatePageContent() {
   // Check relayer approval and prompt for approval if needed
   const {
     ModalPortal: ModalPortalRelayerApproval,
-    swr: { data: isRelayerApproved, isLoading: isLoadingRelayerStatus },
+    swr: {
+      data: isRelayerApproved,
+      isLoading: isLoadingRelayerStatus,
+      isError: isRelayerApprovalStatusError,
+    },
     writeApproval: approveRelayer,
     isLoading: isRelayerApprovalLoading,
     isError: isRelayerApprovalError,
@@ -408,7 +412,8 @@ export default function CreatePageContent() {
                 onClick={approveRelayer}
                 className="mt-4 w-full"
               >
-                {isRelayerApprovalLoading || isLoadingRelayerStatus
+                {!isRelayerApprovalStatusError &&
+                (isRelayerApprovalLoading || isLoadingRelayerStatus)
                   ? "Approving..."
                   : "Approve Pool Creation Helper"}
               </Button>
