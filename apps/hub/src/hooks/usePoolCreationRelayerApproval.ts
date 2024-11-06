@@ -1,4 +1,5 @@
 import {
+  IContractWrite,
   balancerVaultAbi,
   useBeraJs,
   type DefaultHookOptions,
@@ -11,6 +12,7 @@ import {
 } from "@bera/config";
 import { useTxn } from "@bera/shared-ui";
 import useSWR, { mutate } from "swr";
+import { Abi } from "viem";
 import { usePublicClient } from "wagmi";
 
 /**
@@ -29,64 +31,66 @@ export const usePoolCreationRelayerApproval = (
   refresh: () => void;
   swr: DefaultHookReturnType<boolean>;
 } => {
-  // TODO: this ought to be split into two things: a usePoll... and a useApproval...
   const { account } = useBeraJs();
   const publicClient = usePublicClient();
 
-  const QUERY_KEY = [
-    account,
-    balancerRelayerAddress.toLowerCase(),
-    balancerPoolCreationHelper.toLowerCase(),
-    "setRelayerApproval",
-  ];
+  const QUERY_KEY =
+    account && balancerRelayerAddress && balancerPoolCreationHelper
+      ? ([
+          account,
+          balancerRelayerAddress.toLowerCase(),
+          balancerPoolCreationHelper.toLowerCase(),
+          "setRelayerApproval",
+        ] as const)
+      : undefined;
 
   const { write, ModalPortal, isSuccess, isError, isLoading } = useTxn({
     message: "Approving the Pool Creation Helper...",
   });
 
-  const checkApprovalStatus = async () => {
-    try {
-      if (!publicClient) {
-        throw new Error("Public client not available");
-      }
-      const approved = await publicClient.readContract({
-        address: balancerRelayerAddress,
-        abi: balancerVaultAbi,
-        functionName: "hasApprovedRelayer",
-        args: [account, balancerPoolCreationHelper],
-      });
-      return approved;
-    } catch (error) {
-      console.error("Failed to fetch relayer approval status:", error);
-      return false;
-    }
-  };
-
   const writeApproval = async () => {
     write({
       address: balancerVaultAddress,
-      abi: balancerVaultAbi,
-      functionName: "setRelayerApproval",
+      abi: balancerVaultAbi as unknown as Abi,
+      functionName: "setRelayerApproval" as const,
       params: [account as `0x${string}`, balancerPoolCreationHelper, true],
     });
   };
 
-  // @ts-ignore typing hell FIXME
-  const swrResponse: DefaultHookReturnType<boolean> = useSWR(
+  const swrResponse = useSWR<boolean>(
     QUERY_KEY,
-    checkApprovalStatus,
-    {
-      ...options?.opts,
+    async () => {
+      try {
+        if (!publicClient) {
+          throw new Error("Public client not available");
+        }
+        const approved = await publicClient.readContract({
+          address: balancerRelayerAddress,
+          abi: balancerVaultAbi,
+          functionName: "hasApprovedRelayer",
+          args: [account, balancerPoolCreationHelper],
+        });
+        return Boolean(approved); // NOTE: wagmi ought to type this properly but i'm not seeing it.
+      } catch (error) {
+        console.error("Failed to fetch relayer approval status:", error);
+        return false;
+      }
     },
+    { ...options?.opts },
   );
 
+  const enhancedSwrResponse: DefaultHookReturnType<boolean> = {
+    ...swrResponse,
+    refresh: () => mutate(QUERY_KEY),
+  };
+
   return {
-    swr: swrResponse,
+    swr: enhancedSwrResponse,
     writeApproval,
     ModalPortal,
     isLoading,
     isError,
     isSuccess,
-    refresh: () => mutate(QUERY_KEY),
+    refresh: enhancedSwrResponse.refresh,
   };
 };
