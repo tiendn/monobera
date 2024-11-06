@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useBeraJs, type Token } from "@bera/berajs";
-import { balancerVaultAddress } from "@bera/config";
+import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
+import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
   SwapFeeInput,
   useAnalytics,
+  useTxn,
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
@@ -25,7 +26,7 @@ import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
-import { usePoolCreationRelayerApproval } from "~/hooks/usePoolCreationRelayerApproval";
+import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
 
 const emptyToken: TokenInput = {
   address: "" as `0x${string}`,
@@ -65,23 +66,53 @@ export default function CreatePageContent() {
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
 
-  // Check relayer approval and prompt for approval if needed
+  // Get relayer approval status and refresh function
+  // NOTE: if useTxn isnt here we dont receive updates properly for out submit button
   const {
+    data: isRelayerApproved,
+    isLoading: isLoadingRelayerStatus,
+    error: isRelayerApprovalError,
+    refreshPoolCreationApproval,
+  } = usePollPoolCreationRelayerApproval();
+
+  // Use useTxn for the approval
+  const {
+    write,
     ModalPortal: ModalPortalRelayerApproval,
-    swr: {
-      data: isRelayerApproved,
-      isLoading: isLoadingRelayerStatus,
-      isError: isRelayerApprovalStatusError,
-    },
-    writeApproval: approveRelayer,
     isLoading: isRelayerApprovalLoading,
-    isError: isRelayerApprovalError,
-  } = usePoolCreationRelayerApproval();
+    isSubmitting: isRelayerApprovalSubmitting,
+  } = useTxn({
+    message: "Approving the Pool Creation Helper...",
+    onSuccess: () => {
+      refreshPoolCreationApproval();
+    },
+    onError: (e) => {
+      setErrorMessage("Error approving relayer.");
+    },
+  });
+
+  const handleRelayerApproval = async () => {
+    if (!account || !balancerVaultAddress) {
+      console.error("Missing account or balancerVaultAddress");
+      return;
+    }
+    try {
+      await write({
+        address: balancerVaultAddress,
+        abi: balancerVaultAbi,
+        functionName: "setRelayerApproval",
+        params: [account, balancerPoolCreationHelper, true],
+      });
+    } catch (error) {
+      setErrorMessage(
+        "Error approving PoolCreationHelper as a Relayer on Vault contract",
+      );
+    }
+  };
+
   useEffect(() => {
     if (isRelayerApprovalError) {
-      setErrorMessage(
-        `Error approving pool creation helper on vault: ${isRelayerApprovalError}`,
-      );
+      setErrorMessage("Error loading relayer approval status");
     }
   }, [isRelayerApprovalError]);
 
@@ -482,14 +513,17 @@ export default function CreatePageContent() {
             {/* Approvals TODO: this and below belong inside a preview page*/}
             {!isRelayerApproved && (
               <Button
-                disabled={isRelayerApprovalLoading}
-                onClick={approveRelayer}
+                disabled={
+                  isRelayerApprovalLoading ||
+                  isLoadingRelayerStatus ||
+                  isRelayerApprovalSubmitting
+                }
+                onClick={handleRelayerApproval}
                 className="mt-4 w-full"
               >
                 Approve Pool Creation Helper
-                {isRelayerApprovalLoading && (
-                  <span className="spinner ml-2">...</span>
-                )}
+                {isRelayerApprovalLoading ||
+                  (isRelayerApprovalSubmitting && "...")}
               </Button>
             )}
 
