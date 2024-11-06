@@ -355,7 +355,10 @@ export default function CreatePageContent() {
           </div>
 
           {errorMessage && (
-            <Alert variant="destructive" className="my-4">
+            <Alert
+              variant="destructive"
+              className="my-4 -destructive-foreground"
+            >
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>

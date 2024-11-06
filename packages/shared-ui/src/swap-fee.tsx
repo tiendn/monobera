@@ -66,7 +66,7 @@ export function SwapFeeInput({
               onClick={() => handlePredefinedFeeClick(preset)}
               className={cn(
                 "rounded-md border border-border px-4 py-2",
-                fee === preset ? "border-blue-500" : "border-gray-300",
+                fee === preset ? "border-info-foreground" : "border-gray-300",
               )}
               aria-label="Swap Fee Input"
             >
@@ -76,7 +76,7 @@ export function SwapFeeInput({
         </div>
 
         {isInvalid && (
-          <div className="mt-2 rounded-md border border-red-500 p-2 text-sm text-red-500">
+          <div className="-destructive-foreground mt-2 rounded-md border border-red-500 p-2 text-sm text-red-500">
             <i className="mr-2">⚠️</i>
             Invalid fee. Ensure the entered fee is between 0.00001% and 10%.
           </div>
