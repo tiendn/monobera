@@ -127,8 +127,7 @@ export const useCreatePool = ({
     if (tokens.length === 0) {
       return "";
     }
-    const tokenSymbols = tokens.map((token) => token.symbol).join(" | ");
-    return `${tokenSymbols} ${poolType}`;
+    return tokens.map((token) => token.symbol).join(" | ");
   };
 
   const generatePoolSymbol = (
