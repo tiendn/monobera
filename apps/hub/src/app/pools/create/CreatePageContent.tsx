@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { type Token } from "@bera/berajs";
-import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
+import { useBeraJs, type Token } from "@bera/berajs";
+import { balancerVaultAddress } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -17,8 +17,9 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { parseUnits } from "viem";
+import { isAddress, parseUnits } from "viem";
 
+import BeraTooltip from "~/components/bera-tooltip";
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import { useCreatePool } from "~/hooks/useCreatePool";
@@ -38,6 +39,7 @@ const emptyToken: TokenInput = {
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
+  const { account } = useBeraJs();
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [weights, setWeights] = useState<number[]>([]);
@@ -45,11 +47,19 @@ export default function CreatePageContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
-  const [swapFee, setSwapFee] = useState<number>(0.01);
+  const [swapFee, setSwapFee] = useState<number>(0.1);
+  const [owner, setOwner] = useState<string>("");
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
-  const minTokensLength = poolType === PoolType.Weighted ? 3 : 2; // i.e. for meta/stable it's 2
+  const minTokensLength = 2; // i.e. for meta/stable it's 2
   const maxTokensLength = poolType === PoolType.Weighted ? 8 : 5; // i.e. for meta/stable it's 5
+
+  // if account changes update the owner to match
+  useEffect(() => {
+    if (account) {
+      setOwner(account);
+    }
+  }, [account]);
 
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
@@ -111,6 +121,10 @@ export default function CreatePageContent() {
     }
   };
 
+  const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
+    string | null
+  >(null);
+
   // if the pool type changes we need to reset the tokens
   useEffect(() => {
     const initialTokens = Array(minTokensLength).fill(emptyToken);
@@ -119,9 +133,11 @@ export default function CreatePageContent() {
     setWeights(initialWeights);
   }, [poolType]);
 
+  const [poolName, setPoolName] = useState<string>("");
+  const [poolSymbol, setPoolSymbol] = useState<string>("");
   const {
-    poolName: generatedPoolName,
-    poolSymbol: generatedPoolSymbol,
+    generatedPoolName,
+    generatedPoolSymbol,
     isDupePool,
     dupePool,
     createPool,
@@ -134,6 +150,9 @@ export default function CreatePageContent() {
     weights: weights,
     poolType,
     swapFee,
+    poolName,
+    poolSymbol,
+    owner,
     onSuccess: () => {
       track("create_pool_success");
       router.push("/pools");
@@ -145,9 +164,6 @@ export default function CreatePageContent() {
       });
     },
   });
-
-  const [poolName, setPoolName] = useState<string>(generatedPoolName);
-  const [poolSymbol, setPoolSymbol] = useState<string>(generatedPoolSymbol);
   useEffect(() => {
     setPoolName(generatedPoolName);
     setPoolSymbol(generatedPoolSymbol);
@@ -357,7 +373,7 @@ export default function CreatePageContent() {
           {errorMessage && (
             <Alert
               variant="destructive"
-              className="my-4 -destructive-foreground"
+              className="-destructive-foreground my-4"
             >
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
@@ -365,7 +381,20 @@ export default function CreatePageContent() {
           )}
 
           <section className="flex w-full flex-col gap-10">
-            <h1 className="self-start text-3xl font-semibold">Set Swap Fee</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="self-start text-3xl font-semibold">
+                Set Swap Fee
+              </h1>
+              <div className="pt-2">
+                <BeraTooltip
+                  size="lg"
+                  wrap={true}
+                  text={`There is lots of discussion and research around how to best set a swap fee amount, 
+                    but a general rule of thumb is for stable assets it should be lower (ex: 0.1%) 
+                    and non-stable pairs should be higher (ex: 0.3%).`}
+                />
+              </div>
+            </div>
             <div className="flex flex-col gap-4">
               <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
                 <SwapFeeInput
@@ -374,6 +403,51 @@ export default function CreatePageContent() {
                     setSwapFee(fee);
                   }}
                 />
+              </Card>
+            </div>
+          </section>
+
+          <section className="flex w-full flex-col gap-10">
+            <div className="flex items-center gap-2">
+              <h1 className="self-start text-3xl font-semibold">Owner</h1>
+              <div className="pt-2">
+                <BeraTooltip
+                  size="lg"
+                  wrap={true}
+                  text={`The owner of the pool has the ability to make changes to the pool such as setting the swap fee. 
+                    You can set the owner to 0x0000000000000000000000000000000000000000 to set a permanent fee upon pool creation. 
+                    However in general the recommendation is to allow Balancer governance (and delegated addresses) 
+                    to dynamically adjust the fees. This is done by setting an owner of 0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b.`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+                <InputWithLabel
+                  label="Owner"
+                  value={owner}
+                  maxLength={42}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setOwner(value);
+                    if (!isAddress(value)) {
+                      setInvalidAddressErrorMessage("Invalid owner address");
+                    } else {
+                      setInvalidAddressErrorMessage(null);
+                    }
+                  }}
+                />
+                {invalidAddressErrorMessage && (
+                  <Alert
+                    variant="destructive"
+                    className="-destructive-foreground my-4"
+                  >
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                      {invalidAddressErrorMessage}
+                    </AlertDescription>
+                  </Alert>
+                )}
               </Card>
             </div>
           </section>
@@ -415,10 +489,10 @@ export default function CreatePageContent() {
                 onClick={approveRelayer}
                 className="mt-4 w-full"
               >
-                {!isRelayerApprovalStatusError &&
-                (isRelayerApprovalLoading || isLoadingRelayerStatus)
-                  ? "Approving..."
-                  : "Approve Pool Creation Helper"}
+                Approve Pool Creation Helper
+                {isRelayerApprovalLoading && (
+                  <span className="spinner ml-2">...</span>
+                )}
               </Button>
             )}
 
@@ -437,6 +511,7 @@ export default function CreatePageContent() {
                 return (
                   <ApproveButton
                     amount={approvalAmount}
+                    disabled={approvalAmount === BigInt(0)}
                     token={approvalToken}
                     spender={balancerVaultAddress}
                     onApproval={() => refreshAllowances()}
@@ -446,7 +521,14 @@ export default function CreatePageContent() {
 
             <ActionButton>
               <Button
-                disabled={tokensNeedApproval.length > 0 || !isRelayerApproved}
+                disabled={
+                  tokensNeedApproval.length > 0 ||
+                  !isRelayerApproved ||
+                  !isAddress(owner) ||
+                  poolName.length === 0 ||
+                  poolSymbol.length === 0 ||
+                  !enableLiquidityInput
+                }
                 className="w-full"
                 onClick={createPool}
               >

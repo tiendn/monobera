@@ -20,13 +20,16 @@ interface UseCreatePoolProps {
   weights: number[]; // NOTE: weights are an array of percentages summing to 100
   poolType: PoolType;
   swapFee: number;
+  owner: string;
+  poolSymbol: string;
+  poolName: string;
   onSuccess?: (hash: string) => void;
   onError?: (e?: Error) => void;
 }
 
 interface UseCreatePoolReturn {
-  poolName: string;
-  poolSymbol: string;
+  generatedPoolName: string;
+  generatedPoolSymbol: string;
   isDupePool: boolean;
   dupePool: PoolWithMethods | null;
   normalizedWeights: bigint[];
@@ -41,11 +44,13 @@ export const useCreatePool = ({
   tokens,
   weights,
   poolType,
+  poolName,
+  poolSymbol,
   swapFee,
+  owner,
   onSuccess,
   onError,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
-  const { account } = useBeraJs();
   const [isDupePool, setIsDupePool] = useState<boolean>(false);
   const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
 
@@ -147,7 +152,7 @@ export const useCreatePool = ({
     return `${tokens.map((token) => token.symbol).join("-")}-${poolTypeString}`;
   };
 
-  const [poolName, poolSymbol] = useMemo(() => {
+  const [generatedPoolName, generatedPoolSymbol] = useMemo(() => {
     return [
       generatePoolName(tokens, poolType),
       generatePoolSymbol(tokens, normalizedWeights, poolType),
@@ -155,7 +160,9 @@ export const useCreatePool = ({
   }, [tokens, poolType, normalizedWeights]);
 
   const createPool = () => {
-    if (!account) return;
+    // FIXME: we need better handling here
+    if (!owner) return;
+    if (poolName === "" || poolSymbol === "") return;
 
     const tokensAddresses = tokens.map((token) => token.address);
     const rateProviders = tokens.map(() => ADDRESS_ZERO);
@@ -191,7 +198,7 @@ export const useCreatePool = ({
     const sortedCacheDurations = sortedData.map((item) => item.cacheDuration);
     const sortedFeeFlags = sortedData.map((item) => item.feeFlag);
 
-    const salt = keccak256(Buffer.from(`${poolName}-${account}`));
+    const salt = keccak256(Buffer.from(`${poolName}-${owner}`));
     const args = isStablePool
       ? ([
           poolName,
@@ -203,7 +210,7 @@ export const useCreatePool = ({
           sortedFeeFlags,
           swapFeePercentage,
           sortedAmountsIn,
-          account,
+          owner,
           salt,
         ] as const)
       : ([
@@ -214,7 +221,7 @@ export const useCreatePool = ({
           sortedRateProviders,
           swapFeePercentage,
           sortedAmountsIn,
-          account,
+          owner,
           salt,
         ] as const);
 
@@ -225,10 +232,12 @@ export const useCreatePool = ({
         ? ("createAndJoinStablePool" as const)
         : ("createAndJoinWeightedPool" as const),
       params: args,
-      account,
+      owner,
       value: 0n,
       gasLimit: 7920027n, // NOTE: previous examples get up to 72% of this amount, which is the metamask maximum.
     };
+
+    console.log("writeData", writeData);
 
     // @ts-ignore FIXME: need to return to this when we have stable, we should split up the writes for better type-safety.
     write(writeData);
@@ -238,8 +247,8 @@ export const useCreatePool = ({
     ModalPortal,
     normalizedWeights,
     formattedNormalizedWeights,
-    poolName,
-    poolSymbol,
+    generatedPoolName,
+    generatedPoolSymbol,
     isDupePool,
     dupePool,
     createPool,

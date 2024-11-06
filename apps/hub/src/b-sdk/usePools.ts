@@ -1,4 +1,3 @@
-import { PoolWithMethods } from "@balancer-labs/sdk";
 import useSWR from "swr";
 
 import { balancerClient } from "./balancerClient";
