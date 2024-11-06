@@ -281,9 +281,9 @@ export default function CreatePageContent() {
               </span>
             </Card>
             <Card
-              onClick={() => setPoolType(PoolType.MetaStable)}
+              onClick={() => {}} //setPoolType(PoolType.MetaStable)}
               className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                "flex w-full cursor-not-allowed flex-col gap-0 border border-border p-4 opacity-50", // FIXME enable when we get rateProviders working
                 poolType === PoolType.MetaStable && "border-info-foreground ",
               )}
             >
