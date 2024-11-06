@@ -50,6 +50,3 @@ NATIVE_ASSETS[chainId] = nativeToken;
 
 // NOTE: functionally this is the V3 Balancer SDK (js)
 export const balancerApi = new BalancerApi(balancerApiUrl, chainId);
-export const balancerCreatePool = new CreatePool();
-export const balancerInitPool = new InitPool();
-export const balancerInitPoolDataProvider = new InitPoolDataProvider(chainId, balancerApiUrl);
