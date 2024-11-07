@@ -19,7 +19,6 @@ import {
   PoolHeader,
   TokenIcon,
   TokenIconList,
-  truncateFloat,
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
@@ -27,6 +26,7 @@ import { Card, CardContent } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Separator } from "@bera/ui/separator";
 import { Skeleton } from "@bera/ui/skeleton";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { Address } from "viem";
 
@@ -281,7 +281,7 @@ export default function PoolPageContent({
           vaultAddress={pool?.id as Address}
         />
       )} */}
-      <div className="grid w-full auto-rows-min  grid-cols-1 gap-4 lg:grid-cols-12">
+      <div className="w-full grid-cols-1 lg:grid-cols-12  gap-4 grid auto-rows-min">
         <div className="col-span-5 flex w-full flex-col gap-4 lg:col-span-7">
           {/* <PoolChart
             pool={pool}
@@ -329,7 +329,7 @@ export default function PoolPageContent({
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold text-warning-foreground">
                 <FormattedNumber
-                  value={(v3Pool as any)?.apr ?? 0}
+                  value={v3Pool?.aprItems.at(0)?.apr ?? 0}
                   colored
                   percent
                 />
@@ -367,8 +367,8 @@ export default function PoolPageContent({
           </Card>
         </div>
         {isConnected && (
-          <Card className="lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
-            <CardContent className="flex h-full flex-col items-center justify-between gap-4 p-4">
+          <Card className="lg:col-span-5 lg:row-start-1 lg:col-start-8 lg:row-span-2">
+            <CardContent className="flex h-full items-center flex-col justify-between gap-4 p-4">
               <div className="flex h-8 w-full items-center justify-between text-lg font-semibold">
                 <h3 className="text-md font-medium ">My deposits</h3>
                 <div className="flex gap-2">
@@ -410,7 +410,7 @@ export default function PoolPageContent({
                   }
                 />
               </div>
-              <div className="flex w-full justify-between font-medium">
+              <div className="flex justify-between w-full font-medium">
                 <span>Total</span>
                 {isUserBalanceLoading || tvlInUsd === undefined ? (
                   <Skeleton className="h-[32px] w-[150px]" />
