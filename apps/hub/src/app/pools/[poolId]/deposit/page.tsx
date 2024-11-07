@@ -27,7 +27,7 @@ export default async function PoolPage({
     const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
       query: GetSubgraphPool,
       variables: {
-        poolId: params.poolId,
+        id: params.poolId,
       },
     });
 

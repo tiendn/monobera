@@ -22,7 +22,7 @@ export const usePool = ({
   ]
 > => {
   const subgraph = useSWR(
-    `usePool-subgraph-${id}`,
+    id ? `usePool-subgraph-${id}` : null,
     async () => {
       const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
         query: GetSubgraphPool,
@@ -37,7 +37,7 @@ export const usePool = ({
   );
 
   const v3Pool = useSWR(
-    `usePool-api-${id}`,
+    id ? `usePool-api-${id}` : null,
     async () => {
       return balancerApi.pools.fetchPoolStateWithBalances(id);
     },
