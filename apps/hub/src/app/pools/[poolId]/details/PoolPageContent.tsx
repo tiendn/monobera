@@ -37,9 +37,6 @@ import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 
-
-
-
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,
   pool: PoolV2 | undefined,
