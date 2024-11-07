@@ -94,9 +94,15 @@ export const usePoolTable = ({
         filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
         },
+        sortingFn: (rowA, rowB) => {
+          return (
+            Number(rowA.original.dynamicData.totalLiquidity ?? "0") -
+            Number(rowB.original.dynamicData.totalLiquidity ?? "0")
+          );
+        },
       },
       {
-        accessorKey: "dynamicData.fees24h",
+        accessorKey: "dynamicData__fees24h",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -127,7 +133,7 @@ export const usePoolTable = ({
         },
       },
       {
-        accessorKey: "dynamicData.volume24h",
+        accessorKey: "dynamicData__volume24h",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -158,7 +164,7 @@ export const usePoolTable = ({
         },
       },
       {
-        accessorKey: "wtv",
+        accessorKey: "dynamicData__aprItems__0__apr",
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -193,7 +199,10 @@ export const usePoolTable = ({
           return value.includes(row.getValue(id));
         },
         sortingFn: (rowA, rowB) => {
-          return 0;
+          return (
+            Number(rowA.original.dynamicData.aprItems?.at(0)?.apr ?? "0") -
+            Number(rowB.original.dynamicData.aprItems?.at(0)?.apr ?? "0")
+          );
         },
       },
       // {
