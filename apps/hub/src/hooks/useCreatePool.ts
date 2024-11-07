@@ -177,9 +177,7 @@ export const useCreatePool = ({
         weight: normalizedWeights[index],
         cacheDuration: BigInt(100), // Only used in stable pools
       }))
-      .sort((a, b) =>
-        a.token.toLowerCase().localeCompare(b.token.toLowerCase()),
-      );
+      .sort((a, b) => (a.token.toLowerCase() < b.token.toLowerCase() ? -1 : 1));
 
     return {
       sortedTokens: sortedData.map((item) => item.token),
