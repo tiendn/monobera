@@ -161,16 +161,18 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
           {isLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
-            pool?.tokens?.map((token, i) => {
-              return (
-                <TokenIcon
-                  symbol={token.symbol}
-                  address={token.address}
-                  className={cn("h-12 w-12", i !== 0 && "ml-[-16px]")}
-                  key={token.address}
-                />
-              );
-            })
+            pool?.tokens
+              ?.filter((t) => t.address !== pool.address)
+              .map((token, i) => {
+                return (
+                  <TokenIcon
+                    symbol={token.symbol}
+                    address={token.address}
+                    className={cn("h-12 w-12", i !== 0 && "ml-[-16px]")}
+                    key={token.address}
+                  />
+                );
+              })
           )}
         </div>
         <Link
@@ -190,90 +192,94 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <TokenList>
-            {pool?.tokens?.map((token, idx) => {
-              const currInput = input.find((i) => i.address === token.address);
+            {pool?.tokens
+              ?.filter((t) => t.address !== pool.address)
+              .map((token, idx) => {
+                const currInput = input.find(
+                  (i) => i.address === token.address,
+                );
 
-              return (
-                <TokenInput
-                  key={token?.address ?? idx}
-                  selected={
-                    token.address.toLowerCase() ===
-                    wBeraToken.address.toLowerCase()
-                      ? wethIsEth
-                        ? { ...token, ...beraToken }
-                        : token
-                      : token
-                  }
-                  selectable={
-                    token.address.toLowerCase() ===
-                    wBeraToken.address.toLowerCase()
-                  }
-                  customTokenList={
-                    token.address.toLowerCase() ===
-                    wBeraToken.address.toLowerCase()
-                      ? [wBeraToken, beraToken]
-                      : [token]
-                  }
-                  amount={
-                    !isProportional
-                      ? currInput?.amount
-                      : balancedInput?.address === token.address
-                        ? balancedInput.amount
-                        : formatEther(
-                            queryOutput?.amountsIn.find(
-                              (t) => t.token.address === token.address,
-                            )?.scale18 ?? 0n,
-                          )
-                  }
-                  onTokenSelection={(tk) => {
-                    if (
-                      token?.address.toLowerCase() ===
+                return (
+                  <TokenInput
+                    key={token?.address ?? idx}
+                    selected={
+                      token.address.toLowerCase() ===
                       wBeraToken.address.toLowerCase()
-                    ) {
-                      setWethIsEth(tk?.address === beraToken.address);
+                        ? wethIsEth
+                          ? { ...token, ...beraToken }
+                          : token
+                        : token
                     }
-                  }}
-                  setAmount={(amount: string) => {
-                    if (isProportional) {
-                      setInput([
-                        {
+                    selectable={
+                      token.address.toLowerCase() ===
+                      wBeraToken.address.toLowerCase()
+                    }
+                    customTokenList={
+                      token.address.toLowerCase() ===
+                      wBeraToken.address.toLowerCase()
+                        ? [wBeraToken, beraToken]
+                        : [token]
+                    }
+                    amount={
+                      !isProportional
+                        ? currInput?.amount
+                        : balancedInput?.address === token.address
+                          ? balancedInput.amount
+                          : formatEther(
+                              queryOutput?.amountsIn.find(
+                                (t) => t.token.address === token.address,
+                              )?.scale18 ?? 0n,
+                            )
+                    }
+                    onTokenSelection={(tk) => {
+                      if (
+                        token?.address.toLowerCase() ===
+                        wBeraToken.address.toLowerCase()
+                      ) {
+                        setWethIsEth(tk?.address === beraToken.address);
+                      }
+                    }}
+                    setAmount={(amount: string) => {
+                      if (isProportional) {
+                        setInput([
+                          {
+                            address: token.address as Address,
+                            amount,
+                          },
+                        ]);
+                        return;
+                      }
+
+                      setInput((prev) => {
+                        const prevIdx = prev.findIndex(
+                          (i) => i.address === token.address,
+                        );
+                        const input = {
                           address: token.address as Address,
                           amount,
-                        },
-                      ]);
-                      return;
+                        };
+                        if (prevIdx === -1) {
+                          return [...prev, input];
+                        }
+                        return [
+                          ...prev.slice(0, prevIdx),
+                          input,
+                          ...prev.slice(prevIdx + 1),
+                        ];
+                      });
+                      // setIsBaseInput(true);
+                      // handleBaseAssetAmountChange(amount);
+                    }}
+                    price={Number(token?.token?.latestUSDPrice ?? "0")}
+                    onExceeding={
+                      (exceeding: boolean) => false // updateTokenExceeding(0, exceeding)
                     }
-
-                    setInput((prev) => {
-                      const prevIdx = prev.findIndex(
-                        (i) => i.address === token.address,
-                      );
-                      const input = {
-                        address: token.address as Address,
-                        amount,
-                      };
-                      if (prevIdx === -1) {
-                        return [...prev, input];
-                      }
-                      return [
-                        ...prev.slice(0, prevIdx),
-                        input,
-                        ...prev.slice(prevIdx + 1),
-                      ];
-                    });
-                    // setIsBaseInput(true);
-                    // handleBaseAssetAmountChange(amount);
-                  }}
-                  price={Number(token?.token?.latestUSDPrice ?? "0")}
-                  onExceeding={
-                    (exceeding: boolean) => false // updateTokenExceeding(0, exceeding)
-                  }
-                  showExceeding={true}
-                  // disabled={!poolPrice}
-                  // beraSafetyMargin={estimatedBeraFee}
-                />
-              );
-            })}
+                    showExceeding={true}
+                    // disabled={!poolPrice}
+                    // beraSafetyMargin={estimatedBeraFee}
+                  />
+                );
+              })}
           </TokenList>
           {process.env.NODE_ENV === "development" && (
             <div className="flex items-center gap-2">
@@ -323,21 +329,23 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
             setOpen={setPreviewOpen}
           >
             <TokenList className="bg-muted">
-              {activeQueryOutput?.amountsIn.map((amount) => (
-                <PreviewToken
-                  token={
-                    wethIsEth &&
-                    amount.token.address.toLowerCase() ===
-                      wBeraToken.address.toLowerCase()
-                      ? beraToken
-                      : pool?.tokens.find(
-                          (t) => t.address === amount.token.address,
-                        )
-                  }
-                  value={formatEther(amount.scale18)}
-                  // price={Number(baseToken?.usdValue ?? 0)}
-                />
-              ))}
+              {activeQueryOutput?.amountsIn
+                .filter((a) => a.token.address !== pool?.address)
+                .map((amount) => (
+                  <PreviewToken
+                    token={
+                      wethIsEth &&
+                      amount.token.address.toLowerCase() ===
+                        wBeraToken.address.toLowerCase()
+                        ? beraToken
+                        : pool?.tokens.find(
+                            (t) => t.address === amount.token.address,
+                          )
+                    }
+                    value={formatEther(amount.scale18)}
+                    // price={Number(baseToken?.usdValue ?? 0)}
+                  />
+                ))}
             </TokenList>
             {needsApprovalNoBera.length > 0 ? (
               <ApproveButton

@@ -14,7 +14,7 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
   return (
     <div className="flex flex-row items-start gap-2">
       <TokenIconList
-        tokenList={pool?.allTokens}
+        tokenList={pool?.allTokens.filter((t) => t.address !== pool.address)}
         size="xl"
         className="self-center"
       />

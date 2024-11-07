@@ -121,7 +121,9 @@ const TokenView = ({
             <Skeleton className="mt-2 h-8 w-full" />
           </div>
         ) : (
-          tokens?.map((token, index) => {
+          tokens
+
+          .map((token, index) => {
             return (
               <div
                 className="flex h-8 items-center justify-between"
@@ -210,12 +212,14 @@ export default function PoolPageContent({
             <>
               <TokenIconList
                 tokenList={
-                  pool?.tokens.map((t) => ({
-                    address: t.address as Address,
-                    symbol: t.symbol!,
-                    decimals: t.decimals!,
-                    name: t.symbol!,
-                  })) ?? []
+                  pool?.tokens
+                    .filter((t) => t.address !== pool.address)
+                    .map((t) => ({
+                      address: t.address as Address,
+                      symbol: t.symbol!,
+                      decimals: t.decimals!,
+                      name: t.symbol!,
+                    })) ?? []
                 }
                 size="xl"
               />
@@ -345,14 +349,16 @@ export default function PoolPageContent({
               tokens={
                 !pool
                   ? []
-                  : pool.tokens?.map((t) => ({
-                      address: t.address!,
-                      symbol: t.symbol!,
-                      value: parseFloat(t.balance),
-                      valueUSD:
-                        parseFloat(t.balance) *
-                        parseFloat(t.token?.latestUSDPrice ?? "0"),
-                    }))
+                  : pool.tokens
+                      ?.filter((t) => t.address !== pool.address)
+                      .map((t) => ({
+                        address: t.address!,
+                        symbol: t.symbol!,
+                        value: parseFloat(t.balance),
+                        valueUSD:
+                          parseFloat(t.balance) *
+                          parseFloat(t.token?.latestUSDPrice ?? "0"),
+                      }))
               }
             />
           </Card>
@@ -387,15 +393,17 @@ export default function PoolPageContent({
                 <TokenView
                   isLoading={isUserBalanceLoading || isPoolLoading}
                   tokens={
-                    pool?.tokens?.map((t) => ({
-                      address: t.address!,
-                      symbol: t.symbol!,
-                      value: parseFloat(t.balance) * userSharePercentage,
-                      valueUSD:
-                        parseFloat(t.balance) *
-                        parseFloat(t.token?.latestUSDPrice ?? "0") *
-                        userSharePercentage,
-                    })) ?? []
+                    pool?.tokens
+                      ?.filter((t) => t.address !== pool.address)
+                      ?.map((t) => ({
+                        address: t.address!,
+                        symbol: t.symbol!,
+                        value: parseFloat(t.balance) * userSharePercentage,
+                        valueUSD:
+                          parseFloat(t.balance) *
+                          parseFloat(t.token?.latestUSDPrice ?? "0") *
+                          userSharePercentage,
+                      })) ?? []
                   }
                 />
               </div>

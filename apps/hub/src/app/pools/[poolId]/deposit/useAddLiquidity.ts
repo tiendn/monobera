@@ -19,7 +19,7 @@ export interface UseAddLiquidityArgs {
 
 export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
   const [type, setType] = useState<AddLiquidityKind>(
-    AddLiquidityKind.Proportional,
+    AddLiquidityKind.Unbalanced,
   );
 
   const [input, setInput] = useState<
