@@ -13,7 +13,7 @@ import {
   GetPools,
   GetPoolsQuery,
   MinimalPoolInListFragment,
-} from "@bera/graphql/dex";
+} from "@bera/graphql/dex/api";
 
 export const usePoolTable = ({
   sorting,

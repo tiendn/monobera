@@ -3,11 +3,15 @@ import { readFile, writeFile } from "fs/promises";
 const entryPoints = [
   "./src/modules/governance/index.ts",
   "./src/modules/chain/index.ts",
-  "./src/modules/dex/index.ts",
   "./src/modules/pol/index.ts",
 ];
 const config = {
-  entryPoints: ["./src/index.ts", ...entryPoints], // The entry point(s) of your library
+  entryPoints: [
+    "./src/index.ts",
+    "./src/modules/dex/subgraph.codegen.ts",
+    "./src/modules/dex/api.codegen.ts",
+    ...entryPoints,
+  ], // The entry point(s) of your library
   format: ["esm"], // The desired output format(s)
   clean: true,
   splitting: true,
@@ -19,6 +23,7 @@ const config = {
   dts: process.env.VERCEL !== "1", // Whether to generate TypeScript declaration files
   // target: "node18", // Specify your target environment
 
+  ignore: ["src/**/*.graphql"],
   async onSuccess() {
     const pkgJson = JSON.parse(
       await readFile("./package.json", {
@@ -30,7 +35,24 @@ const config = {
         import: "./dist/index.js",
         types: "./dist/index.d.ts",
       },
+      "./dex/api": {
+        import: "./dist/modules/dex/api.codegen.js",
+        types: "./dist/modules/dex/api.codegen.d.ts",
+      },
+      "./dex/subgraph": {
+        import: "./dist/modules/dex/subgraph.codegen.js",
+        types: "./dist/modules/dex/subgraph.codegen.d.ts",
+      },
     };
+
+    pkgJson.typesVersions["*"]["dex/subgraph"] = [
+      "./dist/modules/dex/subgraph.codegen.d.ts",
+    ];
+
+    pkgJson.typesVersions["*"]["dex/api"] = [
+      "./dist/modules/dex/api.codegen.d.ts",
+    ];
+
     entryPoints
       .filter((e) => e.endsWith(".ts"))
       .forEach((entry) => {

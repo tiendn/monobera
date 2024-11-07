@@ -17,8 +17,12 @@ module.exports = {
       schema: process.env.NEXT_PUBLIC_BALANCER_API_URL,
       documents: [
         "./packages/b-sdk/**/*.ts",
-        "./packages/graphql/src/modules/dex/backendQueries.ts",
+        "./packages/graphql/src/modules/dex/api.graphql",
       ],
+    },
+    balancerSubgraph: {
+      schema: process.env.NEXT_PUBLIC_BALANCER_SUBGRAPH,
+      documents: ["./packages/graphql/src/modules/dex/subgraph.graphql"],
     },
   },
 };

@@ -4,7 +4,7 @@ import { usePollBalance } from "@bera/berajs";
 import { DataTableColumnHeader, TokenIconList } from "@bera/shared-ui";
 import { Badge } from "@bera/ui/badge";
 import { type ColumnDef } from "@tanstack/react-table";
-import { GqlPoolType, MinimalPoolInListFragment } from "@bera/graphql/dex";
+import { GqlPoolType, MinimalPoolInListFragment } from "@bera/graphql/dex/api";
 
 export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
   const { data: balance } = usePollBalance({
@@ -14,7 +14,7 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
   return (
     <div className="flex flex-row items-start gap-2">
       <TokenIconList
-        tokenList={pool?.allTokens.filter((t) => t.address !== pool.address)}
+        tokenList={pool?.tokens.filter((t) => t.address !== pool.address)}
         size="xl"
         className="self-center"
       />

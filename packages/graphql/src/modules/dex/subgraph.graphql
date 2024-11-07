@@ -1,0 +1,26 @@
+query GetSubgraphPool($id: ID!) {
+  pool(id: $id) {
+    id
+    address
+    factory
+    swapFee
+    totalShares
+    createTime
+    owner
+
+    tokens {
+      address
+      symbol
+      index
+      weight
+      balance
+      token {
+        address
+        name
+        decimals
+        symbol
+        latestUSDPrice
+      }
+    }
+  }
+}

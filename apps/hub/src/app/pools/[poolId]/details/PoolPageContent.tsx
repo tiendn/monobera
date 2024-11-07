@@ -39,7 +39,7 @@ import { Address } from "viem";
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
-import { GqlPoolEventType } from "@bera/graphql/dex";
+import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 
 const getTokenDisplay = (

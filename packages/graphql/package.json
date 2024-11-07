@@ -76,6 +76,12 @@
       ],
       "dex": [
         "dist/modules/dex/index.d.ts"
+      ],
+      "dex/subgraph": [
+        "./dist/modules/dex/subgraph.codegen.d.ts"
+      ],
+      "dex/api": [
+        "./dist/modules/dex/api.codegen.d.ts"
       ]
     }
   }

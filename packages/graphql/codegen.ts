@@ -70,9 +70,28 @@ const config: CodegenConfig = {
         gqlImport: "@apollo/client#gql",
       },
     },
-    "./src/modules/dex/codegen.ts": {
+    "./src/modules/dex/api.codegen.ts": {
       documents: "./src/modules/dex/backendQueries.ts",
       schema: process.env.NEXT_PUBLIC_BALANCER_API_URL,
+
+      // preset: "client",
+      plugins: [
+        "typescript",
+        "typescript-operations",
+        "typescript-react-apollo",
+        {
+          "typescript-document-nodes": {},
+        },
+      ],
+      config: {
+        // noExport: true,
+        withHooks: true,
+        gqlImport: "@apollo/client#gql",
+      },
+    },
+    "./src/modules/dex/subgraph.codegen.ts": {
+      documents: "./src/modules/dex/subgraph.graphql",
+      schema: process.env.NEXT_PUBLIC_BALANCER_SUBGRAPH,
 
       // preset: "client",
       plugins: [

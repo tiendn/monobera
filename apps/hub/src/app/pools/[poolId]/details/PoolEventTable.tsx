@@ -20,7 +20,7 @@ import {
   GetPoolEventsQueryResult,
   GetPoolEventsQueryVariables,
   GqlPoolEventType,
-} from "@bera/graphql/dex";
+} from "@bera/graphql/dex/api";
 import { useState } from "react";
 
 export const EventTable = ({
