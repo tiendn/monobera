@@ -1,7 +1,6 @@
 import { type Metadata } from "next";
 
 import PoolPageHeader from "./PoolPageHeader";
-import { SWRFallback } from "@bera/berajs";
 import { bexApiGraphqlClient } from "@bera/graphql";
 import { GetPools, GetPoolsQuery } from "@bera/graphql/dex/api";
 

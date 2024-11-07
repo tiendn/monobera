@@ -4,7 +4,6 @@ import { dexName } from "@bera/config";
 import { Address } from "viem";
 
 import AddLiquidityContent from "./AddLiquidityContent";
-import { balancerClient } from "~/b-sdk/balancerClient";
 import { bexSubgraphClient } from "@bera/graphql";
 import {
   GetSubgraphPool,

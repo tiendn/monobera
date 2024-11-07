@@ -4,12 +4,12 @@ import { notFound } from "next/navigation";
 import { isIPFS } from "@bera/config";
 
 import PoolPageContent, { PoolPageWrapper } from "./PoolPageContent";
-import { balancerClient } from "~/b-sdk/balancerClient";
-import { bexSubgraphClient } from "@bera/graphql";
+import { bexApiGraphqlClient, bexSubgraphClient } from "@bera/graphql";
 import {
   GetSubgraphPool,
   GetSubgraphPoolQuery,
 } from "@bera/graphql/dex/subgraph";
+import { GetPools, GetPoolsQuery } from "@bera/graphql/dex/api";
 
 export function generateMetadata(): Metadata {
   return {
@@ -64,8 +64,11 @@ export async function generateStaticParams() {
       },
     ];
   }
-  const pools = await balancerClient.pools.all();
-  return pools.map((pool) => ({
+  const res = await bexApiGraphqlClient.query<GetPoolsQuery>({
+    query: GetPools,
+  });
+
+  return res.data.poolGetPools.map((pool) => ({
     poolId: pool.id,
   }));
 }

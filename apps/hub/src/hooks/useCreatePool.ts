@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { PoolWithMethods } from "@balancer-labs/sdk";
+import { useEffect, useMemo } from "react";
 import {
   ADDRESS_ZERO,
   balancerPoolCreationHelperAbi,
