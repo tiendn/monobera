@@ -31,6 +31,7 @@
     "lint": "biome lint . ",
     "format:check": "biome format .",
     "format": "biome format --write .",
+    "postformat": "cd ./packages/b-sdk && pnpm format",
     "check": "biome check .",
     "prepare": "husky install",
     "upsertenv": "node ./scripts/upsertVercelEnv.js",
