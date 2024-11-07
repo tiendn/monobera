@@ -2,11 +2,13 @@ import { defineConfig } from "tsup";
 
 const config = defineConfig({
   entryPoints: [
+    "src/index.ts",
     "src/abi/index.ts",
     "src/actions/index.ts",
     "src/contexts/index.ts",
     "src/enum/index.ts",
     "src/hooks/index.ts",
+    "src/config/index.ts",
     "src/types/index.ts",
     "src/utils/index.ts",
   ], // The entry point(s) of your library

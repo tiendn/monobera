@@ -11,9 +11,9 @@
   "author": "deez",
   "license": "MIT",
   "scripts": {
-    "build": "tsup src",
+    "build": "tsup",
     "clean": "git clean -xdf dist .turbo node_modules",
-    "dev": "tsup src --watch",
+    "dev": "tsup --watch",
     "lint": "biome lint . ",
     "format:check": "biome format .",
     "format": "biome format --write .",
@@ -42,6 +42,14 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./dex/api": {
+      "import": "./dist/modules/dex/api.codegen.js",
+      "types": "./dist/modules/dex/api.codegen.d.ts"
+    },
+    "./dex/subgraph": {
+      "import": "./dist/modules/dex/subgraph.codegen.js",
+      "types": "./dist/modules/dex/subgraph.codegen.d.ts"
+    },
     "./governance": {
       "import": "./dist/modules/governance/index.js",
       "types": "./dist/modules/governance/index.d.ts"
@@ -49,10 +57,6 @@
     "./chain": {
       "import": "./dist/modules/chain/index.js",
       "types": "./dist/modules/chain/index.d.ts"
-    },
-    "./dex": {
-      "import": "./dist/modules/dex/index.js",
-      "types": "./dist/modules/dex/index.d.ts"
     },
     "./pol": {
       "import": "./dist/modules/pol/index.js",

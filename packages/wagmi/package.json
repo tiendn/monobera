@@ -21,10 +21,10 @@
     }
   },
   "scripts": {
-    "build": "tsup src",
+    "build": "tsup",
     "clean": "git clean -xdf dist .turbo node_modules",
     "check-types": "tsc --noEmit",
-    "dev": "tsup src --watch"
+    "dev": "tsup --watch"
   },
   "dependencies": {
     "@bera/config": "workspace:*",
