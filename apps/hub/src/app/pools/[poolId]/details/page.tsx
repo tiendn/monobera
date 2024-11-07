@@ -2,11 +2,14 @@ import React from "react";
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isIPFS } from "@bera/config";
-import { Address, isAddress } from "viem";
 
-import PoolPageContent from "./PoolPageContent";
-import { balancerApi } from "~/b-sdk/b-sdk";
+import PoolPageContent, { PoolPageWrapper } from "./PoolPageContent";
 import { balancerClient } from "~/b-sdk/balancerClient";
+import { bexSubgraphClient } from "@bera/graphql";
+import {
+  GetSubgraphPool,
+  GetSubgraphPoolQuery,
+} from "@bera/graphql/dex/subgraph";
 
 export function generateMetadata(): Metadata {
   return {
@@ -31,7 +34,22 @@ export default async function PoolPage({
     //   notFound();
     // }
 
-    return <PoolPageContent poolId={params.poolId} />;
+    const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
+      query: GetSubgraphPool,
+      variables: {
+        id: params.poolId,
+      },
+    });
+
+    if (!res.data?.pool) {
+      notFound();
+    }
+
+    return (
+      <PoolPageWrapper pool={res.data.pool}>
+        <PoolPageContent poolId={params.poolId} />
+      </PoolPageWrapper>
+    );
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);
     notFound();

@@ -35,7 +35,7 @@ import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
-import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
+import { unstable_serialize } from "swr";
 
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,
@@ -166,15 +166,20 @@ export const PoolPageWrapper = ({
   pool,
 }: {
   children: React.ReactNode;
-  pool: SubgraphPoolFragment | undefined;
+  pool: any | undefined;
 }) => {
   return (
-    <SWRFallback fallback={{ [`pool-subgraph-${pool?.id}`]: pool }}>
+    <SWRFallback
+      fallback={
+        pool
+          ? { [unstable_serialize(`usePool-subgraph-${pool?.id}`)]: pool }
+          : {}
+      }
+    >
       {children}
     </SWRFallback>
   );
 };
-
 export default function PoolPageContent({
   poolId,
 }: {
@@ -195,33 +200,20 @@ export default function PoolPageContent({
 
   const isLoading = isPoolLoading;
 
-  const tvlInUsd = Number(pool?.totalLiquidity) ?? 0;
-  const _tvlInUsd =
-    pool?.tokens
-      ?.filter((t) => t.address !== pool.address)
-      .reduce((balance, curr) => {
-        return (
-          balance +
-          parseFloat(curr.balance) *
-            parseFloat(curr.token?.latestUSDPrice ?? "0")
-        );
-      }, 0) ?? 0;
+  const tvlInUsd = pool ? Number(pool?.totalLiquidity ?? 0) : undefined;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
 
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
   useEffect(() => {
     console.log("POOL", pool, v3Pool);
-    console.log("TVL", tvlInUsd, _tvlInUsd);
   }, [v3Pool, pool]);
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
         backHref="/pools/"
         title={
-          isPoolLoading ? (
-            <Skeleton className="h-10 w-40" />
-          ) : (
+          pool ? (
             <>
               <TokenIconList
                 tokenList={
@@ -238,6 +230,8 @@ export default function PoolPageContent({
               />
               {pool?.name}
             </>
+          ) : (
+            <Skeleton className="h-10 w-40" />
           )
         }
         subtitles={[
@@ -261,19 +255,19 @@ export default function PoolPageContent({
           // },
           {
             title: "Fee",
-            content: isPoolLoading ? (
-              <Skeleton className="h-4 w-8" />
-            ) : (
+            content: pool ? (
               <>{Number(pool?.swapFee ?? 0) * 100}%</>
+            ) : (
+              <Skeleton className="h-4 w-8" />
             ),
             color: "success",
           },
           {
             title: "Pool Contract",
-            content: isPoolLoading ? (
-              <Skeleton className="h-4 w-16" />
+            content: pool ? (
+              truncateHash(pool?.address ?? "")
             ) : (
-              <>{truncateHash(pool?.address ?? "")}</>
+              <Skeleton className="h-4 w-16" />
             ),
             externalLink: `${blockExplorerUrl}/address/${pool?.address}`,
           },
@@ -350,7 +344,7 @@ export default function PoolPageContent({
             <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold">
               Pool Liquidity
               <div className="text-2xl">
-                {isLoading ? (
+                {pool === undefined ? (
                   <Skeleton className="h-10 w-20" />
                 ) : (
                   <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
@@ -358,7 +352,7 @@ export default function PoolPageContent({
               </div>
             </div>
             <TokenView
-              isLoading={isPoolLoading}
+              isLoading={pool === undefined}
               tokens={
                 pool?.tokens
                   ?.filter((t) => t.address !== pool.address)
@@ -420,7 +414,7 @@ export default function PoolPageContent({
               </div>
               <div className="flex justify-between w-full font-medium">
                 <span>Total</span>
-                {isUserBalanceLoading ? (
+                {isUserBalanceLoading || tvlInUsd === undefined ? (
                   <Skeleton className="h-[32px] w-[150px]" />
                 ) : (
                   <FormattedNumber

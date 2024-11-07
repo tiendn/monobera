@@ -22,12 +22,14 @@ export const usePool = ({
   ]
 > => {
   const subgraph = useSWR(
-    `pool-subgraph-${id}`,
+    `usePool-subgraph-${id}`,
     async () => {
-      return bexSubgraphClient.query<GetSubgraphPoolQuery>({
+      const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
         query: GetSubgraphPool,
         variables: { id },
       });
+
+      return res.data?.pool;
     },
     {
       refreshInterval: POLLING.NORMAL,
@@ -35,7 +37,7 @@ export const usePool = ({
   );
 
   const v3Pool = useSWR(
-    `pool-api-${id}`,
+    `usePool-api-${id}`,
     async () => {
       return balancerApi.pools.fetchPoolStateWithBalances(id);
     },
@@ -48,7 +50,7 @@ export const usePool = ({
     isLoading: subgraph.isLoading || v3Pool.isLoading,
     isValidating: subgraph.isValidating || v3Pool.isValidating,
 
-    data: [subgraph.data?.data.pool ?? undefined, v3Pool.data],
+    data: [subgraph.data ?? undefined, v3Pool.data],
     error: subgraph.error || v3Pool.error,
     refresh: () => {
       subgraph.mutate();
