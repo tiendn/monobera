@@ -71,7 +71,7 @@ const config: CodegenConfig = {
       },
     },
     "./src/modules/dex/api.codegen.ts": {
-      documents: "./src/modules/dex/backendQueries.ts",
+      documents: "./src/modules/dex/api.graphql",
       schema: process.env.NEXT_PUBLIC_BALANCER_API_URL,
 
       // preset: "client",

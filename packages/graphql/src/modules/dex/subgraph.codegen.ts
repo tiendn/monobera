@@ -5955,6 +5955,30 @@ export enum _SubgraphErrorPolicy_ {
   Deny = "deny",
 }
 
+export type SubgraphPoolFragment = {
+  __typename?: "Pool";
+  id: string;
+  name?: string | null;
+  address: any;
+  factory?: any | null;
+  swapFee: any;
+  totalShares: any;
+  totalLiquidity: any;
+  createTime: number;
+  owner?: any | null;
+  tokens?: Array<{
+    __typename?: "PoolToken";
+    address: string;
+    name: string;
+    decimals: number;
+    symbol: string;
+    index?: number | null;
+    weight?: any | null;
+    balance: any;
+    token: { __typename?: "Token"; latestUSDPrice?: any | null };
+  }> | null;
+};
+
 export type GetSubgraphPoolQueryVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
@@ -5964,58 +5988,60 @@ export type GetSubgraphPoolQuery = {
   pool?: {
     __typename?: "Pool";
     id: string;
+    name?: string | null;
     address: any;
     factory?: any | null;
     swapFee: any;
     totalShares: any;
+    totalLiquidity: any;
     createTime: number;
     owner?: any | null;
     tokens?: Array<{
       __typename?: "PoolToken";
       address: string;
+      name: string;
+      decimals: number;
       symbol: string;
       index?: number | null;
       weight?: any | null;
       balance: any;
-      token: {
-        __typename?: "Token";
-        address: string;
-        name?: string | null;
-        decimals: number;
-        symbol?: string | null;
-        latestUSDPrice?: any | null;
-      };
+      token: { __typename?: "Token"; latestUSDPrice?: any | null };
     }> | null;
   } | null;
 };
 
-export const GetSubgraphPoolDocument = gql`
-    query GetSubgraphPool($id: ID!) {
-  pool(id: $id) {
-    id
+export const SubgraphPoolFragmentDoc = gql`
+    fragment SubgraphPool on Pool {
+  id
+  name
+  address
+  factory
+  swapFee
+  totalShares
+  totalLiquidity
+  createTime
+  owner
+  tokens {
     address
-    factory
-    swapFee
-    totalShares
-    createTime
-    owner
-    tokens {
-      address
-      symbol
-      index
-      weight
-      balance
-      token {
-        address
-        name
-        decimals
-        symbol
-        latestUSDPrice
-      }
+    name
+    decimals
+    symbol
+    index
+    weight
+    balance
+    token {
+      latestUSDPrice
     }
   }
 }
     `;
+export const GetSubgraphPoolDocument = gql`
+    query GetSubgraphPool($id: ID!) {
+  pool(id: $id) {
+    ...SubgraphPool
+  }
+}
+    ${SubgraphPoolFragmentDoc}`;
 
 /**
  * __useGetSubgraphPoolQuery__
@@ -6091,31 +6117,35 @@ export type GetSubgraphPoolQueryResult = Apollo.QueryResult<
   GetSubgraphPoolQuery,
   GetSubgraphPoolQueryVariables
 >;
-
-export const GetSubgraphPool = gql`
-    query GetSubgraphPool($id: ID!) {
-  pool(id: $id) {
-    id
+export const SubgraphPool = gql`
+    fragment SubgraphPool on Pool {
+  id
+  name
+  address
+  factory
+  swapFee
+  totalShares
+  totalLiquidity
+  createTime
+  owner
+  tokens {
     address
-    factory
-    swapFee
-    totalShares
-    createTime
-    owner
-    tokens {
-      address
-      symbol
-      index
-      weight
-      balance
-      token {
-        address
-        name
-        decimals
-        symbol
-        latestUSDPrice
-      }
+    name
+    decimals
+    symbol
+    index
+    weight
+    balance
+    token {
+      latestUSDPrice
     }
   }
 }
     `;
+export const GetSubgraphPool = gql`
+    query GetSubgraphPool($id: ID!) {
+  pool(id: $id) {
+    ...SubgraphPool
+  }
+}
+    ${SubgraphPool}`;

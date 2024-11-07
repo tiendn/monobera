@@ -79,7 +79,7 @@ export default function WithdrawLiquidityContent({
   poolId: string;
 }) {
   const { data, isLoading } = usePool({ id: poolId });
-  const { v2Pool, v3Pool } = data ?? {};
+  const [v2Pool, v3Pool] = data ?? [];
 
   const reset = () => {
     setPreviewOpen(false);
@@ -171,7 +171,7 @@ export default function WithdrawLiquidityContent({
           )}
         </div>
         <div
-          onClick={() => router.push(getPoolUrl(v2Pool))}
+          onClick={() => v2Pool && router.push(getPoolUrl(v2Pool))}
           className="flex items-center justify-center text-sm font-normal leading-tight text-muted-foreground hover:cursor-pointer hover:underline"
         >
           View Pool Details

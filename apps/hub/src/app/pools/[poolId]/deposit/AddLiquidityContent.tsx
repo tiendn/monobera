@@ -55,7 +55,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   const { data, isLoading } = usePool({ id: poolId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
-  const { v2Pool: pool, v3Pool } = data ?? {};
+  const [pool, v3Pool] = data ?? [];
 
   const [wethIsEth, setWethIsEth] = useState(false);
   const { account } = useBeraJs();
@@ -142,7 +142,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
       acc +
       Number(formatEther(curr.scale18)) *
         Number(
-          pool?.tokens.find((t) => t.address === curr.token.address)?.token
+          pool?.tokens?.find((t) => t.address === curr.token.address)?.token
             ?.latestUSDPrice ?? 0,
         )
     );
@@ -338,7 +338,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                       amount.token.address.toLowerCase() ===
                         wBeraToken.address.toLowerCase()
                         ? beraToken
-                        : pool?.tokens.find(
+                        : pool?.tokens?.find(
                             (t) => t.address === amount.token.address,
                           )
                     }

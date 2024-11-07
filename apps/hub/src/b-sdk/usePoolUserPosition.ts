@@ -1,14 +1,14 @@
-import { PoolWithMethods } from "@balancer-labs/sdk";
 import {
   DefaultHookOptions,
   DefaultHookReturnType,
   usePollBalance,
   type IUserPosition,
 } from "@bera/berajs";
+import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 import BigNumber from "bignumber.js";
 
 type IUsePoolUserPositionArgs = {
-  pool: PoolWithMethods | undefined;
+  pool: SubgraphPoolFragment | undefined;
 };
 
 /**
@@ -30,13 +30,13 @@ export const usePoolUserPosition = (
     data: {
       userSharePercentage: tokenRatioPerLp,
       lpBalance: userPosition,
-      tokenBalances: pool?.tokens.map((token) => {
+      tokenBalances: pool?.tokens?.map((token) => {
         const userBalance = BigNumber(token.balance ?? "0")
           .times(tokenRatioPerLp)
           .precision(token.decimals!);
 
         return {
-          balance: userBalance.isGreaterThan(0)
+          balance: userBalance?.isGreaterThan(0)
             ? BigInt(
                 userBalance
                   .times(10 ** token.decimals!)

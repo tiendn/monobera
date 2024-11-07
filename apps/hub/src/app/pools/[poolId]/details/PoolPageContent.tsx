@@ -4,28 +4,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { notFound, useSearchParams } from "next/navigation";
 import {
+  SWRFallback,
   Token,
   truncateHash,
   useBeraJs,
-  useBgtInflation,
   usePollBalance,
-  usePoolHistoricalData,
-  usePoolRecentProvisions,
-  usePoolRecentSwaps,
   type IProvision,
   type ISwaps,
   type PoolV2,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
-  ApyTooltip,
-  BgtStationBanner,
   FormattedNumber,
   PoolHeader,
   TokenIcon,
   TokenIconList,
 } from "@bera/shared-ui";
-import { truncateFloat } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent } from "@bera/ui/card";
@@ -41,6 +35,7 @@ import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
+import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,
@@ -166,6 +161,20 @@ const TokenView = ({
 
 type ISwapOrProvision = ISwaps | IProvision;
 
+export const PoolPageWrapper = ({
+  children,
+  pool,
+}: {
+  children: React.ReactNode;
+  pool: SubgraphPoolFragment | undefined;
+}) => {
+  return (
+    <SWRFallback fallback={{ [`pool-subgraph-${pool?.id}`]: pool }}>
+      {children}
+    </SWRFallback>
+  );
+};
+
 export default function PoolPageContent({
   poolId,
 }: {
@@ -175,10 +184,7 @@ export default function PoolPageContent({
     id: poolId,
   });
 
-  const { v2Pool: pool, v3Pool } = data ?? {};
-  useEffect(() => {
-    console.log("POOL", pool, v3Pool);
-  }, [v3Pool]);
+  const [pool, v3Pool] = data ?? [];
 
   const { isConnected } = useBeraJs();
   const { data: userBalance, isLoading: isUserBalanceLoading } = usePollBalance(
@@ -189,18 +195,25 @@ export default function PoolPageContent({
 
   const isLoading = isPoolLoading;
 
-  const tvlInUsd =
-    pool?.tokens.reduce((balance, curr) => {
-      return (
-        balance +
-        parseFloat(curr.balance) * parseFloat(curr.token?.latestUSDPrice ?? "0")
-      );
-    }, 0) ?? 0;
+  const tvlInUsd = Number(pool?.totalLiquidity) ?? 0;
+  const _tvlInUsd =
+    pool?.tokens
+      ?.filter((t) => t.address !== pool.address)
+      .reduce((balance, curr) => {
+        return (
+          balance +
+          parseFloat(curr.balance) *
+            parseFloat(curr.token?.latestUSDPrice ?? "0")
+        );
+      }, 0) ?? 0;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
 
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
-
+  useEffect(() => {
+    console.log("POOL", pool, v3Pool);
+    console.log("TVL", tvlInUsd, _tvlInUsd);
+  }, [v3Pool, pool]);
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
@@ -213,7 +226,7 @@ export default function PoolPageContent({
               <TokenIconList
                 tokenList={
                   pool?.tokens
-                    .filter((t) => t.address !== pool.address)
+                    ?.filter((t) => t.address !== pool.address)
                     .map((t) => ({
                       address: t.address as Address,
                       symbol: t.symbol!,
@@ -347,18 +360,16 @@ export default function PoolPageContent({
             <TokenView
               isLoading={isPoolLoading}
               tokens={
-                !pool
-                  ? []
-                  : pool.tokens
-                      ?.filter((t) => t.address !== pool.address)
-                      .map((t) => ({
-                        address: t.address!,
-                        symbol: t.symbol!,
-                        value: parseFloat(t.balance),
-                        valueUSD:
-                          parseFloat(t.balance) *
-                          parseFloat(t.token?.latestUSDPrice ?? "0"),
-                      }))
+                pool?.tokens
+                  ?.filter((t) => t.address !== pool.address)
+                  .map((t) => ({
+                    address: t.address!,
+                    symbol: t.symbol!,
+                    value: parseFloat(t.balance),
+                    valueUSD:
+                      parseFloat(t.balance) *
+                      parseFloat(t.token?.latestUSDPrice ?? "0"),
+                  })) ?? []
               }
             />
           </Card>
