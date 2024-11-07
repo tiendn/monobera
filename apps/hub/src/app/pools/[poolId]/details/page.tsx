@@ -2,11 +2,14 @@ import React from "react";
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isIPFS } from "@bera/config";
-import { Address, isAddress } from "viem";
 
-import PoolPageContent from "./PoolPageContent";
-import { balancerApi } from "~/b-sdk/b-sdk";
-import { balancerClient } from "~/b-sdk/balancerClient";
+import PoolPageContent, { PoolPageWrapper } from "./PoolPageContent";
+import { bexApiGraphqlClient, bexSubgraphClient } from "@bera/graphql";
+import {
+  GetSubgraphPool,
+  GetSubgraphPoolQuery,
+} from "@bera/graphql/dex/subgraph";
+import { GetPools, GetPoolsQuery } from "@bera/graphql/dex/api";
 
 export function generateMetadata(): Metadata {
   return {
@@ -31,7 +34,22 @@ export default async function PoolPage({
     //   notFound();
     // }
 
-    return <PoolPageContent poolId={params.poolId} />;
+    const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
+      query: GetSubgraphPool,
+      variables: {
+        id: params.poolId,
+      },
+    });
+
+    if (!res.data?.pool) {
+      notFound();
+    }
+
+    return (
+      <PoolPageWrapper pool={res.data.pool}>
+        <PoolPageContent poolId={params.poolId} />
+      </PoolPageWrapper>
+    );
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);
     notFound();
@@ -46,8 +64,11 @@ export async function generateStaticParams() {
       },
     ];
   }
-  const pools = await balancerClient.pools.all();
-  return pools.map((pool) => ({
+  const res = await bexApiGraphqlClient.query<GetPoolsQuery>({
+    query: GetPools,
+  });
+
+  return res.data.poolGetPools.map((pool) => ({
     poolId: pool.id,
   }));
 }

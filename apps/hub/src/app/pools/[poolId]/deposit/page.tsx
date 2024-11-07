@@ -1,10 +1,14 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { dexName } from "@bera/config";
-import { Address, isAddress } from "viem";
+import { Address } from "viem";
 
 import AddLiquidityContent from "./AddLiquidityContent";
-import { balancerClient } from "~/b-sdk/balancerClient";
+import { bexSubgraphClient } from "@bera/graphql";
+import {
+  GetSubgraphPool,
+  GetSubgraphPoolQuery,
+} from "@bera/graphql/dex/subgraph";
 
 export function generateMetadata(): Metadata {
   return {
@@ -13,19 +17,21 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export const fetchCache = "force-no-store";
-
+export const revalidate = 30;
 export default async function PoolPage({
   params,
 }: {
   params: { poolId: string };
 }) {
   try {
-    // if (!isAddress(params.poolId)) {
-    //   notFound();
-    // }
-    const pool = await balancerClient.pools.find(params.poolId);
-    if (!pool) {
+    const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
+      query: GetSubgraphPool,
+      variables: {
+        id: params.poolId,
+      },
+    });
+
+    if (!res.data.pool) {
       notFound();
     }
 

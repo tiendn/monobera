@@ -1,5 +1,9 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { balancerApiUrl, crocSubgraphEndpoint } from "@bera/config";
+import {
+  balancerApiUrl,
+  balancerSubgraphUrl,
+  crocSubgraphEndpoint,
+} from "@bera/config";
 
 // import { subgraphUrl } from "@bera/config";
 
@@ -8,9 +12,9 @@ export const dexClient = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export const ssrDexClient = new ApolloClient({
+export const bexSubgraphClient = new ApolloClient({
   ssrMode: true,
-  uri: crocSubgraphEndpoint,
+  uri: balancerSubgraphUrl,
   cache: new InMemoryCache(),
 });
 

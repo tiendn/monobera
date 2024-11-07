@@ -4,28 +4,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { notFound, useSearchParams } from "next/navigation";
 import {
+  SWRFallback,
   Token,
   truncateHash,
   useBeraJs,
-  useBgtInflation,
   usePollBalance,
-  usePoolHistoricalData,
-  usePoolRecentProvisions,
-  usePoolRecentSwaps,
   type IProvision,
   type ISwaps,
   type PoolV2,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
-  ApyTooltip,
-  BgtStationBanner,
   FormattedNumber,
   PoolHeader,
   TokenIcon,
   TokenIconList,
 } from "@bera/shared-ui";
-import { truncateFloat } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent } from "@bera/ui/card";
@@ -39,8 +33,9 @@ import { Address } from "viem";
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
-import { GqlPoolEventType } from "@bera/graphql/dex";
+import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
+import { unstable_serialize } from "swr";
 
 const getTokenDisplay = (
   event: ISwapOrProvision | ISwaps | IProvision,
@@ -166,6 +161,25 @@ const TokenView = ({
 
 type ISwapOrProvision = ISwaps | IProvision;
 
+export const PoolPageWrapper = ({
+  children,
+  pool,
+}: {
+  children: React.ReactNode;
+  pool: any | undefined;
+}) => {
+  return (
+    <SWRFallback
+      fallback={
+        pool
+          ? { [unstable_serialize(`usePool-subgraph-${pool?.id}`)]: pool }
+          : {}
+      }
+    >
+      {children}
+    </SWRFallback>
+  );
+};
 export default function PoolPageContent({
   poolId,
 }: {
@@ -175,10 +189,7 @@ export default function PoolPageContent({
     id: poolId,
   });
 
-  const { v2Pool: pool, v3Pool } = data ?? {};
-  useEffect(() => {
-    console.log("POOL", pool, v3Pool);
-  }, [v3Pool]);
+  const [pool, v3Pool] = data ?? [];
 
   const { isConnected } = useBeraJs();
   const { data: userBalance, isLoading: isUserBalanceLoading } = usePollBalance(
@@ -189,31 +200,25 @@ export default function PoolPageContent({
 
   const isLoading = isPoolLoading;
 
-  const tvlInUsd =
-    pool?.tokens.reduce((balance, curr) => {
-      return (
-        balance +
-        parseFloat(curr.balance) * parseFloat(curr.token?.latestUSDPrice ?? "0")
-      );
-    }, 0) ?? 0;
+  const tvlInUsd = pool ? Number(pool?.totalLiquidity ?? 0) : undefined;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
 
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
-
+  useEffect(() => {
+    console.log("POOL", pool, v3Pool);
+  }, [v3Pool, pool]);
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
         backHref="/pools/"
         title={
-          isPoolLoading ? (
-            <Skeleton className="h-10 w-40" />
-          ) : (
+          pool ? (
             <>
               <TokenIconList
                 tokenList={
                   pool?.tokens
-                    .filter((t) => t.address !== pool.address)
+                    ?.filter((t) => t.address !== pool.address)
                     .map((t) => ({
                       address: t.address as Address,
                       symbol: t.symbol!,
@@ -225,6 +230,8 @@ export default function PoolPageContent({
               />
               {pool?.name}
             </>
+          ) : (
+            <Skeleton className="h-10 w-40" />
           )
         }
         subtitles={[
@@ -248,19 +255,19 @@ export default function PoolPageContent({
           // },
           {
             title: "Fee",
-            content: isPoolLoading ? (
-              <Skeleton className="h-4 w-8" />
-            ) : (
+            content: pool ? (
               <>{Number(pool?.swapFee ?? 0) * 100}%</>
+            ) : (
+              <Skeleton className="h-4 w-8" />
             ),
             color: "success",
           },
           {
             title: "Pool Contract",
-            content: isPoolLoading ? (
-              <Skeleton className="h-4 w-16" />
+            content: pool ? (
+              truncateHash(pool?.address ?? "")
             ) : (
-              <>{truncateHash(pool?.address ?? "")}</>
+              <Skeleton className="h-4 w-16" />
             ),
             externalLink: `${blockExplorerUrl}/address/${pool?.address}`,
           },
@@ -337,7 +344,7 @@ export default function PoolPageContent({
             <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold">
               Pool Liquidity
               <div className="text-2xl">
-                {isLoading ? (
+                {pool === undefined ? (
                   <Skeleton className="h-10 w-20" />
                 ) : (
                   <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
@@ -345,20 +352,18 @@ export default function PoolPageContent({
               </div>
             </div>
             <TokenView
-              isLoading={isPoolLoading}
+              isLoading={pool === undefined}
               tokens={
-                !pool
-                  ? []
-                  : pool.tokens
-                      ?.filter((t) => t.address !== pool.address)
-                      .map((t) => ({
-                        address: t.address!,
-                        symbol: t.symbol!,
-                        value: parseFloat(t.balance),
-                        valueUSD:
-                          parseFloat(t.balance) *
-                          parseFloat(t.token?.latestUSDPrice ?? "0"),
-                      }))
+                pool?.tokens
+                  ?.filter((t) => t.address !== pool.address)
+                  .map((t) => ({
+                    address: t.address!,
+                    symbol: t.symbol!,
+                    value: parseFloat(t.balance),
+                    valueUSD:
+                      parseFloat(t.balance) *
+                      parseFloat(t.token?.latestUSDPrice ?? "0"),
+                  })) ?? []
               }
             />
           </Card>
@@ -409,7 +414,7 @@ export default function PoolPageContent({
               </div>
               <div className="flex justify-between w-full font-medium">
                 <span>Total</span>
-                {isUserBalanceLoading ? (
+                {isUserBalanceLoading || tvlInUsd === undefined ? (
                   <Skeleton className="h-[32px] w-[150px]" />
                 ) : (
                   <FormattedNumber

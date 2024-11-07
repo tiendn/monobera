@@ -5,7 +5,7 @@ import {
   GetPoolEventsQueryResult,
   GetPoolEventsQueryVariables,
   GqlPoolEventType,
-} from "@bera/graphql/dex";
+} from "@bera/graphql/dex/api";
 import useSWR from "swr";
 
 export const usePoolEvents = (poolId: string | undefined) => {

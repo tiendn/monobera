@@ -1,34 +1,20 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@bera/ui/table";
 import formatTimeAgo from "~/utils/formatTimeAgo";
 import { usePoolEvents } from "~/b-sdk/usePoolEvents";
 import { blockExplorerUrl } from "@bera/config";
 import { FormattedNumber, SimpleTable, useAsyncTable } from "@bera/shared-ui";
-import { PoolWithMethods } from "@balancer-labs/sdk";
 import { truncateHash } from "@bera/berajs";
-import { bexApiGraphqlClient } from "@bera/graphql";
 
 import {
-  GetPoolEvents,
-  GetPoolEventsQuery,
   GetPoolEventsQueryResult,
-  GetPoolEventsQueryVariables,
   GqlPoolEventType,
-} from "@bera/graphql/dex";
-import { useState } from "react";
+} from "@bera/graphql/dex/api";
+import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 
 export const EventTable = ({
   pool,
-  isLoading,
   types,
 }: {
-  pool: PoolWithMethods | undefined;
+  pool: SubgraphPoolFragment | undefined;
   isLoading: boolean | undefined;
   types?: GqlPoolEventType[];
 }) => {

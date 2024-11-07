@@ -5,18 +5,16 @@
   "module": "dist/index.js",
   "sideEffects": false,
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "author": "deez",
   "license": "MIT",
   "scripts": {
-    "build": "tsup src",
+    "build": "tsup",
     "test": "jest",
     "ts-node": "ts-node",
     "clean": "git clean -xdf dist .turbo node_modules",
     "check-types": "tsc --noEmit",
-    "dev": "tsup src --watch",
+    "dev": "tsup --watch",
     "lint": "eslint src",
     "lint:fix": "pnpm lint --fix"
   },

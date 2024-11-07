@@ -27,6 +27,7 @@ import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
+import { getPoolUrl } from "../fetchPools";
 
 const emptyToken: TokenInput = {
   address: "" as `0x${string}`,
@@ -330,7 +331,7 @@ export default function CreatePageContent() {
           </div>
         </section>
 
-        {isDupePool && (
+        {isDupePool && dupePool && (
           <Alert variant="destructive">
             <AlertTitle>Similar Pool Already Exists</AlertTitle>
             <AlertDescription className="space-y-4">
@@ -338,10 +339,7 @@ export default function CreatePageContent() {
                 Please note that creating this pool will not be possible;
                 consider adding liquidity to an existing pool instead.
               </p>
-              <a
-                href={`/pools/${dupePool?.id}/`}
-                className="text-sky-600 underline"
-              >
+              <a href={getPoolUrl(dupePool)} className="text-sky-600 underline">
                 Similar pool
               </a>
             </AlertDescription>

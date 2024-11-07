@@ -6,28 +6,32 @@ import { useSearchParams } from "next/navigation";
 import { cloudinaryUrl } from "@bera/config";
 
 import { PoolSearch } from "./PoolsTable";
-import { Button } from "@bera/ui/button";
-import Link from "next/link";
-import { usePools } from "~/b-sdk/usePools";
+import { SWRFallback } from "@bera/berajs";
+import { unstable_serialize } from "swr";
 
-export default function PoolPageHeader() {
+export default function PoolPageHeader({
+  pools,
+}: {
+  pools?: any;
+}) {
   const sp = useSearchParams();
   const poolType = sp.get("pool") as "allPools" | "userPools";
 
-  const { data: pools } = usePools();
-
   return (
-    <div className="mx-auto flex w-full flex-col items-center justify-center gap-8">
-      {/* Large Screen */}
-      <Image
-        src={`${cloudinaryUrl}/DEX/raqbge7ojm9k2w8ouznn.png`}
-        alt="Large Screen Image"
-        width={1200}
-        height={600}
-        className="h-auto w-full  object-cover"
-      />
+    <SWRFallback
+      fallback={{ [unstable_serialize(["usePoolTable", ""])]: pools }}
+    >
+      <div className="mx-auto flex w-full flex-col items-center justify-center gap-8">
+        {/* Large Screen */}
+        <Image
+          src={`${cloudinaryUrl}/DEX/raqbge7ojm9k2w8ouznn.png`}
+          alt="Large Screen Image"
+          width={1200}
+          height={600}
+          className="h-auto w-full  object-cover"
+        />
 
-      {/* Tablet Screen
+        {/* Tablet Screen
       <div className="hidden md:block lg:hidden">
         <Image
           src={`${cloudinaryUrl}/DEX/zxxnwkdhfjcikwwgtqpc.png`}
@@ -38,8 +42,8 @@ export default function PoolPageHeader() {
         />
       </div> */}
 
-      {/* Mobile Screen */}
-      {/* <div className="block xs:hidden">
+        {/* Mobile Screen */}
+        {/* <div className="block xs:hidden">
         <Image
           src={`${cloudinaryUrl}/DEX/zz9s7qxq8g3ykbqtzgxv.png`}
           alt="Mobile Screen Image"
@@ -49,7 +53,8 @@ export default function PoolPageHeader() {
         />
       </div> */}
 
-      <PoolSearch poolType={poolType || "allPools"} />
-    </div>
+        <PoolSearch poolType={poolType || "allPools"} />
+      </div>
+    </SWRFallback>
   );
 }

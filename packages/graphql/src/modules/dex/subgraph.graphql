@@ -1,0 +1,41 @@
+fragment SubgraphPool on Pool {
+  id
+  name
+  address
+  factory
+  swapFee
+  totalShares
+  totalLiquidity
+  createTime
+  owner
+
+  tokens {
+    address
+    name
+    decimals
+    symbol
+    index
+    weight
+    balance
+    token {
+      latestUSDPrice
+    }
+  }
+}
+
+query GetSubgraphPool($id: ID!) {
+  pool(id: $id) {
+    ...SubgraphPool
+  }
+}
+
+query GetDedupedSubgraphPools($tokens: [Bytes!]!, $type: String!) {
+  pools(
+    where: { tokensList_contains_nocase: $tokens, poolType: $type }
+    first: 1
+    orderDirection: desc
+    orderBy: totalLiquidity
+  ) {
+    ...SubgraphPool
+  }
+}
