@@ -25,6 +25,7 @@ interface UseCreatePoolProps {
   owner: string;
   poolSymbol: string;
   poolName: string;
+  amplification: number;
 }
 
 interface UseCreatePoolReturn {
@@ -47,6 +48,7 @@ export const useCreatePool = ({
   poolSymbol,
   swapFee,
   owner,
+  amplification,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
   const {
     data: dupePool,
@@ -192,8 +194,7 @@ export const useCreatePool = ({
 
   const isStablePool =
     poolType === PoolType.ComposableStable || poolType === PoolType.MetaStable;
-  const exemptFromYieldProtocolFeeFlag = false;
-  const amplificationParameter = BigInt(62);
+  const exemptFromYieldProtocolFeeFlag = false; // FIXME: should this ever be true?
 
   const createPoolArgs = useMemo(() => {
     if (!owner || poolName === "" || poolSymbol === "") return null;
@@ -219,7 +220,7 @@ export const useCreatePool = ({
             poolName,
             poolSymbol,
             sortedTokens,
-            amplificationParameter,
+            BigInt(amplification),
             sortedRateProviders,
             sortedCacheDurations,
             exemptFromYieldProtocolFeeFlag,
@@ -242,7 +243,14 @@ export const useCreatePool = ({
       value: 0n,
       gasLimit: 7920027n, // NOTE: this is metamask mask, which we use for an upper limit in simulation because this is an expensive tx
     };
-  }, [owner, poolName, poolSymbol, isStablePool, sharedCalculations]);
+  }, [
+    owner,
+    poolName,
+    poolSymbol,
+    isStablePool,
+    sharedCalculations,
+    amplification,
+  ]);
 
   return {
     generatedPoolName,

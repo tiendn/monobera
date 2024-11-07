@@ -53,6 +53,7 @@ export default function CreatePageContent() {
   const [owner, setOwner] = useState<string>("");
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
+  const [amplification, setAmplification] = useState<number>(0);
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
@@ -185,6 +186,7 @@ export default function CreatePageContent() {
     poolName,
     poolSymbol,
     owner,
+    amplification,
   });
 
   // Synchronize the generated pool name and symbol with state
@@ -245,9 +247,9 @@ export default function CreatePageContent() {
       </Button>
       <div className="flex w-full flex-col items-center justify-center gap-16">
         <section className="flex w-full flex-col gap-4">
-          <h1 className="self-start text-3xl font-semibold">
+          <h2 className="self-start text-3xl font-semibold">
             Select a Pool Type
-          </h1>
+          </h2>
           <div className="flex w-full flex-row gap-6">
             <Card
               onClick={() => setPoolType(PoolType.ComposableStable)}
@@ -300,7 +302,7 @@ export default function CreatePageContent() {
         </section>
 
         <section className="flex w-full flex-col gap-4">
-          <h1 className="self-start text-3xl font-semibold">Select Tokens</h1>
+          <h2 className="self-start text-3xl font-semibold">Select Tokens</h2>
           <div className="flex w-full flex-col gap-6">
             {tokens.map((token, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -352,9 +354,9 @@ export default function CreatePageContent() {
             !enableLiquidityInput && "pointer-events-none opacity-25",
           )}
         >
-          <h1 className="self-start text-3xl font-semibold">
+          <h2 className="self-start text-3xl font-semibold">
             Set Initial Liquidity
-          </h1>
+          </h2>
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
@@ -424,9 +426,9 @@ export default function CreatePageContent() {
 
           <section className="flex w-full flex-col gap-10">
             <div className="flex items-center gap-2">
-              <h1 className="self-start text-3xl font-semibold">
+              <h2 className="self-start text-3xl font-semibold">
                 Set Swap Fee
-              </h1>
+              </h2>
               <div className="pt-2">
                 <BeraTooltip
                   size="lg"
@@ -449,77 +451,87 @@ export default function CreatePageContent() {
             </div>
           </section>
 
-          <section className="flex w-full flex-col gap-10">
-            <div className="flex items-center gap-2">
-              <h1 className="self-start text-3xl font-semibold">Owner</h1>
-              <div className="pt-2">
-                <BeraTooltip
-                  size="lg"
-                  wrap={true}
-                  text={`The owner of the pool has the ability to make changes to the pool such as setting the swap fee. 
+          {/*  FIXME we need to make this a multi-selector */}
+          <InputWithLabel
+            label="Owner"
+            value={owner}
+            maxLength={42}
+            onChange={(e) => {
+              const value = e.target.value;
+              setOwner(value);
+              if (!isAddress(value)) {
+                setInvalidAddressErrorMessage("Invalid owner address");
+              } else {
+                setInvalidAddressErrorMessage(null);
+              }
+            }}
+            tooltip={
+              <BeraTooltip
+                size="lg"
+                wrap={true}
+                text={`The owner of the pool has the ability to make changes to the pool such as setting the swap fee. 
                     You can set the owner to 0x0000000000000000000000000000000000000000 to set a permanent fee upon pool creation. 
                     However in general the recommendation is to allow Balancer governance (and delegated addresses) 
                     to dynamically adjust the fees. This is done by setting an owner of 0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b.`}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
-                <InputWithLabel
-                  label="Owner"
-                  value={owner}
-                  maxLength={42}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setOwner(value);
-                    if (!isAddress(value)) {
-                      setInvalidAddressErrorMessage("Invalid owner address");
-                    } else {
-                      setInvalidAddressErrorMessage(null);
-                    }
-                  }}
-                />
-                {invalidAddressErrorMessage && (
-                  <Alert variant="destructive" className="my-4">
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>
-                      {invalidAddressErrorMessage}
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </Card>
-            </div>
-          </section>
+              />
+            }
+          />
+          {invalidAddressErrorMessage && (
+            <Alert variant="destructive" className="my-4">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{invalidAddressErrorMessage}</AlertDescription>
+            </Alert>
+          )}
 
-          <section className="flex w-full flex-col gap-10 py-12">
-            <div className="flex flex-col gap-4">
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
-                <InputWithLabel
-                  label="Pool Name"
-                  value={poolName}
-                  maxLength={85}
-                  onChange={(e) => {
-                    setPoolName(e.target.value);
-                  }}
+          <InputWithLabel
+            label="Pool Name"
+            value={poolName}
+            maxLength={85}
+            onChange={(e) => {
+              setPoolName(e.target.value);
+            }}
+          />
+
+          <InputWithLabel
+            label="Pool Symbol"
+            value={poolSymbol}
+            maxLength={85}
+            onChange={(e) => {
+              setPoolSymbol(e.target.value.replace(" ", "-"));
+            }}
+          />
+
+          {(poolType === PoolType.ComposableStable ||
+            poolType === PoolType.MetaStable) && (
+            <InputWithLabel
+              label="Amplification"
+              value={amplification}
+              maxLength={4}
+              onChange={(e) => {
+                // NOTE: for some reason max/min dont seem to work in InputWithLabel
+                const value = Number(e.target.value);
+                if (value >= 0 && value <= 5000) {
+                  setAmplification(value);
+                }
+              }}
+              tooltip={
+                <BeraTooltip
+                  size="lg"
+                  wrap={true}
+                  text={`
+                  The amplification co-efficient ("A") determines a pool's 
+                  tolerance for imbalance between the assets within it.
+                  A higher value means that trades will incur slippage sooner 
+                  as the assets within the pool become imbalanced.`}
                 />
-              </Card>
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
-                <InputWithLabel
-                  label="Pool Symbol"
-                  value={poolSymbol}
-                  maxLength={85}
-                  onChange={(e) => {
-                    setPoolSymbol(e.target.value.replace(" ", "-"));
-                  }}
-                />
-              </Card>
-            </div>
-          </section>
+              }
+            />
+          )}
 
           <section className="flex w-full flex-col gap-10">
-            <h1 className="self-start text-3xl font-semibold">
+            <h2 className="self-start text-3xl font-semibold">
               Approve & Submit
-            </h1>
+            </h2>
 
             {/* Approvals TODO: this and below belong inside a preview page*/}
             {!isRelayerApproved && (
@@ -578,7 +590,8 @@ export default function CreatePageContent() {
                 }
                 className="w-full"
                 onClick={() => {
-                  writeCreatePool(createPoolArgs);
+                  console.log("createPoolArgs", createPoolArgs);
+                  //writeCreatePool(createPoolArgs);
                 }}
               >
                 Create Pool
