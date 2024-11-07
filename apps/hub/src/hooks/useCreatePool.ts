@@ -6,10 +6,16 @@ import {
   type Token,
 } from "@bera/berajs";
 import { balancerPoolCreationHelper } from "@bera/config";
+import { bexSubgraphClient } from "@bera/graphql";
+import {
+  GetDedupedSubgraphPools,
+  GetDedupedSubgraphPoolsQuery,
+  SubgraphPoolFragment,
+} from "@bera/graphql/dex/subgraph";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
+import useSWRImmutable from "swr/immutable";
 import { formatUnits, keccak256, parseUnits } from "viem";
 
-import { usePools } from "~/b-sdk/usePools";
 import { TokenInput } from "./useMultipleTokenInput";
 
 interface UseCreatePoolProps {
@@ -25,8 +31,8 @@ interface UseCreatePoolProps {
 interface UseCreatePoolReturn {
   generatedPoolName: string;
   generatedPoolSymbol: string;
-  isDupePool: boolean;
-  dupePool: PoolWithMethods | null;
+  isDupePool?: boolean;
+  dupePool?: SubgraphPoolFragment | null;
   normalizedWeights: bigint[];
   formattedNormalizedWeights: string[];
   createPoolArgs: any;
@@ -43,34 +49,45 @@ export const useCreatePool = ({
   swapFee,
   owner,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
-  const [isDupePool, setIsDupePool] = useState<boolean>(false);
-  const [dupePool, setDupePool] = useState<PoolWithMethods | null>(null);
-
-  // pull down the pools we have to check for duplicates
   const {
-    data: pools,
-    isLoading: isLoadingPools,
+    data: dupePool,
     error: errorLoadingPools,
-  } = usePools();
-
-  useEffect(() => {
-    if (tokens.length === 0 || isLoadingPools) return;
-
-    const isDupe = pools?.find((pool) => {
-      const hasAllTokens = tokens.every((token) =>
-        pool?.tokenAddresses?.includes(token.address.toLowerCase()),
-      );
-      if (hasAllTokens && pool?.poolType.toString() === poolType.toString()) {
-        // TODO: use subgraph to query similar pools vs doing this in JS
-        setDupePool(pool);
-        return true;
+    isLoading: isLoadingPools,
+  } = useSWRImmutable<SubgraphPoolFragment | null>(
+    ["useCreatePool__deduped_pool", tokens, poolType],
+    async () => {
+      if (tokens.length === 0 || !poolType) {
+        return null;
       }
-      setDupePool(null);
-      return false;
-    });
+      try {
+        const tokensSorted = tokens
+          .map((token) => token.address.toLowerCase())
+          .sort((a, b) => a.localeCompare(b));
 
-    setIsDupePool(!!isDupe);
-  }, [tokens, pools, isLoadingPools]);
+        const res = await bexSubgraphClient.query<GetDedupedSubgraphPoolsQuery>(
+          {
+            query: GetDedupedSubgraphPools,
+            variables: {
+              tokens: tokensSorted,
+              type: poolType,
+            },
+          },
+        );
+
+        const matchingPools = res.data.pools.filter((pool) => {
+          return pool.tokens?.every(
+            (token) =>
+              tokensSorted.includes(token.address) ||
+              token.address === pool.address, // Composable pools have the LP token in the tokens list
+          );
+        });
+
+        return matchingPools?.at(0) ?? null;
+      } catch (error) {
+        return null;
+      }
+    },
+  );
 
   const { normalizedWeights, formattedNormalizedWeights } = useMemo(() => {
     if (weights.length === 0) {
@@ -231,7 +248,7 @@ export const useCreatePool = ({
   return {
     generatedPoolName,
     generatedPoolSymbol,
-    isDupePool,
+    isDupePool: !!dupePool,
     dupePool,
     normalizedWeights,
     formattedNormalizedWeights,

@@ -6010,6 +6010,38 @@ export type GetSubgraphPoolQuery = {
   } | null;
 };
 
+export type GetDedupedSubgraphPoolsQueryVariables = Exact<{
+  tokens: Array<Scalars["Bytes"]["input"]> | Scalars["Bytes"]["input"];
+  type: Scalars["String"]["input"];
+}>;
+
+export type GetDedupedSubgraphPoolsQuery = {
+  __typename?: "Query";
+  pools: Array<{
+    __typename?: "Pool";
+    id: string;
+    name?: string | null;
+    address: any;
+    factory?: any | null;
+    swapFee: any;
+    totalShares: any;
+    totalLiquidity: any;
+    createTime: number;
+    owner?: any | null;
+    tokens?: Array<{
+      __typename?: "PoolToken";
+      address: string;
+      name: string;
+      decimals: number;
+      symbol: string;
+      index?: number | null;
+      weight?: any | null;
+      balance: any;
+      token: { __typename?: "Token"; latestUSDPrice?: any | null };
+    }> | null;
+  }>;
+};
+
 export const SubgraphPoolFragmentDoc = gql`
     fragment SubgraphPool on Pool {
   id
@@ -6117,6 +6149,89 @@ export type GetSubgraphPoolQueryResult = Apollo.QueryResult<
   GetSubgraphPoolQuery,
   GetSubgraphPoolQueryVariables
 >;
+export const GetDedupedSubgraphPoolsDocument = gql`
+    query GetDedupedSubgraphPools($tokens: [Bytes!]!, $type: String!) {
+  pools(where: {tokensList_contains_nocase: $tokens, poolType: $type}) {
+    ...SubgraphPool
+  }
+}
+    ${SubgraphPoolFragmentDoc}`;
+
+/**
+ * __useGetDedupedSubgraphPoolsQuery__
+ *
+ * To run a query within a React component, call `useGetDedupedSubgraphPoolsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDedupedSubgraphPoolsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDedupedSubgraphPoolsQuery({
+ *   variables: {
+ *      tokens: // value for 'tokens'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetDedupedSubgraphPoolsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetDedupedSubgraphPoolsQuery,
+    GetDedupedSubgraphPoolsQueryVariables
+  > &
+    (
+      | { variables: GetDedupedSubgraphPoolsQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetDedupedSubgraphPoolsQuery,
+    GetDedupedSubgraphPoolsQueryVariables
+  >(GetDedupedSubgraphPoolsDocument, options);
+}
+export function useGetDedupedSubgraphPoolsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDedupedSubgraphPoolsQuery,
+    GetDedupedSubgraphPoolsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetDedupedSubgraphPoolsQuery,
+    GetDedupedSubgraphPoolsQueryVariables
+  >(GetDedupedSubgraphPoolsDocument, options);
+}
+export function useGetDedupedSubgraphPoolsSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        GetDedupedSubgraphPoolsQuery,
+        GetDedupedSubgraphPoolsQueryVariables
+      >,
+) {
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<
+    GetDedupedSubgraphPoolsQuery,
+    GetDedupedSubgraphPoolsQueryVariables
+  >(GetDedupedSubgraphPoolsDocument, options);
+}
+export type GetDedupedSubgraphPoolsQueryHookResult = ReturnType<
+  typeof useGetDedupedSubgraphPoolsQuery
+>;
+export type GetDedupedSubgraphPoolsLazyQueryHookResult = ReturnType<
+  typeof useGetDedupedSubgraphPoolsLazyQuery
+>;
+export type GetDedupedSubgraphPoolsSuspenseQueryHookResult = ReturnType<
+  typeof useGetDedupedSubgraphPoolsSuspenseQuery
+>;
+export type GetDedupedSubgraphPoolsQueryResult = Apollo.QueryResult<
+  GetDedupedSubgraphPoolsQuery,
+  GetDedupedSubgraphPoolsQueryVariables
+>;
 export const SubgraphPool = gql`
     fragment SubgraphPool on Pool {
   id
@@ -6145,6 +6260,13 @@ export const SubgraphPool = gql`
 export const GetSubgraphPool = gql`
     query GetSubgraphPool($id: ID!) {
   pool(id: $id) {
+    ...SubgraphPool
+  }
+}
+    ${SubgraphPool}`;
+export const GetDedupedSubgraphPools = gql`
+    query GetDedupedSubgraphPools($tokens: [Bytes!]!, $type: String!) {
+  pools(where: {tokensList_contains_nocase: $tokens, poolType: $type}) {
     ...SubgraphPool
   }
 }

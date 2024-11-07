@@ -28,3 +28,14 @@ query GetSubgraphPool($id: ID!) {
     ...SubgraphPool
   }
 }
+
+query GetDedupedSubgraphPools($tokens: [Bytes!]!, $type: String!) {
+  pools(
+    where: { tokensList_contains_nocase: $tokens, poolType: $type }
+    first: 1
+    orderDirection: desc
+    orderBy: totalLiquidity
+  ) {
+    ...SubgraphPool
+  }
+}
