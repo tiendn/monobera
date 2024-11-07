@@ -48,24 +48,27 @@ const TokenSummary = ({
   return (
     <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg border border-border p-3">
       <p className="w-full text-left text-lg font-semibold">{title}</p>
-      {pool?.tokens.map((token, idx) => {
-        return (
-          <div
-            key={token.address}
-            className="flex w-full flex-row items-center justify-between"
-          >
-            <p className="text-sm text-muted-foreground">
-              Pooled {isLoading ? "..." : token?.symbol}
-            </p>
-            <div className="flex flex-row items-center gap-1 font-medium">
-              {isLoading
-                ? "..."
-                : tokenBalances?.[idx]?.formattedBalance ?? "0"}{" "}
-              <TokenIcon address={token?.address} symbol={token?.symbol} />
+      {pool?.tokens
+        .filter((t) => t.address !== pool.address)
+        .map((token, idx) => {
+          return (
+            <div
+              key={token.address}
+              className="flex w-full flex-row items-center justify-between"
+            >
+              <p className="text-sm text-muted-foreground">
+                Pooled {isLoading ? "..." : token?.symbol}
+              </p>
+              <div className="flex flex-row items-center gap-1 font-medium">
+                {isLoading
+                  ? "..."
+                  : tokenBalances?.at(token.index)?.formattedBalance ??
+                    "0"}{" "}
+                <TokenIcon address={token?.address} symbol={token?.symbol} />
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };
@@ -153,16 +156,18 @@ export default function WithdrawLiquidityContent({
           {isLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
-            v2Pool?.tokens?.map((token, i) => {
-              return (
-                <TokenIcon
-                  address={token.address}
-                  symbol={token.symbol}
-                  className={cn("h-12 w-12", i !== 0 && "ml-[-16px]")}
-                  key={token.address}
-                />
-              );
-            })
+            v2Pool?.tokens
+              ?.filter((t) => t.address !== v2Pool.address)
+              .map((token, i) => {
+                return (
+                  <TokenIcon
+                    address={token.address}
+                    symbol={token.symbol}
+                    className={cn("h-12 w-12", i !== 0 && "ml-[-16px]")}
+                    key={token.address}
+                  />
+                );
+              })
           )}
         </div>
         <div
@@ -214,27 +219,29 @@ export default function WithdrawLiquidityContent({
             />
           </div>
           <InfoBoxList>
-            {v3Pool?.tokens.map((token) => (
-              <InfoBoxListItem
-                key={token.index}
-                title={`Removing ${isLoading ? "..." : token?.symbol ?? ""}`}
-                value={
-                  <div className="flex flex-row items-center justify-end gap-1">
-                    <FormattedNumber
-                      value={formatEther(
-                        queryOutput?.amountsOut[token.index].scale18 ?? 0n,
-                      )}
-                      compact={false}
-                    />
-                    <TokenIcon
-                      address={token?.address}
-                      size={"md"}
-                      symbol={token?.symbol}
-                    />
-                  </div>
-                }
-              />
-            ))}
+            {v3Pool?.tokens
+              .filter((t) => t.address !== v3Pool.address)
+              .map((token) => (
+                <InfoBoxListItem
+                  key={token.index}
+                  title={`Removing ${isLoading ? "..." : token?.symbol ?? ""}`}
+                  value={
+                    <div className="flex flex-row items-center justify-end gap-1">
+                      <FormattedNumber
+                        value={formatEther(
+                          queryOutput?.amountsOut[token.index].scale18 ?? 0n,
+                        )}
+                        compact={false}
+                      />
+                      <TokenIcon
+                        address={token?.address}
+                        size={"md"}
+                        symbol={token?.symbol}
+                      />
+                    </div>
+                  }
+                />
+              ))}
             <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
           </InfoBoxList>
           <TxnPreview
