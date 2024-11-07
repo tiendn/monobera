@@ -47,7 +47,7 @@ export const usePoolTable = ({
     data: data ?? [],
     fetchData: async () => {},
     additionalTableProps: {
-      initialState: { sorting },
+      initialState: { sorting, pagination: { pageSize: 10, pageIndex: 0 } },
       manualPagination: false,
       manualSorting: false,
     },
