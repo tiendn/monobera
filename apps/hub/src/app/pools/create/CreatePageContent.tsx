@@ -45,6 +45,7 @@ export default function CreatePageContent() {
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [weights, setWeights] = useState<number[]>([]);
+  const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
@@ -121,6 +122,7 @@ export default function CreatePageContent() {
   }, [isRelayerApprovalError]);
 
   // update the correct token within the tokens array when we select/re-select a token
+  // Update token selection and reset weights
   const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
@@ -133,26 +135,95 @@ export default function CreatePageContent() {
       }
       return updatedTokens;
     });
+
+    // Set initial weight or recalculate weights if more tokens are added
     setWeights((prevWeights) => {
-      const updatedWeights = [...prevWeights];
-      if (token) {
-        updatedWeights[index] = 1 / minTokensLength;
-      }
-      return updatedWeights;
+      const tokenCount = tokens.length;
+      const equalWeight = 1 / tokenCount;
+      return prevWeights.map((w, i) => (!lockedWeights[i] ? equalWeight : w));
     });
   };
 
-  const addTokenInput = () => {
-    if (tokens.length < maxTokensLength) {
-      setTokens([...tokens, emptyToken]);
-      setWeights([...weights, 1 / maxTokensLength]);
+  // Adjust weights and distribute among unlocked tokens
+  const handleWeightChange = (index: number, newWeight: number) => {
+    const weightInPercentage = newWeight / 100;
+    const adjustedWeights = [...weights];
+    adjustedWeights[index] = weightInPercentage;
+
+    const totalLockedWeight = adjustedWeights.reduce(
+      (sum, w, i) => (lockedWeights[i] ? sum + w : sum),
+      0,
+    );
+
+    const remainingWeight = 1 - totalLockedWeight - weightInPercentage;
+    const unlockedCount = adjustedWeights.reduce(
+      (count, _, i) => (!lockedWeights[i] && i !== index ? count + 1 : count),
+      0,
+    );
+
+    // Distribute remaining weight equally among unlocked tokens
+    adjustedWeights.forEach((_, i) => {
+      if (!lockedWeights[i] && i !== index) {
+        adjustedWeights[i] = remainingWeight / unlockedCount;
+      }
+    });
+
+    setWeights(adjustedWeights);
+  };
+
+  // Toggle lock status for a specific weight
+  const handleLockToggle = (index: number) => {
+    setLockedWeights((prevLocked) => {
+      const updatedLocked = [...prevLocked];
+      updatedLocked[index] = !updatedLocked[index];
+      return updatedLocked;
+    });
+  };
+
+  // Remove a token and adjust weights
+  const handleRemoveToken = (index: number) => {
+    if (tokens.length > minTokensLength) {
+      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
+      setWeights((prevWeights) => {
+        const updatedWeights = prevWeights.filter((_, i) => i !== index);
+        const unlockedCount = updatedWeights.reduce(
+          (count, _, i) => (!lockedWeights[i] ? count + 1 : count),
+          0,
+        );
+        const equalWeight = unlockedCount > 0 ? 1 / unlockedCount : 1;
+        return updatedWeights.map((w, i) =>
+          !lockedWeights[i] ? equalWeight : w,
+        );
+      });
+      setLockedWeights((prevLocked) =>
+        prevLocked.filter((_, i) => i !== index),
+      );
     }
   };
 
-  const removeTokenInput = (index: number) => {
-    if (tokens.length > minTokensLength) {
-      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
-      setWeights((prevWeights) => prevWeights.filter((_, i) => i !== index));
+  // Add a new token and evenly distribute weights among unlocked tokens
+  const addTokenInput = () => {
+    if (tokens.length < maxTokensLength) {
+      setTokens([...tokens, emptyToken]);
+
+      setWeights((prevWeights) => {
+        const totalLockedWeight = prevWeights.reduce(
+          (sum, w, i) => (lockedWeights[i] ? sum + w : sum),
+          0,
+        );
+
+        const remainingWeight = 1 - totalLockedWeight; // Weight available for unlocked tokens
+        const newTokenCount =
+          prevWeights.filter((_, i) => !lockedWeights[i]).length + 1;
+        const equalUnlockedWeight = remainingWeight / newTokenCount;
+
+        // Apply the calculated weights, keeping locked weights fixed
+        return prevWeights
+          .map((w, i) => (lockedWeights[i] ? w : equalUnlockedWeight))
+          .concat(equalUnlockedWeight); // Add the new token's weight
+      });
+
+      setLockedWeights([...lockedWeights, false]); // Add unlocked status for the new token
     }
   };
 
@@ -305,23 +376,22 @@ export default function CreatePageContent() {
           <h2 className="self-start text-3xl font-semibold">Select Tokens</h2>
           <div className="flex w-full flex-col gap-6">
             {tokens.map((token, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <CreatePoolInput
-                  token={token}
-                  selectedTokens={tokens}
-                  onTokenSelection={(selectedToken: Token | undefined) =>
-                    handleTokenSelection(selectedToken, index)
-                  }
-                />
-                {tokens.length > minTokensLength && (
-                  <Button
-                    onClick={() => removeTokenInput(index)}
-                    variant="ghost"
-                  >
-                    x
-                  </Button>
-                )}
-              </div>
+              <CreatePoolInput
+                key={index}
+                token={token}
+                selectedTokens={tokens}
+                weight={weights[index]}
+                displayWeight={poolType === PoolType.Weighted}
+                locked={lockedWeights[index]}
+                displayRemove={tokens.length > minTokensLength}
+                index={index}
+                onTokenSelection={(selectedToken) =>
+                  handleTokenSelection(selectedToken, index)
+                }
+                onWeightChange={handleWeightChange}
+                onLockToggle={handleLockToggle}
+                onRemoveToken={handleRemoveToken}
+              />
             ))}
             {tokens.length < maxTokensLength && (
               <div className="mr-auto">
@@ -360,56 +430,21 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 space-x-4 border-b p-4 last:border-b-0"
-                >
-                  {/* Token Input with Border */}
-                  <div className="flex-1">
-                    <CreatePoolInitialLiquidityInput
-                      disabled={!enableLiquidityInput}
-                      token={token as Token}
-                      tokenAmount={token.amount}
-                      onTokenBalanceChange={(amount) => {
-                        setTokens((prevTokens) => {
-                          const updatedTokens = [...prevTokens];
-                          updatedTokens[index] = {
-                            ...updatedTokens[index],
-                            amount,
-                          };
-                          return updatedTokens;
-                        });
-                      }}
-                    />
-                  </div>
-
-                  {/* Weight Input */}
-                  {poolType === PoolType.Weighted && (
-                    <>
-                      <div className="w-1/6">
-                        <InputWithLabel
-                          className="w-full"
-                          outerClassName=""
-                          label="Weight"
-                          type="number"
-                          value={weights[index]}
-                          onChange={(e) => {
-                            const newWeights = [...weights];
-                            newWeights[index] = Math.min(
-                              Number(e.target.value),
-                              100,
-                            );
-                            setWeights(newWeights);
-                          }}
-                        />
-                      </div>
-
-                      <div className="w-1/6 text-right text-sm text-gray-400">
-                        <p>{`Normalized:\n${formattedNormalizedWeights[index]}`}</p>
-                      </div>
-                    </>
-                  )}
-                </div>
+                <CreatePoolInitialLiquidityInput
+                  disabled={!enableLiquidityInput}
+                  token={token as Token}
+                  tokenAmount={token.amount}
+                  onTokenBalanceChange={(amount) => {
+                    setTokens((prevTokens) => {
+                      const updatedTokens = [...prevTokens];
+                      updatedTokens[index] = {
+                        ...updatedTokens[index],
+                        amount,
+                      };
+                      return updatedTokens;
+                    });
+                  }}
+                />
               ))}
             </ul>
           </div>
@@ -591,7 +626,7 @@ export default function CreatePageContent() {
                 className="w-full"
                 onClick={() => {
                   console.log("createPoolArgs", createPoolArgs);
-                  //writeCreatePool(createPoolArgs);
+                  writeCreatePool(createPoolArgs);
                 }}
               >
                 Create Pool
