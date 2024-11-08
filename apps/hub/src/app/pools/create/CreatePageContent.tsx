@@ -40,6 +40,7 @@ const emptyToken: TokenInput = {
 
 type OwnershipType = "governance" | "fixed" | "custom";
 const GOVERNANCE_ADDRESS = "0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b";
+const ONE_IN_18_DECIMALS = BigInt(10 ** 18); // i.e 100% in 18 decimals
 
 export default function CreatePageContent() {
   const router = useRouter();
@@ -122,7 +123,6 @@ export default function CreatePageContent() {
   const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
   const [isNormalizing, setIsNormalizing] = useState(false);
   const [weightsError, setWeightsError] = useState<string | null>(null);
-  const ONE_IN_18_DECIMALS = BigInt(10 ** 18);
 
   // Function to normalize weights based on locked and unlocked tokens
   const normalizeWeights = (
@@ -224,15 +224,16 @@ export default function CreatePageContent() {
   const handleWeightChange = (index: number, newWeight: number) => {
     const weightInBigInt = BigInt(Math.round(newWeight * 10 ** 16));
 
+    setLockedWeights((prevLocked) => {
+      const updatedLocked = [...prevLocked];
+      updatedLocked[index] = true;
+      return updatedLocked;
+    });
+
     setWeights((prevWeights) => {
       const updatedWeights = prevWeights.map((weight, i) =>
-        !lockedWeights[i] || i === index
-          ? i === index
-            ? weightInBigInt
-            : weight
-          : weight,
+        i === index ? weightInBigInt : weight,
       );
-
       return updatedWeights;
     });
   };
