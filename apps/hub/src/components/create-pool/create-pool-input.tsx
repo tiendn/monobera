@@ -1,5 +1,6 @@
 import React from "react";
 import { type Token } from "@bera/berajs";
+import { bgtTokenAddress } from "@bera/config";
 import { SelectToken } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
@@ -43,6 +44,7 @@ export default function CreatePoolInput({
     <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-3">
       <SelectToken
         token={token}
+        filter={[bgtTokenAddress]}
         selectable={selectable}
         onTokenSelection={(selectedToken: Token | undefined) =>
           onTokenSelection(selectedToken)
