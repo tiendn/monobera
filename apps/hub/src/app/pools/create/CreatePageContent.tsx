@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
@@ -18,7 +18,7 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { isAddress, parseUnits } from "viem";
+import { formatUnits, isAddress, parseUnits } from "viem";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
@@ -44,8 +44,6 @@ export default function CreatePageContent() {
   const { account } = useBeraJs();
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
-  const [weights, setWeights] = useState<number[]>([]);
-  const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enableLiquidityInput, setEnableLiquidityInput] =
@@ -55,6 +53,9 @@ export default function CreatePageContent() {
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(0);
+  const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
+    string | null
+  >(null);
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
@@ -121,7 +122,62 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  // update the correct token within the tokens array when we select/re-select a token
+  ////////////////////////////////////////////////////////START//////////////////////////////////////////////////////////////////
+
+  // Start
+  const [weights, setWeights] = useState<number[]>([]);
+  const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
+  const [isNormalizing, setIsNormalizing] = useState(false);
+  const [weightsError, setWeightsError] = useState<string | null>(null);
+  const ONE_IN_18_DECIMALS = BigInt(10 ** 18);
+
+  // Function to normalize weights based on locked and unlocked tokens
+  const normalizeWeights = (
+    updatedWeights: number[],
+    changedIndex?: number,
+  ) => {
+    const totalLockedWeight = updatedWeights.reduce(
+      (sum, weight, i) => (lockedWeights[i] ? sum + weight : sum),
+      0,
+    );
+
+    const remainingWeight = 100 - totalLockedWeight;
+    const unlockedCount = updatedWeights.reduce(
+      (count, _, i) => (!lockedWeights[i] ? count + 1 : count),
+      0,
+    );
+
+    const totalWeight = updatedWeights.reduce((sum, weight) => sum + weight, 0);
+
+    // Check if the total weight exceeds 100%
+    if (totalWeight > 100) {
+      setWeightsError("Total weight cannot exceed 100%");
+    } else {
+      setWeightsError(null);
+    }
+
+    // Update weights only if they are within 100%
+    const normalizedWeights = updatedWeights.map((weight, i) => {
+      if (!lockedWeights[i] && i !== changedIndex) {
+        return remainingWeight / unlockedCount;
+      }
+      return weight;
+    });
+
+    setWeights(normalizedWeights);
+  };
+
+  // Debounced normalization
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsNormalizing(true);
+      normalizeWeights(weights);
+      setIsNormalizing(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [weights, lockedWeights]);
+
   // Update token selection and reset weights
   const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
@@ -136,42 +192,37 @@ export default function CreatePageContent() {
       return updatedTokens;
     });
 
-    // Set initial weight or recalculate weights if more tokens are added
     setWeights((prevWeights) => {
-      const tokenCount = tokens.length;
-      const equalWeight = 1 / tokenCount;
+      const tokenCount = prevWeights.length;
+      const equalWeight = 100 / tokenCount;
       return prevWeights.map((w, i) => (!lockedWeights[i] ? equalWeight : w));
     });
   };
 
-  // Adjust weights and distribute among unlocked tokens
+  // Adjust weights and set for normalization
   const handleWeightChange = (index: number, newWeight: number) => {
-    const weightInPercentage = newWeight / 100;
-    const adjustedWeights = [...weights];
-    adjustedWeights[index] = weightInPercentage;
+    setWeights((prevWeights) => {
+      const updatedWeights = prevWeights.map((weight, i) =>
+        !lockedWeights[i] || i === index
+          ? i === index
+            ? newWeight
+            : weight
+          : weight,
+      );
 
-    const totalLockedWeight = adjustedWeights.reduce(
-      (sum, w, i) => (lockedWeights[i] ? sum + w : sum),
-      0,
-    );
+      const totalWeight = updatedWeights.reduce(
+        (sum, weight) => sum + weight,
+        0,
+      );
+      setWeightsError(
+        totalWeight > 100 ? "Total weight cannot exceed 100%" : null,
+      );
 
-    const remainingWeight = 1 - totalLockedWeight - weightInPercentage;
-    const unlockedCount = adjustedWeights.reduce(
-      (count, _, i) => (!lockedWeights[i] && i !== index ? count + 1 : count),
-      0,
-    );
-
-    // Distribute remaining weight equally among unlocked tokens
-    adjustedWeights.forEach((_, i) => {
-      if (!lockedWeights[i] && i !== index) {
-        adjustedWeights[i] = remainingWeight / unlockedCount;
-      }
+      return updatedWeights;
     });
-
-    setWeights(adjustedWeights);
   };
 
-  // Toggle lock status for a specific weight
+  // Toggle lock status for specific weight
   const handleLockToggle = (index: number) => {
     setLockedWeights((prevLocked) => {
       const updatedLocked = [...prevLocked];
@@ -190,7 +241,7 @@ export default function CreatePageContent() {
           (count, _, i) => (!lockedWeights[i] ? count + 1 : count),
           0,
         );
-        const equalWeight = unlockedCount > 0 ? 1 / unlockedCount : 1;
+        const equalWeight = unlockedCount > 0 ? 100 / unlockedCount : 100;
         return updatedWeights.map((w, i) =>
           !lockedWeights[i] ? equalWeight : w,
         );
@@ -201,43 +252,75 @@ export default function CreatePageContent() {
     }
   };
 
-  // Add a new token and evenly distribute weights among unlocked tokens
+  // Add a new token and evenly distribute weights
   const addTokenInput = () => {
     if (tokens.length < maxTokensLength) {
       setTokens([...tokens, emptyToken]);
-
       setWeights((prevWeights) => {
         const totalLockedWeight = prevWeights.reduce(
           (sum, w, i) => (lockedWeights[i] ? sum + w : sum),
           0,
         );
 
-        const remainingWeight = 1 - totalLockedWeight; // Weight available for unlocked tokens
+        const remainingWeight = 100 - totalLockedWeight;
         const newTokenCount =
           prevWeights.filter((_, i) => !lockedWeights[i]).length + 1;
         const equalUnlockedWeight = remainingWeight / newTokenCount;
 
-        // Apply the calculated weights, keeping locked weights fixed
         return prevWeights
           .map((w, i) => (lockedWeights[i] ? w : equalUnlockedWeight))
-          .concat(equalUnlockedWeight); // Add the new token's weight
+          .concat(equalUnlockedWeight);
       });
-
-      setLockedWeights([...lockedWeights, false]); // Add unlocked status for the new token
+      setLockedWeights([...lockedWeights, false]);
     }
   };
 
-  const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
-    string | null
-  >(null);
+  // Normalize weights and format for display
+  // Normalize weights with 18 decimal precision and format for display
+  const { normalizedWeights, formattedNormalizedWeights } = useMemo(() => {
+    if (weights.length === 0) {
+      return { normalizedWeights: [], formattedNormalizedWeights: [] };
+    }
 
-  // if the pool type changes we need to reset the tokens
+    // Calculate normalized weights with bigInt precision
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    const normalizedWeights = weights.map((weight) =>
+      BigInt(Math.round((weight / totalWeight) * Number(ONE_IN_18_DECIMALS))),
+    );
+
+    // Correct any off-by-one discrepancy
+    const weightSum = normalizedWeights.reduce(
+      (sum, weight) => sum + weight,
+      0n,
+    );
+    const correction = ONE_IN_18_DECIMALS - weightSum;
+
+    if (correction !== 0n && normalizedWeights.length > 0) {
+      const minWeightIndex = normalizedWeights.reduce(
+        (minIndex, weight, index, array) =>
+          weight < array[minIndex] ? index : minIndex,
+        0,
+      );
+      normalizedWeights[minWeightIndex] += correction;
+    }
+
+    // Format normalized weights for display as percentages
+    const formattedNormalizedWeights = normalizedWeights.map((weight) => {
+      const percentage = (Number(weight) / Number(ONE_IN_18_DECIMALS)) * 100;
+      return `${percentage.toFixed(6)}%`;
+    });
+
+    return { normalizedWeights, formattedNormalizedWeights };
+  }, [weights]);
+
+  // Reset tokens if pool type changes
   useEffect(() => {
     const initialTokens = Array(minTokensLength).fill(emptyToken);
-    const initialWeights = Array(minTokensLength).fill(1 / minTokensLength);
+    const initialWeights = Array(minTokensLength).fill(100 / minTokensLength);
     setTokens(initialTokens);
     setWeights(initialWeights);
   }, [poolType]);
+  ////////////////////////////////////////////////////////END//////////////////////////////////////////////////////////////////
 
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
@@ -246,12 +329,11 @@ export default function CreatePageContent() {
     isDupePool,
     dupePool,
     createPoolArgs,
-    formattedNormalizedWeights,
     isLoadingPools,
     errorLoadingPools,
   } = useCreatePool({
     tokens,
-    weights,
+    normalizedWeights,
     poolType,
     swapFee,
     poolName,

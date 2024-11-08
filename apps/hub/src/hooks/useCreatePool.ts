@@ -19,7 +19,7 @@ import { TokenInput } from "./useMultipleTokenInput";
 
 interface UseCreatePoolProps {
   tokens: TokenInput[];
-  weights: number[];
+  normalizedWeights: bigint[]; // NOTE: if you pass weights that have off-by-1 errors pool create will fail (ex: 0.3 repeating)
   poolType: PoolType;
   swapFee: number;
   owner: string;
@@ -31,10 +31,8 @@ interface UseCreatePoolProps {
 interface UseCreatePoolReturn {
   generatedPoolName: string;
   generatedPoolSymbol: string;
-  isDupePool?: boolean;
-  dupePool?: SubgraphPoolFragment | null;
-  normalizedWeights: bigint[];
-  formattedNormalizedWeights: string[];
+  isDupePool: boolean;
+  dupePool: SubgraphPoolFragment | null;
   createPoolArgs: any;
   isLoadingPools: boolean;
   errorLoadingPools: boolean;
@@ -42,7 +40,7 @@ interface UseCreatePoolReturn {
 
 export const useCreatePool = ({
   tokens,
-  weights,
+  normalizedWeights,
   poolType,
   poolName,
   poolSymbol,
@@ -89,40 +87,6 @@ export const useCreatePool = ({
       }
     },
   );
-
-  const { normalizedWeights, formattedNormalizedWeights } = useMemo(() => {
-    if (weights.length === 0) {
-      return { normalizedWeights: [], formattedNormalizedWeights: [] };
-    }
-    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-    const normalizedWeights = weights.map((weight) =>
-      parseUnits((weight / totalWeight).toString(), 18),
-    );
-    const weightSum = normalizedWeights.reduce(
-      (sum, weight) => sum + weight,
-      0n,
-    );
-    const oneIn18Decimals = parseUnits("1", 18);
-    const correction = oneIn18Decimals - weightSum;
-
-    if (correction !== 0n && normalizedWeights.length > 0) {
-      const minWeightIndex = normalizedWeights.reduce(
-        (minIndex, weight, index, array) =>
-          weight < array[minIndex] ? index : minIndex,
-        0,
-      );
-      if (normalizedWeights[minWeightIndex] !== undefined) {
-        normalizedWeights[minWeightIndex] += correction;
-      }
-    }
-
-    const formattedNormalizedWeights = normalizedWeights.map((weight) => {
-      const percentage = formatUnits(weight, 18);
-      return `${(parseFloat(percentage) * 100).toFixed(6)}%`;
-    });
-
-    return { normalizedWeights, formattedNormalizedWeights };
-  }, [weights]);
 
   const generatePoolName = (tokens: Token[], poolType: PoolType): string => {
     if (tokens.length === 0) {
@@ -255,8 +219,6 @@ export const useCreatePool = ({
     generatedPoolSymbol,
     isDupePool: !!dupePool,
     dupePool,
-    normalizedWeights,
-    formattedNormalizedWeights,
     createPoolArgs,
     isLoadingPools,
     errorLoadingPools,
