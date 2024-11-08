@@ -3,11 +3,12 @@ import { type Token } from "@bera/berajs";
 import { SelectToken } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
+import { formatUnits } from "viem";
 
 type Props = {
   token: Token | undefined;
   selectedTokens: Token[];
-  weight?: number;
+  weight?: bigint;
   displayWeight?: boolean;
   displayRemove?: boolean;
   locked: boolean;
@@ -57,7 +58,8 @@ export default function CreatePoolInput({
             <span className="text-sm text-gray-400">%</span>
             <InputWithLabel
               type="number"
-              value={weight?.toFixed(18)} // FIXME there are numerical issues here it should be displaying bigInt with 18 decimals
+              // NOTE: weight is 18 decimalized and we input it as a %
+              value={formatUnits(weight || 0n, 16)} // FIXME this handling is weird, weight should always be set
               maxLength={5}
               onChange={handleWeightChange}
               className="w-52 rounded-md border bg-transparent text-center text-white"
