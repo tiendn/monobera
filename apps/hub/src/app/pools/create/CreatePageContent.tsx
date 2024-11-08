@@ -56,7 +56,7 @@ export default function CreatePageContent() {
   const [owner, setOwner] = useState<string>(GOVERNANCE_ADDRESS);
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
-  const [amplification, setAmplification] = useState<number>(0);
+  const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
@@ -568,7 +568,7 @@ export default function CreatePageContent() {
                 ownershipType === "governance" && "border-info-foreground ",
               )}
             >
-              <span className="text-lg font-semibold">Stable</span>
+              <span className="text-lg font-semibold">Governance</span>
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Enables fee modification through governance
               </span>
@@ -655,7 +655,7 @@ export default function CreatePageContent() {
               onChange={(e) => {
                 // NOTE: for some reason max/min dont seem to work in InputWithLabel
                 const value = Number(e.target.value);
-                if (value >= 0 && value <= 5000) {
+                if (value >= 1 && value <= 5000) {
                   setAmplification(value);
                 }
               }}
@@ -679,8 +679,8 @@ export default function CreatePageContent() {
             Approve & Submit
           </h2>
 
-          {/* Approvals TODO: this and below belong inside a preview page*/}
-          {!isRelayerApproved && (
+          {/* TODO: below belongs in a preview page */}
+          {!isRelayerApproved ? (
             <Button
               disabled={
                 isRelayerApprovalLoading ||
@@ -691,14 +691,11 @@ export default function CreatePageContent() {
               className="mt-4 w-full"
             >
               Approve Pool Creation Helper
-              {isRelayerApprovalLoading ||
-                (isRelayerApprovalSubmitting && "...")}
+              {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
+                "..."}
             </Button>
-          )}
-
-          {tokensNeedApproval.length > 0 &&
+          ) : tokensNeedApproval.length > 0 ? (
             (() => {
-              // NOTE: we might avoid doing this if we can return TokenInput amount in the ApprovalToken[]
               const approvalTokenIndex = tokens.findIndex(
                 (t) => t.address === tokensNeedApproval[0]?.address,
               );
@@ -717,35 +714,36 @@ export default function CreatePageContent() {
                   onApproval={() => refreshAllowances()}
                 />
               );
-            })()}
-
-          <ActionButton>
-            <Button
-              disabled={
-                !createPoolArgs ||
-                tokensNeedApproval.length > 0 ||
-                !isRelayerApproved ||
-                !isAddress(owner) ||
-                poolName.length === 0 ||
-                poolSymbol.length === 0 ||
-                !enableLiquidityInput ||
-                isLoadingCreatePoolTx ||
-                isSubmittingCreatePoolTx ||
-                isLoadingPools ||
-                errorLoadingPools ||
-                isNormalizing ||
-                weightsError !== null
-              }
-              className="w-full"
-              onClick={() => {
-                console.log("createPoolArgs", createPoolArgs);
-                writeCreatePool(createPoolArgs);
-              }}
-            >
-              Create Pool
-              {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
-            </Button>
-          </ActionButton>
+            })()
+          ) : (
+            <ActionButton>
+              <Button
+                disabled={
+                  !createPoolArgs ||
+                  tokensNeedApproval.length > 0 ||
+                  !isRelayerApproved ||
+                  !isAddress(owner) ||
+                  poolName.length === 0 ||
+                  poolSymbol.length === 0 ||
+                  !enableLiquidityInput ||
+                  isLoadingCreatePoolTx ||
+                  isSubmittingCreatePoolTx ||
+                  isLoadingPools ||
+                  errorLoadingPools ||
+                  isNormalizing ||
+                  weightsError !== null
+                }
+                className="w-full"
+                onClick={() => {
+                  console.log("createPoolArgs", createPoolArgs);
+                  writeCreatePool(createPoolArgs);
+                }}
+              >
+                Create Pool
+                {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
+              </Button>
+            </ActionButton>
+          )}
         </section>
       </div>
     </div>
