@@ -1,16 +1,16 @@
 import { readFile, writeFile } from "fs/promises";
 
-const entryPoints = [
-  "./src/modules/governance/index.ts",
-  "./src/modules/chain/index.ts",
-  "./src/modules/pol/index.ts",
-];
+import { endpointsMap } from "./codegen";
+
+const entryPoints = endpointsMap.map((e) => e[0]);
+
 const config = {
   entryPoints: [
     "./src/index.ts",
-    "./src/modules/dex/subgraph.codegen.ts",
-    "./src/modules/dex/api.codegen.ts",
-    ...entryPoints,
+    ...entryPoints.map((e) => {
+      const [dir, file] = e.split("/");
+      return `./src/modules/${dir}/${file ?? dir}.codegen.ts`;
+    }),
   ], // The entry point(s) of your library
   format: ["esm"], // The desired output format(s)
   clean: true,
@@ -23,7 +23,6 @@ const config = {
   dts: process.env.VERCEL !== "1", // Whether to generate TypeScript declaration files
   // target: "node18", // Specify your target environment
 
-  ignore: ["src/**/*.graphql"],
   async onSuccess() {
     const pkgJson = JSON.parse(
       await readFile("./package.json", {
@@ -35,38 +34,19 @@ const config = {
         import: "./dist/index.js",
         types: "./dist/index.d.ts",
       },
-      "./dex/api": {
-        import: "./dist/modules/dex/api.codegen.js",
-        types: "./dist/modules/dex/api.codegen.d.ts",
-      },
-      "./dex/subgraph": {
-        import: "./dist/modules/dex/subgraph.codegen.js",
-        types: "./dist/modules/dex/subgraph.codegen.d.ts",
-      },
     };
 
-    pkgJson.typesVersions["*"]["dex/subgraph"] = [
-      "./dist/modules/dex/subgraph.codegen.d.ts",
-    ];
+    entryPoints.forEach((entry) => {
+      const [dir, file] = entry.split("/");
 
-    pkgJson.typesVersions["*"]["dex/api"] = [
-      "./dist/modules/dex/api.codegen.d.ts",
-    ];
-
-    entryPoints
-      .filter((e) => e.endsWith(".ts"))
-      .forEach((entry) => {
-        const file = entry
-          .replace("./src/", "")
-          .replace("modules/", "")
-          .replace("/index.ts", "");
-
-        pkgJson.exports[`./${file}`] = {
-          import: `./dist/modules/${file}/index.js`,
-          types: `./dist/modules/${file}/index.d.ts`,
-        };
-        pkgJson.typesVersions["*"][file] = [`dist/modules/${file}/index.d.ts`];
-      });
+      pkgJson.exports[`./${entry}`] = {
+        import: `./dist/modules/${dir}/${file ?? dir}.codegen.js`,
+        types: `./dist/modules/${dir}/${file ?? dir}.codegen.d.ts`,
+      };
+      pkgJson.typesVersions["*"][entry] = [
+        `./dist/modules/${dir}/${file ?? dir}.codegen.d.ts`,
+      ];
+    });
 
     await writeFile("./package.json", JSON.stringify(pkgJson, null, 2));
   },

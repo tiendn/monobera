@@ -81,6 +81,12 @@ query GetPools($textSearch: String, $userAddress: String) {
   }
 }
 
+query GetPoolsProvidedByWallet($userAddress: String) {
+  poolGetPools(where: { userAddress: $userAddress }) {
+    ...MinimalPoolInList
+  }
+}
+
 query GetPool($id: String!, $userAddress: String) {
   poolGetPool(id: $id, userAddress: $userAddress) {
     ...MinimalPool
