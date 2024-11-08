@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "View pools",
 };
 
+export const revalidate = 120;
+
 export default async function Pool() {
   const res = await bexApiGraphqlClient.query<GetPoolsQuery>({
     query: GetPools,
@@ -16,6 +18,7 @@ export default async function Pool() {
       textSearch: undefined,
     },
   });
+
   return (
     <div className="flex w-full flex-col gap-5">
       <PoolPageHeader pools={res.data.poolGetPools} />

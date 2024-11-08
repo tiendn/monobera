@@ -17,6 +17,8 @@ export function generateMetadata(): Metadata {
   };
 }
 
+export const revalidate = 120;
+
 // THIS IS NOT COMPATIBLE WITH IPFS. CHECK THIS CAUSES BUGS
 // export const dynamic = "force-dynamic";
 
@@ -64,11 +66,12 @@ export async function generateStaticParams() {
       },
     ];
   }
-  const res = await bexApiGraphqlClient.query<GetPoolsQuery>({
-    query: GetPools,
-  });
+  return [];
+  // const res = await bexApiGraphqlClient.query<GetPoolsQuery>({
+  //   query: GetPools,
+  // });
 
-  return res.data.poolGetPools.map((pool) => ({
-    poolId: pool.id,
-  }));
+  // return res.data.poolGetPools.map((pool) => ({
+  //   poolId: pool.id,
+  // }));
 }
