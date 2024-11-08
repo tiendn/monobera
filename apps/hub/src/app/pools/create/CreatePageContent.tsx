@@ -195,7 +195,7 @@ export default function CreatePageContent() {
       BigInt(0),
     );
     if (weights.some((weight) => weight < 0n || weight > ONE_IN_18_DECIMALS)) {
-      setWeightsError("Weights must be between 0 and 100%");
+      setWeightsError("Weights must be larger than 0% and less than 100%");
     } else if (totalWeight > ONE_IN_18_DECIMALS) {
       setWeightsError("Total weight exceeds 100%");
     } else {

@@ -58,9 +58,9 @@ export default function CreatePoolInput({
             <span className="text-sm text-gray-400">%</span>
             <InputWithLabel
               type="number"
-              // NOTE: weight is 18 decimalized and we input it as a %
-              value={formatUnits(weight || 0n, 16)} // FIXME this handling is weird, weight should always be set
-              maxLength={5}
+              // NOTE: weight is 18 decimalized and we input it as a %, so we use 16 decimalized for the input
+              // NOTEL: if a weight is negative internally we will clamp it to 0 in the display (but an error is shown)
+              value={weight ? formatUnits(weight < 0n ? 0n : weight, 16) : "0"}
               onChange={handleWeightChange}
               className="w-52 rounded-md border bg-transparent text-center text-white"
             />
