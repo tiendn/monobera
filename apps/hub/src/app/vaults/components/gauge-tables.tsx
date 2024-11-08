@@ -29,14 +29,14 @@ export default function GaugeTables() {
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <TabsList className="w-full md:w-fit" variant="ghost">
           <TabsTrigger value="all-gauges" className="w-full md:w-fit">
-            All Gauges
+            All Reward Vaults
           </TabsTrigger>
           <TabsTrigger
             value="my-gauges"
             className="w-full md:w-fit"
             disabled={!isReady}
           >
-            My Gauges
+            My Reward Vaults
           </TabsTrigger>
         </TabsList>
         <TabsContent value="all-gauges">

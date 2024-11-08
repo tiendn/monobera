@@ -68,7 +68,7 @@ export const ValidatorPolData = ({ validator }: { validator: Validator }) => {
       <div className="w-full">
         <Tabs defaultValue="gauges">
           <TabsList variant="ghost" className="">
-            <TabsTrigger value="gauges">Gauges</TabsTrigger>
+            <TabsTrigger value="gauges">Reward Vaults</TabsTrigger>
             <TabsTrigger value="incentives">Incentives</TabsTrigger>
           </TabsList>
           <TabsContent value={"gauges"} className="mt-6">

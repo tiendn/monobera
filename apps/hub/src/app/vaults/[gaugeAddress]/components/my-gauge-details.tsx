@@ -34,7 +34,7 @@ export const MyGaugeDetails = ({ gauge }: { gauge: Gauge }) => {
         <div className="flex w-full flex-col gap-4 lg:max-w-[440px]">
           <div className="flex flex-col gap-8 rounded-md border border-border p-4">
             <div className="text-lg font-semibold leading-7">
-              My Vault Deposits
+              My Reward Vault Deposits
             </div>
             <div className="flex justify-between font-medium leading-6">
               <div>{gauge.metadata?.name}</div>

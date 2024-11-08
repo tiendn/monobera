@@ -119,6 +119,7 @@ export default function GlobalGaugeWeightTable({
       className="min-h-[200px] w-full min-w-[800px] shadow"
       wrapperClassName="min-h-[200px] w-full min-w-[800px]"
       variant="ghost"
+      mutedBackgroundOnHead={false}
       flexTable
       onRowClick={(row: any) =>
         router.push(getRewardsVaultUrl(row.original.vaultAddress, myGauge))

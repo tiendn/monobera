@@ -32,8 +32,9 @@ import { Address, formatUnits, isAddress, parseUnits } from "viem";
 export const Incentivize = () => {
   const sp = useSearchParams();
   const gauge = sp.get("gauge");
-  const selectedToken = sp.get("selectedToken") as Address | null;
+  const selectedToken = sp.get("token") as Address | null;
   //is valid pool address
+
   if (
     !gauge ||
     !isAddress(gauge) ||

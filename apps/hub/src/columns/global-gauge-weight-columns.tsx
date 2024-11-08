@@ -8,7 +8,7 @@ import { GaugeHeaderWidget } from "~/components/gauge-header-widget";
 
 export const GlobalGaugeWeightColumns: ColumnDef<Gauge>[] = [
   {
-    header: "Gauge Vaults",
+    header: "Reward Vaults",
     cell: ({ row }) => (
       <GaugeHeaderWidget
         address={row.original.vaultAddress}
@@ -53,7 +53,7 @@ export const GlobalGaugeWeightColumns: ColumnDef<Gauge>[] = [
     },
     accessorKey: "bgtInflationCapture",
     // TODO: fix sorting for bgtInflationCapture
-    // enableSorting: true,
+    enableSorting: false,
   },
   // {
   //   header: ({ column }) => (

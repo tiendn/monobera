@@ -75,12 +75,12 @@ export const ValidatorGlobalInfo = () => {
           visibleDecimals={0}
         />
       ),
-      text: "Active gauges",
+      text: "Active Reward Vaults",
       img: (
         <div className="absolute bottom-0 right-0">
           <Image
             src={`${cloudinaryUrl}/station/active-gauges`}
-            alt="Active Gauges"
+            alt="Active Reward Vaults"
             width={100}
             height={100}
           />

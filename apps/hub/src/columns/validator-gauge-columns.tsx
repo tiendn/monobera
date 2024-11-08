@@ -11,7 +11,7 @@ export const getValidatorGaugeColumns = (validator: Validator) => {
   const validatorGaugeColumns: ColumnDef<Gauge>[] = [
     {
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Gauge Vaults" />
+        <DataTableColumnHeader column={column} title="Reward Vaults" />
       ),
       cell: ({ row }) => (
         <GaugeHeaderWidget
