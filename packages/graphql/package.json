@@ -12,6 +12,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
+    "prebuild": "pnpm codegen",
     "clean": "git clean -xdf dist .turbo node_modules",
     "dev": "tsup --watch",
     "lint": "biome lint . ",
@@ -42,40 +43,37 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./dex/api": {
-      "import": "./dist/modules/dex/api.codegen.js",
-      "types": "./dist/modules/dex/api.codegen.d.ts"
+    "./governance": {
+      "import": "./dist/modules/governance/governance.codegen.js",
+      "types": "./dist/modules/governance/governance.codegen.d.ts"
+    },
+    "./chain": {
+      "import": "./dist/modules/chain/chain.codegen.js",
+      "types": "./dist/modules/chain/chain.codegen.d.ts"
+    },
+    "./pol": {
+      "import": "./dist/modules/pol/pol.codegen.js",
+      "types": "./dist/modules/pol/pol.codegen.d.ts"
     },
     "./dex/subgraph": {
       "import": "./dist/modules/dex/subgraph.codegen.js",
       "types": "./dist/modules/dex/subgraph.codegen.d.ts"
     },
-    "./governance": {
-      "import": "./dist/modules/governance/index.js",
-      "types": "./dist/modules/governance/index.d.ts"
-    },
-    "./chain": {
-      "import": "./dist/modules/chain/index.js",
-      "types": "./dist/modules/chain/index.d.ts"
-    },
-    "./pol": {
-      "import": "./dist/modules/pol/index.js",
-      "types": "./dist/modules/pol/index.d.ts"
+    "./dex/api": {
+      "import": "./dist/modules/dex/api.codegen.js",
+      "types": "./dist/modules/dex/api.codegen.d.ts"
     }
   },
   "typesVersions": {
     "*": {
       "governance": [
-        "dist/modules/governance/index.d.ts"
-      ],
-      "pol": [
-        "dist/modules/pol/index.d.ts"
+        "./dist/modules/governance/governance.codegen.d.ts"
       ],
       "chain": [
-        "dist/modules/chain/index.d.ts"
+        "./dist/modules/chain/chain.codegen.d.ts"
       ],
-      "dex": [
-        "dist/modules/dex/index.d.ts"
+      "pol": [
+        "./dist/modules/pol/pol.codegen.d.ts"
       ],
       "dex/subgraph": [
         "./dist/modules/dex/subgraph.codegen.d.ts"

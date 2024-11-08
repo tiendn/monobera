@@ -1,28 +1,24 @@
 import dotenv from "dotenv";
 
+import { getEndpointsMap } from "./packages/graphql/codegen";
+
 dotenv.config({
   path: ["./.env.local", "./.env"],
 });
+
 module.exports = {
-  projects: {
-    governance: {
-      schema: process.env.NEXT_PUBLIC_GOVERNANCE_SUBGRAPH_URL,
-      documents: "./packages/graphql/src/modules/governance/query.ts",
-    },
-    blocks: {
-      schema: process.env.NEXT_PUBLIC_CHAIN_BLOCKS_SUBGRAPH_URL,
-      documents: "./packages/graphql/src/modules/chain/query.ts",
-    },
-    balancerApi: {
-      schema: process.env.NEXT_PUBLIC_BALANCER_API_URL,
-      documents: [
-        "./packages/b-sdk/**/*.ts",
-        "./packages/graphql/src/modules/dex/api.graphql",
-      ],
-    },
-    balancerSubgraph: {
-      schema: process.env.NEXT_PUBLIC_BALANCER_SUBGRAPH,
-      documents: ["./packages/graphql/src/modules/dex/subgraph.graphql"],
-    },
-  },
+  projects: getEndpointsMap().reduce((acc, [entry, url]) => {
+    const [dir, file] = entry.split("/");
+    const documents = [
+      `./packages/graphql/src/modules/${dir}/${file ?? dir}.graphql`,
+    ];
+    if (entry === "dex/api") {
+      documents.push("./packages/b-sdk/**/*.ts");
+    }
+    acc[entry] = {
+      schema: url,
+      documents: `./packages/graphql/src/modules/${dir}/${file ?? dir}.graphql`,
+    };
+    return acc;
+  }, {}),
 };
