@@ -16,7 +16,7 @@ export default function GaugeInfoCard() {
       <div className="flex flex-1 flex-row gap-6 sm:flex-col">
         <div className="flex flex-1 flex-col gap-2 rounded-lg border border-border px-4 py-6">
           <div className="text-sm font-medium leading-5 text-muted-foreground">
-            Active Gauges Vaults
+            Active Reward Vaults
           </div>
           {!isLoading ? (
             <span className="text-2xl font-semibold leading-8">

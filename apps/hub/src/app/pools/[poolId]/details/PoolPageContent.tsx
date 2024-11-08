@@ -116,9 +116,7 @@ const TokenView = ({
             <Skeleton className="mt-2 h-8 w-full" />
           </div>
         ) : (
-          tokens
-
-          .map((token, index) => {
+          tokens.map((token, index) => {
             return (
               <div
                 className="flex h-8 items-center justify-between"

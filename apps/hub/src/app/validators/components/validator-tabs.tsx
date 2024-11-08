@@ -20,7 +20,6 @@ export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
   const isValidatorWallet = account === validator.coinbase;
   const [dayRange, setDayRange] = useState("30");
 
-  console.log("abc", validator);
   return (
     <Tabs className="mt-4" defaultValue="overview">
       <div className="mb-6 flex w-full flex-col justify-between gap-6 sm:flex-row">
