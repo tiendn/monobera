@@ -7,10 +7,6 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { GqlPoolType, MinimalPoolInListFragment } from "@bera/graphql/dex/api";
 
 export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
-  const { data: balance } = usePollBalance({
-    address: pool.address,
-  });
-
   return (
     <div className="flex flex-row items-start gap-2">
       <TokenIconList
@@ -41,7 +37,7 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
               <span>Stable</span>
             </Badge>
           )}
-          {balance && balance.balance !== 0n && (
+          {pool.userBalance && Number(pool.userBalance.walletBalance) > 0 && (
             <Badge
               variant="success"
               className="border-none bg-success px-2 py-1 text-[10px] leading-[10px] "

@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { NotFoundBear, SearchInput, SimpleTable } from "@bera/shared-ui";
+import {
+  ConnectWalletBear,
+  NotFoundBear,
+  SearchInput,
+  SimpleTable,
+} from "@bera/shared-ui";
 import { DataTableLoading } from "@bera/shared-ui/table/legacy";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
@@ -13,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import MyPool from "./components/pools/my-pool";
 import { getPoolUrl } from "./fetchPools";
 import { usePoolTable } from "./usePoolTable";
+import { useBeraJs } from "@bera/berajs";
 
 export const PoolSearch = ({
   poolType = "allPools",
@@ -25,6 +31,7 @@ export const PoolSearch = ({
   const sort = searchParams.get("sort");
   const direction = searchParams.get("direction");
 
+  const { account } = useBeraJs();
   const [sorting, setSorting] = useState([
     {
       id: sort === null ? "totalLiquidity" : sort,
@@ -34,15 +41,10 @@ export const PoolSearch = ({
 
   useEffect(() => {}, [sorting]);
 
-  // const handleSortingChange = (newSorting: any) => {
-  //   if (newSorting !== sorting) {
-
-  //   }
-  // };
-
   const { search, keyword, isLoading, table, setKeyword, setSearch, data } =
     usePoolTable({
       sorting,
+      userPoolsOnly: poolType === "userPools",
       page: parseFloat(page ?? "1"),
       pageSize: parseFloat(pageSize ?? "10"),
     });
@@ -144,18 +146,6 @@ export const PoolSearch = ({
                 onRowClick={(row) => router.push(getPoolUrl(row.original))}
                 wrapperClassName="bg-transparent border-none"
                 showToolbar={true}
-                // toolbarContent={
-                //   <Select>
-                //     <SelectTrigger>
-                //       <SelectValue placeholder="Select a pool" />
-                //       <SelectContent>
-                //         <SelectItem value="tvlUsd">
-                //           TVL
-                //         </SelectItem>
-                //       </SelectContent>
-                //     </SelectTrigger>
-                //   </Select>
-                // }
               />
             </div>
           ) : (
@@ -164,7 +154,33 @@ export const PoolSearch = ({
         </TabsContent>
 
         <TabsContent value="userPools">
-          <MyPool keyword={keyword} />
+          {!account ? (
+            <ConnectWalletBear
+              message="You need to connect your wallet to see deposited pools and
+        rewards"
+            />
+          ) : data === undefined && isLoading ? (
+            <div className="flex w-full flex-col items-center justify-center gap-4">
+              <DataTableLoading
+                columns={table.getAllColumns().length}
+                rowCount={parseFloat(pageSize ?? "10")}
+              />
+            </div>
+          ) : data?.length ? (
+            <div className="flex w-full flex-col items-center justify-center gap-4">
+              <SimpleTable
+                table={table}
+                flexTable
+                dynamicFlex
+                onRowClick={(row) => router.push(getPoolUrl(row.original))}
+                wrapperClassName="bg-transparent border-none"
+                showToolbar={true}
+              />
+            </div>
+          ) : (
+            <NotFoundBear title="No Pools found." />
+          )}
+          {/* <MyPool keyword={keyword} /> */}
         </TabsContent>
       </Tabs>
     </div>

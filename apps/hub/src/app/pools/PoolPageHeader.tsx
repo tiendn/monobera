@@ -19,7 +19,7 @@ export default function PoolPageHeader({
 
   return (
     <SWRFallback
-      fallback={{ [unstable_serialize(["usePoolTable", ""])]: pools }}
+      fallback={{ [unstable_serialize(["useAllPools", ""])]: pools }}
     >
       <div className="mx-auto flex w-full flex-col items-center justify-center gap-8">
         {/* Large Screen */}

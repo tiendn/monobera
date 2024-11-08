@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { useBgtInflation, type PoolV2 } from "@bera/berajs";
-import { POLLING } from "@bera/shared-ui";
 import {
   DataTableColumnHeader,
   FormattedNumber,
   useAsyncTable,
 } from "@bera/shared-ui";
-import useSWR from "swr";
 import { PoolSummary } from "../../components/pools-table-columns";
-import { bexApiGraphqlClient } from "@bera/graphql";
-import {
-  GetPools,
-  GetPoolsQuery,
-  MinimalPoolInListFragment,
-} from "@bera/graphql/dex/api";
+import { MinimalPoolInListFragment } from "@bera/graphql/dex/api";
+import { usePools } from "./usePools";
 
 export const usePoolTable = ({
   sorting,
-}: { sorting: any; page: number; pageSize: number; textSearch?: string }) => {
+  userPoolsOnly,
+}: {
+  sorting: any;
+  page: number;
+  pageSize: number;
+  textSearch?: string;
+  userPoolsOnly?: boolean;
+}) => {
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
 
@@ -27,24 +28,16 @@ export const usePoolTable = ({
     }
   };
 
-  const { data, isLoading } = useSWR(
-    ["usePoolTable", keyword],
-    async () => {
-      const pools = await bexApiGraphqlClient.query<GetPoolsQuery>({
-        query: GetPools,
-        variables: {
-          textSearch: keyword,
-        },
-      });
-      return pools.data?.poolGetPools ?? [];
-    },
-    {
-      refreshInterval: POLLING.SLOW,
-    },
-  );
+  const {
+    pools: allPools,
+    isPoolsLoading,
+    walletPools,
+  } = usePools({ keyword });
+
+  const pools = userPoolsOnly ? walletPools : allPools;
 
   const table = useAsyncTable<MinimalPoolInListFragment>({
-    data: data ?? [],
+    data: pools ?? [],
     fetchData: async () => {},
     additionalTableProps: {
       initialState: { sorting, pagination: { pageSize: 10, pageIndex: 0 } },
@@ -52,7 +45,6 @@ export const usePoolTable = ({
       manualSorting: false,
     },
     enablePagination: true,
-
     enableRowSelection: false,
     columns: [
       {
@@ -230,11 +222,11 @@ export const usePoolTable = ({
   });
 
   return {
-    data,
+    data: pools,
     table,
     search,
     setSearch,
-    isLoading,
+    isLoading: isPoolsLoading,
     handleEnter,
     keyword,
     setKeyword,
