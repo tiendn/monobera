@@ -127,6 +127,42 @@ export const PoolSearch = ({
               </Button>
             </div>
           </TabsContent>
+          <TabsContent value="userPools" className="w-full text-center">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+              <SearchInput
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setIsTyping?.(true);
+                  clearTimeout(typingTimer);
+                  typingTimer = setTimeout(() => {
+                    setIsTyping?.(false);
+                  }, 1000);
+                  return;
+                }}
+                placeholder="Search..."
+                onKeyDown={(e: any) => {
+                  if (e.key === "Enter") {
+                    setKeyword(search);
+                    clearTimeout(typingTimer);
+                    setIsTyping?.(false);
+                  }
+                }}
+                isLoading={isTyping || (isLoading && keyword !== "")}
+                id="all-pool-search"
+                className="w-full sm:w-[400px]"
+              />
+              <Button
+                size="md"
+                variant="secondary"
+                className="flex h-[40px] w-fit flex-row items-center gap-1 whitespace-nowrap bg-transparent sm:w-fit"
+                onClick={() => router.push("/pools/create")}
+              >
+                <Icons.droplet className="h-4 w-4" />
+                Create new pool
+              </Button>
+            </div>
+          </TabsContent>
         </div>
 
         <TabsContent value="allPools" className="mt-4 text-center">
