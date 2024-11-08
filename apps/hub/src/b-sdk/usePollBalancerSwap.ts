@@ -215,7 +215,7 @@ export const usePollBalancerSwap = (
           routes,
           expectedAmountOutFormatted: formatUnits(
             queryOutput.expectedAmountOut.amount,
-            tokenInDecimals,
+            tokenOutDecimals,
           ),
           amountInFormatted: formatUnits(
             queryOutput.amountIn.amount,
