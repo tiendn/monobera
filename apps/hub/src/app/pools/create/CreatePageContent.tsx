@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
@@ -18,7 +18,7 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { isAddress, parseUnits } from "viem";
+import { isAddress, parseUnits, zeroAddress } from "viem";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
@@ -38,6 +38,9 @@ const emptyToken: TokenInput = {
   symbol: "",
 };
 
+type OwnershipType = "governance" | "fixed" | "custom";
+const GOVERNANCE_ADDRESS = "0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b";
+
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
@@ -49,7 +52,7 @@ export default function CreatePageContent() {
   const [enableLiquidityInput, setEnableLiquidityInput] =
     useState<boolean>(false);
   const [swapFee, setSwapFee] = useState<number>(0.1);
-  const [owner, setOwner] = useState<string>("");
+  const [owner, setOwner] = useState<string>(GOVERNANCE_ADDRESS);
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(0);
@@ -60,13 +63,6 @@ export default function CreatePageContent() {
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
   const maxTokensLength = poolType === PoolType.Weighted ? 8 : 5; // i.e. for meta/stable it's 5
-
-  // if account changes update the owner to match
-  useEffect(() => {
-    if (account) {
-      setOwner(account);
-    }
-  }, [account]);
 
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
@@ -467,7 +463,7 @@ export default function CreatePageContent() {
 
         <section
           className={cn(
-            "flex w-full flex-col gap-10",
+            "flex w-full flex-col gap-4",
             !enableLiquidityInput && "pointer-events-none opacity-25",
           )}
         >
@@ -482,6 +478,11 @@ export default function CreatePageContent() {
                   disabled={!enableLiquidityInput}
                   token={token as Token}
                   tokenAmount={token.amount}
+                  onTokenUSDValueChange={
+                    (usdValue) => console.log("usdValue", usdValue)
+                    // FIXME
+                    // handleTokenUSDValueChange(index, usdValue)
+                  }
                   onTokenBalanceChange={(amount) => {
                     setTokens((prevTokens) => {
                       const updatedTokens = [...prevTokens];
@@ -495,6 +496,13 @@ export default function CreatePageContent() {
                 />
               ))}
             </ul>
+            {poolType === PoolType.Weighted && (
+              <p>
+                Warning: if you seed liquidity in amounts that differ (in terms
+                of USD) from the weighting you are likely to encounter arbitrage
+                after pool creation.
+              </p>
+            )}
           </div>
 
           {errorMessage && (
@@ -506,49 +514,32 @@ export default function CreatePageContent() {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
-
-          <section className="flex w-full flex-col gap-10">
-            <div className="flex items-center gap-2">
-              <h2 className="self-start text-3xl font-semibold">
-                Set Swap Fee
-              </h2>
-              <div className="pt-2">
-                <BeraTooltip
-                  size="lg"
-                  wrap={true}
-                  text={`There is lots of discussion and research around how to best set a swap fee amount, 
+        </section>
+        <section className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <h2 className="self-start text-3xl font-semibold">Set Swap Fee</h2>
+            <div className="pt-2">
+              <BeraTooltip
+                size="lg"
+                wrap={true}
+                text={`There is lots of discussion and research around how to best set a swap fee amount, 
                     but a general rule of thumb is for stable assets it should be lower (ex: 0.1%) 
                     and non-stable pairs should be higher (ex: 0.3%).`}
-                />
-              </div>
+              />
             </div>
-            <div className="flex flex-col gap-4">
-              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
-                <SwapFeeInput
-                  initialFee={swapFee}
-                  onFeeChange={(fee) => {
-                    setSwapFee(fee);
-                  }}
-                />
-              </Card>
-            </div>
-          </section>
+          </div>
+          <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+            <SwapFeeInput
+              initialFee={swapFee}
+              onFeeChange={(fee) => {
+                setSwapFee(fee);
+              }}
+            />
+          </Card>
 
-          {/*  FIXME we need to make this a multi-selector */}
-          <InputWithLabel
-            label="Owner"
-            value={owner}
-            maxLength={42}
-            onChange={(e) => {
-              const value = e.target.value;
-              setOwner(value);
-              if (!isAddress(value)) {
-                setInvalidAddressErrorMessage("Invalid owner address");
-              } else {
-                setInvalidAddressErrorMessage(null);
-              }
-            }}
-            tooltip={
+          <div className="flex items-center gap-1">
+            <div className="self-start font-semibold">Fees Modified By</div>
+            <div className="pt-[-1]">
               <BeraTooltip
                 size="lg"
                 wrap={true}
@@ -557,7 +548,70 @@ export default function CreatePageContent() {
                     However in general the recommendation is to allow Balancer governance (and delegated addresses) 
                     to dynamically adjust the fees. This is done by setting an owner of 0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b.`}
               />
-            }
+            </div>
+          </div>
+
+          <div className="flex w-full flex-row gap-6">
+            <Card
+              onClick={() => {
+                setOwnerShipType("governance");
+                setOwner(GOVERNANCE_ADDRESS);
+              }}
+              className={cn(
+                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                ownershipType === "governance" && "border-info-foreground ",
+              )}
+            >
+              <span className="text-lg font-semibold">Stable</span>
+              <span className="mt-[-4px] text-sm text-muted-foreground">
+                Enables fee modification through governance
+              </span>
+            </Card>
+            <Card
+              onClick={() => {
+                setOwnerShipType("fixed");
+                setOwner("0x0000000000000000000000000000000000000000");
+              }}
+              className={cn(
+                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                ownershipType === "fixed" && "border-info-foreground ",
+              )}
+            >
+              <span className="text-lg font-semibold">Fixed</span>
+              <span className="mt-[-4px] text-sm text-muted-foreground">
+                Fee is fixed and unmodifiable
+              </span>
+            </Card>
+            <Card
+              onClick={() => {
+                setOwnerShipType("custom");
+                setOwner(account || zeroAddress);
+              }}
+              className={cn(
+                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                ownershipType === "custom" && "border-info-foreground ",
+              )}
+            >
+              <span className="text-lg font-semibold">Custom Address</span>
+              <span className="mt-[-4px] text-sm text-muted-foreground">
+                Update fees through a custom address
+              </span>
+            </Card>
+          </div>
+          <InputWithLabel
+            label="Owner Address"
+            disabled={ownershipType !== "custom"}
+            value={owner}
+            maxLength={42}
+            onChange={(e) => {
+              const value = e.target.value;
+              setOwner(value);
+              if (!isAddress(value)) {
+                setInvalidAddressErrorMessage("Invalid custom address");
+              } else {
+                setInvalidAddressErrorMessage(null);
+              }
+            }}
           />
           {invalidAddressErrorMessage && (
             <Alert variant="destructive" className="my-4">
@@ -565,7 +619,9 @@ export default function CreatePageContent() {
               <AlertDescription>{invalidAddressErrorMessage}</AlertDescription>
             </Alert>
           )}
+        </section>
 
+        <section className="flex w-full flex-col gap-4">
           <InputWithLabel
             label="Pool Name"
             value={poolName}
@@ -610,80 +666,80 @@ export default function CreatePageContent() {
               }
             />
           )}
+        </section>
 
-          <section className="flex w-full flex-col gap-10">
-            <h2 className="self-start text-3xl font-semibold">
-              Approve & Submit
-            </h2>
+        <section className="flex w-full flex-col gap-10">
+          <h2 className="self-start text-3xl font-semibold">
+            Approve & Submit
+          </h2>
 
-            {/* Approvals TODO: this and below belong inside a preview page*/}
-            {!isRelayerApproved && (
-              <Button
-                disabled={
-                  isRelayerApprovalLoading ||
-                  isLoadingRelayerStatus ||
-                  isRelayerApprovalSubmitting
-                }
-                onClick={handleRelayerApproval}
-                className="mt-4 w-full"
-              >
-                Approve Pool Creation Helper
-                {isRelayerApprovalLoading ||
-                  (isRelayerApprovalSubmitting && "...")}
-              </Button>
-            )}
+          {/* Approvals TODO: this and below belong inside a preview page*/}
+          {!isRelayerApproved && (
+            <Button
+              disabled={
+                isRelayerApprovalLoading ||
+                isLoadingRelayerStatus ||
+                isRelayerApprovalSubmitting
+              }
+              onClick={handleRelayerApproval}
+              className="mt-4 w-full"
+            >
+              Approve Pool Creation Helper
+              {isRelayerApprovalLoading ||
+                (isRelayerApprovalSubmitting && "...")}
+            </Button>
+          )}
 
-            {tokensNeedApproval.length > 0 &&
-              (() => {
-                // NOTE: we might avoid doing this if we can return TokenInput amount in the ApprovalToken[]
-                const approvalTokenIndex = tokens.findIndex(
-                  (t) => t.address === tokensNeedApproval[0]?.address,
-                );
-                const approvalToken = tokens[approvalTokenIndex];
-                const approvalAmount = parseUnits(
-                  approvalToken.amount,
-                  approvalToken?.decimals ?? 18,
-                );
+          {tokensNeedApproval.length > 0 &&
+            (() => {
+              // NOTE: we might avoid doing this if we can return TokenInput amount in the ApprovalToken[]
+              const approvalTokenIndex = tokens.findIndex(
+                (t) => t.address === tokensNeedApproval[0]?.address,
+              );
+              const approvalToken = tokens[approvalTokenIndex];
+              const approvalAmount = parseUnits(
+                approvalToken.amount,
+                approvalToken?.decimals ?? 18,
+              );
 
-                return (
-                  <ApproveButton
-                    amount={approvalAmount}
-                    disabled={approvalAmount === BigInt(0)}
-                    token={approvalToken}
-                    spender={balancerVaultAddress}
-                    onApproval={() => refreshAllowances()}
-                  />
-                );
-              })()}
+              return (
+                <ApproveButton
+                  amount={approvalAmount}
+                  disabled={approvalAmount === BigInt(0)}
+                  token={approvalToken}
+                  spender={balancerVaultAddress}
+                  onApproval={() => refreshAllowances()}
+                />
+              );
+            })()}
 
-            <ActionButton>
-              <Button
-                disabled={
-                  !createPoolArgs ||
-                  tokensNeedApproval.length > 0 ||
-                  !isRelayerApproved ||
-                  !isAddress(owner) ||
-                  poolName.length === 0 ||
-                  poolSymbol.length === 0 ||
-                  !enableLiquidityInput ||
-                  isLoadingCreatePoolTx ||
-                  isSubmittingCreatePoolTx ||
-                  isLoadingPools ||
-                  errorLoadingPools ||
-                  isNormalizing ||
-                  weightsError != null
-                }
-                className="w-full"
-                onClick={() => {
-                  console.log("createPoolArgs", createPoolArgs);
-                  writeCreatePool(createPoolArgs);
-                }}
-              >
-                Create Pool
-                {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
-              </Button>
-            </ActionButton>
-          </section>
+          <ActionButton>
+            <Button
+              disabled={
+                !createPoolArgs ||
+                tokensNeedApproval.length > 0 ||
+                !isRelayerApproved ||
+                !isAddress(owner) ||
+                poolName.length === 0 ||
+                poolSymbol.length === 0 ||
+                !enableLiquidityInput ||
+                isLoadingCreatePoolTx ||
+                isSubmittingCreatePoolTx ||
+                isLoadingPools ||
+                errorLoadingPools ||
+                isNormalizing ||
+                weightsError !== null
+              }
+              className="w-full"
+              onClick={() => {
+                console.log("createPoolArgs", createPoolArgs);
+                writeCreatePool(createPoolArgs);
+              }}
+            >
+              Create Pool
+              {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
+            </Button>
+          </ActionButton>
         </section>
       </div>
     </div>
