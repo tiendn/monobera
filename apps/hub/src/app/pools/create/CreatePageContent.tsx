@@ -335,9 +335,6 @@ export default function CreatePageContent() {
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Recommended for stable pairs
               </span>
-              <span className="mt-[24px] text-sm text-muted-foreground">
-                Fee: <span className="font-medium text-foreground">0.01%</span>
-              </span>
             </Card>
             <Card
               onClick={() => setPoolType(PoolType.Weighted)}
@@ -350,9 +347,6 @@ export default function CreatePageContent() {
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Customize the weights of tokens
               </span>
-              <span className="mt-[24px] text-sm text-muted-foreground">
-                Fee: <span className="font-medium text-foreground">0.01%</span>
-              </span>
             </Card>
             <Card
               onClick={() => {}} //setPoolType(PoolType.MetaStable)}
@@ -364,9 +358,6 @@ export default function CreatePageContent() {
               <span className="text-lg font-semibold">MetaStable</span>
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 The most efficient pool type for two highly correlated tokens
-              </span>
-              <span className="mt-[24px] text-sm text-muted-foreground">
-                Fee: <span className="font-medium text-foreground">0.01%</span>
               </span>
             </Card>
           </div>
