@@ -349,6 +349,9 @@ export default function CreatePageContent() {
     }
   }, [tokens, poolType, isLoadingPools, isDupePool, errorLoadingPools]);
 
+  const [ownershipType, setOwnerShipType] =
+    useState<OwnershipType>("governance");
+
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
       {ModalPortal}

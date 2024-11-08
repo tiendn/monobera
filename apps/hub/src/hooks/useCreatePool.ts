@@ -32,7 +32,7 @@ interface UseCreatePoolReturn {
   generatedPoolName: string;
   generatedPoolSymbol: string;
   isDupePool: boolean;
-  dupePool: SubgraphPoolFragment | null;
+  dupePool?: SubgraphPoolFragment | null;
   createPoolArgs: any;
   isLoadingPools: boolean;
   errorLoadingPools: boolean;
