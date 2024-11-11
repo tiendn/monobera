@@ -122,7 +122,10 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  const [weights, setWeights] = useState<bigint[]>([]);
+  const [weights, setWeights] = useState<bigint[]>([
+    500000000000000000n,
+    500000000000000000n,
+  ]);
   const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
   const [isNormalizing, setIsNormalizing] = useState(false);
   const [weightsError, setWeightsError] = useState<string | null>(null);
@@ -130,6 +133,9 @@ export default function CreatePageContent() {
   // Function to normalize weights based on locked and unlocked tokens, apply correction to lowest unlocked token / raise error
   const normalizeWeights = (updatedWeights: bigint[]) => {
     const allLocked = lockedWeights.every((locked) => locked);
+    if (allLocked) {
+      return updatedWeights;
+    }
 
     const totalLockedWeight = updatedWeights.reduce(
       (sum, weight, i) => (lockedWeights[i] ? sum + weight : sum),
@@ -164,13 +170,7 @@ export default function CreatePageContent() {
 
       if (minUnlockedWeightIndex !== -1) {
         normalizedWeights[minUnlockedWeightIndex] += correction;
-      } else {
-        setWeightsError("All weights must add to 100%");
       }
-    }
-
-    if (allLocked) {
-      return updatedWeights;
     }
 
     return normalizedWeights;
@@ -189,20 +189,27 @@ export default function CreatePageContent() {
 
   // Display errors when weights are invalid (gates pool creation)
   useEffect(() => {
-    const totalWeight = weights.reduce(
-      (sum, weight) => sum + weight,
-      BigInt(0),
-    );
-    if (
-      weights.some((weight) => weight <= 0n || weight >= ONE_IN_18_DECIMALS)
-    ) {
-      setWeightsError("Weights must be larger than 0% and less than 100%");
-    } else if (totalWeight > ONE_IN_18_DECIMALS) {
-      setWeightsError("Total weight exceeds 100%");
+    if (poolType === PoolType.Weighted) {
+      const totalWeight = weights.reduce(
+        (sum, weight) => sum + weight,
+        BigInt(0),
+      );
+      if (
+        weights.some((weight) => weight <= 0n || weight >= ONE_IN_18_DECIMALS)
+      ) {
+        setWeightsError("Weights must be larger than 0% and less than 100%");
+      } else if (totalWeight > ONE_IN_18_DECIMALS) {
+        setWeightsError("Total weight exceeds 100%");
+      } else if (totalWeight < ONE_IN_18_DECIMALS) {
+        setWeightsError("Total weight is less than 100%");
+      } else {
+        setWeightsError(null);
+      }
     } else {
+      // NOTE: even though we may update weights array in stable create UX we will never pass it to the create on-chain
       setWeightsError(null);
     }
-  }, [weights]);
+  }, [weights, poolType]);
 
   // Update token selection and reset weights when we change tokens
   const handleTokenSelection = (token: Token | undefined, index: number) => {
@@ -270,9 +277,13 @@ export default function CreatePageContent() {
     if (tokens.length < maxTokensLength) {
       setTokens([...tokens, emptyToken]);
       setWeights((prevWeights) => {
+        const totalExistingWeight = prevWeights.reduce(
+          (sum, weight) => sum + weight,
+          BigInt(0),
+        );
         const updatedWeights = [
           ...prevWeights,
-          ONE_IN_18_DECIMALS / BigInt(prevWeights.length + 1),
+          ONE_IN_18_DECIMALS - totalExistingWeight,
         ];
         return normalizeWeights(updatedWeights);
       });
@@ -280,14 +291,13 @@ export default function CreatePageContent() {
     }
   };
 
-  // Reset tokens if pool type changes
+  // Adjust tokens and weights if pool type changes, without resetting everything
   useEffect(() => {
-    const initialTokens = Array(minTokensLength).fill(emptyToken);
-    const initialWeights = Array(minTokensLength).fill(
-      ONE_IN_18_DECIMALS / BigInt(minTokensLength),
-    );
-    setTokens(initialTokens);
-    setWeights(initialWeights);
+    if (tokens.length > maxTokensLength) {
+      setTokens(tokens.slice(0, maxTokensLength));
+      setWeights(normalizeWeights(weights.slice(0, maxTokensLength)));
+      setLockedWeights(lockedWeights.slice(0, maxTokensLength));
+    }
   }, [poolType]);
 
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
@@ -461,11 +471,7 @@ export default function CreatePageContent() {
                   disabled={false}
                   token={token as Token}
                   tokenAmount={token.amount}
-                  onTokenUSDValueChange={
-                    (usdValue) => console.log("usdValue", usdValue)
-                    // FIXME
-                    // handleTokenUSDValueChange(index, usdValue)
-                  }
+                  onTokenUSDValueChange={(usdValue) => {}} // FIXME: we should use this to handle incorrect liquidity supply
                   onTokenBalanceChange={(amount) => {
                     setTokens((prevTokens) => {
                       const updatedTokens = [...prevTokens];
