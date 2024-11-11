@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import {
+  ADDRESS_ZERO,
   TXN_GAS_USED_ESTIMATES,
   TransactionActionType,
   useBeraJs,
   useGasData,
   usePollWalletBalances,
+  useRewardVaultFromToken,
   type Token,
 } from "@bera/berajs";
 import { balancerVaultAddress, cloudinaryUrl } from "@bera/config";
@@ -21,6 +23,7 @@ import {
   TokenInput,
   TokenList,
   TxnPreview,
+  getRewardsVaultUrl,
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
@@ -28,7 +31,7 @@ import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { Address, formatEther, parseUnits } from "viem";
+import { Address, formatEther } from "viem";
 
 import { SettingsPopover } from "~/components/settings-popover";
 import { Skeleton } from "@bera/ui/skeleton";
@@ -96,8 +99,12 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
         amount: formatEther(amount.scale18),
       })) ?? [],
       balancerVaultAddress,
-      slippage,
+      type === AddLiquidityKind.Proportional ? 0 : slippage,
     );
+
+  const { data: rewardsVaultAddress } = useRewardVaultFromToken({
+    tokenAddress: pool?.address,
+  });
 
   const needsApprovalNoBera = wethIsEth
     ? needsApproval.filter(
@@ -124,7 +131,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
     message: `Add liquidity to ${pool?.name}`,
-    onSuccess: () => {
+    onSuccess: async (txHash) => {
       reset();
       refresh();
     },
@@ -132,6 +139,14 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
     customSuccessModalProps: pool?.address
       ? {
           pool: pool,
+          poolUrl: getPoolUrl(pool),
+          rewardsVaultUrl:
+            rewardsVaultAddress && rewardsVaultAddress !== ADDRESS_ZERO
+              ? getRewardsVaultUrl(rewardsVaultAddress)
+              : undefined,
+          amount: Number(
+            formatEther(queryOutput?.bptOut?.scale18 ?? 0n),
+          ).toFixed(2),
         }
       : undefined,
     actionType: TransactionActionType.ADD_LIQUIDITY,

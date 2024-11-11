@@ -154,6 +154,9 @@ export default function PoolPageContent({
 
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
 
+  const didUserDeposit =
+    userSharePercentage || (rewardVault?.balance && rewardVault?.balance > 0n);
+
   useEffect(() => {
     console.log("POOL", pool, v3Pool);
   }, [v3Pool, pool]);
@@ -327,7 +330,7 @@ export default function PoolPageContent({
                     ) : null}
                   </div>
                 </div>
-                {userSharePercentage > 0 ? (
+                {didUserDeposit ? (
                   <>
                     <div className="mt-4 grow self-stretch">
                       <TokenView
@@ -370,7 +373,7 @@ export default function PoolPageContent({
                 )}
               </CardContent>
             </Card>
-            {userSharePercentage > 0 ? (
+            {didUserDeposit ? (
               <Card>
                 <CardContent className="p-4">
                   <div className="flex w-full items-center justify-between text-lg font-semibold">

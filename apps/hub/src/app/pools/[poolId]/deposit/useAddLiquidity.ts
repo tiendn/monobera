@@ -139,7 +139,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
     } finally {
       setIsLoading(false);
     }
-  }, [pool, input]);
+  }, [pool, input, type]);
 
   const getCallData = useCallback(
     ({ slippage, sender }: { slippage: number; sender: Address }) => {
