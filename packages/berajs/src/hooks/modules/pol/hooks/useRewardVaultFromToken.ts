@@ -26,10 +26,6 @@ export const useRewardVaultFromToken = ({
         args: [tokenAddress],
       });
 
-      if (res === ADDRESS_ZERO) {
-        return undefined;
-      }
-
       return res as Address;
     },
   );

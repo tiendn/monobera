@@ -4,10 +4,11 @@ import { Address, formatEther } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { BERA_CHEF_ABI, BERA_VAULT_REWARDS_ABI } from "~/abi";
+import { ADDRESS_ZERO } from "~/config";
 import { useBeraJs } from "~/contexts";
 import { useRewardVaultFromToken } from "./useRewardVaultFromToken";
 
-export const useVaultBalanceFromStakingToken = ({
+export const useRewardVaultBalanceFromStakingToken = ({
   stakingToken,
   rewardVaultAddress: _rewardVaultAddress,
 }: {
@@ -28,6 +29,14 @@ export const useVaultBalanceFromStakingToken = ({
       : null,
 
     async () => {
+      if (rewardVaultAddress === ADDRESS_ZERO) {
+        return {
+          address: rewardVaultAddress,
+          isWhitelisted: false,
+          balance: undefined,
+        };
+      }
+
       const [isWhitelisted, balance] = await Promise.all([
         client?.readContract({
           address: beraChefAddress,
@@ -46,9 +55,9 @@ export const useVaultBalanceFromStakingToken = ({
       ]);
 
       return {
-        rewardVaultAddress,
+        address: rewardVaultAddress,
         isWhitelisted,
-        balance: balance ? formatEther(balance) : undefined,
+        balance: balance,
       };
     },
   );
