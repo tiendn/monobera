@@ -4,7 +4,7 @@ import { bgtTokenAddress } from "@bera/config";
 import { SelectToken } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 
 type Props = {
   token: Token | undefined;
@@ -16,7 +16,7 @@ type Props = {
   index: number;
   selectable?: boolean;
   onTokenSelection: (token: Token | undefined) => void;
-  onWeightChange: (index: number, newWeight: number) => void;
+  onWeightChange: (index: number, newWeight: bigint) => void;
   onLockToggle: (index: number) => void;
   onRemoveToken: (index: number) => void;
 };
@@ -36,8 +36,12 @@ export default function CreatePoolInput({
   onRemoveToken,
 }: Props) {
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newWeight = Math.min(Math.max(Number(e.target.value), 0), 100); // Clamp between 0 and 100
-    onWeightChange(index, newWeight);
+    try {
+      const weightInBigInt = parseUnits(e.target.value, 16);
+      onWeightChange(index, weightInBigInt);
+    } catch (e) {
+      // NOTE: this is likely a parsing error, ex: user has entered a non-numeric character
+    }
   };
 
   return (
@@ -59,9 +63,9 @@ export default function CreatePoolInput({
           <div className="ml-auto flex items-center gap-1">
             <span className="text-sm text-gray-400">%</span>
             <InputWithLabel
-              type="number"
+              type="text"
               // NOTE: weight is 18 decimalized and we input it as a %, so we use 16 decimalized for the input
-              // NOTEL: if a weight is negative internally we will clamp it to 0 in the display (but an error is shown)
+              // NOTE: if a weight is negative internally we will clamp it to 0 in the display (but an error is shown)
               value={weight ? formatUnits(weight < 0n ? 0n : weight, 16) : "0"}
               onChange={handleWeightChange}
               className="w-52 rounded-md border bg-transparent text-center text-white"

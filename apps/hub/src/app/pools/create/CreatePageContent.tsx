@@ -45,7 +45,7 @@ const ONE_IN_18_DECIMALS = BigInt(10 ** 18); // i.e 100% in 18 decimals
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
-  const { account } = useBeraJs();
+  const { account, isConnected } = useBeraJs();
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
@@ -124,17 +124,9 @@ export default function CreatePageContent() {
   const [isNormalizing, setIsNormalizing] = useState(false);
   const [weightsError, setWeightsError] = useState<string | null>(null);
 
-  // Function to normalize weights based on locked and unlocked tokens
-  const normalizeWeights = (
-    updatedWeights: bigint[],
-    applyCorrection = true,
-  ) => {
+  // Function to normalize weights based on locked and unlocked tokens, apply correction to lowest unlocked token / raise error
+  const normalizeWeights = (updatedWeights: bigint[]) => {
     const allLocked = lockedWeights.every((locked) => locked);
-
-    if (allLocked) {
-      // If all weights are locked, do not normalize and return the weights as they are
-      return updatedWeights;
-    }
 
     const totalLockedWeight = updatedWeights.reduce(
       (sum, weight, i) => (lockedWeights[i] ? sum + weight : sum),
@@ -151,21 +143,31 @@ export default function CreatePageContent() {
       !lockedWeights[i] ? remainingWeight / BigInt(unlockedCount) : weight,
     );
 
-    if (applyCorrection) {
-      const weightSum = normalizedWeights.reduce(
-        (sum, weight) => sum + weight,
-        BigInt(0),
-      );
-      const correction = ONE_IN_18_DECIMALS - weightSum;
+    const weightSum = normalizedWeights.reduce(
+      (sum, weight) => sum + weight,
+      BigInt(0),
+    );
+    const correction = ONE_IN_18_DECIMALS - weightSum;
 
-      if (correction !== 0n) {
-        const minWeightIndex = normalizedWeights.reduce(
-          (minIndex, weight, i) =>
-            weight < normalizedWeights[minIndex] ? i : minIndex,
-          0,
-        );
-        normalizedWeights[minWeightIndex] += correction;
+    if (correction !== 0n) {
+      const minUnlockedWeightIndex = normalizedWeights.reduce(
+        (minIndex, weight, i) =>
+          !lockedWeights[i] &&
+          (minIndex === -1 || weight < normalizedWeights[minIndex])
+            ? i
+            : minIndex,
+        -1,
+      );
+
+      if (minUnlockedWeightIndex !== -1) {
+        normalizedWeights[minUnlockedWeightIndex] += correction;
+      } else {
+        setWeightsError("All weights must add to 100%");
       }
+    }
+
+    if (allLocked) {
+      return updatedWeights;
     }
 
     return normalizedWeights;
@@ -173,8 +175,6 @@ export default function CreatePageContent() {
 
   // Debounced normalization so user can type in weights without it constantly normalizing
   useEffect(() => {
-    if (lockedWeights.every((locked) => locked)) return;
-
     const timer = setTimeout(() => {
       setIsNormalizing(true);
       setWeights((prevWeights) => normalizeWeights(prevWeights));
@@ -223,9 +223,7 @@ export default function CreatePageContent() {
   };
 
   // Handle when a user types in a new weight - NOTE: we allow changes even if they exceed 100% on locked weight
-  const handleWeightChange = (index: number, newWeight: number) => {
-    const weightInBigInt = BigInt(Math.round(newWeight * 10 ** 16));
-
+  const handleWeightChange = (index: number, newWeight: bigint) => {
     setLockedWeights((prevLocked) => {
       const updatedLocked = [...prevLocked];
       updatedLocked[index] = true;
@@ -234,7 +232,7 @@ export default function CreatePageContent() {
 
     setWeights((prevWeights) => {
       const updatedWeights = prevWeights.map((weight, i) =>
-        i === index ? weightInBigInt : weight,
+        i === index ? newWeight : weight,
       );
       return updatedWeights;
     });
@@ -681,19 +679,22 @@ export default function CreatePageContent() {
 
           {/* TODO: below belongs in a preview page */}
           {!isRelayerApproved ? (
-            <Button
-              disabled={
-                isRelayerApprovalLoading ||
-                isLoadingRelayerStatus ||
-                isRelayerApprovalSubmitting
-              }
-              onClick={handleRelayerApproval}
-              className="mt-4 w-full"
-            >
-              Approve Pool Creation Helper
-              {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
-                "..."}
-            </Button>
+            <ActionButton>
+              <Button
+                disabled={
+                  !isConnected ||
+                  isRelayerApprovalLoading ||
+                  isLoadingRelayerStatus ||
+                  isRelayerApprovalSubmitting
+                }
+                onClick={handleRelayerApproval}
+                className="mt-4 w-full"
+              >
+                Approve Pool Creation Helper
+                {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
+                  "..."}
+              </Button>
+            </ActionButton>
           ) : tokensNeedApproval.length > 0 ? (
             (() => {
               const approvalTokenIndex = tokens.findIndex(
@@ -708,7 +709,7 @@ export default function CreatePageContent() {
               return (
                 <ApproveButton
                   amount={approvalAmount}
-                  disabled={approvalAmount === BigInt(0)}
+                  disabled={approvalAmount === BigInt(0) || !isConnected}
                   token={approvalToken}
                   spender={balancerVaultAddress}
                   onApproval={() => refreshAllowances()}
@@ -719,6 +720,7 @@ export default function CreatePageContent() {
             <ActionButton>
               <Button
                 disabled={
+                  !isConnected ||
                   !createPoolArgs ||
                   tokensNeedApproval.length > 0 ||
                   !isRelayerApproved ||
