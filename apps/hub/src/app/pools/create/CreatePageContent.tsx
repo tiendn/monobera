@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
 import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
@@ -18,7 +18,7 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { isAddress, parseUnits, zeroAddress } from "viem";
+import { isAddress, parseUnits } from "viem";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
@@ -38,32 +38,32 @@ const emptyToken: TokenInput = {
   symbol: "",
 };
 
-type OwnershipType = "governance" | "fixed" | "custom";
-const GOVERNANCE_ADDRESS = "0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b";
-const ONE_IN_18_DECIMALS = BigInt(10 ** 18); // i.e 100% in 18 decimals
-
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
-  const { account, isConnected } = useBeraJs();
+  const { account } = useBeraJs();
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
+  const [weights, setWeights] = useState<number[]>([]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [enableLiquidityInput, setEnableLiquidityInput] =
+    useState<boolean>(false);
   const [swapFee, setSwapFee] = useState<number>(0.1);
-  const [owner, setOwner] = useState<string>(GOVERNANCE_ADDRESS);
+  const [owner, setOwner] = useState<string>("");
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
-  const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
-  const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
-    string | null
-  >(null);
-  const [ownershipType, setOwnerShipType] =
-    useState<OwnershipType>("governance");
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
   const maxTokensLength = poolType === PoolType.Weighted ? 8 : 5; // i.e. for meta/stable it's 5
+
+  // if account changes update the owner to match
+  useEffect(() => {
+    if (account) {
+      setOwner(account);
+    }
+  }, [account]);
 
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
@@ -119,89 +119,7 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  const [weights, setWeights] = useState<bigint[]>([]);
-  const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
-  const [isNormalizing, setIsNormalizing] = useState(false);
-  const [weightsError, setWeightsError] = useState<string | null>(null);
-
-  // Function to normalize weights based on locked and unlocked tokens, apply correction to lowest unlocked token / raise error
-  const normalizeWeights = (updatedWeights: bigint[]) => {
-    const allLocked = lockedWeights.every((locked) => locked);
-
-    const totalLockedWeight = updatedWeights.reduce(
-      (sum, weight, i) => (lockedWeights[i] ? sum + weight : sum),
-      BigInt(0),
-    );
-
-    const remainingWeight = ONE_IN_18_DECIMALS - totalLockedWeight;
-    const unlockedCount = updatedWeights.reduce(
-      (count, _, i) => (!lockedWeights[i] ? count + 1 : count),
-      0,
-    );
-
-    const normalizedWeights = updatedWeights.map((weight, i) =>
-      !lockedWeights[i] ? remainingWeight / BigInt(unlockedCount) : weight,
-    );
-
-    const weightSum = normalizedWeights.reduce(
-      (sum, weight) => sum + weight,
-      BigInt(0),
-    );
-    const correction = ONE_IN_18_DECIMALS - weightSum;
-
-    if (correction !== 0n) {
-      const minUnlockedWeightIndex = normalizedWeights.reduce(
-        (minIndex, weight, i) =>
-          !lockedWeights[i] &&
-          (minIndex === -1 || weight < normalizedWeights[minIndex])
-            ? i
-            : minIndex,
-        -1,
-      );
-
-      if (minUnlockedWeightIndex !== -1) {
-        normalizedWeights[minUnlockedWeightIndex] += correction;
-      } else {
-        setWeightsError("All weights must add to 100%");
-      }
-    }
-
-    if (allLocked) {
-      return updatedWeights;
-    }
-
-    return normalizedWeights;
-  };
-
-  // Debounced normalization so user can type in weights without it constantly normalizing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsNormalizing(true);
-      setWeights((prevWeights) => normalizeWeights(prevWeights));
-      setIsNormalizing(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [weights, lockedWeights]);
-
-  // Display errors when weights are invalid (gates pool creation)
-  useEffect(() => {
-    const totalWeight = weights.reduce(
-      (sum, weight) => sum + weight,
-      BigInt(0),
-    );
-    if (
-      weights.some((weight) => weight <= 0n || weight >= ONE_IN_18_DECIMALS)
-    ) {
-      setWeightsError("Weights must be larger than 0% and less than 100%");
-    } else if (totalWeight > ONE_IN_18_DECIMALS) {
-      setWeightsError("Total weight exceeds 100%");
-    } else {
-      setWeightsError(null);
-    }
-  }, [weights]);
-
-  // Update token selection and reset weights when we change tokens
+  // update the correct token within the tokens array when we select/re-select a token
   const handleTokenSelection = (token: Token | undefined, index: number) => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
@@ -214,75 +132,37 @@ export default function CreatePageContent() {
       }
       return updatedTokens;
     });
-
     setWeights((prevWeights) => {
-      const tokenCount = prevWeights.length;
-      const equalWeight = ONE_IN_18_DECIMALS / BigInt(tokenCount);
-      return prevWeights.map((w, i) => (!lockedWeights[i] ? equalWeight : w));
-    });
-  };
-
-  // Handle when a user types in a new weight - NOTE: we allow changes even if they exceed 100% on locked weight
-  const handleWeightChange = (index: number, newWeight: bigint) => {
-    setLockedWeights((prevLocked) => {
-      const updatedLocked = [...prevLocked];
-      updatedLocked[index] = true;
-      return updatedLocked;
-    });
-
-    setWeights((prevWeights) => {
-      const updatedWeights = prevWeights.map((weight, i) =>
-        i === index ? newWeight : weight,
-      );
+      const updatedWeights = [...prevWeights];
+      if (token) {
+        updatedWeights[index] = 1 / minTokensLength;
+      }
       return updatedWeights;
     });
   };
 
-  // Toggle lock status for specific weight
-  const handleLockToggle = (index: number) => {
-    setLockedWeights((prevLocked) => {
-      const updatedLocked = [...prevLocked];
-      updatedLocked[index] = !updatedLocked[index];
-      return updatedLocked;
-    });
-  };
-
-  // Remove a token and adjust remaining weights (respecting unlocked/locked)
-  const handleRemoveToken = (index: number) => {
-    if (tokens.length > minTokensLength) {
-      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
-      setWeights((prevWeights) => {
-        const updatedWeights = prevWeights.filter((_, i) => i !== index);
-        return normalizeWeights(updatedWeights);
-      });
-
-      setLockedWeights((prevLocked) =>
-        prevLocked.filter((_, i) => i !== index),
-      );
-    }
-  };
-
-  // Add a new token and evenly distribute weights
   const addTokenInput = () => {
     if (tokens.length < maxTokensLength) {
       setTokens([...tokens, emptyToken]);
-      setWeights((prevWeights) => {
-        const updatedWeights = [
-          ...prevWeights,
-          ONE_IN_18_DECIMALS / BigInt(prevWeights.length + 1),
-        ];
-        return normalizeWeights(updatedWeights);
-      });
-      setLockedWeights([...lockedWeights, false]);
+      setWeights([...weights, 1 / maxTokensLength]);
     }
   };
 
-  // Reset tokens if pool type changes
+  const removeTokenInput = (index: number) => {
+    if (tokens.length > minTokensLength) {
+      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
+      setWeights((prevWeights) => prevWeights.filter((_, i) => i !== index));
+    }
+  };
+
+  const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
+    string | null
+  >(null);
+
+  // if the pool type changes we need to reset the tokens
   useEffect(() => {
     const initialTokens = Array(minTokensLength).fill(emptyToken);
-    const initialWeights = Array(minTokensLength).fill(
-      ONE_IN_18_DECIMALS / BigInt(minTokensLength),
-    );
+    const initialWeights = Array(minTokensLength).fill(1 / minTokensLength);
     setTokens(initialTokens);
     setWeights(initialWeights);
   }, [poolType]);
@@ -294,17 +174,17 @@ export default function CreatePageContent() {
     isDupePool,
     dupePool,
     createPoolArgs,
+    formattedNormalizedWeights,
     isLoadingPools,
     errorLoadingPools,
   } = useCreatePool({
     tokens,
-    normalizedWeights: weights,
+    weights,
     poolType,
     swapFee,
     poolName,
     poolSymbol,
     owner,
-    amplification,
   });
 
   // Synchronize the generated pool name and symbol with state
@@ -334,6 +214,22 @@ export default function CreatePageContent() {
     },
   });
 
+  // Determine if liquidity input should be enabled (i.e. we have selected enough tokens)
+  useEffect(() => {
+    if (
+      tokens &&
+      tokens.length >= minTokensLength &&
+      tokens.every((token) => token.address) &&
+      !isLoadingPools &&
+      !errorLoadingPools &&
+      !isDupePool
+    ) {
+      setEnableLiquidityInput(true);
+    } else {
+      setEnableLiquidityInput(false);
+    }
+  }, [tokens, poolType, isLoadingPools, isDupePool, errorLoadingPools]);
+
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
       {ModalPortal}
@@ -349,9 +245,9 @@ export default function CreatePageContent() {
       </Button>
       <div className="flex w-full flex-col items-center justify-center gap-16">
         <section className="flex w-full flex-col gap-4">
-          <h2 className="self-start text-3xl font-semibold">
+          <h1 className="self-start text-3xl font-semibold">
             Select a Pool Type
-          </h2>
+          </h1>
           <div className="flex w-full flex-row gap-6">
             <Card
               onClick={() => setPoolType(PoolType.ComposableStable)}
@@ -366,6 +262,9 @@ export default function CreatePageContent() {
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Recommended for stable pairs
               </span>
+              <span className="mt-[24px] text-sm text-muted-foreground">
+                Fee: <span className="font-medium text-foreground">0.01%</span>
+              </span>
             </Card>
             <Card
               onClick={() => setPoolType(PoolType.Weighted)}
@@ -377,6 +276,9 @@ export default function CreatePageContent() {
               <span className="text-lg font-semibold">Weighted</span>
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 Customize the weights of tokens
+              </span>
+              <span className="mt-[24px] text-sm text-muted-foreground">
+                Fee: <span className="font-medium text-foreground">0.01%</span>
               </span>
             </Card>
             <Card
@@ -390,30 +292,34 @@ export default function CreatePageContent() {
               <span className="mt-[-4px] text-sm text-muted-foreground">
                 The most efficient pool type for two highly correlated tokens
               </span>
+              <span className="mt-[24px] text-sm text-muted-foreground">
+                Fee: <span className="font-medium text-foreground">0.01%</span>
+              </span>
             </Card>
           </div>
         </section>
 
         <section className="flex w-full flex-col gap-4">
-          <h2 className="self-start text-3xl font-semibold">Select Tokens</h2>
+          <h1 className="self-start text-3xl font-semibold">Select Tokens</h1>
           <div className="flex w-full flex-col gap-6">
             {tokens.map((token, index) => (
-              <CreatePoolInput
-                key={`token-${index}`}
-                token={token}
-                selectedTokens={tokens}
-                weight={weights[index]}
-                displayWeight={poolType === PoolType.Weighted}
-                locked={lockedWeights[index]}
-                displayRemove={tokens.length > minTokensLength}
-                index={index}
-                onTokenSelection={(selectedToken) =>
-                  handleTokenSelection(selectedToken, index)
-                }
-                onWeightChange={handleWeightChange}
-                onLockToggle={handleLockToggle}
-                onRemoveToken={handleRemoveToken}
-              />
+              <div key={index} className="flex items-center gap-2">
+                <CreatePoolInput
+                  token={token}
+                  selectedTokens={tokens}
+                  onTokenSelection={(selectedToken: Token | undefined) =>
+                    handleTokenSelection(selectedToken, index)
+                  }
+                />
+                {tokens.length > minTokensLength && (
+                  <Button
+                    onClick={() => removeTokenInput(index)}
+                    variant="ghost"
+                  >
+                    x
+                  </Button>
+                )}
+              </div>
             ))}
             {tokens.length < maxTokensLength && (
               <div className="mr-auto">
@@ -423,12 +329,6 @@ export default function CreatePageContent() {
               </div>
             )}
           </div>
-          {weightsError && (
-            <Alert variant="destructive" className="my-4">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{weightsError}</AlertDescription>
-            </Alert>
-          )}
         </section>
 
         {isDupePool && dupePool && (
@@ -446,43 +346,70 @@ export default function CreatePageContent() {
           </Alert>
         )}
 
-        <section className="flex w-full flex-col gap-4">
-          <h2 className="self-start text-3xl font-semibold">
+        <section
+          className={cn(
+            "flex w-full flex-col gap-10",
+            !enableLiquidityInput && "pointer-events-none opacity-25",
+          )}
+        >
+          <h1 className="self-start text-3xl font-semibold">
             Set Initial Liquidity
-          </h2>
+          </h1>
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                <CreatePoolInitialLiquidityInput
-                  key={`liq-${index}`}
-                  disabled={false}
-                  token={token as Token}
-                  tokenAmount={token.amount}
-                  onTokenUSDValueChange={
-                    (usdValue) => console.log("usdValue", usdValue)
-                    // FIXME
-                    // handleTokenUSDValueChange(index, usdValue)
-                  }
-                  onTokenBalanceChange={(amount) => {
-                    setTokens((prevTokens) => {
-                      const updatedTokens = [...prevTokens];
-                      updatedTokens[index] = {
-                        ...updatedTokens[index],
-                        amount,
-                      };
-                      return updatedTokens;
-                    });
-                  }}
-                />
+                <div
+                  key={index}
+                  className="flex items-center gap-4 space-x-4 border-b p-4 last:border-b-0"
+                >
+                  {/* Token Input with Border */}
+                  <div className="flex-1">
+                    <CreatePoolInitialLiquidityInput
+                      disabled={!enableLiquidityInput}
+                      token={token as Token}
+                      tokenAmount={token.amount}
+                      onTokenBalanceChange={(amount) => {
+                        setTokens((prevTokens) => {
+                          const updatedTokens = [...prevTokens];
+                          updatedTokens[index] = {
+                            ...updatedTokens[index],
+                            amount,
+                          };
+                          return updatedTokens;
+                        });
+                      }}
+                    />
+                  </div>
+
+                  {/* Weight Input */}
+                  {poolType === PoolType.Weighted && (
+                    <>
+                      <div className="w-1/6">
+                        <InputWithLabel
+                          className="w-full"
+                          outerClassName=""
+                          label="Weight"
+                          type="number"
+                          value={weights[index]}
+                          onChange={(e) => {
+                            const newWeights = [...weights];
+                            newWeights[index] = Math.min(
+                              Number(e.target.value),
+                              100,
+                            );
+                            setWeights(newWeights);
+                          }}
+                        />
+                      </div>
+
+                      <div className="w-1/6 text-right text-sm text-gray-400">
+                        <p>{`Normalized:\n${formattedNormalizedWeights[index]}`}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
               ))}
             </ul>
-            {poolType === PoolType.Weighted && (
-              <p>
-                Warning: if you seed liquidity in amounts that differ (in terms
-                of USD) from the weighting you are likely to encounter arbitrage
-                after pool creation.
-              </p>
-            )}
           </div>
 
           {errorMessage && (
@@ -494,171 +421,110 @@ export default function CreatePageContent() {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
-        </section>
-        <section className="flex w-full flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <h2 className="self-start text-3xl font-semibold">Set Swap Fee</h2>
-            <div className="pt-2">
-              <BeraTooltip
-                size="lg"
-                wrap={true}
-                text={`There is lots of discussion and research around how to best set a swap fee amount, 
-                    but a general rule of thumb is for stable assets it should be lower (ex: 0.1%) 
-                    and non-stable pairs should be higher (ex: 0.3%).`}
-              />
-            </div>
-          </div>
-          <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
-            <SwapFeeInput
-              initialFee={swapFee}
-              onFeeChange={(fee) => {
-                setSwapFee(fee);
-              }}
-            />
-          </Card>
 
-          <div className="flex items-center gap-1">
-            <div className="self-start font-semibold">Fees Modified By</div>
-            <div className="pt-[-1]">
-              <BeraTooltip
-                size="lg"
-                wrap={true}
-                text={`The owner of the pool has the ability to make changes to the pool such as setting the swap fee. 
-                    You can set the owner to 0x0000000000000000000000000000000000000000 to set a permanent fee upon pool creation. 
-                    However in general the recommendation is to allow Balancer governance (and delegated addresses) 
-                    to dynamically adjust the fees. This is done by setting an owner of 0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b.`}
-              />
-            </div>
-          </div>
-
-          <div className="flex w-full flex-row gap-6">
-            <Card
-              onClick={() => {
-                setOwnerShipType("governance");
-                setOwner(GOVERNANCE_ADDRESS);
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                ownershipType === "governance" && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Governance</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Enables fee modification through governance
-              </span>
-            </Card>
-            <Card
-              onClick={() => {
-                setOwnerShipType("fixed");
-                setOwner("0x0000000000000000000000000000000000000000");
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                ownershipType === "fixed" && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Fixed</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Fee is fixed and unmodifiable
-              </span>
-            </Card>
-            <Card
-              onClick={() => {
-                setOwnerShipType("custom");
-                setOwner(account || zeroAddress);
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                ownershipType === "custom" && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Custom Address</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Update fees through a custom address
-              </span>
-            </Card>
-          </div>
-          <InputWithLabel
-            label="Owner Address"
-            disabled={ownershipType !== "custom"}
-            value={owner}
-            maxLength={42}
-            onChange={(e) => {
-              const value = e.target.value;
-              setOwner(value);
-              if (!isAddress(value)) {
-                setInvalidAddressErrorMessage("Invalid custom address");
-              } else {
-                setInvalidAddressErrorMessage(null);
-              }
-            }}
-          />
-          {invalidAddressErrorMessage && (
-            <Alert variant="destructive" className="my-4">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{invalidAddressErrorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </section>
-
-        <section className="flex w-full flex-col gap-4">
-          <InputWithLabel
-            label="Pool Name"
-            value={poolName}
-            maxLength={85}
-            onChange={(e) => {
-              setPoolName(e.target.value);
-            }}
-          />
-
-          <InputWithLabel
-            label="Pool Symbol"
-            value={poolSymbol}
-            maxLength={85}
-            onChange={(e) => {
-              setPoolSymbol(e.target.value.replace(" ", "-"));
-            }}
-          />
-
-          {(poolType === PoolType.ComposableStable ||
-            poolType === PoolType.MetaStable) && (
-            <InputWithLabel
-              label="Amplification"
-              value={amplification}
-              maxLength={4}
-              onChange={(e) => {
-                // NOTE: for some reason max/min dont seem to work in InputWithLabel
-                const value = Number(e.target.value);
-                if (value >= 1 && value <= 5000) {
-                  setAmplification(value);
-                }
-              }}
-              tooltip={
+          <section className="flex w-full flex-col gap-10">
+            <div className="flex items-center gap-2">
+              <h1 className="self-start text-3xl font-semibold">
+                Set Swap Fee
+              </h1>
+              <div className="pt-2">
                 <BeraTooltip
                   size="lg"
                   wrap={true}
-                  text={`
-                  The amplification co-efficient ("A") determines a pool's 
-                  tolerance for imbalance between the assets within it.
-                  A higher value means that trades will incur slippage sooner 
-                  as the assets within the pool become imbalanced.`}
+                  text={`There is lots of discussion and research around how to best set a swap fee amount, 
+                    but a general rule of thumb is for stable assets it should be lower (ex: 0.1%) 
+                    and non-stable pairs should be higher (ex: 0.3%).`}
                 />
-              }
-            />
-          )}
-        </section>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+                <SwapFeeInput
+                  initialFee={swapFee}
+                  onFeeChange={(fee) => {
+                    setSwapFee(fee);
+                  }}
+                />
+              </Card>
+            </div>
+          </section>
 
-        <section className="flex w-full flex-col gap-10">
-          <h2 className="self-start text-3xl font-semibold">
-            Approve & Submit
-          </h2>
+          <section className="flex w-full flex-col gap-10">
+            <div className="flex items-center gap-2">
+              <h1 className="self-start text-3xl font-semibold">Owner</h1>
+              <div className="pt-2">
+                <BeraTooltip
+                  size="lg"
+                  wrap={true}
+                  text={`The owner of the pool has the ability to make changes to the pool such as setting the swap fee. 
+                    You can set the owner to 0x0000000000000000000000000000000000000000 to set a permanent fee upon pool creation. 
+                    However in general the recommendation is to allow Balancer governance (and delegated addresses) 
+                    to dynamically adjust the fees. This is done by setting an owner of 0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b.`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+                <InputWithLabel
+                  label="Owner"
+                  value={owner}
+                  maxLength={42}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setOwner(value);
+                    if (!isAddress(value)) {
+                      setInvalidAddressErrorMessage("Invalid owner address");
+                    } else {
+                      setInvalidAddressErrorMessage(null);
+                    }
+                  }}
+                />
+                {invalidAddressErrorMessage && (
+                  <Alert variant="destructive" className="my-4">
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                      {invalidAddressErrorMessage}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </Card>
+            </div>
+          </section>
 
-          {/* TODO: below belongs in a preview page */}
-          {!isRelayerApproved ? (
-            <ActionButton>
+          <section className="flex w-full flex-col gap-10 py-12">
+            <div className="flex flex-col gap-4">
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+                <InputWithLabel
+                  label="Pool Name"
+                  value={poolName}
+                  maxLength={85}
+                  onChange={(e) => {
+                    setPoolName(e.target.value);
+                  }}
+                />
+              </Card>
+              <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
+                <InputWithLabel
+                  label="Pool Symbol"
+                  value={poolSymbol}
+                  maxLength={85}
+                  onChange={(e) => {
+                    setPoolSymbol(e.target.value.replace(" ", "-"));
+                  }}
+                />
+              </Card>
+            </div>
+          </section>
+
+          <section className="flex w-full flex-col gap-10">
+            <h1 className="self-start text-3xl font-semibold">
+              Approve & Submit
+            </h1>
+
+            {/* Approvals TODO: this and below belong inside a preview page*/}
+            {!isRelayerApproved && (
               <Button
                 disabled={
-                  !isConnected ||
                   isRelayerApprovalLoading ||
                   isLoadingRelayerStatus ||
                   isRelayerApprovalSubmitting
@@ -667,52 +533,51 @@ export default function CreatePageContent() {
                 className="mt-4 w-full"
               >
                 Approve Pool Creation Helper
-                {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
-                  "..."}
+                {isRelayerApprovalLoading ||
+                  (isRelayerApprovalSubmitting && "...")}
               </Button>
-            </ActionButton>
-          ) : tokensNeedApproval.length > 0 ? (
-            (() => {
-              const approvalTokenIndex = tokens.findIndex(
-                (t) => t.address === tokensNeedApproval[0]?.address,
-              );
-              const approvalToken = tokens[approvalTokenIndex];
-              const approvalAmount = parseUnits(
-                approvalToken.amount,
-                approvalToken?.decimals ?? 18,
-              );
+            )}
 
-              return (
-                <ApproveButton
-                  amount={approvalAmount}
-                  disabled={approvalAmount === BigInt(0) || !isConnected}
-                  token={approvalToken}
-                  spender={balancerVaultAddress}
-                  onApproval={() => refreshAllowances()}
-                />
-              );
-            })()
-          ) : (
+            {tokensNeedApproval.length > 0 &&
+              (() => {
+                // NOTE: we might avoid doing this if we can return TokenInput amount in the ApprovalToken[]
+                const approvalTokenIndex = tokens.findIndex(
+                  (t) => t.address === tokensNeedApproval[0]?.address,
+                );
+                const approvalToken = tokens[approvalTokenIndex];
+                const approvalAmount = parseUnits(
+                  approvalToken.amount,
+                  approvalToken?.decimals ?? 18,
+                );
+
+                return (
+                  <ApproveButton
+                    amount={approvalAmount}
+                    disabled={approvalAmount === BigInt(0)}
+                    token={approvalToken}
+                    spender={balancerVaultAddress}
+                    onApproval={() => refreshAllowances()}
+                  />
+                );
+              })()}
+
             <ActionButton>
               <Button
                 disabled={
-                  !isConnected ||
                   !createPoolArgs ||
                   tokensNeedApproval.length > 0 ||
                   !isRelayerApproved ||
                   !isAddress(owner) ||
                   poolName.length === 0 ||
                   poolSymbol.length === 0 ||
+                  !enableLiquidityInput ||
                   isLoadingCreatePoolTx ||
                   isSubmittingCreatePoolTx ||
                   isLoadingPools ||
-                  errorLoadingPools ||
-                  isNormalizing ||
-                  weightsError !== null
+                  errorLoadingPools
                 }
                 className="w-full"
                 onClick={() => {
-                  console.log("createPoolArgs", createPoolArgs);
                   writeCreatePool(createPoolArgs);
                 }}
               >
@@ -720,7 +585,7 @@ export default function CreatePageContent() {
                 {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
               </Button>
             </ActionButton>
-          )}
+          </section>
         </section>
       </div>
     </div>
