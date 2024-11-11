@@ -442,22 +442,24 @@ export default function CreatePageContent() {
               <AlertDescription>{weightsError}</AlertDescription>
             </Alert>
           )}
-        </section>
-
-        {isDupePool && dupePool && (
-          <Alert variant="destructive">
-            <AlertTitle>Similar Pool Exists</AlertTitle>
-            <AlertDescription className="space-y-4">
-              <p>
-                {`Please note that a ${poolType} pool with the same tokens 
+          {isDupePool && dupePool && (
+            <Alert variant="destructive">
+              <AlertTitle>Similar Pool Exists</AlertTitle>
+              <AlertDescription className="space-y-4">
+                <p>
+                  {`Please note that a ${poolType} pool with the same tokens 
                 exists, consider adding liquidity instead of creating a new pool:`}
-              </p>
-              <a href={getPoolUrl(dupePool)} className="text-sky-600 underline">
-                Existing pool
-              </a>
-            </AlertDescription>
-          </Alert>
-        )}
+                </p>
+                <a
+                  href={getPoolUrl(dupePool)}
+                  className="text-sky-600 underline"
+                >
+                  Existing pool
+                </a>
+              </AlertDescription>
+            </Alert>
+          )}
+        </section>
 
         <section className="flex w-full flex-col gap-4">
           <h2 className="self-start text-3xl font-semibold">
@@ -493,17 +495,8 @@ export default function CreatePageContent() {
               </p>
             )}
           </div>
-
-          {errorMessage && (
-            <Alert
-              variant="destructive"
-              className="my-4 text-destructive-foreground"
-            >
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          )}
         </section>
+
         <section className="flex w-full flex-col gap-4">
           <div className="flex items-center gap-2">
             <h2 className="self-start text-3xl font-semibold">Set Swap Fee</h2>
@@ -717,7 +710,8 @@ export default function CreatePageContent() {
                   isLoadingPools ||
                   errorLoadingPools ||
                   isNormalizing ||
-                  weightsError !== null
+                  weightsError !== null ||
+                  tokens.some((t) => t.amount === "0")
                 }
                 className="w-full"
                 onClick={() => {
@@ -729,6 +723,15 @@ export default function CreatePageContent() {
                 {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
               </Button>
             </ActionButton>
+          )}
+          {errorMessage && (
+            <Alert
+              variant="destructive"
+              className="my-4 text-destructive-foreground"
+            >
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
           )}
         </section>
       </div>
