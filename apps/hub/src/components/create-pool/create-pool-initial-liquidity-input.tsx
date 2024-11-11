@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   useBeraJs,
   usePollWalletBalances,
@@ -19,6 +19,7 @@ type Props = {
   disabled: boolean;
   tokenAmount: string;
   onTokenBalanceChange: (amount: string) => void;
+  onTokenUSDValueChange: (usdValue: number) => void;
 };
 
 export default function CreatePoolInitialLiquidityInput({
@@ -26,6 +27,7 @@ export default function CreatePoolInitialLiquidityInput({
   tokenAmount,
   disabled,
   onTokenBalanceChange,
+  onTokenUSDValueChange,
 }: Props) {
   const { useSelectedWalletBalance } = usePollWalletBalances();
   const tokenBalanceData = useSelectedWalletBalance(token?.address ?? "0x");
@@ -37,6 +39,13 @@ export default function CreatePoolInitialLiquidityInput({
   const { data: tokenHoneyPrice } = useSubgraphTokenInformation({
     tokenAddress: token?.address,
   });
+
+  const usdValue =
+    getSafeNumber(tokenAmount) * Number(tokenHoneyPrice?.usdValue ?? 0);
+
+  useEffect(() => {
+    onTokenUSDValueChange(usdValue);
+  }, [usdValue, onTokenUSDValueChange]);
 
   useMemo(() => {
     if (tokenBalanceData) {
@@ -99,10 +108,7 @@ export default function CreatePoolInitialLiquidityInput({
               <p className="self-center p-0 text-xs text-muted-foreground">
                 {tokenAmount !== "0" &&
                   tokenAmount !== "" &&
-                  formatUsd(
-                    getSafeNumber(tokenAmount) *
-                      Number(tokenHoneyPrice?.usdValue ?? 0),
-                  )}
+                  formatUsd(usdValue)}
               </p>
             </div>
           </div>
