@@ -32,10 +32,6 @@ export default async function PoolPage({
   }
 
   try {
-    // if (!isAddress(params.poolId)) {
-    //   notFound();
-    // }
-
     const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
       query: GetSubgraphPool,
       variables: {

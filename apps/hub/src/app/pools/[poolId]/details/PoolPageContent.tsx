@@ -5,13 +5,12 @@ import Link from "next/link";
 import { notFound, useSearchParams } from "next/navigation";
 import {
   SWRFallback,
-  Token,
   truncateHash,
   useBeraJs,
   usePollBalance,
   type IProvision,
   type ISwaps,
-  type PoolV2,
+  useVaultBalanceFromStakingToken,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
@@ -20,10 +19,8 @@ import {
   TokenIcon,
   TokenIconList,
 } from "@bera/shared-ui";
-import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent } from "@bera/ui/card";
-import { Icons } from "@bera/ui/icons";
 import { Separator } from "@bera/ui/separator";
 import { Skeleton } from "@bera/ui/skeleton";
 
@@ -36,58 +33,6 @@ import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
-
-const getTokenDisplay = (
-  event: ISwapOrProvision | ISwaps | IProvision,
-  pool: PoolV2 | undefined,
-) => {
-  if ((event as IProvision).changeType === undefined) {
-    return (
-      <div className="space-evenly flex flex-row items-center">
-        <div className="flex items-center">
-          <TokenIcon
-            address={(event as ISwaps).swapIn?.address ?? "0x"}
-            symbol={(event as ISwaps).swapIn?.symbol ?? ""}
-          />
-          <p className="ml-2">
-            <FormattedNumber value={(event as ISwaps).swapInAmount} />
-          </p>
-        </div>
-        <Icons.chevronRight className="mx-2" />
-        <div className="flex items-center">
-          <TokenIcon
-            address={(event as ISwaps).swapOut?.address ?? "0x"}
-            symbol={(event as ISwaps).swapOut?.symbol ?? ""}
-          />
-          <p className="ml-2">
-            <FormattedNumber value={(event as ISwaps).swapOutAmount} />
-          </p>
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="space-evenly flex flex-row items-center">
-      {pool?.tokens.map((token: Token, i) => {
-        return (
-          <div className={cn("flex flex-row", i !== 0 && "ml-[-10px]")} key={i}>
-            <TokenIcon address={token.address} symbol={token.symbol} />
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const getAction = (event: ISwapOrProvision | ISwaps | IProvision) => {
-  if ((event as IProvision).changeType === undefined) {
-    return <p>Swap</p>;
-  }
-  if ((event as IProvision).changeType === "mint") {
-    return <p className="text-positive">Add</p>;
-  }
-  return <p className="text-destructive-foreground">Withdraw</p>;
-};
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -201,6 +146,9 @@ export default function PoolPageContent({
   const tvlInUsd = pool ? Number(pool?.totalLiquidity ?? 0) : undefined;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
+  const { data: userVaultBalance, error } = useVaultBalanceFromStakingToken({
+    stakingToken: pool?.address as Address,
+  });
 
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
   useEffect(() => {

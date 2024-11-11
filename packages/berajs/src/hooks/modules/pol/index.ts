@@ -15,3 +15,5 @@ export { usePollAllValidators } from "./hooks/poll-all-validators";
 export { usePollValidatorTokenRewards } from "./hooks/poll-validator-token-rewards";
 export { useUserActiveValidators } from "./hooks/poll-user-active-validators";
 export { useValidValidator } from "./hooks/poll-valid-validator";
+export { useVaultBalanceFromStakingToken } from "./hooks/useVaultBalanceFromStakingToken";
+export { useRewardVaultFromToken } from "./hooks/useRewardVaultFromToken";
