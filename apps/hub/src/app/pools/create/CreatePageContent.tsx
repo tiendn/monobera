@@ -527,7 +527,7 @@ export default function CreatePageContent() {
           </Card>
 
           <div className="flex items-center gap-1">
-            <div className="self-start font-semibold">Fees Modified By</div>
+            <div className="self-start font-semibold">Fee Ownership</div>
             <div className="pt-[-1]">
               <BeraTooltip
                 size="lg"
