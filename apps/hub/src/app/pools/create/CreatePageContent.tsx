@@ -341,14 +341,13 @@ export default function CreatePageContent() {
       tokens.length >= minTokensLength &&
       tokens.every((token) => token.address) &&
       !isLoadingPools &&
-      !errorLoadingPools &&
-      !isDupePool
+      !errorLoadingPools
     ) {
       setEnableLiquidityInput(true);
     } else {
       setEnableLiquidityInput(false);
     }
-  }, [tokens, poolType, isLoadingPools, isDupePool, errorLoadingPools]);
+  }, [tokens, poolType, isLoadingPools, errorLoadingPools]);
 
   const [ownershipType, setOwnerShipType] =
     useState<OwnershipType>("governance");
