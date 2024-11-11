@@ -446,14 +446,14 @@ export default function CreatePageContent() {
 
         {isDupePool && dupePool && (
           <Alert variant="destructive">
-            <AlertTitle>Similar Pool Already Exists</AlertTitle>
+            <AlertTitle>Similar Pool Exists</AlertTitle>
             <AlertDescription className="space-y-4">
               <p>
-                Please note that creating this pool will not be possible;
-                consider adding liquidity to an existing pool instead.
+                {`Please note that a ${poolType} pool with the same tokens 
+                exists, consider adding liquidity instead of creating a new pool:`}
               </p>
               <a href={getPoolUrl(dupePool)} className="text-sky-600 underline">
-                Similar pool
+                Existing pool
               </a>
             </AlertDescription>
           </Alert>
