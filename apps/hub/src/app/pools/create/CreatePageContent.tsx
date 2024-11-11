@@ -50,8 +50,6 @@ export default function CreatePageContent() {
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [enableLiquidityInput, setEnableLiquidityInput] =
-    useState<boolean>(false);
   const [swapFee, setSwapFee] = useState<number>(0.1);
   const [owner, setOwner] = useState<string>(GOVERNANCE_ADDRESS);
   const [poolName, setPoolName] = useState<string>("");
@@ -60,6 +58,8 @@ export default function CreatePageContent() {
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
+  const [ownershipType, setOwnerShipType] =
+    useState<OwnershipType>("governance");
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
@@ -334,24 +334,6 @@ export default function CreatePageContent() {
     },
   });
 
-  // Determine if liquidity input should be enabled (i.e. we have selected enough tokens)
-  useEffect(() => {
-    if (
-      tokens &&
-      tokens.length >= minTokensLength &&
-      tokens.every((token) => token.address) &&
-      !isLoadingPools &&
-      !errorLoadingPools
-    ) {
-      setEnableLiquidityInput(true);
-    } else {
-      setEnableLiquidityInput(false);
-    }
-  }, [tokens, poolType, isLoadingPools, errorLoadingPools]);
-
-  const [ownershipType, setOwnerShipType] =
-    useState<OwnershipType>("governance");
-
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
       {ModalPortal}
@@ -464,12 +446,7 @@ export default function CreatePageContent() {
           </Alert>
         )}
 
-        <section
-          className={cn(
-            "flex w-full flex-col gap-4",
-            !enableLiquidityInput && "pointer-events-none opacity-25",
-          )}
-        >
+        <section className="flex w-full flex-col gap-4">
           <h2 className="self-start text-3xl font-semibold">
             Set Initial Liquidity
           </h2>
@@ -478,7 +455,7 @@ export default function CreatePageContent() {
               {tokens.map((token, index) => (
                 <CreatePoolInitialLiquidityInput
                   key={`liq-${index}`}
-                  disabled={!enableLiquidityInput}
+                  disabled={false}
                   token={token as Token}
                   tokenAmount={token.amount}
                   onTokenUSDValueChange={
@@ -726,7 +703,6 @@ export default function CreatePageContent() {
                   !isAddress(owner) ||
                   poolName.length === 0 ||
                   poolSymbol.length === 0 ||
-                  !enableLiquidityInput ||
                   isLoadingCreatePoolTx ||
                   isSubmittingCreatePoolTx ||
                   isLoadingPools ||
