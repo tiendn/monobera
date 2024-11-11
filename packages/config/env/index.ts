@@ -198,6 +198,12 @@ export const rpcBannerEnabled = Boolean(
 export const bgtStaker = process.env.NEXT_PUBLIC_BGT_STAKER as Address;
 export const bgtTokenAddress = process.env.NEXT_PUBLIC_BGT_ADDRESS as Address;
 
+// PoL
+export const beraChefAddress = process.env
+  .NEXT_PUBLIC_BERA_CHEF_ADDRESS as Address;
+export const rewardVaultFactoryAddress = process.env
+  .NEXT_PUBLIC_REWARD_VAULT_FACTORY_ADDRESS as Address;
+
 // Governance
 export const governorAddress = process.env
   .NEXT_PUBLIC_GOVERNOR_ADDRESS as Address;
@@ -205,8 +211,6 @@ export const governanceTokenAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TOKEN_ADDRESS as Address;
 export const governanceTimelockAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TIMELOCK_ADDRESS as Address;
-export const beraChefAddress = process.env
-  .NEXT_PUBLIC_BERA_CHEF_ADDRESS as Address;
 
 // Crocswap TODO (#): remove croc definitions
 export const crocIndexerEndpoint = process.env

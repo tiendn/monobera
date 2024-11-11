@@ -19,6 +19,8 @@
 In order to setup your local environment, run
 
 ```
+git submodule init
+git submodule update
 pnpm i
 pnpm setenv bartio
 ```
