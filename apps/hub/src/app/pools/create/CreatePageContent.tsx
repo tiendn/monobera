@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
-import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
+import {
+  balancerDelegatedOwnershipAddress,
+  balancerPoolCreationHelper,
+  balancerVaultAddress,
+} from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -39,7 +43,6 @@ const emptyToken: TokenInput = {
 };
 
 type OwnershipType = "governance" | "fixed" | "custom";
-const GOVERNANCE_ADDRESS = "0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b";
 const ONE_IN_18_DECIMALS = BigInt(10 ** 18); // i.e 100% in 18 decimals
 
 export default function CreatePageContent() {
@@ -51,7 +54,7 @@ export default function CreatePageContent() {
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [swapFee, setSwapFee] = useState<number>(0.1);
-  const [owner, setOwner] = useState<string>(GOVERNANCE_ADDRESS);
+  const [owner, setOwner] = useState<string>(balancerDelegatedOwnershipAddress);
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
@@ -535,7 +538,7 @@ export default function CreatePageContent() {
             <Card
               onClick={() => {
                 setOwnerShipType("governance");
-                setOwner(GOVERNANCE_ADDRESS);
+                setOwner(balancerDelegatedOwnershipAddress);
               }}
               className={cn(
                 "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
