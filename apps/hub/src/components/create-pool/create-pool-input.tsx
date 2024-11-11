@@ -68,6 +68,7 @@ export default function CreatePoolInput({
           <div className="ml-auto flex items-center gap-1">
             <span className="text-sm text-gray-400">%</span>
             <InputWithLabel
+              variant="black"
               type="text"
               // NOTE: weight is 18 decimalized and we input it as a %, so we use 16 decimalized for the input
               // NOTE: if a weight is negative internally we will clamp it to 0 in the display (but an error is shown)

@@ -77,6 +77,7 @@ export default function CreatePoolInitialLiquidityInput({
           step="any"
           min="0"
           placeholder="0"
+          variant="black"
           className={cn(
             "w-full grow border-0 bg-transparent p-0 text-right text-lg font-semibold outline-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
             exceeding && "text-destructive-foreground",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
 import {
@@ -583,6 +583,8 @@ export default function CreatePageContent() {
           <InputWithLabel
             label="Owner Address"
             disabled={ownershipType !== "custom"}
+            variant="black"
+            className="bg-transparent"
             value={owner}
             maxLength={42}
             onChange={(e) => {
@@ -606,6 +608,8 @@ export default function CreatePageContent() {
         <section className="flex w-full flex-col gap-4">
           <InputWithLabel
             label="Pool Name"
+            variant="black"
+            className="bg-transparent"
             value={poolName}
             maxLength={85}
             onChange={(e) => {
@@ -615,6 +619,8 @@ export default function CreatePageContent() {
 
           <InputWithLabel
             label="Pool Symbol"
+            variant="black"
+            className="bg-transparent"
             value={poolSymbol}
             maxLength={85}
             onChange={(e) => {
@@ -626,6 +632,8 @@ export default function CreatePageContent() {
             poolType === PoolType.MetaStable) && (
             <InputWithLabel
               label="Amplification"
+              variant="black"
+              className="bg-transparent"
               value={amplification}
               maxLength={4}
               onChange={(e) => {
