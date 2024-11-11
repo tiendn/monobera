@@ -19,20 +19,21 @@ import { TokenInput } from "./useMultipleTokenInput";
 
 interface UseCreatePoolProps {
   tokens: TokenInput[];
-  normalizedWeights: bigint[]; // NOTE: if you pass weights that have off-by-1 errors pool create will fail (ex: 0.3 repeating)
+  weights: number[];
   poolType: PoolType;
   swapFee: number;
   owner: string;
   poolSymbol: string;
   poolName: string;
-  amplification: number;
 }
 
 interface UseCreatePoolReturn {
   generatedPoolName: string;
   generatedPoolSymbol: string;
-  isDupePool: boolean;
+  isDupePool?: boolean;
   dupePool?: SubgraphPoolFragment | null;
+  normalizedWeights: bigint[];
+  formattedNormalizedWeights: string[];
   createPoolArgs: any;
   isLoadingPools: boolean;
   errorLoadingPools: boolean;
@@ -40,13 +41,12 @@ interface UseCreatePoolReturn {
 
 export const useCreatePool = ({
   tokens,
-  normalizedWeights,
+  weights,
   poolType,
   poolName,
   poolSymbol,
   swapFee,
   owner,
-  amplification,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
   const {
     data: dupePool,
@@ -87,6 +87,40 @@ export const useCreatePool = ({
       }
     },
   );
+
+  const { normalizedWeights, formattedNormalizedWeights } = useMemo(() => {
+    if (weights.length === 0) {
+      return { normalizedWeights: [], formattedNormalizedWeights: [] };
+    }
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    const normalizedWeights = weights.map((weight) =>
+      parseUnits((weight / totalWeight).toString(), 18),
+    );
+    const weightSum = normalizedWeights.reduce(
+      (sum, weight) => sum + weight,
+      0n,
+    );
+    const oneIn18Decimals = parseUnits("1", 18);
+    const correction = oneIn18Decimals - weightSum;
+
+    if (correction !== 0n && normalizedWeights.length > 0) {
+      const minWeightIndex = normalizedWeights.reduce(
+        (minIndex, weight, index, array) =>
+          weight < array[minIndex] ? index : minIndex,
+        0,
+      );
+      if (normalizedWeights[minWeightIndex] !== undefined) {
+        normalizedWeights[minWeightIndex] += correction;
+      }
+    }
+
+    const formattedNormalizedWeights = normalizedWeights.map((weight) => {
+      const percentage = formatUnits(weight, 18);
+      return `${(parseFloat(percentage) * 100).toFixed(6)}%`;
+    });
+
+    return { normalizedWeights, formattedNormalizedWeights };
+  }, [weights]);
 
   const generatePoolName = (tokens: Token[], poolType: PoolType): string => {
     if (tokens.length === 0) {
@@ -141,7 +175,9 @@ export const useCreatePool = ({
         weight: normalizedWeights[index],
         cacheDuration: BigInt(100), // Only used in stable pools
       }))
-      .sort((a, b) => (a.token.toLowerCase() < b.token.toLowerCase() ? -1 : 1));
+      .sort((a, b) =>
+        a.token.toLowerCase().localeCompare(b.token.toLowerCase()),
+      );
 
     return {
       sortedTokens: sortedData.map((item) => item.token),
@@ -156,7 +192,8 @@ export const useCreatePool = ({
 
   const isStablePool =
     poolType === PoolType.ComposableStable || poolType === PoolType.MetaStable;
-  const exemptFromYieldProtocolFeeFlag = false; // FIXME: should this ever be true?
+  const exemptFromYieldProtocolFeeFlag = false;
+  const amplificationParameter = BigInt(62);
 
   const createPoolArgs = useMemo(() => {
     if (!owner || poolName === "" || poolSymbol === "") return null;
@@ -182,7 +219,7 @@ export const useCreatePool = ({
             poolName,
             poolSymbol,
             sortedTokens,
-            BigInt(amplification),
+            amplificationParameter,
             sortedRateProviders,
             sortedCacheDurations,
             exemptFromYieldProtocolFeeFlag,
@@ -205,20 +242,15 @@ export const useCreatePool = ({
       value: 0n,
       gasLimit: 7920027n, // NOTE: this is metamask mask, which we use for an upper limit in simulation because this is an expensive tx
     };
-  }, [
-    owner,
-    poolName,
-    poolSymbol,
-    isStablePool,
-    sharedCalculations,
-    amplification,
-  ]);
+  }, [owner, poolName, poolSymbol, isStablePool, sharedCalculations]);
 
   return {
     generatedPoolName,
     generatedPoolSymbol,
     isDupePool: !!dupePool,
     dupePool,
+    normalizedWeights,
+    formattedNormalizedWeights,
     createPoolArgs,
     isLoadingPools,
     errorLoadingPools,

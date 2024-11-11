@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { FormError } from "./form-error";
-import { Label } from "./label";
 import { cn } from "./utils/cn";
+import { Label } from "./label";
+import { FormError } from "./form-error";
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
@@ -22,21 +22,14 @@ export interface CustomInputProps extends InputProps {
 
 const InputWithLabel = React.forwardRef<
   HTMLInputElement,
-  CustomInputProps & {
-    label?: string;
-    error?: string | null;
-    tooltip?: React.ReactNode; // NOTE: optional label tooltip object
-  }
->(({ label, error, tooltip, ...props }, ref) => {
+  CustomInputProps & { label?: string; error?: string | null }
+>(({ label, error, ...props }, ref) => {
   return (
     <div className="grid grid-cols-1 gap-y-2">
       {label && (
-        <div className="flex items-center">
-          <Label disabled={props.disabled} htmlFor={props.id}>
-            {label}
-          </Label>
-          {tooltip && <div className="pb-0.5 pl-[-2]">{tooltip}</div>}
-        </div>
+        <Label disabled={props.disabled} htmlFor={props.id}>
+          {label}
+        </Label>
       )}
 
       <Input {...props} ref={ref} />
@@ -150,7 +143,7 @@ const Input = React.forwardRef<HTMLInputElement, CustomInputProps>(
           {...props}
         />
         {endAdornment && (
-          <div className="disabled:text-foreground-foreground pointer-events-none absolute inset-y-0 right-3 flex items-center pl-3 text-muted-foreground">
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center pl-3 text-muted-foreground disabled:text-foreground-foreground">
             {endAdornment}
           </div>
         )}
