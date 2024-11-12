@@ -32,6 +32,9 @@ import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
+import OwnershipInput, {
+  OwnershipType,
+} from "../components/pools/ownership-input";
 import PoolTypeSelector from "../components/pools/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
 
@@ -43,8 +46,6 @@ const emptyToken: TokenInput = {
   name: "",
   symbol: "",
 };
-
-type OwnershipType = "governance" | "fixed" | "custom";
 
 export default function CreatePageContent() {
   const router = useRouter();
@@ -59,11 +60,29 @@ export default function CreatePageContent() {
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
+  const [ownershipType, setOwnerShipType] =
+    useState<OwnershipType>("governance");
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
-  const [ownershipType, setOwnerShipType] =
-    useState<OwnershipType>("governance");
+
+  const handleOwnershipTypeChange = (type: OwnershipType) => {
+    setOwnerShipType(type);
+    setOwner(
+      type === "governance"
+        ? balancerDelegatedOwnershipAddress
+        : type === "fixed"
+        ? "0x0000000000000000000000000000000000000000"
+        : account || zeroAddress,
+    );
+  };
+
+  const handleOwnerChange = (address: string) => {
+    setOwner(address);
+    setInvalidAddressErrorMessage(
+      isAddress(address) ? null : "Invalid custom address",
+    );
+  };
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
   const minTokensLength = 2; // i.e. for meta/stable it's 2
@@ -315,113 +334,13 @@ export default function CreatePageContent() {
           </div>
         </section>
 
-        <section className="flex w-full flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <h2 className="self-start text-3xl font-semibold">Set Swap Fee</h2>
-            <div className="pt-2">
-              <BeraTooltip
-                size="lg"
-                wrap={true}
-                text={`There is lots of discussion and research around how to best set a swap fee amount, 
-                    but a general rule of thumb is for stable assets it should be lower (ex: 0.1%) 
-                    and non-stable pairs should be higher (ex: 0.3%).`}
-              />
-            </div>
-          </div>
-          <Card className="flex w-full cursor-pointer flex-col gap-0 border p-4">
-            <SwapFeeInput
-              initialFee={swapFee}
-              onFeeChange={(fee) => {
-                setSwapFee(fee);
-              }}
-            />
-          </Card>
-
-          <div className="flex items-center gap-1">
-            <div className="self-start font-semibold">Fee Ownership</div>
-            <div className="pt-[-1]">
-              <BeraTooltip
-                size="lg"
-                wrap={true}
-                text={`The owner of the pool has the ability to make changes to the pool such as setting the swap fee. 
-                    You can set the owner to 0x0000000000000000000000000000000000000000 to set a permanent fee upon pool creation. 
-                    However in general the recommendation is to allow Balancer governance (and delegated addresses) 
-                    to dynamically adjust the fees. This is done by setting an owner of 0xba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1ba1b.`}
-              />
-            </div>
-          </div>
-
-          <div className="flex w-full flex-row gap-6">
-            <Card
-              onClick={() => {
-                setOwnerShipType("governance");
-                setOwner(balancerDelegatedOwnershipAddress);
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                ownershipType === "governance" && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Governance</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Enables fee modification through governance
-              </span>
-            </Card>
-            <Card
-              onClick={() => {
-                setOwnerShipType("fixed");
-                setOwner("0x0000000000000000000000000000000000000000");
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                ownershipType === "fixed" && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Fixed</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Fee is fixed and unmodifiable
-              </span>
-            </Card>
-            <Card
-              onClick={() => {
-                setOwnerShipType("custom");
-                setOwner(account || zeroAddress);
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                ownershipType === "custom" && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Custom Address</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Update fees through a custom address
-              </span>
-            </Card>
-          </div>
-          <InputWithLabel
-            label="Owner Address"
-            disabled={ownershipType !== "custom"}
-            variant="black"
-            className="bg-transparent"
-            value={owner}
-            maxLength={42}
-            onChange={(e) => {
-              const value = e.target.value;
-              setOwner(value);
-              if (!isAddress(value)) {
-                setInvalidAddressErrorMessage("Invalid custom address");
-              } else {
-                setInvalidAddressErrorMessage(null);
-              }
-            }}
-          />
-          {invalidAddressErrorMessage && (
-            <Alert variant="destructive" className="my-4">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{invalidAddressErrorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </section>
+        <OwnershipInput
+          ownershipType={ownershipType}
+          owner={owner}
+          onChangeOwnershipType={handleOwnershipTypeChange}
+          onOwnerChange={handleOwnerChange}
+          invalidAddressErrorMessage={invalidAddressErrorMessage}
+        />
 
         <section className="flex w-full flex-col gap-4">
           <InputWithLabel
