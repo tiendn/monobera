@@ -23,17 +23,15 @@ import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { isAddress, parseUnits, zeroAddress } from "viem";
 
 import BeraTooltip from "~/components/bera-tooltip";
-import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
-import CreatePoolInput from "~/components/create-pool/create-pool-input";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
-import OwnershipInput, {
-  OwnershipType,
-} from "../components/pools/ownership-input";
-import PoolTypeSelector from "../components/pools/pool-type-selector";
+import CreatePoolInitialLiquidityInput from "../components/create-pool-initial-liquidity-input";
+import CreatePoolInput from "../components/create-pool-input";
+import OwnershipInput, { OwnershipType } from "../components/ownership-input";
+import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
 
 const emptyToken: TokenInput = {
