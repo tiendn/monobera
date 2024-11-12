@@ -60,7 +60,7 @@ export default function CreatePoolInitialLiquidityInput({
     }
   }, [tokenBalanceData, tokenAmount]);
   return (
-    <li className={"flex w-full flex-col  items-center p-3"}>
+    <li className="flex w-full flex-col items-center p-4">
       <div className="flex w-full flex-row justify-between">
         <Button
           className="flex h-fit w-fit items-center gap-1 self-start border-border bg-background text-base text-foreground shadow"
@@ -79,7 +79,7 @@ export default function CreatePoolInitialLiquidityInput({
           placeholder="0"
           variant="black"
           className={cn(
-            "w-full grow border-0 bg-transparent p-0 text-right text-lg font-semibold outline-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+            "w-full grow border-0 bg-transparent pr-4 text-right text-2xl font-semibold outline-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
             exceeding && "text-destructive-foreground",
           )}
           value={tokenAmount}
@@ -106,7 +106,7 @@ export default function CreatePoolInitialLiquidityInput({
               </p>
             </div>
             <div className="flex flex-row gap-1">
-              <p className="self-center p-0 text-xs text-muted-foreground">
+              <p className="self-center pr-4  text-xs text-muted-foreground">
                 {tokenAmount !== "0" &&
                   tokenAmount !== "" &&
                   formatUsd(usdValue)}

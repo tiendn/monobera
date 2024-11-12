@@ -10,9 +10,11 @@ import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { formatUnits, parseUnits } from "viem";
 
+import { TokenInput } from "~/hooks/useMultipleTokenInput";
+
 type Props = {
-  token: Token | undefined;
-  selectedTokens: Token[];
+  token: TokenInput | undefined;
+  selectedTokens: TokenInput[];
   weight?: bigint;
   displayWeight?: boolean;
   displayRemove?: boolean;
@@ -49,7 +51,7 @@ export default function CreatePoolInput({
   };
 
   return (
-    <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-3">
+    <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-2">
       <SelectToken
         token={token}
         // TODO: we should handle wrapping when adding liquidity, but for pool token selection it cannot be BERA itself.

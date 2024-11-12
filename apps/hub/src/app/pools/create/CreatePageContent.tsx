@@ -19,6 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
+import { Separator } from "@bera/ui/separator";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { isAddress, parseUnits, zeroAddress } from "viem";
 
@@ -225,7 +226,7 @@ export default function CreatePageContent() {
   });
 
   return (
-    <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-8">
+    <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
       {ModalPortal}
       {ModalPortalRelayerApproval}
       <Button
@@ -241,8 +242,10 @@ export default function CreatePageContent() {
         <PoolTypeSelector poolType={poolType} onPoolTypeChange={setPoolType} />
 
         <section className="flex w-full flex-col gap-4">
-          <h2 className="self-start text-3xl font-semibold">Select Tokens</h2>
-          <div className="flex w-full flex-col gap-6">
+          <h2 className="self-start text-3xl font-semibold">{`Select Tokens ${
+            poolType === PoolType.Weighted ? "& Weighting" : ""
+          }`}</h2>
+          <div className="flex w-full flex-col gap-2">
             {tokens.map((token, index) => (
               <CreatePoolInput
                 key={`token-${index}`}
@@ -261,14 +264,23 @@ export default function CreatePageContent() {
                 onRemoveToken={handleRemoveToken}
               />
             ))}
-            {tokens.length < maxTokensLength && (
-              <div className="mr-auto">
-                <Button onClick={addTokenInput} variant="ghost">
-                  + Add Token
+          </div>
+
+          {tokens.length < maxTokensLength && (
+            <>
+              <Separator className="text-muted-foreground opacity-50" />
+              <div className="mr-auto -translate-x-4">
+                <Button
+                  onClick={addTokenInput}
+                  variant="ghost"
+                  className="text-foreground"
+                >
+                  <Icons.plusCircle className="h-6 w-6" />
+                  <p className="pl-2"> Add Token</p>
                 </Button>
               </div>
-            )}
-          </div>
+            </>
+          )}
           {weightsError && (
             <Alert variant="destructive" className="my-4">
               <AlertTitle>Error</AlertTitle>
