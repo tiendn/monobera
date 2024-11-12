@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { balancerVaultAbi, useBeraJs, type Token } from "@bera/berajs";
+import {
+  balancerVaultAbi,
+  useBeraJs,
+  useCreatePool,
+  type Token,
+} from "@bera/berajs";
 import {
   balancerDelegatedOwnershipAddress,
   balancerPoolCreationHelper,
@@ -11,7 +16,6 @@ import {
 import {
   ActionButton,
   ApproveButton,
-  SwapFeeInput,
   useAnalytics,
   useTxn,
 } from "@bera/shared-ui";
@@ -25,7 +29,6 @@ import { isAddress, parseUnits, zeroAddress } from "viem";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
-import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";

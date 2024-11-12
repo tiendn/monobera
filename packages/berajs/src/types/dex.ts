@@ -16,6 +16,10 @@ export type Token = {
   weight?: number;
 };
 
+export interface TokenWithAmount extends Token {
+  amount: string;
+}
+
 export interface BalanceToken extends Token {
   balance: bigint;
   formattedBalance: string;

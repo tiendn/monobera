@@ -1,9 +1,4 @@
-import { useEffect, useMemo } from "react";
-import {
-  ADDRESS_ZERO,
-  balancerPoolCreationHelperAbi,
-  type Token,
-} from "@bera/berajs";
+import { useMemo } from "react";
 import { balancerPoolCreationHelper } from "@bera/config";
 import { bexSubgraphClient } from "@bera/graphql";
 import {
@@ -13,12 +8,15 @@ import {
 } from "@bera/graphql/dex/subgraph";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import useSWRImmutable from "swr/immutable";
-import { formatUnits, keccak256, parseUnits } from "viem";
+import { keccak256, parseUnits } from "viem";
 
-import { TokenInput } from "./useMultipleTokenInput";
+import { generatePoolName, generatePoolSymbol } from "~/utils/poolNamings";
+import { balancerPoolCreationHelperAbi } from "~/abi";
+import { ADDRESS_ZERO } from "~/config";
+import { TokenWithAmount } from "~/types";
 
 interface UseCreatePoolProps {
-  tokens: TokenInput[];
+  tokens: TokenWithAmount[];
   normalizedWeights: bigint[]; // NOTE: if you pass weights that have off-by-1 errors pool create will fail (ex: 0.3 repeating)
   poolType: PoolType;
   swapFee: number;
@@ -88,43 +86,14 @@ export const useCreatePool = ({
     },
   );
 
-  const generatePoolName = (tokens: Token[], poolType: PoolType): string => {
-    if (tokens.length === 0) {
-      return "";
-    }
-    return tokens.map((token) => token.symbol).join(" | ");
-  };
-
-  const generatePoolSymbol = (
-    tokens: Token[],
-    weights: bigint[],
-    poolType: PoolType,
-  ): string => {
-    const poolTypeString = poolType.toString().toUpperCase();
-    if (poolType === PoolType.Weighted) {
-      if (weights.length === 0) {
-        return "";
-      }
-      return `${tokens
-        .map((token, index) => {
-          const weight = weights[index];
-          const weightPercentage = parseFloat(formatUnits(weight, 18)) * 100;
-          return `${weightPercentage.toFixed(0)}${token.symbol}`;
-        })
-        .join("-")}-${poolTypeString}`;
-    }
-    return `${tokens.map((token) => token.symbol).join("-")}-${poolTypeString}`;
-  };
-
   const [generatedPoolName, generatedPoolSymbol] = useMemo(() => {
     return [
-      generatePoolName(tokens, poolType),
+      generatePoolName(tokens),
       generatePoolSymbol(tokens, normalizedWeights, poolType),
     ];
   }, [tokens, poolType, normalizedWeights]);
 
   const sharedCalculations = useMemo(() => {
-    // FIXME: we need a preview page for all of this information
     // Shared data preparation for both pool types
     const tokensAddresses = tokens.map((token) => token.address);
     const rateProviders = tokens.map(() => ADDRESS_ZERO);
@@ -203,7 +172,7 @@ export const useCreatePool = ({
             salt,
           ],
       value: 0n,
-      gasLimit: 7920027n, // NOTE: this is metamask mask, which we use for an upper limit in simulation because this is an expensive tx
+      gasLimit: 7920027n, // NOTE: this is metamask max, which we use for an upper limit in simulation because this is an expensive tx
     };
   }, [
     owner,
