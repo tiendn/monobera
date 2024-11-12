@@ -52,6 +52,7 @@ const server = [
   "./src/toast.tsx",
   "./src/skeleton.tsx",
   "./src/multiple-selector.tsx",
+  "./src/radio-group.tsx",
 ];
 
 export default defineConfig((opts) => {

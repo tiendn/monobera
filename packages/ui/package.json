@@ -26,6 +26,7 @@
     "@radix-ui/react-navigation-menu": "^1.1.3",
     "@radix-ui/react-popover": "^1.0.5",
     "@radix-ui/react-progress": "^1.0.2",
+    "@radix-ui/react-radio-group": "^1.2.1",
     "@radix-ui/react-scroll-area": "^1.0.3",
     "@radix-ui/react-select": "^1.2.1",
     "@radix-ui/react-separator": "^1.0.3",
@@ -256,6 +257,10 @@
     "./multiple-selector": {
       "import": "./dist/multiple-selector.mjs",
       "types": "./dist/multiple-selector.d.ts"
+    },
+    "./radio-group": {
+      "import": "./dist/radio-group.mjs",
+      "types": "./dist/radio-group.d.ts"
     }
   },
   "typesVersions": {
@@ -388,6 +393,9 @@
       ],
       "pagination": [
         "dist/pagination.d.ts"
+      ],
+      "radio-group": [
+        "dist/radio-group.d.ts"
       ]
     }
   },

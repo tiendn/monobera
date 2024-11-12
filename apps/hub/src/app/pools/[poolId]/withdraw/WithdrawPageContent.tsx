@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TokenBalance, TransactionActionType, type Token } from "@bera/berajs";
-import { cloudinaryUrl } from "@bera/config";
+import {
+  TokenBalance,
+  TransactionActionType,
+  formatUsd,
+  useBeraJs,
+  type Token,
+} from "@bera/berajs";
+import {
+  beraTokenAddress,
+  cloudinaryUrl,
+  gasTokenName,
+  nativeTokenAddress,
+} from "@bera/config";
 import {
   ActionButton,
   FormattedNumber,
@@ -17,7 +28,10 @@ import {
   useTxn,
 } from "@bera/shared-ui";
 
-import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
+import {
+  RemoveLiquidityKind,
+  vaultV2Abi,
+} from "@berachain-foundation/berancer-sdk";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
@@ -28,10 +42,16 @@ import { Skeleton } from "@bera/ui/skeleton";
 import { PoolStateWithBalances } from "@berachain-foundation/berancer-sdk";
 import { usePool } from "~/b-sdk/usePool";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
-import { useRemoveLiquidityProportional } from "./useWithdrawLiquidity";
-import { formatEther, parseEther } from "viem";
+import { useRemoveLiquidity } from "./useWithdrawLiquidity";
+import { Address, formatEther, parseEther } from "viem";
 import { getPoolUrl } from "../../fetchPools";
 import { BigNumber } from "bignumber.js";
+import { RadioGroup, RadioGroupItem } from "@bera/ui/radio-group";
+import { Label } from "@bera/ui/label";
+import { WithdrawLiquidityDetails } from "./WithdrawLiquidityDetails";
+import { Checkbox } from "@bera/ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
+import Link from "next/link";
 interface ITokenSummary {
   title: string;
   pool: PoolStateWithBalances | undefined;
@@ -46,11 +66,11 @@ const TokenSummary = ({
   isLoading,
 }: ITokenSummary) => {
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg border border-border p-3">
+    <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg border border-border p-6">
       <p className="w-full text-left text-lg font-semibold">{title}</p>
       {pool?.tokens
         .filter((t) => t.address !== pool.address)
-        .map((token, idx) => {
+        .map((token) => {
           return (
             <div
               key={token.address}
@@ -60,10 +80,16 @@ const TokenSummary = ({
                 Pooled {isLoading ? "..." : token?.symbol}
               </p>
               <div className="flex flex-row items-center gap-1 font-medium">
-                {isLoading
-                  ? "..."
-                  : tokenBalances?.at(token.index)?.formattedBalance ??
-                    "0"}{" "}
+                {isLoading ? (
+                  "..."
+                ) : tokenBalances?.at(token.index)?.formattedBalance ? (
+                  <FormattedNumber
+                    value={tokenBalances.at(token.index)!.formattedBalance}
+                    symbol={token?.symbol}
+                  />
+                ) : (
+                  "0"
+                )}
                 <TokenIcon address={token?.address} symbol={token?.symbol} />
               </div>
             </div>
@@ -78,7 +104,9 @@ export default function WithdrawLiquidityContent({
 }: {
   poolId: string;
 }) {
-  const { data, isLoading } = usePool({ id: poolId });
+  const { isConnected } = useBeraJs();
+
+  const { data, isLoading: isPoolLoading } = usePool({ id: poolId });
   const [v2Pool, v3Pool] = data ?? [];
 
   const reset = () => {
@@ -86,19 +114,7 @@ export default function WithdrawLiquidityContent({
     setPercentage(0);
   };
 
-  useEffect(() => {
-    v2Pool &&
-      v3Pool &&
-      console.log({
-        v2Pool,
-        v3Pool,
-      });
-  }, [v2Pool, v3Pool]);
-
-  const router = useRouter();
-
   const [previewOpen, setPreviewOpen] = useState(false);
-
   const [percentage, setPercentage] = useState<number>(0);
 
   const slippage = useSlippage();
@@ -109,10 +125,24 @@ export default function WithdrawLiquidityContent({
     refresh,
   } = usePoolUserPosition({ pool: v2Pool });
 
-  const { bptIn, queryOutput, setBptIn, getCallData } =
-    useRemoveLiquidityProportional({
-      pool: v3Pool,
-    });
+  const {
+    queryOutput,
+    error,
+    isLoading: isWithdrawLoading,
+    getCallData,
+    setBptIn,
+    kind,
+    setKind,
+    priceImpact,
+    tokenOut,
+    setTokenOut,
+    wethIsEth,
+    setWethIsEth,
+  } = useRemoveLiquidity({
+    pool: v3Pool,
+  });
+
+  const isLoading = isPoolLoading || isWithdrawLoading;
 
   const { write, ModalPortal } = useTxn({
     message: `Withdraw liquidity from ${v2Pool?.name}`,
@@ -143,17 +173,34 @@ export default function WithdrawLiquidityContent({
     console.log({ queryOutput });
   }, [queryOutput]);
 
+  const kinds: {
+    kind: RemoveLiquidityKind;
+    title: string;
+    description: string;
+  }[] = [
+    {
+      kind: RemoveLiquidityKind.Proportional,
+      title: "Proportional",
+      description: "Withdraw tokens proportionally",
+    },
+    {
+      kind: RemoveLiquidityKind.SingleTokenExactIn,
+      title: "Single Token",
+      description: "Select a single token to withdraw into",
+    },
+  ];
+
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
       {ModalPortal}
       <Card className="mx-6 w-full items-center bg-background p-4 sm:mx-0 sm:w-[480px] flex flex-col">
-        {isLoading ? (
+        {!v2Pool && isPoolLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
           <p className="text-center text-2xl font-semibold">{v2Pool?.name}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
-          {isLoading ? (
+          {!v2Pool && isPoolLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
             v2Pool?.tokens
@@ -170,13 +217,13 @@ export default function WithdrawLiquidityContent({
               })
           )}
         </div>
-        <div
-          onClick={() => v2Pool && router.push(getPoolUrl(v2Pool))}
+        <Link
+          href={v2Pool ? getPoolUrl(v2Pool) : "#"}
           className="flex items-center justify-center text-sm font-normal leading-tight text-muted-foreground hover:cursor-pointer hover:underline"
         >
           View Pool Details
           <Icons.arrowRight className="W-4 h-4" />
-        </div>
+        </Link>
       </Card>
       <Card className="mx-6 w-full sm:w-[480px] md:mx-0 ">
         <CardHeader>
@@ -185,6 +232,92 @@ export default function WithdrawLiquidityContent({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-4 w-full">
+            {kinds.map((item) => (
+              <Card
+                onClick={() => setKind(item.kind)}
+                className={cn(
+                  "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
+                  item.kind === kind && "border-info-foreground ",
+                )}
+              >
+                <span className="text-lg font-semibold">{item.title}</span>
+                <span className="text-sm text-muted-foreground">
+                  {item.description}
+                </span>
+              </Card>
+            ))}
+          </div>
+          <RadioGroup
+            value={tokenOut}
+            defaultValue={v3Pool?.tokens.at(0)?.address}
+            onValueChange={(value) => setTokenOut(value as Address)}
+            className="grid grid-cols-1 gap-2"
+          >
+            {v2Pool?.tokens
+              ?.filter((t) => t.address !== v2Pool.address)
+              .map((token) => (
+                <div
+                  className="flex items-center gap-3 font-medium"
+                  key={token.index}
+                >
+                  {kind === RemoveLiquidityKind.Proportional ? (
+                    <div className="flex items-center justify-between w-full gap-2">
+                      <span className="flex gap-2 items-center">
+                        <TokenIcon
+                          address={token.address}
+                          symbol={token.symbol}
+                        />
+                        <FormattedNumber
+                          value={formatEther(
+                            queryOutput?.amountsOut.at(token.index ?? -1)
+                              ?.scale18 ?? 0n,
+                          )}
+                          symbol={token.symbol}
+                        />
+                      </span>
+                      <span className="text-muted-foreground">
+                        {token.token.latestUSDPrice
+                          ? formatUsd(
+                              Number(
+                                formatEther(
+                                  queryOutput?.amountsOut.at(token.index ?? -1)
+                                    ?.scale18 ?? 0n,
+                                ),
+                              ) * token.token.latestUSDPrice,
+                            )
+                          : null}
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div
+                        className={cn(
+                          "w-4 h-4 border border-foreground rounded-full flex items-center justify-center",
+                          tokenOut !== token.address && "opacity-50",
+                        )}
+                      >
+                        <RadioGroupItem
+                          id={`${token.address}-radio`}
+                          value={token.address}
+                          className="w-3 h-3 aria-checked:bg-foreground rounded-full"
+                        />
+                      </div>
+                      <Label
+                        htmlFor={`${token.address}-radio`}
+                        className="text-sm font-semibold flex gap-1 items-center cursor-pointer"
+                      >
+                        <TokenIcon
+                          address={token.address}
+                          symbol={token.symbol}
+                        />
+                        <span>{token.symbol}</span>
+                      </Label>
+                    </>
+                  )}
+                </div>
+              ))}
+          </RadioGroup>
           <div className="w-full rounded-lg border p-4">
             <div className="flex w-full flex-row items-center justify-between gap-1">
               <p className="text-sm font-semibold sm:text-lg">
@@ -218,32 +351,94 @@ export default function WithdrawLiquidityContent({
               }}
             />
           </div>
-          <InfoBoxList>
-            {v3Pool?.tokens
-              .filter((t) => t.address !== v3Pool.address)
-              .map((token) => (
-                <InfoBoxListItem
-                  key={token.index}
-                  title={`Removing ${isLoading ? "..." : token?.symbol ?? ""}`}
-                  value={
-                    <div className="flex flex-row items-center justify-end gap-1">
-                      <FormattedNumber
-                        value={formatEther(
-                          queryOutput?.amountsOut[token.index].scale18 ?? 0n,
+          {kind === RemoveLiquidityKind.SingleTokenExactIn && (
+            <div>
+              <h3 className="text-muted-foreground font-semibold text-sm mb-4">
+                Receive
+              </h3>
+
+              {v3Pool?.tokens
+                .filter((tk) => tk.address === tokenOut?.toLowerCase())
+                .map((tk) => {
+                  const amount = queryOutput?.amountsOut.find(
+                    (t) => t.token.address === tk.address,
+                  );
+
+                  const isWrappedBera =
+                    tk.address === beraTokenAddress.toLowerCase();
+
+                  const tokenUSDPrice = v2Pool?.tokens?.find(
+                    (t) => t.address === tk.address.toLowerCase(),
+                  )?.token.latestUSDPrice;
+
+                  const amountUSD =
+                    Number(formatEther(amount?.scale18 ?? 0n)) * tokenUSDPrice;
+
+                  return (
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-row items-center text-sm gap-2 text-foreground font-medium">
+                        <TokenIcon
+                          address={
+                            isWrappedBera && wethIsEth
+                              ? nativeTokenAddress
+                              : tk.address
+                          }
+                        />
+                        <FormattedNumber
+                          value={formatEther(amount?.scale18 ?? 0n)}
+                          symbol={
+                            isWrappedBera && wethIsEth
+                              ? gasTokenName.toUpperCase()
+                              : tk.symbol
+                          }
+                        />
+                      </div>
+                      <div className="text-muted-foreground">
+                        {amountUSD ? (
+                          <FormattedNumber value={amountUSD} symbol={"USD"} />
+                        ) : (
+                          <span />
                         )}
-                        compact={false}
-                      />
-                      <TokenIcon
-                        address={token?.address}
-                        size={"md"}
-                        symbol={token?.symbol}
-                      />
+                      </div>
                     </div>
-                  }
-                />
-              ))}
-            <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
-          </InfoBoxList>
+                  );
+                })}
+            </div>
+          )}
+          <WithdrawLiquidityDetails
+            exchangeRate={"Price impact"}
+            priceImpact={priceImpact}
+          />
+          {(tokenOut === beraTokenAddress.toLowerCase() ||
+            queryOutput?.amountsOut.find(
+              (t) => t.token.wrapped === beraTokenAddress.toLowerCase(),
+            )?.amount) && (
+            <div className="flex flex-row items-center gap-2 text-sm">
+              <Checkbox
+                id="weth-is-eth"
+                checked={wethIsEth}
+                onClick={() => setWethIsEth((t) => !t)}
+              />
+              <Label
+                htmlFor="weth-is-eth"
+                className="text-sm text-muted-foreground"
+              >
+                Withdraw as Wrapped BERA
+              </Label>
+            </div>
+          )}
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>
+                <Icons.tooltip className="mt-[-4px] inline h-4 w-4" /> Error
+              </AlertTitle>
+              <AlertDescription className="text-xs">
+                {error.balanceError
+                  ? `Balancer error ${error.balanceError}`
+                  : error.message}
+              </AlertDescription>
+            </Alert>
+          )}
           <TxnPreview
             open={previewOpen}
             title={"Confirm LP Withdrawal Details"}
@@ -251,35 +446,34 @@ export default function WithdrawLiquidityContent({
             triggerText={"Preview"}
             setOpen={setPreviewOpen}
             disabled={
+              isLoading ||
+              !!error ||
               percentage === 0 ||
               isPositionBreakdownLoading ||
               userPositionBreakdown === undefined
             }
           >
             <TokenList className="divide-muted bg-muted">
-              {v3Pool?.tokens.map((token) => (
-                <PreviewToken
-                  key={token.address}
-                  // @ts-ignore
-                  token={token}
-                  value={formatEther(
-                    queryOutput?.amountsOut[token.index].scale18 ?? 0n,
-                  )}
-                />
-              ))}
+              {v2Pool?.tokens
+                ?.filter((t) => t.address !== v2Pool.address.toLowerCase())
+                .map((token) => (
+                  <PreviewToken
+                    key={token.address}
+                    // @ts-ignore
+                    token={token}
+                    price={token.token.latestUSDPrice}
+                    value={formatEther(
+                      queryOutput?.amountsOut.at(token.index ?? -1)?.scale18 ??
+                        0n,
+                    )}
+                  />
+                ))}
             </TokenList>
             <InfoBoxList>
-              {/* <InfoBoxListItem
-                title={"Estimated Value"}
-                value={
-                  <FormattedNumber
-                    value={totalHoneyPrice}
-                    symbol="USD"
-                    compact={false}
-                  />
-                }
-              /> */}
               <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
+              <div>
+                <h3 className="">Receive tokens</h3>
+              </div>
             </InfoBoxList>
             <ActionButton>
               <Button
@@ -302,14 +496,16 @@ export default function WithdrawLiquidityContent({
           </TxnPreview>
         </CardContent>
       </Card>
-      <div className=" sm:w-[480px] mx-auto">
-        <TokenSummary
-          pool={v3Pool}
-          tokenBalances={userPositionBreakdown?.tokenBalances}
-          title="Your Tokens In the Pool"
-          isLoading={isPositionBreakdownLoading}
-        />
-      </div>
+      {isConnected ? (
+        <div className="sm:w-[480px] mx-auto">
+          <TokenSummary
+            pool={v3Pool}
+            tokenBalances={userPositionBreakdown?.tokenBalances}
+            title="Your Tokens In the Pool"
+            isLoading={isPositionBreakdownLoading}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
