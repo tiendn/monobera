@@ -126,6 +126,10 @@ export const useRemoveLiquidity = ({ pool }: UseRemoveLiquidityArgs) => {
   }, [pool, _delayedBptIn, kind, tokenOut]);
 
   useEffect(() => {
+    setQueryOutput(undefined);
+  }, [kind]);
+
+  useEffect(() => {
     setIsLoading(true);
     timeout.current = setTimeout(() => {
       setDelayedBptIn(bptIn);

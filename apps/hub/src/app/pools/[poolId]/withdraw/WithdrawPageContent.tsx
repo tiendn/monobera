@@ -52,6 +52,7 @@ import { WithdrawLiquidityDetails } from "./WithdrawLiquidityDetails";
 import { Checkbox } from "@bera/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import Link from "next/link";
+import { nativeToken } from "~/b-sdk/b-sdk";
 interface ITokenSummary {
   title: string;
   pool: PoolStateWithBalances | undefined;
@@ -222,7 +223,7 @@ export default function WithdrawLiquidityContent({
           className="flex items-center justify-center text-sm font-normal leading-tight text-muted-foreground hover:cursor-pointer hover:underline"
         >
           View Pool Details
-          <Icons.arrowRight className="W-4 h-4" />
+          <Icons.arrowRight className="w-4 h-4" />
         </Link>
       </Card>
       <Card className="mx-6 w-full sm:w-[480px] md:mx-0 ">
@@ -265,15 +266,30 @@ export default function WithdrawLiquidityContent({
                     <div className="flex items-center justify-between w-full gap-2">
                       <span className="flex gap-2 items-center">
                         <TokenIcon
-                          address={token.address}
-                          symbol={token.symbol}
+                          address={
+                            wethIsEth &&
+                            token.address === beraTokenAddress.toLowerCase()
+                              ? nativeTokenAddress
+                              : token.symbol
+                          }
+                          symbol={
+                            wethIsEth &&
+                            token.address === beraTokenAddress.toLowerCase()
+                              ? nativeToken.symbol?.toUpperCase()
+                              : token.symbol
+                          }
                         />
                         <FormattedNumber
                           value={formatEther(
                             queryOutput?.amountsOut.at(token.index ?? -1)
                               ?.scale18 ?? 0n,
                           )}
-                          symbol={token.symbol}
+                          symbol={
+                            wethIsEth &&
+                            token.address === beraTokenAddress.toLowerCase()
+                              ? nativeToken.symbol?.toUpperCase()
+                              : token.symbol
+                          }
                         />
                       </span>
                       <span className="text-muted-foreground">
@@ -384,14 +400,18 @@ export default function WithdrawLiquidityContent({
                               : tk.address
                           }
                         />
-                        <FormattedNumber
-                          value={formatEther(amount?.scale18 ?? 0n)}
-                          symbol={
-                            isWrappedBera && wethIsEth
-                              ? gasTokenName.toUpperCase()
-                              : tk.symbol
-                          }
-                        />
+                        {isWithdrawLoading ? (
+                          <Skeleton className="w-3 h-4" />
+                        ) : (
+                          <FormattedNumber
+                            value={formatEther(amount?.scale18 ?? 0n)}
+                            symbol={
+                              isWrappedBera && wethIsEth
+                                ? gasTokenName.toUpperCase()
+                                : tk.symbol
+                            }
+                          />
+                        )}
                       </div>
                       <div className="text-muted-foreground">
                         {amountUSD ? (
@@ -423,7 +443,7 @@ export default function WithdrawLiquidityContent({
                 htmlFor="weth-is-eth"
                 className="text-sm text-muted-foreground"
               >
-                Withdraw as Wrapped BERA
+                Withdraw as native BERA
               </Label>
             </div>
           )}
@@ -460,8 +480,16 @@ export default function WithdrawLiquidityContent({
                   <PreviewToken
                     key={token.address}
                     // @ts-ignore
-                    token={token}
-                    price={token.token.latestUSDPrice}
+                    token={
+                      wethIsEth &&
+                      token.address === beraTokenAddress.toLowerCase()
+                        ? {
+                            ...nativeToken,
+                            symbol: nativeToken.symbol?.toUpperCase(),
+                          }
+                        : token
+                    }
+                    // price={token.token.latestUSDPrice}
                     value={formatEther(
                       queryOutput?.amountsOut.at(token.index ?? -1)?.scale18 ??
                         0n,
@@ -469,12 +497,6 @@ export default function WithdrawLiquidityContent({
                   />
                 ))}
             </TokenList>
-            <InfoBoxList>
-              <InfoBoxListItem title={"Slippage"} value={`${slippage}%`} />
-              <div>
-                <h3 className="">Receive tokens</h3>
-              </div>
-            </InfoBoxList>
             <ActionButton>
               <Button
                 className="w-full"
