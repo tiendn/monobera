@@ -32,6 +32,7 @@ import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
+import PoolTypeSelector from "../components/pools/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
 
 const emptyToken: TokenInput = {
@@ -222,51 +223,7 @@ export default function CreatePageContent() {
         <div className="text-sm font-medium">All Pools</div>
       </Button>
       <div className="flex w-full flex-col items-center justify-center gap-16">
-        <section className="flex w-full flex-col gap-4">
-          <h2 className="self-start text-3xl font-semibold">
-            Select a Pool Type
-          </h2>
-          <div className="flex w-full flex-row gap-6">
-            <Card
-              onClick={() => setPoolType(PoolType.ComposableStable)}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                poolType === PoolType.ComposableStable &&
-                  "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Stable</span>
-              {/* NOTE: we are actually creating ComposableStable pools under the hood, which are functionally the same. */}
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Recommended for stable pairs
-              </span>
-            </Card>
-            <Card
-              onClick={() => setPoolType(PoolType.Weighted)}
-              className={cn(
-                "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-                poolType === PoolType.Weighted && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">Weighted</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                Customize the weights of tokens
-              </span>
-            </Card>
-            <Card
-              onClick={() => {}} //setPoolType(PoolType.MetaStable)}
-              className={cn(
-                "flex w-full cursor-not-allowed flex-col gap-0 border border-border p-4 opacity-50", // FIXME enable when we get rateProviders working
-                poolType === PoolType.MetaStable && "border-info-foreground ",
-              )}
-            >
-              <span className="text-lg font-semibold">MetaStable</span>
-              <span className="mt-[-4px] text-sm text-muted-foreground">
-                The most efficient pool type for two highly correlated tokens
-              </span>
-            </Card>
-          </div>
-        </section>
+        <PoolTypeSelector poolType={poolType} onPoolTypeChange={setPoolType} />
 
         <section className="flex w-full flex-col gap-4">
           <h2 className="self-start text-3xl font-semibold">Select Tokens</h2>
