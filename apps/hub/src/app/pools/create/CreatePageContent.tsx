@@ -69,8 +69,8 @@ export default function CreatePageContent() {
       type === "governance"
         ? balancerDelegatedOwnershipAddress
         : type === "fixed"
-        ? "0x0000000000000000000000000000000000000000"
-        : account || zeroAddress,
+          ? "0x0000000000000000000000000000000000000000"
+          : account || zeroAddress,
     );
   };
 
