@@ -9,7 +9,11 @@ import { InputWithLabel } from "@bera/ui/input";
 
 import BeraTooltip from "~/components/bera-tooltip";
 
-export type OwnershipType = "governance" | "fixed" | "custom";
+export enum OwnershipType {
+  Governance = "governance",
+  Fixed = "fixed",
+  Custom = "custom",
+}
 
 interface OwnershipInputProps {
   ownershipType: OwnershipType;
@@ -50,10 +54,11 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
 
       <div className="flex w-full flex-row gap-6">
         <Card
-          onClick={() => onChangeOwnershipType("governance")}
+          onClick={() => onChangeOwnershipType(OwnershipType.Governance)}
           className={cn(
             "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-            ownershipType === "governance" && "border-info-foreground ",
+            ownershipType === OwnershipType.Governance &&
+              "border-info-foreground ",
           )}
         >
           <span className="text-lg font-semibold">Governance</span>
@@ -62,10 +67,10 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
           </span>
         </Card>
         <Card
-          onClick={() => onChangeOwnershipType("fixed")}
+          onClick={() => onChangeOwnershipType(OwnershipType.Fixed)}
           className={cn(
             "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-            ownershipType === "fixed" && "border-info-foreground ",
+            ownershipType === OwnershipType.Fixed && "border-info-foreground ",
           )}
         >
           <span className="text-lg font-semibold">Fixed</span>
@@ -74,10 +79,10 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
           </span>
         </Card>
         <Card
-          onClick={() => onChangeOwnershipType("custom")}
+          onClick={() => onChangeOwnershipType(OwnershipType.Custom)}
           className={cn(
             "flex w-full cursor-pointer flex-col gap-0 border border-border p-4",
-            ownershipType === "custom" && "border-info-foreground ",
+            ownershipType === OwnershipType.Custom && "border-info-foreground ",
           )}
         >
           <span className="text-lg font-semibold">Custom Address</span>
@@ -89,7 +94,7 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
       <div className="pt-2">
         <InputWithLabel
           label="Owner Address"
-          disabled={ownershipType !== "custom"}
+          disabled={ownershipType !== OwnershipType.Custom}
           variant="black"
           className="bg-transparent"
           value={owner}
