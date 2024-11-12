@@ -27,6 +27,7 @@ import { isAddress, parseUnits, zeroAddress } from "viem";
 import BeraTooltip from "~/components/bera-tooltip";
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
+import { useWeights } from "~/b-sdk/useWeights";
 import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
@@ -43,7 +44,6 @@ const emptyToken: TokenInput = {
 };
 
 type OwnershipType = "governance" | "fixed" | "custom";
-const ONE_IN_18_DECIMALS = BigInt(10 ** 18); // i.e 100% in 18 decimals
 
 export default function CreatePageContent() {
   const router = useRouter();
@@ -122,94 +122,29 @@ export default function CreatePageContent() {
     }
   }, [isRelayerApprovalError]);
 
-  const [weights, setWeights] = useState<bigint[]>([
-    500000000000000000n,
-    500000000000000000n,
-  ]);
-  const [lockedWeights, setLockedWeights] = useState<boolean[]>([false, false]);
-  const [isNormalizing, setIsNormalizing] = useState(false);
-  const [weightsError, setWeightsError] = useState<string | null>(null);
+  const {
+    weights,
+    lockedWeights,
+    weightsError,
+    handleWeightChange,
+    toggleLock,
+    addWeight,
+    removeWeight,
+  } = useWeights([500000000000000000n, 500000000000000000n]);
 
-  // Function to normalize weights based on locked and unlocked tokens, apply correction to lowest unlocked token / raise error
-  const normalizeWeights = (updatedWeights: bigint[]) => {
-    const allLocked = lockedWeights.every((locked) => locked);
-    if (allLocked) {
-      return updatedWeights;
+  const addTokenInput = () => {
+    if (tokens.length < maxTokensLength) {
+      setTokens([...tokens, emptyToken]);
+      addWeight();
     }
-
-    const totalLockedWeight = updatedWeights.reduce(
-      (sum, weight, i) => (lockedWeights[i] ? sum + weight : sum),
-      BigInt(0),
-    );
-
-    const remainingWeight = ONE_IN_18_DECIMALS - totalLockedWeight;
-    const unlockedCount = updatedWeights.reduce(
-      (count, _, i) => (!lockedWeights[i] ? count + 1 : count),
-      0,
-    );
-
-    const normalizedWeights = updatedWeights.map((weight, i) =>
-      !lockedWeights[i] ? remainingWeight / BigInt(unlockedCount) : weight,
-    );
-
-    const weightSum = normalizedWeights.reduce(
-      (sum, weight) => sum + weight,
-      BigInt(0),
-    );
-    const correction = ONE_IN_18_DECIMALS - weightSum;
-
-    if (correction !== 0n) {
-      const minUnlockedWeightIndex = normalizedWeights.reduce(
-        (minIndex, weight, i) =>
-          !lockedWeights[i] &&
-          (minIndex === -1 || weight < normalizedWeights[minIndex])
-            ? i
-            : minIndex,
-        -1,
-      );
-
-      if (minUnlockedWeightIndex !== -1) {
-        normalizedWeights[minUnlockedWeightIndex] += correction;
-      }
-    }
-
-    return normalizedWeights;
   };
 
-  // Debounced normalization so user can type in weights without it constantly normalizing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsNormalizing(true);
-      setWeights((prevWeights) => normalizeWeights(prevWeights));
-      setIsNormalizing(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [weights, lockedWeights]);
-
-  // Display errors when weights are invalid (gates pool creation)
-  useEffect(() => {
-    if (poolType === PoolType.Weighted) {
-      const totalWeight = weights.reduce(
-        (sum, weight) => sum + weight,
-        BigInt(0),
-      );
-      if (
-        weights.some((weight) => weight <= 0n || weight >= ONE_IN_18_DECIMALS)
-      ) {
-        setWeightsError("Weights must be larger than 0% and less than 100%");
-      } else if (totalWeight > ONE_IN_18_DECIMALS) {
-        setWeightsError("Total weight exceeds 100%");
-      } else if (totalWeight < ONE_IN_18_DECIMALS) {
-        setWeightsError("Total weight is less than 100%");
-      } else {
-        setWeightsError(null);
-      }
-    } else {
-      // NOTE: even though we may update weights array in stable create UX we will never pass it to the create on-chain
-      setWeightsError(null);
+  const handleRemoveToken = (index: number) => {
+    if (tokens.length > minTokensLength) {
+      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
+      removeWeight(index);
     }
-  }, [weights, poolType]);
+  };
 
   // Update token selection and reset weights when we change tokens
   const handleTokenSelection = (token: Token | undefined, index: number) => {
@@ -224,81 +159,7 @@ export default function CreatePageContent() {
       }
       return updatedTokens;
     });
-
-    setWeights((prevWeights) => {
-      const tokenCount = prevWeights.length;
-      const equalWeight = ONE_IN_18_DECIMALS / BigInt(tokenCount);
-      return prevWeights.map((w, i) => (!lockedWeights[i] ? equalWeight : w));
-    });
   };
-
-  // Handle when a user types in a new weight - NOTE: we allow changes even if they exceed 100% on locked weight
-  const handleWeightChange = (index: number, newWeight: bigint) => {
-    setLockedWeights((prevLocked) => {
-      const updatedLocked = [...prevLocked];
-      updatedLocked[index] = true;
-      return updatedLocked;
-    });
-
-    setWeights((prevWeights) => {
-      const updatedWeights = prevWeights.map((weight, i) =>
-        i === index ? newWeight : weight,
-      );
-      return updatedWeights;
-    });
-  };
-
-  // Toggle lock status for specific weight
-  const handleLockToggle = (index: number) => {
-    setLockedWeights((prevLocked) => {
-      const updatedLocked = [...prevLocked];
-      updatedLocked[index] = !updatedLocked[index];
-      return updatedLocked;
-    });
-  };
-
-  // Remove a token and adjust remaining weights (respecting unlocked/locked)
-  const handleRemoveToken = (index: number) => {
-    if (tokens.length > minTokensLength) {
-      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
-      setWeights((prevWeights) => {
-        const updatedWeights = prevWeights.filter((_, i) => i !== index);
-        return normalizeWeights(updatedWeights);
-      });
-
-      setLockedWeights((prevLocked) =>
-        prevLocked.filter((_, i) => i !== index),
-      );
-    }
-  };
-
-  // Add a new token and evenly distribute weights
-  const addTokenInput = () => {
-    if (tokens.length < maxTokensLength) {
-      setTokens([...tokens, emptyToken]);
-      setWeights((prevWeights) => {
-        const totalExistingWeight = prevWeights.reduce(
-          (sum, weight) => sum + weight,
-          BigInt(0),
-        );
-        const updatedWeights = [
-          ...prevWeights,
-          ONE_IN_18_DECIMALS - totalExistingWeight,
-        ];
-        return normalizeWeights(updatedWeights);
-      });
-      setLockedWeights([...lockedWeights, false]);
-    }
-  };
-
-  // Adjust tokens and weights if pool type changes, without resetting everything
-  useEffect(() => {
-    if (tokens.length > maxTokensLength) {
-      setTokens(tokens.slice(0, maxTokensLength));
-      setWeights(normalizeWeights(weights.slice(0, maxTokensLength)));
-      setLockedWeights(lockedWeights.slice(0, maxTokensLength));
-    }
-  }, [poolType]);
 
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
@@ -424,7 +285,7 @@ export default function CreatePageContent() {
                   handleTokenSelection(selectedToken, index)
                 }
                 onWeightChange={handleWeightChange}
-                onLockToggle={handleLockToggle}
+                onLockToggle={toggleLock}
                 onRemoveToken={handleRemoveToken}
               />
             ))}
@@ -717,7 +578,6 @@ export default function CreatePageContent() {
                   isSubmittingCreatePoolTx ||
                   isLoadingPools ||
                   errorLoadingPools ||
-                  isNormalizing ||
                   weightsError !== null ||
                   tokens.some((t) => t.amount === "0")
                 }
