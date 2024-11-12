@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 // NOTE: this manages weights for creating weighted pools using Balancer V2 Vault.
 const ONE_IN_18_DECIMALS = BigInt(10 ** 18);
 
-export function useWeights(initialWeights: bigint[]) {
+export function usePoolWeights(initialWeights: bigint[]) {
   const [weights, setWeights] = useState<bigint[]>(initialWeights);
   const [lockedWeights, setLockedWeights] = useState<boolean[]>(
     initialWeights.map(() => false),

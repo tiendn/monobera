@@ -15,10 +15,8 @@ import {
   useAnalytics,
   useTxn,
 } from "@bera/shared-ui";
-import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
-import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
@@ -27,7 +25,7 @@ import { isAddress, parseUnits, zeroAddress } from "viem";
 import BeraTooltip from "~/components/bera-tooltip";
 import CreatePoolInitialLiquidityInput from "~/components/create-pool/create-pool-initial-liquidity-input";
 import CreatePoolInput from "~/components/create-pool/create-pool-input";
-import { useWeights } from "~/b-sdk/useWeights";
+import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import { useCreatePool } from "~/hooks/useCreatePool";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
@@ -150,7 +148,7 @@ export default function CreatePageContent() {
     toggleLock,
     addWeight,
     removeWeight,
-  } = useWeights([500000000000000000n, 500000000000000000n]);
+  } = usePoolWeights([500000000000000000n, 500000000000000000n]);
 
   const addTokenInput = () => {
     if (tokens.length < maxTokensLength) {
