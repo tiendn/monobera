@@ -62,7 +62,7 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
           )}
         >
           <span className="text-lg font-semibold">Governance</span>
-          <span className="mt-[-4px] text-sm text-muted-foreground">
+          <span className="-mt-1 text-sm text-muted-foreground">
             Enables fee modification through governance
           </span>
         </Card>
@@ -74,7 +74,7 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
           )}
         >
           <span className="text-lg font-semibold">Fixed</span>
-          <span className="mt-[-4px] text-sm text-muted-foreground">
+          <span className="-mt-1 text-sm text-muted-foreground">
             Fee is fixed and unmodifiable
           </span>
         </Card>
@@ -86,7 +86,7 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
           )}
         >
           <span className="text-lg font-semibold">Custom Address</span>
-          <span className="mt-[-4px] text-sm text-muted-foreground">
+          <span className="-mt-1 text-sm text-muted-foreground">
             Update fees through a custom address
           </span>
         </Card>

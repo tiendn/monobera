@@ -93,7 +93,7 @@ export default function CreatePoolInitialLiquidityInput({
           <div className="flex w-full items-center justify-between gap-1">
             <div className="flex w-fit flex-row items-center justify-start gap-1 pl-1">
               <Icons.wallet className="h-3 w-3 text-muted-foreground" />
-              <p className="w-fit max-w-[48px] overflow-hidden truncate p-0 text-xs text-muted-foreground sm:max-w-[60px]">
+              <p className="w-fit max-w-12 overflow-hidden truncate p-0 text-xs text-muted-foreground sm:max-w-[60px]">
                 {tokenBalance ? tokenBalance : "0"}
               </p>
               <p

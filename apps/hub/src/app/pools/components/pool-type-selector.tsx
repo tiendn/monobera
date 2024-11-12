@@ -26,7 +26,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
           )}
         >
           <span className="text-lg font-semibold">Stable</span>
-          <span className="mt-[-4px] text-sm text-muted-foreground">
+          <span className="-mt-1 text-sm text-muted-foreground">
             Recommended for stable pairs
           </span>
         </Card>
@@ -38,7 +38,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
           )}
         >
           <span className="text-lg font-semibold">Weighted</span>
-          <span className="mt-[-4px] text-sm text-muted-foreground">
+          <span className="-mt-1 text-sm text-muted-foreground">
             Customize the weights of tokens
           </span>
         </Card>
@@ -50,7 +50,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
           )}
         >
           <span className="text-lg font-semibold">MetaStable</span>
-          <span className="mt-[-4px] text-sm text-muted-foreground">
+          <span className="-mt-1 text-sm text-muted-foreground">
             Efficient for highly correlated tokens
           </span>
         </Card>
