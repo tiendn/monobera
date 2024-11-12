@@ -167,13 +167,13 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
       {ModalPortal}
       <Card className="mx-6 w-full items-center bg-background p-4 sm:mx-0 sm:w-[480px] flex flex-col">
-        {isLoading ? (
+        {!pool && isLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
           <p className="text-center text-2xl font-semibold">{pool?.name}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
-          {isLoading ? (
+          {!pool && isLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
             pool?.tokens
@@ -315,7 +315,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
           <AddLiquidityDetails
             totalValue={totalValue?.toString()}
             priceImpact={priceImpact}
-            exchangeRate="0"
+            exchangeRate="Details"
           />
           {error && (
             <Alert variant="destructive">

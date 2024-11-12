@@ -9,6 +9,7 @@ import {
   GetSubgraphPool,
   GetSubgraphPoolQuery,
 } from "@bera/graphql/dex/subgraph";
+import { PoolPageWrapper } from "../details/PoolPageContent";
 
 export function generateMetadata(): Metadata {
   return {
@@ -17,7 +18,8 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export const revalidate = 30;
+export const revalidate = 600;
+
 export default async function PoolPage({
   params,
 }: {
@@ -35,7 +37,11 @@ export default async function PoolPage({
       notFound();
     }
 
-    return <AddLiquidityContent poolId={params.poolId as Address} />;
+    return (
+      <PoolPageWrapper pool={res.data.pool}>
+        <AddLiquidityContent poolId={params.poolId as Address} />
+      </PoolPageWrapper>
+    );
   } catch (e) {
     console.log(`Error fetching pools: ${e}`);
     notFound();
