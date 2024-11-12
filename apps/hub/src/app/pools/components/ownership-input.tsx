@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { SwapFeeInput } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Card } from "@bera/ui/card";
@@ -16,6 +17,8 @@ interface OwnershipInputProps {
   onChangeOwnershipType: (type: OwnershipType) => void;
   onOwnerChange: (address: string) => void;
   invalidAddressErrorMessage: string | null;
+  swapFee: number;
+  onSwapFeeChange: (fee: number) => void;
 }
 
 const OwnershipInput: React.FC<OwnershipInputProps> = ({
@@ -24,9 +27,14 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
   onChangeOwnershipType,
   onOwnerChange,
   invalidAddressErrorMessage,
+  swapFee,
+  onSwapFeeChange,
 }) => {
   return (
     <section className="flex w-full flex-col gap-4">
+      <h3 className="self-start text-3xl font-semibold">Set Swap Fee</h3>
+      <SwapFeeInput initialFee={swapFee} onFeeChange={onSwapFeeChange} />
+
       <div className="flex items-center gap-1">
         <div className="self-start font-semibold">Fee Ownership</div>
         <div className="pt-[-1]">

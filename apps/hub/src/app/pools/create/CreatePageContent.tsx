@@ -336,6 +336,8 @@ export default function CreatePageContent() {
           onChangeOwnershipType={handleOwnershipTypeChange}
           onOwnerChange={handleOwnerChange}
           invalidAddressErrorMessage={invalidAddressErrorMessage}
+          swapFee={swapFee}
+          onSwapFeeChange={setSwapFee}
         />
 
         <section className="flex w-full flex-col gap-4">
