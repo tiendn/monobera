@@ -91,26 +91,28 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
           </span>
         </Card>
       </div>
-      <div className="pt-2">
-        <InputWithLabel
-          label="Owner Address"
-          disabled={ownershipType !== OwnershipType.Custom}
-          variant="black"
-          className="bg-transparent"
-          value={owner}
-          maxLength={42}
-          onChange={(e) => {
-            const value = e.target.value;
-            onOwnerChange(value);
-          }}
-        />
-        {invalidAddressErrorMessage && (
-          <Alert variant="destructive" className="my-4">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{invalidAddressErrorMessage}</AlertDescription>
-          </Alert>
-        )}
-      </div>
+      {ownershipType === OwnershipType.Custom && (
+        <div className="pt-2">
+          <InputWithLabel
+            label="Owner Address"
+            disabled={ownershipType !== OwnershipType.Custom}
+            variant="black"
+            className="bg-transparent"
+            value={owner}
+            maxLength={42}
+            onChange={(e) => {
+              const value = e.target.value;
+              onOwnerChange(value);
+            }}
+          />
+          {invalidAddressErrorMessage && (
+            <Alert variant="destructive" className="my-4">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{invalidAddressErrorMessage}</AlertDescription>
+            </Alert>
+          )}
+        </div>
+      )}
     </section>
   );
 };
