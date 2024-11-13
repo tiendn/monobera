@@ -9,6 +9,7 @@ import {
   usePollBalance,
   ADDRESS_ZERO,
   useRewardVaultBalanceFromStakingToken,
+  useSelectedGauge,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
@@ -32,6 +33,7 @@ import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType, GqlPoolType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
+import { Icons } from "@bera/ui/icons";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -75,27 +77,27 @@ const TokenView = ({
                 className="flex h-8 items-center justify-between"
                 key={`token-list-${index}-${token.address}-${token.value}`}
               >
-                <div
-                  className="group flex cursor-pointer gap-1"
-                  onClick={() => {
-                    if (token.address) {
-                      window.open(
-                        `${blockExplorerUrl}/address/${token.address}`,
-                      );
-                    }
-                  }}
-                >
+                <div className=" flex gap-1">
                   <TokenIcon address={token.address} symbol={token.symbol} />
-                  <div className="ml-1 font-medium uppercase group-hover:underline">
+                  <a
+                    href={
+                      token.address
+                        ? `${blockExplorerUrl}/address/${token.address}`
+                        : "#"
+                    }
+                    target="_blank"
+                    className="ml-1 font-medium uppercase hover:underline"
+                    rel="noreferrer"
+                  >
                     {token.address === beraTokenAddress
                       ? "wbera"
                       : token.symbol}
-                    {showWeights && token.weight && (
-                      <span className="text-muted-foreground ml-2">
-                        {(Number(token.weight) * 100).toFixed(0)}%
-                      </span>
-                    )}
-                  </div>
+                  </a>{" "}
+                  {showWeights && token.weight && (
+                    <span className="text-muted-foreground ml-2">
+                      {(Number(token.weight) * 100).toFixed(0)}%
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -161,6 +163,7 @@ export default function PoolPageContent({
     stakingToken: pool?.address as Address,
   });
 
+  const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
 
   const didUserDeposit =
@@ -394,49 +397,125 @@ export default function PoolPageContent({
               </CardContent>
             </Card>
             {didUserDeposit ? (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex w-full items-center justify-between text-lg font-semibold">
-                    <h3 className="text-md font-semibold capitalize">
-                      Receipt Tokens
-                    </h3>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="block"
-                        size="md"
-                        as={Link}
-                        href={
-                          rewardVault && rewardVault?.address !== ADDRESS_ZERO
-                            ? getRewardsVaultUrl(rewardVault?.address ?? "0x")
-                            : "/vaults/create-gauge/"
-                        }
-                      >
-                        Deposit
-                      </Button>
+              <>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex w-full items-center justify-between text-lg font-semibold">
+                      <h3 className="text-md font-semibold capitalize">
+                        Receipt Tokens
+                      </h3>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="block"
+                          size="md"
+                          as={Link}
+                          href={
+                            rewardVault && rewardVault?.address !== ADDRESS_ZERO
+                              ? getRewardsVaultUrl(rewardVault?.address ?? "0x")
+                              : "/vaults/create-gauge/"
+                          }
+                        >
+                          Stake
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-4 grow self-stretch font-medium">
-                    <div className="flex justify-between w-full">
-                      <h4 className="font-semibold">Available</h4>
-                      <FormattedNumber
-                        className="text-muted-foreground"
-                        value={userBalance?.formattedBalance ?? 0}
-                      />
+                    <div className="mt-4 grow self-stretch font-medium">
+                      <div className="flex justify-between w-full">
+                        <h4 className="font-semibold">Available</h4>
+                        <FormattedNumber
+                          className="text-muted-foreground"
+                          value={userBalance?.formattedBalance ?? 0}
+                        />
+                      </div>
+                      <div className="flex justify-between w-full">
+                        <h4 className="font-semibold">Staked</h4>
+                        <FormattedNumber
+                          className="text-muted-foreground"
+                          value={formatUnits(
+                            BigInt(rewardVault?.balance ?? "0"),
+                            userBalance?.decimals ?? 18,
+                          )}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between w-full">
-                      <h4 className="font-semibold">Staked</h4>
-                      <FormattedNumber
-                        className="text-muted-foreground"
-                        value={formatUnits(
-                          BigInt(rewardVault?.balance ?? "0"),
-                          userBalance?.decimals ?? 18,
+                  </CardContent>
+                </Card>
+                <Card>
+                  {rewardVault?.address &&
+                  rewardVault.address !== ADDRESS_ZERO ? (
+                    <CardContent className="p-4">
+                      <div className="flex justify-between w-full">
+                        <div>
+                          <h3 className="text-md font-semibold capitalize">
+                            Reward Vault
+                          </h3>
+                          <div className="flex w-fit items-center gap-1 text-sm">
+                            <Link
+                              href={getRewardsVaultUrl(
+                                rewardVault?.address ?? "",
+                              )}
+                              className="hover:underline align-middle"
+                            >
+                              <span>
+                                {truncateHash(rewardVault?.address ?? "")}
+                              </span>{" "}
+                              <Icons.externalLink className="inline-block h-3 w-3 text-muted-foreground" />
+                            </Link>
+                          </div>
+                        </div>
+
+                        {rewardVault?.isWhitelisted ? (
+                          <div>
+                            <h4 className="font-semibold">BGT capture</h4>
+                            <p className="text-success-foreground font-semibold">
+                              {gauge ? (
+                                <FormattedNumber
+                                  compact={false}
+                                  compactThreshold={999_999_999}
+                                  percent
+                                  value={
+                                    gauge?.bgtInflationCapture / 10000 ?? 0
+                                  }
+                                />
+                              ) : (
+                                "–"
+                              )}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-muted-foreground">
+                            Not whitelisted
+                          </div>
                         )}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                      </div>
+                    </CardContent>
+                  ) : (
+                    <CardContent className="p-4">
+                      <div className="flex justify-between gap-2 items-center w-full">
+                        <div>
+                          <h3 className="text-md font-semibold capitalize">
+                            No Reward Vault
+                          </h3>
+                          <p className="text-muted-foreground font-medium text-sm">
+                            There is no reward vault connected to this pool
+                          </p>
+                        </div>
+                        <div>
+                          <Button
+                            variant="outline"
+                            size="md"
+                            as={Link}
+                            href="/vaults/create-gauge/"
+                          >
+                            Create
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              </>
             ) : null}
           </div>
         )}

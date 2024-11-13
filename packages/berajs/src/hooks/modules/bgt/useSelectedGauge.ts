@@ -9,7 +9,7 @@ export interface UsePollValidatorInfoResponse
   extends DefaultHookReturnType<Gauge | null> {}
 
 export const useSelectedGauge = (
-  id: Address,
+  id: Address | undefined,
   options?: DefaultHookOptions,
 ): UsePollValidatorInfoResponse => {
   const QUERY_KEY = id ? ["useSelectedValidator", id] : null;
