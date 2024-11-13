@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   useBeraJs,
   usePollWalletBalances,
@@ -19,6 +19,7 @@ type Props = {
   disabled: boolean;
   tokenAmount: string;
   onTokenBalanceChange: (amount: string) => void;
+  onTokenUSDValueChange: (usdValue: number) => void;
 };
 
 export default function CreatePoolInitialLiquidityInput({
@@ -26,6 +27,7 @@ export default function CreatePoolInitialLiquidityInput({
   tokenAmount,
   disabled,
   onTokenBalanceChange,
+  onTokenUSDValueChange,
 }: Props) {
   const { useSelectedWalletBalance } = usePollWalletBalances();
   const tokenBalanceData = useSelectedWalletBalance(token?.address ?? "0x");
@@ -37,6 +39,13 @@ export default function CreatePoolInitialLiquidityInput({
   const { data: tokenHoneyPrice } = useSubgraphTokenInformation({
     tokenAddress: token?.address,
   });
+
+  const usdValue =
+    getSafeNumber(tokenAmount) * Number(tokenHoneyPrice?.usdValue ?? 0);
+
+  useEffect(() => {
+    onTokenUSDValueChange(usdValue);
+  }, [usdValue, onTokenUSDValueChange]);
 
   useMemo(() => {
     if (tokenBalanceData) {
@@ -51,7 +60,7 @@ export default function CreatePoolInitialLiquidityInput({
     }
   }, [tokenBalanceData, tokenAmount]);
   return (
-    <li className={"flex w-full flex-col  items-center p-3"}>
+    <li className="flex w-full flex-col items-center p-4">
       <div className="flex w-full flex-row justify-between">
         <Button
           className="flex h-fit w-fit items-center gap-1 self-start border-border bg-background text-base text-foreground shadow"
@@ -68,8 +77,9 @@ export default function CreatePoolInitialLiquidityInput({
           step="any"
           min="0"
           placeholder="0"
+          variant="black"
           className={cn(
-            "w-full grow border-0 bg-transparent p-0 text-right text-lg font-semibold outline-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+            "w-full grow border-0 bg-transparent pr-4 text-right text-2xl font-semibold outline-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
             exceeding && "text-destructive-foreground",
           )}
           value={tokenAmount}
@@ -83,7 +93,7 @@ export default function CreatePoolInitialLiquidityInput({
           <div className="flex w-full items-center justify-between gap-1">
             <div className="flex w-fit flex-row items-center justify-start gap-1 pl-1">
               <Icons.wallet className="h-3 w-3 text-muted-foreground" />
-              <p className="w-fit max-w-[48px] overflow-hidden truncate p-0 text-xs text-muted-foreground sm:max-w-[60px]">
+              <p className="w-fit max-w-12 overflow-hidden truncate p-0 text-xs text-muted-foreground sm:max-w-[60px]">
                 {tokenBalance ? tokenBalance : "0"}
               </p>
               <p
@@ -96,13 +106,10 @@ export default function CreatePoolInitialLiquidityInput({
               </p>
             </div>
             <div className="flex flex-row gap-1">
-              <p className="self-center p-0 text-xs text-muted-foreground">
+              <p className="self-center pr-4  text-xs text-muted-foreground">
                 {tokenAmount !== "0" &&
                   tokenAmount !== "" &&
-                  formatUsd(
-                    getSafeNumber(tokenAmount) *
-                      Number(tokenHoneyPrice?.usdValue ?? 0),
-                  )}
+                  formatUsd(usdValue)}
               </p>
             </div>
           </div>
