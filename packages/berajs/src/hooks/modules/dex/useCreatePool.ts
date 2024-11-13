@@ -13,6 +13,7 @@ import { keccak256, parseUnits } from "viem";
 import { generatePoolName, generatePoolSymbol } from "~/utils/poolNamings";
 import { balancerPoolCreationHelperAbi } from "~/abi";
 import { ADDRESS_ZERO } from "~/config";
+import { IContractWrite } from "~/hooks/useContractWrite";
 import { TokenWithAmount } from "~/types";
 
 interface UseCreatePoolProps {
@@ -95,8 +96,9 @@ export const useCreatePool = ({
 
   const sharedCalculations = useMemo(() => {
     // Shared data preparation for both pool types
+    // TODO (#): add support for rate providers
     const tokensAddresses = tokens.map((token) => token.address);
-    const rateProviders = tokens.map(() => ADDRESS_ZERO);
+    const rateProviders = tokens.map(() => ADDRESS_ZERO as `0x${string}`);
     const swapFeePercentage = parseUnits(swapFee.toString(), 16);
     const amountsIn = tokens.map((token) =>
       parseUnits(token.amount || "0", token.decimals ?? 18),
@@ -108,7 +110,7 @@ export const useCreatePool = ({
         amountIn: amountsIn[index],
         rateProvider: rateProviders[index],
         weight: normalizedWeights[index],
-        cacheDuration: BigInt(100), // Only used in stable pools
+        cacheDuration: BigInt(100),
       }))
       .sort((a, b) => (a.token.toLowerCase() < b.token.toLowerCase() ? -1 : 1));
 
@@ -125,7 +127,7 @@ export const useCreatePool = ({
 
   const isStablePool =
     poolType === PoolType.ComposableStable || poolType === PoolType.MetaStable;
-  const exemptFromYieldProtocolFeeFlag = false; // FIXME: should this ever be true?
+  const exemptFromYieldProtocolFeeFlag = false; // NOTE: this should be false for stable pools if rate providers are 0x0
 
   const createPoolArgs = useMemo(() => {
     if (!owner || poolName === "" || poolSymbol === "") return null;
@@ -140,40 +142,55 @@ export const useCreatePool = ({
       salt,
     } = sharedCalculations;
 
+    const value = 0n;
+    const gasLimit = 7920027n; // NOTE: this is metamask max, which we use for an upper limit in simulation because this is an expensive tx
+
+    if (isStablePool) {
+      return {
+        address: balancerPoolCreationHelper,
+        abi: balancerPoolCreationHelperAbi,
+        functionName: "createAndJoinStablePool",
+        params: [
+          poolName,
+          poolSymbol,
+          sortedTokens,
+          BigInt(amplification),
+          sortedRateProviders,
+          sortedCacheDurations,
+          exemptFromYieldProtocolFeeFlag,
+          swapFeePercentage,
+          sortedAmountsIn,
+          owner as `0x${string}`,
+          salt,
+        ],
+        value,
+        gasLimit,
+      } as IContractWrite<
+        typeof balancerPoolCreationHelperAbi,
+        "createAndJoinStablePool"
+      >;
+    }
     return {
-      abi: balancerPoolCreationHelperAbi,
       address: balancerPoolCreationHelper,
-      functionName: isStablePool
-        ? "createAndJoinStablePool"
-        : "createAndJoinWeightedPool",
-      params: isStablePool
-        ? [
-            poolName,
-            poolSymbol,
-            sortedTokens,
-            BigInt(amplification),
-            sortedRateProviders,
-            sortedCacheDurations,
-            exemptFromYieldProtocolFeeFlag,
-            swapFeePercentage,
-            sortedAmountsIn,
-            owner,
-            salt,
-          ]
-        : [
-            poolName,
-            poolSymbol,
-            sortedTokens,
-            sortedWeights,
-            sortedRateProviders,
-            swapFeePercentage,
-            sortedAmountsIn,
-            owner,
-            salt,
-          ],
-      value: 0n,
-      gasLimit: 7920027n, // NOTE: this is metamask max, which we use for an upper limit in simulation because this is an expensive tx
-    };
+      abi: balancerPoolCreationHelperAbi,
+      functionName: "createAndJoinWeightedPool",
+      params: [
+        poolName,
+        poolSymbol,
+        sortedTokens,
+        sortedWeights,
+        sortedRateProviders,
+        swapFeePercentage,
+        sortedAmountsIn,
+        owner as `0x${string}`,
+        salt,
+      ],
+      value,
+      gasLimit,
+    } as IContractWrite<
+      typeof balancerPoolCreationHelperAbi,
+      "createAndJoinWeightedPool"
+    >;
   }, [
     owner,
     poolName,
