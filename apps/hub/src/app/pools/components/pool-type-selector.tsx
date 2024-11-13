@@ -27,7 +27,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
         >
           <span className="text-lg font-semibold">Stable</span>
           <span className="-mt-1 text-sm text-muted-foreground">
-            Recommended for stable pairs
+            Ideal for tokens with similar prices
           </span>
         </Card>
         <Card
@@ -51,7 +51,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
         >
           <span className="text-lg font-semibold">MetaStable</span>
           <span className="-mt-1 text-sm text-muted-foreground">
-            Efficient for highly correlated tokens
+            Dynamic rates for highly correlated tokens
           </span>
         </Card>
       </div>
