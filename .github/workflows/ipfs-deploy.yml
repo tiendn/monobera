@@ -36,7 +36,7 @@ jobs:
       run: pnpm install
 
     - name: Install Fleek CLI
-      run: pnpm i -g @fleek-platform/cli
+      run: pnpm i -g @fleek-platform/cli@3.5.2
 
     - name: Set environment variables
       run: pnpm setenv:bartio
@@ -44,7 +44,7 @@ jobs:
     - name: Build all projects
       env:
         NODE_OPTIONS: "--max_old_space_size=8192"
-      run: NEXT_PUBLIC_HOST="ipfs" pnpm run build --filter='packages/*' --filter='apps/hub' --filter='apps/honey'
+      run: pnpm run build:ipfs
       
     # - name: Deploy Berps
     #   run: cd apps/perp && fleek sites deploy
