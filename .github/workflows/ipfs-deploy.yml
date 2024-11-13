@@ -36,7 +36,7 @@ jobs:
       run: pnpm install
 
     - name: Install Fleek CLI
-      run: pnpm i -g @fleek-platform/cli
+      run: pnpm i -g @fleek-platform/cli@3.5.2
 
     - name: Set environment variables
       run: pnpm setenv:bartio
