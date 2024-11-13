@@ -399,10 +399,10 @@ export default function CreatePageContent() {
                   size="lg"
                   wrap={true}
                   text={`
-                  The amplification co-efficient ("A") determines a pool's 
-                  tolerance for imbalance between the assets within it.
-                  A higher value means that trades will incur slippage sooner 
-                  as the assets within the pool become imbalanced.`}
+                  Controls the pool's sensitivity to imbalances between assets. A higher value causes slippage to occur sooner 
+                  as assets diverge from balance, helping to preserve accurate pricing by discouraging extreme imbalances. 
+                  This is often ideal for stable pairs, as it maintains tighter spreads when token values are close, but 
+                  increases slippage more rapidly for large disparities, supporting the pool's economic stability.`}
                 />
               }
             />
