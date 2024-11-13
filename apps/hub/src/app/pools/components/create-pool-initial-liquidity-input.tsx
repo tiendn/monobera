@@ -13,52 +13,45 @@ import { Icons } from "@bera/ui/icons";
 import { Input } from "@bera/ui/input";
 
 import { getSafeNumber } from "~/utils/getSafeNumber";
+import { TokenInput } from "~/hooks/useMultipleTokenInput";
 
 type Props = {
-  token: Token;
+  token: TokenInput;
   disabled: boolean;
-  tokenAmount: string;
-  onTokenBalanceChange: (amount: string) => void;
-  onTokenUSDValueChange: (usdValue: number) => void;
+  onTokenChange: (amount: string, usdValue: string, exceeding: boolean) => void;
 };
 
 export default function CreatePoolInitialLiquidityInput({
   token,
-  tokenAmount,
   disabled,
-  onTokenBalanceChange,
-  onTokenUSDValueChange,
+  onTokenChange,
 }: Props) {
   const { useSelectedWalletBalance } = usePollWalletBalances();
   const tokenBalanceData = useSelectedWalletBalance(token?.address ?? "0x");
-  const [exceeding, setExceeding] = useState<boolean | undefined>(undefined);
   const tokenBalance = Number(tokenBalanceData?.formattedBalance || 0);
 
   const { isConnected } = useBeraJs();
 
+  // TODO: we probably will need to track USD values in a different place so that we can suggest liquidity inputs that align with token weights and quantities
   const { data: tokenHoneyPrice } = useSubgraphTokenInformation({
     tokenAddress: token?.address,
   });
+  const usdPrice = Number(tokenHoneyPrice?.usdValue ?? 0);
 
-  const usdValue =
-    getSafeNumber(tokenAmount) * Number(tokenHoneyPrice?.usdValue ?? 0);
+  // NOTE: we lift the state up to the parent component because tokens are managed there and used to construct txs
+  const handleChange = (newAmount: string) => {
+    const curSafeBalance = getSafeNumber(tokenBalanceData?.formattedBalance);
+    const curSafeAmount = getSafeNumber(newAmount);
+    const exceeding = tokenBalanceData ? curSafeAmount > curSafeBalance : false;
+    const usdValue = curSafeAmount * usdPrice;
+    onTokenChange(newAmount, usdValue.toString(), exceeding);
+  };
 
-  useEffect(() => {
-    onTokenUSDValueChange(usdValue);
-  }, [usdValue, onTokenUSDValueChange]);
+  const formattedUsdValue = useMemo(
+    () => formatUsd(getSafeNumber(token.amount) * usdPrice),
+    [token.amount, usdPrice],
+  );
 
-  useMemo(() => {
-    if (tokenBalanceData) {
-      if (
-        getSafeNumber(tokenBalanceData.formattedBalance) <
-        getSafeNumber(tokenAmount)
-      ) {
-        setExceeding(true);
-      } else {
-        setExceeding(false);
-      }
-    }
-  }, [tokenBalanceData, tokenAmount]);
   return (
     <li className="flex w-full flex-col items-center p-4">
       <div className="flex w-full flex-row justify-between">
@@ -80,11 +73,11 @@ export default function CreatePoolInitialLiquidityInput({
           variant="black"
           className={cn(
             "w-full grow border-0 bg-transparent pr-4 text-right text-2xl font-semibold outline-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-            exceeding && "text-destructive-foreground",
+            token.exceeding && "text-destructive-foreground",
           )}
-          value={tokenAmount}
+          value={token.amount}
           onChange={(e) => {
-            onTokenBalanceChange(e.target.value);
+            handleChange(e.target.value);
           }}
         />
       </div>
@@ -99,7 +92,7 @@ export default function CreatePoolInitialLiquidityInput({
               <p
                 className="cursor-pointer select-none self-start text-xs text-muted-foreground hover:underline"
                 onClick={() => {
-                  !disabled && onTokenBalanceChange(tokenBalance.toString());
+                  !disabled && handleChange(tokenBalance.toString());
                 }}
               >
                 MAX
@@ -107,9 +100,9 @@ export default function CreatePoolInitialLiquidityInput({
             </div>
             <div className="flex flex-row gap-1">
               <p className="self-center pr-4  text-xs text-muted-foreground">
-                {tokenAmount !== "0" &&
-                  tokenAmount !== "" &&
-                  formatUsd(usdValue)}
+                {token.amount !== "0" &&
+                  token.amount !== "" &&
+                  formattedUsdValue}
               </p>
             </div>
           </div>

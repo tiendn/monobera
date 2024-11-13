@@ -32,6 +32,7 @@ import {
   weightedPoolFactoryV4Abi_V2,
 } from "@berachain-foundation/berancer-sdk";
 import { decodeEventLog, isAddress, parseUnits, zeroAddress } from "viem";
+import { usePublicClient } from "wagmi";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
@@ -43,7 +44,6 @@ import CreatePoolInput from "../components/create-pool-input";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
-import { usePublicClient } from "wagmi";
 
 const emptyToken: TokenInput = {
   address: "" as `0x${string}`,
@@ -58,6 +58,7 @@ export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
   const { account, isConnected } = useBeraJs();
+  const publicClient = usePublicClient();
 
   const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
@@ -226,7 +227,24 @@ export default function CreatePageContent() {
     });
   };
 
-  const publicClient = usePublicClient();
+  // Update a specific token's amount, usdValue, and exceeding status (comes from liquidity input)
+  const handleTokenChange = (
+    index: number,
+    amount: string,
+    usdValue: string,
+    exceeding: boolean,
+  ) => {
+    setTokens((prevTokens) => {
+      const updatedTokens = [...prevTokens];
+      updatedTokens[index] = {
+        ...updatedTokens[index],
+        amount,
+        usdValue,
+        exceeding,
+      };
+      return updatedTokens;
+    });
+  };
 
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
@@ -371,22 +389,14 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
+                // TODO (#): we should use this to handle incorrect liquidity supply
                 <CreatePoolInitialLiquidityInput
                   key={`liq-${index}`}
                   disabled={false}
-                  token={token as Token}
-                  tokenAmount={token.amount}
-                  onTokenUSDValueChange={(usdValue) => {}} // TODO (#): we should use this to handle incorrect liquidity supply
-                  onTokenBalanceChange={(amount) => {
-                    setTokens((prevTokens) => {
-                      const updatedTokens = [...prevTokens];
-                      updatedTokens[index] = {
-                        ...updatedTokens[index],
-                        amount,
-                      };
-                      return updatedTokens;
-                    });
-                  }}
+                  token={token}
+                  onTokenChange={(amount, usdValue, exceeding) =>
+                    handleTokenChange(index, amount, usdValue, exceeding)
+                  }
                 />
               ))}
             </ul>
@@ -500,7 +510,11 @@ export default function CreatePageContent() {
               return (
                 <ApproveButton
                   amount={approvalAmount}
-                  disabled={approvalAmount === BigInt(0) || !isConnected}
+                  disabled={
+                    approvalAmount === BigInt(0) ||
+                    !isConnected ||
+                    approvalToken.exceeding
+                  }
                   token={approvalToken}
                   spender={balancerVaultAddress}
                   onApproval={() => refreshAllowances()}
