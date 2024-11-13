@@ -227,11 +227,10 @@ export default function CreatePageContent() {
     });
   };
 
-  // Update a specific token's amount, usdValue, and exceeding status (comes from liquidity input)
+  // Update a specific token's amount and exceeding status (comes from liquidity input)
   const handleTokenChange = (
     index: number,
     amount: string,
-    usdValue: string,
     exceeding: boolean,
   ) => {
     setTokens((prevTokens) => {
@@ -239,7 +238,6 @@ export default function CreatePageContent() {
       updatedTokens[index] = {
         ...updatedTokens[index],
         amount,
-        usdValue,
         exceeding,
       };
       return updatedTokens;
@@ -394,8 +392,8 @@ export default function CreatePageContent() {
                   key={`liq-${index}`}
                   disabled={false}
                   token={token}
-                  onTokenChange={(amount, usdValue, exceeding) =>
-                    handleTokenChange(index, amount, usdValue, exceeding)
+                  onTokenChange={(amount, exceeding) =>
+                    handleTokenChange(index, amount, exceeding)
                   }
                 />
               ))}

@@ -18,7 +18,7 @@ import { TokenInput } from "~/hooks/useMultipleTokenInput";
 type Props = {
   token: TokenInput;
   disabled: boolean;
-  onTokenChange: (amount: string, usdValue: string, exceeding: boolean) => void;
+  onTokenChange: (amount: string, exceeding: boolean) => void;
 };
 
 export default function CreatePoolInitialLiquidityInput({
@@ -43,8 +43,7 @@ export default function CreatePoolInitialLiquidityInput({
     const curSafeBalance = getSafeNumber(tokenBalanceData?.formattedBalance);
     const curSafeAmount = getSafeNumber(newAmount);
     const exceeding = tokenBalanceData ? curSafeAmount > curSafeBalance : false;
-    const usdValue = curSafeAmount * usdPrice;
-    onTokenChange(newAmount, usdValue.toString(), exceeding);
+    onTokenChange(newAmount, exceeding);
   };
 
   const formattedUsdValue = useMemo(
