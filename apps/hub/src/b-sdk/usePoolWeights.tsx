@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 // NOTE: this manages weights for creating weighted pools using Balancer V2 Vault.
 const ONE_IN_18_DECIMALS = BigInt(10 ** 18);
 
+export enum WeightsError {
+  WEIGHT_OUT_OF_BOUNDS = "Weights must be larger than 0% and less than 100%",
+  TOTAL_WEIGHT_EXCEEDS = "Total weight exceeds 100%",
+  TOTAL_WEIGHT_LESS = "Total weight is less than 100%",
+}
+
 export function usePoolWeights(initialWeights: bigint[]) {
   const [weights, setWeights] = useState<bigint[]>(initialWeights);
   const [lockedWeights, setLockedWeights] = useState<boolean[]>(
@@ -78,11 +84,11 @@ export function usePoolWeights(initialWeights: bigint[]) {
     if (
       weights.some((weight) => weight <= 0n || weight >= ONE_IN_18_DECIMALS)
     ) {
-      setWeightsError("Weights must be larger than 0% and less than 100%");
+      setWeightsError(WeightsError.WEIGHT_OUT_OF_BOUNDS);
     } else if (totalWeight > ONE_IN_18_DECIMALS) {
-      setWeightsError("Total weight exceeds 100%");
+      setWeightsError(WeightsError.TOTAL_WEIGHT_EXCEEDS);
     } else if (totalWeight < ONE_IN_18_DECIMALS) {
-      setWeightsError("Total weight is less than 100%");
+      setWeightsError(WeightsError.TOTAL_WEIGHT_LESS);
     } else {
       setWeightsError(null);
     }
