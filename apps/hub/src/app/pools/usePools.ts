@@ -25,6 +25,7 @@ export const usePools = ({ keyword }: { keyword: string }) => {
           textSearch: keyword,
         },
       });
+
       return pools.data?.poolGetPools ?? [];
     },
     {
@@ -65,6 +66,8 @@ export const usePools = ({ keyword }: { keyword: string }) => {
       return { ...pool, ...walletPool };
     });
   }, [account, pools, walletPools]);
+
+  console.log({ mergedPools });
 
   return {
     pools: mergedPools,

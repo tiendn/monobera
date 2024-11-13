@@ -9,7 +9,7 @@ import { PoolSearch } from "./PoolsTable";
 import { SWRFallback } from "@bera/berajs";
 import { unstable_serialize } from "swr";
 
-export default function PoolPageHeader({
+export function PoolsPageContent({
   pools,
 }: {
   pools?: any;

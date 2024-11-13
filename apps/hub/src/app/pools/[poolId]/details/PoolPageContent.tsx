@@ -2,14 +2,11 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { notFound, useSearchParams } from "next/navigation";
 import {
   SWRFallback,
   truncateHash,
   useBeraJs,
   usePollBalance,
-  type IProvision,
-  type ISwaps,
   ADDRESS_ZERO,
   useRewardVaultBalanceFromStakingToken,
 } from "@bera/berajs";
@@ -32,7 +29,7 @@ import { Address, formatUnits } from "viem";
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
-import { GqlPoolEventType } from "@bera/graphql/dex/api";
+import { GqlPoolEventType, GqlPoolType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 
@@ -42,15 +39,24 @@ enum Selection {
   AddsWithdrawals = "addsWithdrawals",
 }
 
+const poolTypeLabels = {
+  ComposableStable: "Stable",
+  MetaStable: "Meta Stable",
+  Weighted: "Weighted",
+};
+
 const TokenView = ({
   tokens,
   isLoading,
+  showWeights,
 }: {
+  showWeights?: boolean;
   tokens: {
     address: string;
     symbol: string;
     value: string | number;
     valueUSD?: string | number;
+    weight?: string | number;
   }[];
   isLoading: boolean;
 }) => {
@@ -84,6 +90,11 @@ const TokenView = ({
                     {token.address === beraTokenAddress
                       ? "wbera"
                       : token.symbol}
+                    {showWeights && token.weight && (
+                      <span className="text-muted-foreground ml-2">
+                        {(Number(token.weight) * 100).toFixed(0)}%
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -103,8 +114,6 @@ const TokenView = ({
     </>
   );
 };
-
-type ISwapOrProvision = ISwaps | IProvision;
 
 export const PoolPageWrapper = ({
   children,
@@ -161,6 +170,11 @@ export default function PoolPageContent({
     console.log("POOL", pool, v3Pool);
   }, [v3Pool, pool]);
 
+  const poolType =
+    (pool?.type ?? "") in poolTypeLabels
+      ? poolTypeLabels[pool?.type as keyof typeof poolTypeLabels]
+      : undefined;
+
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
@@ -188,6 +202,10 @@ export default function PoolPageContent({
           )
         }
         subtitles={[
+          {
+            title: "Type",
+            content: poolType,
+          },
           {
             title: "Fee",
             content: pool ? (
@@ -285,6 +303,7 @@ export default function PoolPageContent({
               </div>
             </div>
             <TokenView
+              showWeights
               isLoading={pool === undefined}
               tokens={
                 pool?.tokens
@@ -292,6 +311,7 @@ export default function PoolPageContent({
                   .map((t) => ({
                     address: t.address!,
                     symbol: t.symbol!,
+                    weight: t.weight,
                     value: parseFloat(t.balance),
                     valueUSD:
                       parseFloat(t.balance) *

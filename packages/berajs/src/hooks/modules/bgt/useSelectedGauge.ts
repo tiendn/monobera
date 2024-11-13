@@ -1,6 +1,7 @@
 import { polEndpointUrl } from "@bera/config";
 import useSWR, { mutate } from "swr";
 import { Address, isAddress } from "viem";
+
 import { getGauge } from "~/actions";
 import { DefaultHookOptions, DefaultHookReturnType, Gauge } from "~/types";
 
@@ -11,7 +12,7 @@ export const useSelectedGauge = (
   id: Address,
   options?: DefaultHookOptions,
 ): UsePollValidatorInfoResponse => {
-  const QUERY_KEY = ["useSelectedValidator", id];
+  const QUERY_KEY = id ? ["useSelectedValidator", id] : null;
   const swrResponse = useSWR<Gauge | null, any, typeof QUERY_KEY>(
     QUERY_KEY,
     async () => {

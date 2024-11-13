@@ -8,6 +8,7 @@ fragment SubgraphPool on Pool {
   totalLiquidity
   createTime
   owner
+  type: poolType
 
   tokens {
     address
