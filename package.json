@@ -14,6 +14,7 @@
     "setenv:artio": "pnpm run setenv artio",
     "setenv:bartio": "pnpm run setenv bartio",
     "dev": "turbo dev --concurrency=20",
+    "build:ipfs": "NEXT_PUBLIC_HOST=ipfs turbo build --filter=hub --filter=honey --filter=bend --filter='./packages/*' --concurrency=20",
     "build:hub": "turbo build --filter=hub --filter='./packages/*' --concurrency=20",
     "build:honey": "turbo build --filter=honey --filter='./packages/*' --concurrency=20",
     "build:storybook": "turbo build --filter=storybook --filter='./packages/*' --concurrency=20  --filter='!b-sdk'",
