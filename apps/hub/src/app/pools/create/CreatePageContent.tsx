@@ -322,7 +322,7 @@ export default function CreatePageContent() {
                   disabled={false}
                   token={token as Token}
                   tokenAmount={token.amount}
-                  onTokenUSDValueChange={(usdValue) => {}} // FIXME: we should use this to handle incorrect liquidity supply
+                  onTokenUSDValueChange={(usdValue) => {}} // TODO (#): we should use this to handle incorrect liquidity supply
                   onTokenBalanceChange={(amount) => {
                     setTokens((prevTokens) => {
                       const updatedTokens = [...prevTokens];

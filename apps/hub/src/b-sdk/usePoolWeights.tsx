@@ -17,6 +17,7 @@ export function usePoolWeights(initialWeights: bigint[]) {
   const [weightsError, setWeightsError] = useState<string | null>(null);
   const [isNormalizing, setIsNormalizing] = useState(false);
 
+  // TODO: NOTE: user should be able to modify a value and not have that 'active' value normalized, so that then locking and unlocking is only done by clicking on the lock itself.
   // Function to normalize weights based on locked and unlocked tokens
   const normalizeWeights = (updatedWeights: bigint[]) => {
     const allLocked = lockedWeights.every((locked) => locked);
