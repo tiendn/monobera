@@ -189,7 +189,7 @@ export const PoolSearch = ({
           )}
         </TabsContent>
 
-        <TabsContent value="userPools">
+        <TabsContent value="userPools" className="mt-4 text-center">
           {!account ? (
             <ConnectWalletBear
               message="You need to connect your wallet to see deposited pools and

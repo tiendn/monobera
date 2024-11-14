@@ -56,7 +56,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           fontHoney.variable,
         )}
       >
-        {" "}
         <TermOfUseModal />
         <HoneyProviders>
           <Header

@@ -1,6 +1,6 @@
 import { type Metadata } from "next";
 
-import PoolPageHeader from "./PoolPageHeader";
+import { PoolsPageContent } from "./PoolsPageContent";
 import { bexApiGraphqlClient } from "@bera/graphql";
 import { GetPools, GetPoolsQuery } from "@bera/graphql/dex/api";
 
@@ -21,7 +21,7 @@ export default async function Pool() {
 
   return (
     <div className="flex w-full flex-col gap-5">
-      <PoolPageHeader pools={res.data.poolGetPools} />
+      <PoolsPageContent pools={res.data.poolGetPools} />
     </div>
   );
 }

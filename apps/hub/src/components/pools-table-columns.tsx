@@ -1,10 +1,15 @@
 "use client";
 
-import { usePollBalance } from "@bera/berajs";
 import { DataTableColumnHeader, TokenIconList } from "@bera/shared-ui";
 import { Badge } from "@bera/ui/badge";
 import { type ColumnDef } from "@tanstack/react-table";
 import { GqlPoolType, MinimalPoolInListFragment } from "@bera/graphql/dex/api";
+
+export const poolTypeLabels: Record<any, string> = {
+  [GqlPoolType.ComposableStable]: "Stable",
+  [GqlPoolType.MetaStable]: "Meta Stable",
+  [GqlPoolType.Weighted]: "Weighted",
+};
 
 export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
   return (
@@ -20,7 +25,12 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
             {pool?.name}
           </span>
         </div>
-        <div className="flex flex-row gap-1">
+        <div className="flex items-center gap-3">
+          <span className=" text-muted-foreground text-xs">
+            {pool.type in poolTypeLabels
+              ? poolTypeLabels[pool.type]
+              : pool.type}
+          </span>
           <Badge
             variant={"secondary"}
             className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
@@ -29,15 +39,7 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
               {(Number(pool?.dynamicData?.swapFee) * 100).toFixed(2)}%
             </span>
           </Badge>
-          {pool.type === GqlPoolType.Stable && (
-            <Badge
-              variant={"secondary"}
-              className="border-none px-2 py-1 text-[10px] leading-[10px] text-foreground"
-            >
-              <span>Stable</span>
-            </Badge>
-          )}
-          {pool.userBalance && Number(pool.userBalance.walletBalance) > 0 && (
+          {pool.userBalance && pool.userBalance.walletBalance !== "0" && (
             <Badge
               variant="success"
               className="border-none bg-success px-2 py-1 text-[10px] leading-[10px] "

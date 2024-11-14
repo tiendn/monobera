@@ -65,7 +65,8 @@ export const PoolHeader = ({
         >
           {subtitles.map((subtitle, index) => (
             <div className="flex w-fit items-center gap-1" key={index}>
-              {subtitle.title} {subtitle.tooltip && subtitle.tooltip}:
+              {subtitle.title}
+              {subtitle.tooltip ? <> {subtitle.tooltip}:</> : ":"}
               <span
                 className={cn(
                   "flex items-center gap-1 text-sm",

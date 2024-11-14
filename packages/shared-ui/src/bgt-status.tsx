@@ -13,7 +13,7 @@ import { Icons } from "@bera/ui/icons";
 import { FormattedNumber } from "./formatted-number";
 import Link from "next/link";
 
-export function BGTStatusBtn() {
+export function BGTStatusBtn({ isHub }: { isHub?: boolean }) {
   const [openPopover, setOpenPopover] = React.useState(false);
   return (
     <div className="hidden sm:block">
@@ -30,14 +30,14 @@ export function BGTStatusBtn() {
           className="flex h-fit w-[324px] flex-col gap-4 rounded-md p-4"
           align="end"
         >
-          <BGTStatusDetails />
+          <BGTStatusDetails isHub={isHub} />
         </PopoverContent>
       </Popover>
     </div>
   );
 }
 
-export function BGTStatusDetails() {
+export function BGTStatusDetails({ isHub }: { isHub?: boolean }) {
   const { data: userVaultInfo, isLoading: isTotalBgtRewardsLoading } =
     useUserVaults();
 
@@ -116,7 +116,7 @@ export function BGTStatusDetails() {
       <Button className="w-full" disabled>
         Coming Soon
       </Button>
-      <Link href={`${hubUrl}/rewards`}>
+      <Link href={isHub ? "/rewards/" : `${hubUrl}/rewards/`}>
         <Button className="w-full mt-[-8px]" variant={"ghost"}>
           View Breakdown
         </Button>

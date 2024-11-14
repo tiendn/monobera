@@ -2,16 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { notFound, useSearchParams } from "next/navigation";
 import {
   SWRFallback,
   truncateHash,
   useBeraJs,
   usePollBalance,
-  type IProvision,
-  type ISwaps,
   ADDRESS_ZERO,
   useRewardVaultBalanceFromStakingToken,
+  useSelectedGauge,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
@@ -32,9 +30,11 @@ import { Address, formatUnits } from "viem";
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
-import { GqlPoolEventType } from "@bera/graphql/dex/api";
+import { GqlPoolEventType, GqlPoolType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
+import { Icons } from "@bera/ui/icons";
+import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -42,15 +42,24 @@ enum Selection {
   AddsWithdrawals = "addsWithdrawals",
 }
 
+const poolTypeLabels = {
+  ComposableStable: "Stable",
+  MetaStable: "Meta Stable",
+  Weighted: "Weighted",
+};
+
 const TokenView = ({
   tokens,
   isLoading,
+  showWeights,
 }: {
+  showWeights?: boolean;
   tokens: {
     address: string;
     symbol: string;
     value: string | number;
     valueUSD?: string | number;
+    weight?: string | number;
   }[];
   isLoading: boolean;
 }) => {
@@ -69,22 +78,27 @@ const TokenView = ({
                 className="flex h-8 items-center justify-between"
                 key={`token-list-${index}-${token.address}-${token.value}`}
               >
-                <div
-                  className="group flex cursor-pointer gap-1"
-                  onClick={() => {
-                    if (token.address) {
-                      window.open(
-                        `${blockExplorerUrl}/address/${token.address}`,
-                      );
-                    }
-                  }}
-                >
+                <div className=" flex gap-1">
                   <TokenIcon address={token.address} symbol={token.symbol} />
-                  <div className="ml-1 font-medium uppercase group-hover:underline">
+                  <a
+                    href={
+                      token.address
+                        ? `${blockExplorerUrl}/address/${token.address}`
+                        : "#"
+                    }
+                    target="_blank"
+                    className="ml-1 font-medium uppercase hover:underline"
+                    rel="noreferrer"
+                  >
                     {token.address === beraTokenAddress
                       ? "wbera"
                       : token.symbol}
-                  </div>
+                  </a>{" "}
+                  {showWeights && token.weight && (
+                    <span className="text-muted-foreground ml-2">
+                      {(Number(token.weight) * 100).toFixed(0)}%
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -103,8 +117,6 @@ const TokenView = ({
     </>
   );
 };
-
-type ISwapOrProvision = ISwaps | IProvision;
 
 export const PoolPageWrapper = ({
   children,
@@ -137,11 +149,10 @@ export default function PoolPageContent({
   const [pool, v3Pool] = data ?? [];
 
   const { isConnected } = useBeraJs();
-  const { data: userBalance, isLoading: isUserBalanceLoading } = usePollBalance(
-    {
+  const { data: userLpBalance, isLoading: isUserLpBalanceLoading } =
+    usePollBalance({
       address: pool?.address,
-    },
-  );
+    });
 
   const isLoading = isPoolLoading;
 
@@ -152,6 +163,7 @@ export default function PoolPageContent({
     stakingToken: pool?.address as Address,
   });
 
+  const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
 
   const didUserDeposit =
@@ -160,6 +172,11 @@ export default function PoolPageContent({
   useEffect(() => {
     console.log("POOL", pool, v3Pool);
   }, [v3Pool, pool]);
+
+  const poolType =
+    (pool?.type ?? "") in poolTypeLabels
+      ? poolTypeLabels[pool?.type as keyof typeof poolTypeLabels]
+      : undefined;
 
   return (
     <div className="flex flex-col gap-8">
@@ -189,9 +206,16 @@ export default function PoolPageContent({
         }
         subtitles={[
           {
+            title: "Type",
+            content: poolType,
+          },
+          {
             title: "Fee",
             content: pool ? (
-              <>{Number(pool?.swapFee ?? 0) * 100}%</>
+              <FormattedNumber
+                suffixText="%"
+                value={Number(pool?.swapFee ?? 0) * 100}
+              />
             ) : (
               <Skeleton className="h-4 w-8" />
             ),
@@ -285,6 +309,7 @@ export default function PoolPageContent({
               </div>
             </div>
             <TokenView
+              showWeights
               isLoading={pool === undefined}
               tokens={
                 pool?.tokens
@@ -292,6 +317,7 @@ export default function PoolPageContent({
                   .map((t) => ({
                     address: t.address!,
                     symbol: t.symbol!,
+                    weight: t.weight,
                     value: parseFloat(t.balance),
                     valueUSD:
                       parseFloat(t.balance) *
@@ -334,7 +360,7 @@ export default function PoolPageContent({
                   <>
                     <div className="mt-4 grow self-stretch">
                       <TokenView
-                        isLoading={isUserBalanceLoading || isPoolLoading}
+                        isLoading={isUserLpBalanceLoading || isPoolLoading}
                         tokens={
                           pool?.tokens
                             ?.filter((t) => t.address !== pool.address)
@@ -353,7 +379,7 @@ export default function PoolPageContent({
                     </div>
                     <div className="flex justify-between w-full font-medium">
                       <span>Total</span>
-                      {isUserBalanceLoading || tvlInUsd === undefined ? (
+                      {isUserLpBalanceLoading || tvlInUsd === undefined ? (
                         <Skeleton className="h-[32px] w-[150px]" />
                       ) : (
                         <FormattedNumber
@@ -374,49 +400,114 @@ export default function PoolPageContent({
               </CardContent>
             </Card>
             {didUserDeposit ? (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex w-full items-center justify-between text-lg font-semibold">
-                    <h3 className="text-md font-semibold capitalize">
-                      Receipt Tokens
-                    </h3>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="block"
-                        size="md"
-                        as={Link}
-                        href={
-                          rewardVault && rewardVault?.address !== ADDRESS_ZERO
-                            ? getRewardsVaultUrl(rewardVault?.address ?? "0x")
-                            : "/vaults/create-gauge/"
-                        }
-                      >
-                        Deposit
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="mt-4 grow self-stretch font-medium">
-                    <div className="flex justify-between w-full">
-                      <h4 className="font-semibold">Available</h4>
-                      <FormattedNumber
-                        className="text-muted-foreground"
-                        value={userBalance?.formattedBalance ?? 0}
-                      />
-                    </div>
-                    <div className="flex justify-between w-full">
-                      <h4 className="font-semibold">Staked</h4>
-                      <FormattedNumber
-                        className="text-muted-foreground"
-                        value={formatUnits(
-                          BigInt(rewardVault?.balance ?? "0"),
-                          userBalance?.decimals ?? 18,
+              rewardVault && rewardVault.address !== ADDRESS_ZERO ? (
+                <>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex w-full items-center justify-between text-lg font-semibold">
+                        <h3 className="text-md font-semibold capitalize">
+                          Receipt Tokens
+                        </h3>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            className="block disabled:pointer-events-none disabled:opacity-50"
+                            size="md"
+                            disabled={userLpBalance?.balance === 0n}
+                            as={Link}
+                            href={getRewardsVaultUrl(
+                              rewardVault?.address ?? "0x",
+                            )}
+                          >
+                            Stake
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="block"
+                            size="md"
+                            disabled={rewardVault?.balance === 0n}
+                            as={Link}
+                            href={getRewardsVaultUrl(
+                              rewardVault?.address ?? "0x",
+                            )}
+                          >
+                            Unstake
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="mt-4 grow self-stretch font-medium">
+                        <div className="flex justify-between w-full">
+                          <h4 className="font-semibold">Available</h4>
+                          <FormattedNumber
+                            className="text-muted-foreground"
+                            value={userLpBalance?.formattedBalance ?? 0}
+                          />
+                        </div>
+                        <div className="flex justify-between w-full">
+                          <h4 className="font-semibold">Staked</h4>
+                          <FormattedNumber
+                            className="text-muted-foreground"
+                            value={formatUnits(
+                              BigInt(rewardVault?.balance ?? "0"),
+                              userLpBalance?.decimals ?? 18,
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between w-full">
+                        <div>
+                          <h3 className="text-md font-semibold capitalize">
+                            Reward Vault
+                          </h3>
+                          <div className="flex w-fit items-center gap-1 text-sm">
+                            <Link
+                              href={getRewardsVaultUrl(
+                                rewardVault?.address ?? "",
+                              )}
+                              className="hover:underline align-middle"
+                            >
+                              <span>
+                                {truncateHash(rewardVault?.address ?? "")}
+                              </span>{" "}
+                              <Icons.externalLink className="inline-block h-3 w-3 text-muted-foreground" />
+                            </Link>
+                          </div>
+                        </div>
+
+                        {rewardVault?.isWhitelisted ? (
+                          <div>
+                            <h4 className="font-semibold">BGT capture</h4>
+                            <p className="text-success-foreground font-semibold">
+                              {gauge ? (
+                                <FormattedNumber
+                                  compact={false}
+                                  compactThreshold={999_999_999}
+                                  percent
+                                  value={
+                                    gauge?.bgtInflationCapture / 10000 ?? 0
+                                  }
+                                />
+                              ) : (
+                                "–"
+                              )}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-muted-foreground">
+                            Not whitelisted
+                          </div>
                         )}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <PoolCreateRewardVault />
+              )
             ) : null}
           </div>
         )}
