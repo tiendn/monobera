@@ -399,6 +399,7 @@ export default function CreatePageContent() {
                   key={`liq-${index}`}
                   selected={token}
                   amount={token.amount}
+                  isActionLoading={isLoadingTokenPrices}
                   price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
                   disabled={false}
                   onTokenSelection={() => {}}
