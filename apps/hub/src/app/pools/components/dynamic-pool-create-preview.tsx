@@ -128,7 +128,7 @@ export default function DynamicPoolCreationPreview({
       <DialogContent className="rounded-lg bg-black p-8 text-white sm:w-[500px]">
         <DialogHeader>
           <DialogTitle className="mb-1 text-sm font-semibold text-gray-400">
-            Stable Pool
+            {poolType}
           </DialogTitle>
           <h2 className="text-3xl font-bold">{poolName}</h2>
         </DialogHeader>
