@@ -7,6 +7,7 @@ import {
   balancerVaultAbi,
   useBeraJs,
   useCreatePool,
+  useSubgraphTokenInformations,
   type Token,
 } from "@bera/berajs";
 import {
