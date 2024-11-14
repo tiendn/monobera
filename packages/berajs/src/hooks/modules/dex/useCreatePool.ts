@@ -8,7 +8,7 @@ import {
 } from "@bera/graphql/dex/subgraph";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import useSWRImmutable from "swr/immutable";
-import { keccak256, parseUnits } from "viem";
+import { formatUnits, keccak256, parseUnits } from "viem";
 
 import { generatePoolName, generatePoolSymbol } from "~/utils/poolNamings";
 import { balancerPoolCreationHelperAbi } from "~/abi";
@@ -37,6 +37,8 @@ interface UseCreatePoolReturn {
   errorLoadingPools: boolean;
 }
 
+const WEIGHTS_DUPLICATION_THRESHOLD = 0.005; // if weights are within 0.5% of each other, we consider them a duplicate
+
 export const useCreatePool = ({
   tokens,
   normalizedWeights,
@@ -52,7 +54,7 @@ export const useCreatePool = ({
     error: errorLoadingPools,
     isLoading: isLoadingPools,
   } = useSWRImmutable<SubgraphPoolFragment | null>(
-    ["useCreatePool__deduped_pool", tokens, poolType],
+    ["useCreatePool__deduped_pool", tokens, poolType, normalizedWeights],
     async () => {
       if (tokens.length === 0 || !poolType) {
         return null;
@@ -62,6 +64,7 @@ export const useCreatePool = ({
           .map((token) => token.address.toLowerCase())
           .sort((a, b) => a.localeCompare(b));
 
+        // fetch pools of the same type as the one we are creating
         const res = await bexSubgraphClient.query<GetDedupedSubgraphPoolsQuery>(
           {
             query: GetDedupedSubgraphPools,
@@ -73,10 +76,22 @@ export const useCreatePool = ({
         );
 
         const matchingPools = res.data.pools.filter((pool) => {
-          return pool.tokens?.every(
-            (token) =>
-              tokensSorted.includes(token.address) ||
-              token.address === pool.address, // Composable pools have the LP token in the tokens list
+          return pool.tokens?.every((token) =>
+            poolType === PoolType.Weighted
+              ? // in weighted pools, a dupe is if tokens and weights match EXACTLY
+                tokensSorted.includes(token.address) &&
+                Math.abs(
+                  Number(token.weight) -
+                    Number(
+                      formatUnits(
+                        normalizedWeights[tokensSorted.indexOf(token.address)],
+                        18,
+                      ),
+                    ),
+                ) < WEIGHTS_DUPLICATION_THRESHOLD
+              : // in composable pools a dupe is if the tokens match, handling that the LP token is in the tokens list
+                tokensSorted.includes(token.address) ||
+                token.address === pool.address,
           );
         });
 
