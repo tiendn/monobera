@@ -27,7 +27,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
         >
           <span className="text-lg font-semibold">Stable</span>
           <span className="-mt-1 text-sm text-muted-foreground">
-            Ideal for tokens with similar prices
+            Suggested for stable pairs
           </span>
         </Card>
         <Card
@@ -39,7 +39,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
         >
           <span className="text-lg font-semibold">Weighted</span>
           <span className="-mt-1 text-sm text-muted-foreground">
-            Customize the weights of tokens
+            Set customizable pool, token and weight
           </span>
         </Card>
         <Card
