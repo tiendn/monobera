@@ -43,6 +43,7 @@ import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenAppro
 import { TokenInput as TokenInputType } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
 import CreatePoolInput from "../components/create-pool-input";
+import DynamicPoolCreationPreview from "../components/dynamic-pool-create-preview";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
@@ -59,13 +60,13 @@ const emptyToken: TokenInputType = {
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
-  const { account, isConnected } = useBeraJs();
+  const { account } = useBeraJs();
   const publicClient = usePublicClient();
 
   const [tokens, setTokens] = useState<TokenInputType[]>([
     emptyToken,
     emptyToken,
-  ]);
+  ]); // TODO: we should use useMultipleTokenInput here, but it will need weight handling and the ability to add/remove inputs
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [swapFee, setSwapFee] = useState<number>(0.1);
@@ -79,6 +80,8 @@ export default function CreatePageContent() {
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
+
   const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
     useSubgraphTokenInformations({
       tokenAddresses: tokens.map((token) => token?.address),
@@ -127,8 +130,8 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-          ? "0x0000000000000000000000000000000000000000"
-          : account || zeroAddress,
+        ? "0x0000000000000000000000000000000000000000"
+        : account || zeroAddress,
     );
   };
 
@@ -146,56 +149,6 @@ export default function CreatePageContent() {
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
-
-  // Get relayer approval status and refresh function
-  // NOTE: if useTxn isnt here we dont receive updates properly for out submit button
-  const {
-    data: isRelayerApproved,
-    isLoading: isLoadingRelayerStatus,
-    error: isRelayerApprovalError,
-    refreshPoolCreationApproval,
-  } = usePollPoolCreationRelayerApproval();
-
-  // Use useTxn for the approval
-  const {
-    write,
-    ModalPortal: ModalPortalRelayerApproval,
-    isLoading: isRelayerApprovalLoading,
-    isSubmitting: isRelayerApprovalSubmitting,
-  } = useTxn({
-    message: "Approving the Pool Creation Helper...",
-    onSuccess: () => {
-      refreshPoolCreationApproval();
-    },
-    onError: (e) => {
-      setErrorMessage("Error approving relayer.");
-    },
-  });
-
-  const handleRelayerApproval = async () => {
-    if (!account || !balancerVaultAddress) {
-      console.error("Missing account or balancerVaultAddress");
-      return;
-    }
-    try {
-      await write({
-        address: balancerVaultAddress,
-        abi: balancerVaultAbi,
-        functionName: "setRelayerApproval",
-        params: [account, balancerPoolCreationHelper, true],
-      });
-    } catch (error) {
-      setErrorMessage(
-        "Error approving PoolCreationHelper as a Relayer on Vault contract",
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (isRelayerApprovalError) {
-      setErrorMessage("Error loading relayer approval status");
-    }
-  }, [isRelayerApprovalError]);
 
   const {
     weights,
@@ -308,7 +261,6 @@ export default function CreatePageContent() {
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
       {ModalPortal}
-      {ModalPortalRelayerApproval}
       <Button
         variant={"ghost"}
         size="sm"
@@ -491,93 +443,43 @@ export default function CreatePageContent() {
           )}
         </section>
 
-        <section className="flex w-full flex-col gap-10">
-          <h2 className="self-start text-3xl font-semibold">
-            Approve & Submit
-          </h2>
+        <ActionButton>
+          <Button onClick={() => setPreviewOpen(true)} className="w-full">
+            Preview
+          </Button>
+        </ActionButton>
 
-          {/* TODO: below belongs in a preview page */}
-          {!isRelayerApproved ? (
-            <ActionButton>
-              <Button
-                disabled={
-                  !isConnected ||
-                  isRelayerApprovalLoading ||
-                  isLoadingRelayerStatus ||
-                  isRelayerApprovalSubmitting
-                }
-                onClick={handleRelayerApproval}
-                className="mt-4 w-full"
-              >
-                Approve Pool Creation Helper
-                {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
-                  "..."}
-              </Button>
-            </ActionButton>
-          ) : tokensNeedApproval.length > 0 ? (
-            (() => {
-              const approvalTokenIndex = tokens.findIndex(
-                (t) => t.address === tokensNeedApproval[0]?.address,
-              );
-              const approvalToken = tokens[approvalTokenIndex];
-              const approvalAmount = parseUnits(
-                approvalToken.amount,
-                approvalToken?.decimals ?? 18,
-              );
+        <DynamicPoolCreationPreview
+          open={isPreviewOpen}
+          setOpen={setPreviewOpen}
+          tokens={tokens}
+          weights={weights}
+          poolName={poolName}
+          poolSymbol={poolSymbol}
+          poolType={poolType}
+          swapFee={swapFee}
+          ownerAddress={owner}
+          ownershipType={ownershipType}
+          amplification={amplification}
+          isLoadingCreatePoolTx={isLoadingCreatePoolTx}
+          isSubmittingCreatePoolTx={isSubmittingCreatePoolTx}
+          writeCreatePool={() => {
+            console.log("createPoolArgs", createPoolArgs);
+            writeCreatePool(createPoolArgs);
+          }}
+          tokensNeedApproval={tokensNeedApproval}
+          refreshAllowances={refreshAllowances}
+        />
 
-              return (
-                <ApproveButton
-                  amount={approvalAmount}
-                  disabled={
-                    approvalAmount === BigInt(0) ||
-                    !isConnected ||
-                    approvalToken.exceeding
-                  }
-                  token={approvalToken}
-                  spender={balancerVaultAddress}
-                  onApproval={() => refreshAllowances()}
-                />
-              );
-            })()
-          ) : (
-            <ActionButton>
-              <Button
-                disabled={
-                  !isConnected ||
-                  !createPoolArgs ||
-                  tokensNeedApproval.length > 0 ||
-                  !isRelayerApproved ||
-                  !isAddress(owner) ||
-                  poolName.length === 0 ||
-                  poolSymbol.length === 0 ||
-                  isLoadingCreatePoolTx ||
-                  isSubmittingCreatePoolTx ||
-                  isLoadingPools ||
-                  errorLoadingPools ||
-                  weightsError !== null ||
-                  tokens.some((t) => t.amount === "0")
-                }
-                className="w-full"
-                onClick={() => {
-                  console.log("createPoolArgs", createPoolArgs);
-                  writeCreatePool(createPoolArgs);
-                }}
-              >
-                Create Pool
-                {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
-              </Button>
-            </ActionButton>
-          )}
-          {errorMessage && (
-            <Alert
-              variant="destructive"
-              className="my-4 text-destructive-foreground"
-            >
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </section>
+        {errorMessage && (
+          <Alert
+            variant="destructive"
+            className="my-4 text-destructive-foreground"
+          >
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
       </div>
     </div>
   );
