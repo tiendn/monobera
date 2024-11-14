@@ -17,9 +17,11 @@ import {
 import {
   ActionButton,
   ApproveButton,
+  TokenInput,
   useAnalytics,
   useTxn,
 } from "@bera/shared-ui";
+import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
@@ -37,15 +39,14 @@ import { usePublicClient } from "wagmi";
 import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { TokenInput } from "~/hooks/useMultipleTokenInput";
+import { TokenInput as TokenInputType } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
-import CreatePoolInitialLiquidityInput from "../components/create-pool-initial-liquidity-input";
 import CreatePoolInput from "../components/create-pool-input";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
 
-const emptyToken: TokenInput = {
+const emptyToken: TokenInputType = {
   address: "" as `0x${string}`,
   amount: "0",
   decimals: 18,
@@ -60,7 +61,10 @@ export default function CreatePageContent() {
   const { account, isConnected } = useBeraJs();
   const publicClient = usePublicClient();
 
-  const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
+  const [tokens, setTokens] = useState<TokenInputType[]>([
+    emptyToken,
+    emptyToken,
+  ]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [swapFee, setSwapFee] = useState<number>(0.1);
@@ -118,8 +122,8 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-          ? "0x0000000000000000000000000000000000000000"
-          : account || zeroAddress,
+        ? "0x0000000000000000000000000000000000000000"
+        : account || zeroAddress,
     );
   };
 
@@ -221,7 +225,7 @@ export default function CreatePageContent() {
           amount: "0",
           exceeding: false,
           ...token,
-        } as TokenInput;
+        } as TokenInputType;
       }
       return updatedTokens;
     });
@@ -230,15 +234,13 @@ export default function CreatePageContent() {
   // Update a specific token's amount and exceeding status (comes from liquidity input)
   const handleTokenChange = (
     index: number,
-    amount: string,
-    exceeding: boolean,
-  ) => {
+    newValues: Partial<TokenInputType>,
+  ): void => {
     setTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
       updatedTokens[index] = {
         ...updatedTokens[index],
-        amount,
-        exceeding,
+        ...newValues,
       };
       return updatedTokens;
     });
@@ -388,13 +390,25 @@ export default function CreatePageContent() {
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
                 // TODO (#): we should use this to handle incorrect liquidity supply
-                <CreatePoolInitialLiquidityInput
+                <TokenInput
                   key={`liq-${index}`}
+                  selected={token}
+                  amount={token.amount}
                   disabled={false}
-                  token={token}
-                  onTokenChange={(amount, exceeding) =>
-                    handleTokenChange(index, amount, exceeding)
+                  onTokenSelection={() => {}}
+                  setAmount={(amount) => handleTokenChange(index, { amount })}
+                  onExceeding={(isExceeding) =>
+                    handleTokenChange(index, { exceeding: isExceeding })
                   }
+                  showExceeding
+                  hidePrice={false}
+                  selectable={false}
+                  forceShowBalance={true}
+                  hideMax={false}
+                  className={cn(
+                    "w-full grow border-0 bg-transparent pr-4 text-right text-2xl font-semibold outline-none",
+                    token.exceeding && "text-destructive-foreground",
+                  )}
                 />
               ))}
             </ul>
