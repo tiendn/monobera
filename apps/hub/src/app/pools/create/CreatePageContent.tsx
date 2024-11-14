@@ -78,6 +78,10 @@ export default function CreatePageContent() {
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
+  const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
+    useSubgraphTokenInformations({
+      tokenAddresses: tokens.map((token) => token?.address),
+    });
 
   async function getPoolIdFromTx(txHash: `0x${string}`) {
     const receipt = await publicClient?.waitForTransactionReceipt({
@@ -389,11 +393,12 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                // TODO (#): we should use this to handle incorrect liquidity supply
+                // TODO (#): we ought to handle isLoadingTokenPrices in price display
                 <TokenInput
                   key={`liq-${index}`}
                   selected={token}
                   amount={token.amount}
+                  price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
                   disabled={false}
                   onTokenSelection={() => {}}
                   setAmount={(amount) => handleTokenChange(index, { amount })}
