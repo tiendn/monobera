@@ -34,6 +34,7 @@ import { GqlPoolEventType, GqlPoolType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 import { Icons } from "@bera/ui/icons";
+import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -161,8 +162,6 @@ export default function PoolPageContent({
   const { data: rewardVault } = useRewardVaultBalanceFromStakingToken({
     stakingToken: pool?.address as Address,
   });
-
-  console.log(userLpBalance?.balance === 0n);
 
   const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
@@ -401,68 +400,63 @@ export default function PoolPageContent({
               </CardContent>
             </Card>
             {didUserDeposit ? (
-              <>
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex w-full items-center justify-between text-lg font-semibold">
-                      <h3 className="text-md font-semibold capitalize">
-                        Receipt Tokens
-                      </h3>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          className="block disabled:pointer-events-none disabled:opacity-50"
-                          size="md"
-                          disabled={userLpBalance?.balance === 0n}
-                          as={Link}
-                          href={
-                            rewardVault && rewardVault?.address !== ADDRESS_ZERO
-                              ? getRewardsVaultUrl(rewardVault?.address ?? "0x")
-                              : "/vaults/create-gauge/"
-                          }
-                        >
-                          Stake
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="block"
-                          size="md"
-                          disabled={rewardVault?.balance === 0n}
-                          as={Link}
-                          href={
-                            rewardVault && rewardVault?.address !== ADDRESS_ZERO
-                              ? getRewardsVaultUrl(rewardVault?.address ?? "0x")
-                              : "/vaults/create-gauge/"
-                          }
-                        >
-                          Unstake
-                        </Button>
+              rewardVault && rewardVault.address !== ADDRESS_ZERO ? (
+                <>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex w-full items-center justify-between text-lg font-semibold">
+                        <h3 className="text-md font-semibold capitalize">
+                          Receipt Tokens
+                        </h3>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            className="block disabled:pointer-events-none disabled:opacity-50"
+                            size="md"
+                            disabled={userLpBalance?.balance === 0n}
+                            as={Link}
+                            href={getRewardsVaultUrl(
+                              rewardVault?.address ?? "0x",
+                            )}
+                          >
+                            Stake
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="block"
+                            size="md"
+                            disabled={rewardVault?.balance === 0n}
+                            as={Link}
+                            href={getRewardsVaultUrl(
+                              rewardVault?.address ?? "0x",
+                            )}
+                          >
+                            Unstake
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-4 grow self-stretch font-medium">
-                      <div className="flex justify-between w-full">
-                        <h4 className="font-semibold">Available</h4>
-                        <FormattedNumber
-                          className="text-muted-foreground"
-                          value={userLpBalance?.formattedBalance ?? 0}
-                        />
+                      <div className="mt-4 grow self-stretch font-medium">
+                        <div className="flex justify-between w-full">
+                          <h4 className="font-semibold">Available</h4>
+                          <FormattedNumber
+                            className="text-muted-foreground"
+                            value={userLpBalance?.formattedBalance ?? 0}
+                          />
+                        </div>
+                        <div className="flex justify-between w-full">
+                          <h4 className="font-semibold">Staked</h4>
+                          <FormattedNumber
+                            className="text-muted-foreground"
+                            value={formatUnits(
+                              BigInt(rewardVault?.balance ?? "0"),
+                              userLpBalance?.decimals ?? 18,
+                            )}
+                          />
+                        </div>
                       </div>
-                      <div className="flex justify-between w-full">
-                        <h4 className="font-semibold">Staked</h4>
-                        <FormattedNumber
-                          className="text-muted-foreground"
-                          value={formatUnits(
-                            BigInt(rewardVault?.balance ?? "0"),
-                            userLpBalance?.decimals ?? 18,
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  {rewardVault?.address &&
-                  rewardVault.address !== ADDRESS_ZERO ? (
+                    </CardContent>
+                  </Card>
+                  <Card>
                     <CardContent className="p-4">
                       <div className="flex justify-between w-full">
                         <div>
@@ -509,32 +503,11 @@ export default function PoolPageContent({
                         )}
                       </div>
                     </CardContent>
-                  ) : (
-                    <CardContent className="p-4">
-                      <div className="flex justify-between gap-2 items-center w-full">
-                        <div>
-                          <h3 className="text-md font-semibold capitalize">
-                            No Reward Vault
-                          </h3>
-                          <p className="text-muted-foreground font-medium text-sm">
-                            There is no reward vault connected to this pool
-                          </p>
-                        </div>
-                        <div>
-                          <Button
-                            variant="outline"
-                            size="md"
-                            as={Link}
-                            href="/vaults/create-gauge/"
-                          >
-                            Create
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              </>
+                  </Card>
+                </>
+              ) : (
+                <PoolCreateRewardVault />
+              )
             ) : null}
           </div>
         )}

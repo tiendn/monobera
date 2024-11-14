@@ -39,7 +39,7 @@ export const PoolSummary = ({ pool }: { pool: MinimalPoolInListFragment }) => {
               {(Number(pool?.dynamicData?.swapFee) * 100).toFixed(2)}%
             </span>
           </Badge>
-          {pool.userBalance && Number(pool.userBalance.walletBalance) > 0 && (
+          {pool.userBalance && pool.userBalance.walletBalance !== "0" && (
             <Badge
               variant="success"
               className="border-none bg-success px-2 py-1 text-[10px] leading-[10px] "
