@@ -98,7 +98,7 @@ export const usePoolTable = ({
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Fees"
+            title="Fees (24h)"
             // tooltip="Total trading fees this pool has generated in the last 24 hours, valued in HONEY"
             className="whitespace-nowrap"
           />
@@ -129,7 +129,7 @@ export const usePoolTable = ({
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Volume"
+            title="Volume (24h)"
             // tooltip="Total trading or transaction volume in the last 24 hours"
             className="whitespace-nowrap"
           />

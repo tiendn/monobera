@@ -148,11 +148,10 @@ export default function PoolPageContent({
   const [pool, v3Pool] = data ?? [];
 
   const { isConnected } = useBeraJs();
-  const { data: userBalance, isLoading: isUserBalanceLoading } = usePollBalance(
-    {
+  const { data: userLpBalance, isLoading: isUserLpBalanceLoading } =
+    usePollBalance({
       address: pool?.address,
-    },
-  );
+    });
 
   const isLoading = isPoolLoading;
 
@@ -162,6 +161,8 @@ export default function PoolPageContent({
   const { data: rewardVault } = useRewardVaultBalanceFromStakingToken({
     stakingToken: pool?.address as Address,
   });
+
+  console.log(userLpBalance?.balance === 0n);
 
   const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
@@ -212,7 +213,10 @@ export default function PoolPageContent({
           {
             title: "Fee",
             content: pool ? (
-              <>{Number(pool?.swapFee ?? 0) * 100}%</>
+              <FormattedNumber
+                suffixText="%"
+                value={Number(pool?.swapFee ?? 0) * 100}
+              />
             ) : (
               <Skeleton className="h-4 w-8" />
             ),
@@ -357,7 +361,7 @@ export default function PoolPageContent({
                   <>
                     <div className="mt-4 grow self-stretch">
                       <TokenView
-                        isLoading={isUserBalanceLoading || isPoolLoading}
+                        isLoading={isUserLpBalanceLoading || isPoolLoading}
                         tokens={
                           pool?.tokens
                             ?.filter((t) => t.address !== pool.address)
@@ -376,7 +380,7 @@ export default function PoolPageContent({
                     </div>
                     <div className="flex justify-between w-full font-medium">
                       <span>Total</span>
-                      {isUserBalanceLoading || tvlInUsd === undefined ? (
+                      {isUserLpBalanceLoading || tvlInUsd === undefined ? (
                         <Skeleton className="h-[32px] w-[150px]" />
                       ) : (
                         <FormattedNumber
@@ -407,8 +411,9 @@ export default function PoolPageContent({
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
-                          className="block"
+                          className="block disabled:pointer-events-none disabled:opacity-50"
                           size="md"
+                          disabled={userLpBalance?.balance === 0n}
                           as={Link}
                           href={
                             rewardVault && rewardVault?.address !== ADDRESS_ZERO
@@ -418,6 +423,20 @@ export default function PoolPageContent({
                         >
                           Stake
                         </Button>
+                        <Button
+                          variant="outline"
+                          className="block"
+                          size="md"
+                          disabled={rewardVault?.balance === 0n}
+                          as={Link}
+                          href={
+                            rewardVault && rewardVault?.address !== ADDRESS_ZERO
+                              ? getRewardsVaultUrl(rewardVault?.address ?? "0x")
+                              : "/vaults/create-gauge/"
+                          }
+                        >
+                          Unstake
+                        </Button>
                       </div>
                     </div>
                     <div className="mt-4 grow self-stretch font-medium">
@@ -425,7 +444,7 @@ export default function PoolPageContent({
                         <h4 className="font-semibold">Available</h4>
                         <FormattedNumber
                           className="text-muted-foreground"
-                          value={userBalance?.formattedBalance ?? 0}
+                          value={userLpBalance?.formattedBalance ?? 0}
                         />
                       </div>
                       <div className="flex justify-between w-full">
@@ -434,7 +453,7 @@ export default function PoolPageContent({
                           className="text-muted-foreground"
                           value={formatUnits(
                             BigInt(rewardVault?.balance ?? "0"),
-                            userBalance?.decimals ?? 18,
+                            userLpBalance?.decimals ?? 18,
                           )}
                         />
                       </div>

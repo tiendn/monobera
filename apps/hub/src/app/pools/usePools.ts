@@ -1,11 +1,10 @@
-import { useMemo, useState } from "react";
-import { useBeraJs, useBgtInflation, type PoolV2 } from "@bera/berajs";
+import { useMemo } from "react";
+import { useBeraJs } from "@bera/berajs";
 import { bexApiGraphqlClient } from "@bera/graphql";
 import {
   GetPools,
   GetPoolsQuery,
   GetPoolsQueryVariables,
-  MinimalPoolInListFragment,
 } from "@bera/graphql/dex/api";
 import { POLLING } from "@bera/shared-ui";
 import useSWR from "swr";
