@@ -402,7 +402,6 @@ export default function CreatePageContent() {
                   isActionLoading={isLoadingTokenPrices}
                   price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
                   disabled={false}
-                  onTokenSelection={() => {}}
                   setAmount={(amount) => handleTokenChange(index, { amount })}
                   onExceeding={(isExceeding) =>
                     handleTokenChange(index, { exceeding: isExceeding })
