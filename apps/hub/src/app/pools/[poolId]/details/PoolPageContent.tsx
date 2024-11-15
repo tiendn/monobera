@@ -147,21 +147,23 @@ export default function PoolPageContent({
     id: poolId,
   });
 
-  const { data: onChainPoolData } = useOnChainPoolData(poolId);
+  const { data: onChainPool } = useOnChainPoolData(poolId);
 
-  const [_pool, v3Pool] = data ?? [];
+  const [subgraphPool, v3Pool] = data ?? [];
 
   const pool = useMemo(() => {
-    if (!_pool) return onChainPoolData;
-    const merge = { ..._pool };
-    if (onChainPoolData) {
-      merge.swapFee = onChainPoolData.swapFee;
-      merge.totalShares = onChainPoolData.totalShares;
-      merge.createTime = onChainPoolData.createTime ?? merge.createTime;
+    if (!subgraphPool) return onChainPool;
+
+    const merge = { ...subgraphPool };
+
+    if (onChainPool) {
+      merge.swapFee = onChainPool.swapFee;
+      merge.totalShares = onChainPool.totalShares;
+      merge.createTime = onChainPool.createTime ?? merge.createTime;
     }
 
     return merge;
-  }, [onChainPoolData, _pool]);
+  }, [onChainPool, subgraphPool]);
 
   const { isConnected } = useBeraJs();
 

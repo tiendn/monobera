@@ -81,15 +81,19 @@ export default function CreatePageContent() {
 
     try {
       const decodedLogs = receipt?.logs.map((log) => {
-        return decodeEventLog({
-          abi: [
-            ...balancerPoolCreationHelperAbi,
-            ...vaultV2Abi,
-            ...weightedPoolFactoryV4Abi_V2,
-          ],
-          ...log,
-          strict: false,
-        });
+        try {
+          return decodeEventLog({
+            abi: [
+              ...balancerPoolCreationHelperAbi,
+              ...vaultV2Abi,
+              ...weightedPoolFactoryV4Abi_V2,
+            ],
+            ...log,
+            strict: false,
+          });
+        } catch (error) {
+          return null;
+        }
       });
 
       const event = decodedLogs?.find(
@@ -262,6 +266,9 @@ export default function CreatePageContent() {
       track("create_pool_success");
 
       const poolId = await getPoolIdFromTx(txHash as `0x${string}`);
+
+      console.log("poolId", poolId);
+
       if (poolId) {
         return router.push(getPoolUrl({ id: poolId }));
       }

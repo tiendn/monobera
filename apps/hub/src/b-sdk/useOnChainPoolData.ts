@@ -3,11 +3,12 @@ import { balancerVaultAddress } from "@bera/config";
 import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex/api";
 import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 import {
+  composabableStablePoolV5Abi_V2,
   vaultV2Abi,
   weightedPoolV4Abi_V2,
 } from "@berachain-foundation/berancer-sdk";
 import useSWRImmutable from "swr/immutable";
-import { Address, erc20Abi, formatEther, isAddress } from "viem";
+import { Address, erc20Abi, formatEther, formatUnits, isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
 export function useOnChainPoolData(poolId: string) {
@@ -23,7 +24,7 @@ export function useOnChainPoolData(poolId: string) {
     async () => {
       if (!publicClient) return undefined;
 
-      const [name, poolTokens, totalShares, swapFee, version] =
+      const [name, poolTokens, totalSupply, swapFee, _version, decimals] =
         await Promise.all([
           publicClient.readContract({
             address,
@@ -38,7 +39,7 @@ export function useOnChainPoolData(poolId: string) {
           }),
           publicClient.readContract({
             address,
-            abi: erc20Abi,
+            abi: composabableStablePoolV5Abi_V2,
             functionName: "totalSupply",
           }),
           publicClient.readContract({
@@ -51,14 +52,45 @@ export function useOnChainPoolData(poolId: string) {
             abi: weightedPoolV4Abi_V2,
             functionName: "version",
           }),
+          publicClient.readContract({
+            address,
+            abi: weightedPoolV4Abi_V2,
+            functionName: "decimals",
+          }),
         ]);
+
+      const version = JSON.parse(_version);
+
+      let virtualSupply;
+
+      if (version.name === "ComposableStablePool") {
+        // This returns the actual supply excluding preminted BPTs
+        virtualSupply = await publicClient.readContract({
+          address,
+          abi: [
+            {
+              type: "function",
+              name: "getActualSupply",
+              stateMutability: "view",
+              inputs: [],
+              outputs: [
+                {
+                  type: "uint256",
+                },
+              ],
+            },
+          ],
+          functionName: "getActualSupply",
+        });
+      }
 
       return {
         name,
         poolTokens,
-        totalShares,
+        totalSupply: virtualSupply ?? totalSupply,
         swapFee,
-        version: JSON.parse(version),
+        decimals,
+        version,
       };
     },
   );
@@ -76,7 +108,7 @@ export function useOnChainPoolData(poolId: string) {
       poolData.version.name === "ComposableStablePool"
         ? GqlPoolType.Stable
         : GqlPoolType.Weighted,
-    totalShares: poolData.totalShares.toString(),
+    totalShares: formatUnits(poolData.totalSupply, poolData.decimals),
     totalLiquidity: undefined,
     swapFee: formatEther(poolData.swapFee),
     createTime: 0,
@@ -86,7 +118,7 @@ export function useOnChainPoolData(poolId: string) {
       name: token.name,
       decimals: token.decimals,
       symbol: token.symbol,
-      balance: poolData.poolTokens[0][idx],
+      balance: formatUnits(poolData.poolTokens[1][idx], token.decimals),
       token: { __typename: "Token", token },
     })),
   };
