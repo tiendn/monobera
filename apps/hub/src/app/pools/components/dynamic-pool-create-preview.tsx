@@ -1,12 +1,14 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import {
+  SubgraphTokenInformations,
   balancerVaultAbi,
   formatUsd,
   getSafeNumber,
   useBeraJs,
-  useSubgraphTokenInformations,
 } from "@bera/berajs";
 import {
   balancerPoolCreationHelper,
@@ -32,16 +34,19 @@ import { formatUnits, parseUnits } from "viem";
 
 import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
+import { getPoolUrl } from "../fetchPools";
 import { OwnershipType } from "./ownership-input";
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
   tokens: TokenInput[];
+  tokenPrices?: SubgraphTokenInformations;
   weights: bigint[];
   poolName: string;
   poolSymbol: string;
   poolType: string;
+  poolId: string;
   swapFee: number;
   ownerAddress: string;
   ownershipType: OwnershipType;
@@ -59,10 +64,12 @@ export default function DynamicPoolCreationPreview({
   open,
   setOpen,
   tokens,
+  tokenPrices,
   weights,
   poolName,
   poolSymbol,
   poolType,
+  poolId,
   swapFee,
   ownerAddress,
   ownershipType,
@@ -76,7 +83,7 @@ export default function DynamicPoolCreationPreview({
   refreshAllowances,
 }: Props) {
   // Get relayer approval status and refresh function
-  const router = useRouter(); // FIXME this seems to not be able to go here.
+  const router = useRouter();
   const { account } = useBeraJs();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -138,22 +145,33 @@ export default function DynamicPoolCreationPreview({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="rounded-lg bg-black p-8 text-white sm:w-[500px]">
         <DialogHeader>
-          <DialogTitle className="mb-1 text-sm font-semibold text-gray-400">
-            {poolType}
-          </DialogTitle>
           {isSuccessCreatePoolTx ? (
-            <div className="flex flex-row items-center">
+            <div className="mx-auto flex max-w-xs flex-col items-center gap-2">
               <Image
                 src={`${cloudinaryUrl}/DEX/ycllsahokol33hfs8yx6.png`}
                 alt="Success Polar Bear"
                 width={240}
                 height={150}
               />
-              {/* FIXME TOKEN ICONS */}
-              <h3 className="text-3xl font-bold">{`${poolName} has been successfully created`}</h3>
+              <div className="flex flex-row items-center gap-2">
+                {tokens.map((token, idx: number) => (
+                  <TokenIcon
+                    key={`${token}-${idx}`}
+                    address={token.address}
+                    size={"2xl"}
+                    className="ml-[-18px]"
+                  />
+                ))}
+              </div>
+              <h3 className="text-center text-xl font-bold">{`${poolName} has been successfully created`}</h3>
             </div>
           ) : (
-            <h2 className="text-3xl font-bold">{poolName}</h2>
+            <>
+              <DialogTitle className="mb-1 text-sm font-semibold text-gray-400">
+                {poolType}
+              </DialogTitle>
+              <h2 className="text-3xl font-bold">{poolName}</h2>
+            </>
           )}
         </DialogHeader>
 
@@ -175,7 +193,16 @@ export default function DynamicPoolCreationPreview({
                     </span>
                   )}
                 </div>
-                <span className="text-sm text-gray-400">{token.amount}</span>
+                <span className="text-sm text-white">
+                  {Number(token.amount).toFixed(2)}{" "}
+                  <span className="text-gray-400">
+                    {tokenPrices?.[token.address] &&
+                      `(${formatUsd(
+                        tokenPrices[token.address] *
+                          getSafeNumber(token.amount),
+                      )})`}
+                  </span>
+                </span>
               </div>
             ))}
           </section>
@@ -186,11 +213,13 @@ export default function DynamicPoolCreationPreview({
           <section className="space-y-2">
             <div className="flex justify-between">
               <span className="font-semibold text-gray-400">Pool Name</span>
-              <span className="text-xs font-medium text-white">{poolName}</span>
+              <span className="w-2/3 text-right text-xs font-medium text-white">
+                {poolName}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="font-semibold text-gray-400">Pool Symbol</span>
-              <span className="text-xs font-medium text-white">
+              <span className="w-2/3 text-right text-xs font-medium text-white">
                 {poolSymbol}
               </span>
             </div>
@@ -296,18 +325,16 @@ export default function DynamicPoolCreationPreview({
               )}
             </>
           ) : (
-            <div className="flex flex-row gap-4">
-              {/* <Button
-                variant="info"
+            <div className="flex flex-col gap-4">
+              <Button
                 onClick={() => {
-                  router.push("/pools");
-                  // FIXME this is actually somewhat hard - we have to ingest and process the on-chain event from the tx.
+                  router.push(getPoolUrl({ id: poolId }));
                 }}
               >
                 View Pool
-              </Button> */}
+              </Button>
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={() => {
                   router.push("/pools");
                 }}

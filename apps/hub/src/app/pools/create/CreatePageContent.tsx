@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   balancerPoolCreationHelperAbi,
-  balancerVaultAbi,
   useBeraJs,
   useCreatePool,
   useSubgraphTokenInformations,
@@ -12,12 +11,10 @@ import {
 } from "@bera/berajs";
 import {
   balancerDelegatedOwnershipAddress,
-  balancerPoolCreationHelper,
   balancerVaultAddress,
 } from "@bera/config";
 import {
   ActionButton,
-  ApproveButton,
   TokenInput,
   useAnalytics,
   useTxn,
@@ -98,7 +95,9 @@ export default function CreatePageContent() {
             abi: [
               ...balancerPoolCreationHelperAbi,
               ...vaultV2Abi,
-              ...weightedPoolFactoryV4Abi_V2,
+              ...(poolType === PoolType.Weighted
+                ? weightedPoolFactoryV4Abi_V2
+                : composabableStablePoolV5Abi_V2),
             ],
             ...log,
             strict: false,
@@ -129,8 +128,8 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-        ? "0x0000000000000000000000000000000000000000"
-        : account || zeroAddress,
+          ? "0x0000000000000000000000000000000000000000"
+          : account || zeroAddress,
     );
   };
 
@@ -230,6 +229,7 @@ export default function CreatePageContent() {
   // Create the pool with UX feedback
   const [createPoolErrorMessage, setCreatePoolErrorMessage] =
     useState<string>("");
+  const [poolId, setPoolId] = useState<string>("");
   const {
     write: writeCreatePool,
     ModalPortal,
@@ -240,13 +240,10 @@ export default function CreatePageContent() {
     message: "Creating new pool...",
     onSuccess: async (txHash) => {
       track("create_pool_success");
-
       const poolId = await getPoolIdFromTx(txHash as `0x${string}`);
-
       console.log("poolId", poolId);
-
       if (poolId) {
-        return router.push(getPoolUrl({ id: poolId }));
+        setPoolId(poolId);
       }
     },
     onError: (e) => {
@@ -444,7 +441,23 @@ export default function CreatePageContent() {
         </section>
 
         <ActionButton>
-          <Button onClick={() => setPreviewOpen(true)} className="w-full">
+          <Button
+            onClick={() => setPreviewOpen(true)}
+            className="w-full"
+            disabled={
+              !poolName ||
+              !poolSymbol ||
+              !owner ||
+              !isAddress(owner) ||
+              !tokens.every(
+                (token) =>
+                  token.address && Number(token.amount) > 0 && !token.exceeding,
+              ) ||
+              (poolType === PoolType.Weighted
+                ? !weights.every((weight) => weight > 0n)
+                : !amplification)
+            }
+          >
             Preview
           </Button>
         </ActionButton>
@@ -453,10 +466,12 @@ export default function CreatePageContent() {
           open={isPreviewOpen}
           setOpen={setPreviewOpen}
           tokens={tokens}
+          tokenPrices={tokenPrices} // TODO: it would make more sense to set these inside TokenInput.usdValue
           weights={weights}
           poolName={poolName}
           poolSymbol={poolSymbol}
           poolType={poolType}
+          poolId={poolId}
           swapFee={swapFee}
           ownerAddress={owner}
           ownershipType={ownershipType}
