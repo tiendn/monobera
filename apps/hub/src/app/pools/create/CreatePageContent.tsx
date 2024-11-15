@@ -54,6 +54,8 @@ const emptyToken: TokenInputType = {
   symbol: "",
 };
 
+const LIQUIDITY_MISMATCH_TOLERANCE_PERCENT = 0.05; // 5%
+
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
@@ -262,6 +264,74 @@ export default function CreatePageContent() {
     }
   }, [isPreviewOpen]);
 
+  const [liquidityMismatchWarning, setLiquidityMismatchWarning] = useState<
+    string | null
+  >(null);
+  useEffect(() => {
+    if (!tokenPrices || !tokens || !weights) return;
+
+    let totalLiquidityUSD = 0;
+    const tokenUSDValues: number[] = [];
+    let liquidityMismatch = false;
+
+    // Calculate total liquidity in USD and individual token USD contributions
+    tokens.forEach((token) => {
+      const tokenPriceUSD = tokenPrices[token.address];
+      const tokenAmount = parseFloat(token.amount);
+
+      if (!tokenPriceUSD || tokenAmount <= 0) return;
+      const tokenLiquidityUSD = Number(tokenPriceUSD) * tokenAmount;
+      tokenUSDValues.push(tokenLiquidityUSD);
+      totalLiquidityUSD += tokenLiquidityUSD;
+    });
+
+    if (
+      poolType === PoolType.Stable ||
+      poolType === PoolType.ComposableStable
+    ) {
+      // For stable pools, ensure all token USD values are roughly equal
+      const averageLiquidityUSD =
+        tokenUSDValues.reduce((sum, value) => sum + value, 0) /
+        tokenUSDValues.length;
+
+      const mismatchTolerance =
+        LIQUIDITY_MISMATCH_TOLERANCE_PERCENT * averageLiquidityUSD;
+
+      liquidityMismatch = tokenUSDValues.some(
+        (value) => Math.abs(value - averageLiquidityUSD) > mismatchTolerance,
+      );
+    } else if (poolType === PoolType.Weighted) {
+      // For weighted pools, handle weight-based mismatch
+      const totalWeight = weights.reduce((sum, weight) => sum + weight, 0n);
+
+      tokens.forEach((_, index) => {
+        const weightDecimal =
+          Number(weights[index]) / Number(parseUnits("1", 18));
+        const weightProportion = weightDecimal / Number(totalWeight);
+        const expectedWeightUSD = weightProportion * totalLiquidityUSD;
+        const mismatchTolerance =
+          LIQUIDITY_MISMATCH_TOLERANCE_PERCENT * totalLiquidityUSD;
+
+        if (
+          Math.abs(tokenUSDValues[index] - expectedWeightUSD) >
+          mismatchTolerance
+        ) {
+          liquidityMismatch = true;
+        }
+      });
+    }
+
+    if (liquidityMismatch) {
+      setLiquidityMismatchWarning(
+        poolType === PoolType.Weighted
+          ? "Warning: Liquidity input amounts do not match token weights. This may cause arbitrage after pool creation."
+          : "Warning: Liquidity input amounts are imbalanced in USD value. This may cause arbitrage after pool creation.",
+      );
+    } else {
+      setLiquidityMismatchWarning(null);
+    }
+  }, [tokenPrices, tokens, weights, poolType]);
+
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
       {ModalPortal}
@@ -374,7 +444,7 @@ export default function CreatePageContent() {
                 />
               ))}
             </ul>
-            {poolType === PoolType.Weighted && (
+            {liquidityMismatchWarning && (
               <p>
                 Warning: if you seed liquidity in amounts that differ (in terms
                 of USD) from the weighting you are likely to encounter arbitrage
