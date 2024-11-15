@@ -255,6 +255,13 @@ export default function CreatePageContent() {
     },
   });
 
+  // reset the error message if you close/reopen the preview
+  useEffect(() => {
+    if (!isPreviewOpen) {
+      setCreatePoolErrorMessage("");
+    }
+  }, [isPreviewOpen]);
+
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
       {ModalPortal}
