@@ -16,9 +16,8 @@ import { balancerVaultAddress, cloudinaryUrl } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
-  InfoBoxList,
-  InfoBoxListItem,
   PreviewToken,
+  Spinner,
   TokenIcon,
   TokenInput,
   TokenList,
@@ -201,7 +200,10 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
       <Card className="mx-6 w-full sm:w-[480px] md:mx-0 ">
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
-            Add Liquidity
+            <span className="flex items-center gap-2">
+              Add Liquidity
+              {isLoadingAddLiquidity && <Spinner color="white" size={16} />}
+            </span>
             <SettingsPopover showDeadline={false} />
           </CardTitle>
         </CardHeader>
