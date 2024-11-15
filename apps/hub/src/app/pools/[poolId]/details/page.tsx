@@ -19,7 +19,7 @@ export async function generateMetadata({
 }: {
   params: { poolId: string };
 }): Promise<Metadata> {
-  if (!params.poolId) return { title: "Pool" };
+  if (isIPFS || !params.poolId) return { title: "Pool" };
 
   const poolName = await readContract(wagmiConfig, {
     address: params.poolId.slice(0, 42) as Address,
