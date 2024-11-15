@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  balancerPoolCreationHelperAbi,
   balancerVaultAbi,
   useBeraJs,
   useCreatePool,
@@ -24,8 +25,13 @@ import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { Separator } from "@bera/ui/separator";
-import { PoolType } from "@berachain-foundation/berancer-sdk";
-import { isAddress, parseUnits, zeroAddress } from "viem";
+import {
+  PoolType,
+  composabableStablePoolV5Abi_V2,
+  vaultV2Abi,
+  weightedPoolFactoryV4Abi_V2,
+} from "@berachain-foundation/berancer-sdk";
+import { decodeEventLog, isAddress, parseUnits, zeroAddress } from "viem";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
@@ -37,6 +43,7 @@ import CreatePoolInput from "../components/create-pool-input";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
+import { usePublicClient } from "wagmi";
 
 const emptyToken: TokenInput = {
   address: "" as `0x${string}`,
@@ -66,6 +73,39 @@ export default function CreatePageContent() {
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
+
+  async function getPoolIdFromTx(txHash: `0x${string}`) {
+    const receipt = await publicClient?.waitForTransactionReceipt({
+      hash: txHash,
+    });
+
+    try {
+      const decodedLogs = receipt?.logs.map((log) => {
+        return decodeEventLog({
+          abi: [
+            ...balancerPoolCreationHelperAbi,
+            ...vaultV2Abi,
+            ...weightedPoolFactoryV4Abi_V2,
+          ],
+          ...log,
+          strict: false,
+        });
+      });
+
+      const event = decodedLogs?.find(
+        (decodedLog) => decodedLog?.eventName === "PoolRegistered",
+      );
+
+      if (!event || event.eventName !== "PoolRegistered") {
+        return null;
+      }
+
+      return event.args.poolId ?? null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 
   const handleOwnershipTypeChange = (type: OwnershipType) => {
     setOwnerShipType(type);
@@ -182,6 +222,8 @@ export default function CreatePageContent() {
     });
   };
 
+  const publicClient = usePublicClient();
+
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
     generatedPoolName,
@@ -216,9 +258,13 @@ export default function CreatePageContent() {
     isSubmitting: isSubmittingCreatePoolTx,
   } = useTxn({
     message: "Creating new pool...",
-    onSuccess: () => {
+    onSuccess: async (txHash) => {
       track("create_pool_success");
-      router.push("/pools");
+
+      const poolId = await getPoolIdFromTx(txHash as `0x${string}`);
+      if (poolId) {
+        return router.push(getPoolUrl({ id: poolId }));
+      }
     },
     onError: (e) => {
       track("create_pool_failed");
@@ -291,6 +337,7 @@ export default function CreatePageContent() {
               <AlertDescription>{weightsError}</AlertDescription>
             </Alert>
           )}
+
           {isDupePool && dupePool && (
             <Alert variant="destructive">
               <AlertTitle>Similar Pool Exists</AlertTitle>
