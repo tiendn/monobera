@@ -7,6 +7,7 @@ import {
   balancerVaultAbi,
   useBeraJs,
   useCreatePool,
+  useSubgraphTokenInformations,
   type Token,
 } from "@bera/berajs";
 import {
@@ -17,9 +18,11 @@ import {
 import {
   ActionButton,
   ApproveButton,
+  TokenInput,
   useAnalytics,
   useTxn,
 } from "@bera/shared-ui";
+import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
@@ -32,20 +35,19 @@ import {
   weightedPoolFactoryV4Abi_V2,
 } from "@berachain-foundation/berancer-sdk";
 import { decodeEventLog, isAddress, parseUnits, zeroAddress } from "viem";
+import { usePublicClient } from "wagmi";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { TokenInput } from "~/hooks/useMultipleTokenInput";
+import { TokenInput as TokenInputType } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
-import CreatePoolInitialLiquidityInput from "../components/create-pool-initial-liquidity-input";
 import CreatePoolInput from "../components/create-pool-input";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
-import { usePublicClient } from "wagmi";
 
-const emptyToken: TokenInput = {
+const emptyToken: TokenInputType = {
   address: "" as `0x${string}`,
   amount: "0",
   decimals: 18,
@@ -58,8 +60,12 @@ export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
   const { account, isConnected } = useBeraJs();
+  const publicClient = usePublicClient();
 
-  const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
+  const [tokens, setTokens] = useState<TokenInputType[]>([
+    emptyToken,
+    emptyToken,
+  ]);
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [swapFee, setSwapFee] = useState<number>(0.1);
@@ -73,6 +79,10 @@ export default function CreatePageContent() {
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
+  const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
+    useSubgraphTokenInformations({
+      tokenAddresses: tokens.map((token) => token?.address),
+    });
 
   async function getPoolIdFromTx(txHash: `0x${string}`) {
     const receipt = await publicClient?.waitForTransactionReceipt({
@@ -220,13 +230,26 @@ export default function CreatePageContent() {
           amount: "0",
           exceeding: false,
           ...token,
-        } as TokenInput;
+        } as TokenInputType;
       }
       return updatedTokens;
     });
   };
 
-  const publicClient = usePublicClient();
+  // Update a specific token's amount and exceeding status (comes from liquidity input)
+  const handleTokenChange = (
+    index: number,
+    newValues: Partial<TokenInputType>,
+  ): void => {
+    setTokens((prevTokens) => {
+      const updatedTokens = [...prevTokens];
+      updatedTokens[index] = {
+        ...updatedTokens[index],
+        ...newValues,
+      };
+      return updatedTokens;
+    });
+  };
 
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
@@ -371,22 +394,27 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                <CreatePoolInitialLiquidityInput
+                // TODO (#): we ought to handle isLoadingTokenPrices in price display
+                <TokenInput
                   key={`liq-${index}`}
+                  selected={token}
+                  amount={token.amount}
+                  isActionLoading={isLoadingTokenPrices}
+                  price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
                   disabled={false}
-                  token={token as Token}
-                  tokenAmount={token.amount}
-                  onTokenUSDValueChange={(usdValue) => {}} // TODO (#): we should use this to handle incorrect liquidity supply
-                  onTokenBalanceChange={(amount) => {
-                    setTokens((prevTokens) => {
-                      const updatedTokens = [...prevTokens];
-                      updatedTokens[index] = {
-                        ...updatedTokens[index],
-                        amount,
-                      };
-                      return updatedTokens;
-                    });
-                  }}
+                  setAmount={(amount) => handleTokenChange(index, { amount })}
+                  onExceeding={(isExceeding) =>
+                    handleTokenChange(index, { exceeding: isExceeding })
+                  }
+                  showExceeding
+                  hidePrice={false}
+                  selectable={false}
+                  forceShowBalance={true}
+                  hideMax={false}
+                  className={cn(
+                    "w-full grow border-0 bg-transparent pr-4 text-right text-2xl font-semibold outline-none",
+                    token.exceeding && "text-destructive-foreground",
+                  )}
                 />
               ))}
             </ul>
@@ -500,7 +528,11 @@ export default function CreatePageContent() {
               return (
                 <ApproveButton
                   amount={approvalAmount}
-                  disabled={approvalAmount === BigInt(0) || !isConnected}
+                  disabled={
+                    approvalAmount === BigInt(0) ||
+                    !isConnected ||
+                    approvalToken.exceeding
+                  }
                   token={approvalToken}
                   spender={balancerVaultAddress}
                   onApproval={() => refreshAllowances()}
