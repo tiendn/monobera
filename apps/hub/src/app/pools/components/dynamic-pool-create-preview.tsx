@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/router";
 import {
   balancerVaultAbi,
   formatUsd,
@@ -6,7 +8,11 @@ import {
   useBeraJs,
   useSubgraphTokenInformations,
 } from "@bera/berajs";
-import { balancerPoolCreationHelper, balancerVaultAddress } from "@bera/config";
+import {
+  balancerPoolCreationHelper,
+  balancerVaultAddress,
+  cloudinaryUrl,
+} from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
@@ -42,6 +48,8 @@ type Props = {
   amplification: number;
   isLoadingCreatePoolTx: boolean;
   isSubmittingCreatePoolTx: boolean;
+  isSuccessCreatePoolTx: boolean;
+  createPoolErrorMessage: string | null;
   writeCreatePool: () => void;
   tokensNeedApproval: any[];
   refreshAllowances: () => void;
@@ -61,11 +69,14 @@ export default function DynamicPoolCreationPreview({
   amplification,
   isLoadingCreatePoolTx,
   isSubmittingCreatePoolTx,
+  isSuccessCreatePoolTx,
+  createPoolErrorMessage,
   writeCreatePool,
   tokensNeedApproval,
   refreshAllowances,
 }: Props) {
   // Get relayer approval status and refresh function
+  const router = useRouter(); // FIXME this seems to not be able to go here.
   const { account } = useBeraJs();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -130,7 +141,20 @@ export default function DynamicPoolCreationPreview({
           <DialogTitle className="mb-1 text-sm font-semibold text-gray-400">
             {poolType}
           </DialogTitle>
-          <h2 className="text-3xl font-bold">{poolName}</h2>
+          {isSuccessCreatePoolTx ? (
+            <div className="flex flex-row items-center">
+              <Image
+                src={`${cloudinaryUrl}/DEX/ycllsahokol33hfs8yx6.png`}
+                alt="Success Polar Bear"
+                width={240}
+                height={150}
+              />
+              {/* FIXME TOKEN ICONS */}
+              <h3 className="text-3xl font-bold">{`${poolName} has been successfully created`}</h3>
+            </div>
+          ) : (
+            <h2 className="text-3xl font-bold">{poolName}</h2>
+          )}
         </DialogHeader>
 
         <div className="mt-4 space-y-6">
@@ -198,67 +222,99 @@ export default function DynamicPoolCreationPreview({
             {/* TODO (#): we will want to display rate providers here */}
           </section>
 
-          {/* Conditional Approve and Create Pool Buttons */}
-          {!isRelayerApproved ? (
-            <ActionButton>
-              <Button
-                disabled={
-                  isRelayerApprovalLoading ||
-                  isLoadingRelayerStatus ||
-                  isRelayerApprovalSubmitting
-                }
-                onClick={handleRelayerApproval}
-                className="mt-4 w-full"
-              >
-                Approve Pool Creation Helper
-                {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
-                  "..."}
-              </Button>
-            </ActionButton>
-          ) : tokensNeedApproval.length > 0 ? (
-            (() => {
-              const approvalTokenIndex = tokens.findIndex(
-                (t) => t.address === tokensNeedApproval[0]?.address,
-              );
-              const approvalToken = tokens[approvalTokenIndex];
-              const approvalAmount = parseUnits(
-                approvalToken.amount,
-                approvalToken?.decimals ?? 18,
-              );
-
-              return (
-                <ActionButton>
-                  <ApproveButton
-                    amount={approvalAmount}
-                    disabled={approvalAmount === BigInt(0)}
-                    token={approvalToken}
-                    spender={balancerVaultAddress}
-                    onApproval={() => refreshAllowances()}
-                  />
-                </ActionButton>
-              );
-            })()
-          ) : (
-            <ActionButton>
-              <Button
-                onClick={writeCreatePool}
-                disabled={isLoadingCreatePoolTx || isSubmittingCreatePoolTx}
-                className="mt-6 w-full bg-white py-3 font-semibold text-black"
-              >
-                {isLoadingCreatePoolTx || isSubmittingCreatePoolTx
-                  ? "Creating Pool..."
-                  : "Create Pool"}
-              </Button>
-            </ActionButton>
-          )}
-          {errorMessage && (
+          {/* NOTE: we display pool creation tx errors in this dialog, and not in the background page. */}
+          {(createPoolErrorMessage || errorMessage) && (
             <Alert
               variant="destructive"
               className="my-4 text-destructive-foreground"
             >
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
+              {createPoolErrorMessage && (
+                <AlertDescription>{createPoolErrorMessage}</AlertDescription>
+              )}
+              {errorMessage && (
+                <AlertDescription>{errorMessage}</AlertDescription>
+              )}
             </Alert>
+          )}
+
+          {/* Conditional Approve and Create Pool Buttons */}
+          {!isSuccessCreatePoolTx ? (
+            <>
+              {!isRelayerApproved ? (
+                <ActionButton>
+                  <Button
+                    disabled={
+                      isRelayerApprovalLoading ||
+                      isLoadingRelayerStatus ||
+                      isRelayerApprovalSubmitting
+                    }
+                    onClick={handleRelayerApproval}
+                    className="mt-4 w-full"
+                  >
+                    Approve Pool Creation Helper
+                    {(isRelayerApprovalLoading ||
+                      isRelayerApprovalSubmitting) &&
+                      "..."}
+                  </Button>
+                </ActionButton>
+              ) : tokensNeedApproval.length > 0 ? (
+                (() => {
+                  const approvalTokenIndex = tokens.findIndex(
+                    (t) => t.address === tokensNeedApproval[0]?.address,
+                  );
+                  const approvalToken = tokens[approvalTokenIndex];
+                  const approvalAmount = parseUnits(
+                    approvalToken.amount,
+                    approvalToken?.decimals ?? 18,
+                  );
+
+                  return (
+                    <ActionButton>
+                      <ApproveButton
+                        amount={approvalAmount}
+                        disabled={approvalAmount === BigInt(0)}
+                        token={approvalToken}
+                        spender={balancerVaultAddress}
+                        onApproval={() => refreshAllowances()}
+                      />
+                    </ActionButton>
+                  );
+                })()
+              ) : (
+                <ActionButton>
+                  <Button
+                    onClick={writeCreatePool}
+                    disabled={isLoadingCreatePoolTx || isSubmittingCreatePoolTx}
+                    className="mt-6 w-full bg-white py-3 font-semibold text-black"
+                  >
+                    {isLoadingCreatePoolTx || isSubmittingCreatePoolTx
+                      ? "Creating Pool..."
+                      : "Create Pool"}
+                  </Button>
+                </ActionButton>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-row gap-4">
+              {/* <Button
+                variant="info"
+                onClick={() => {
+                  router.push("/pools");
+                  // FIXME this is actually somewhat hard - we have to ingest and process the on-chain event from the tx.
+                }}
+              >
+                View Pool
+              </Button> */}
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.push("/pools");
+                }}
+              >
+                Back to all Pools
+              </Button>
+            </div>
           )}
         </div>
       </DialogContent>

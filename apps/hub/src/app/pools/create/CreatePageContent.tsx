@@ -68,7 +68,6 @@ export default function CreatePageContent() {
     emptyToken,
   ]); // TODO: we should use useMultipleTokenInput here, but it will need weight handling and the ability to add/remove inputs
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [swapFee, setSwapFee] = useState<number>(0.1);
   const [owner, setOwner] = useState<string>(balancerDelegatedOwnershipAddress);
   const [poolName, setPoolName] = useState<string>("");
@@ -143,7 +142,7 @@ export default function CreatePageContent() {
   };
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
-  const minTokensLength = 2; // i.e. for meta/stable it's 2
+  const minTokensLength = 2; // i.e. for meta/stable/weighted it's 2
   const maxTokensLength = poolType === PoolType.Weighted ? 8 : 5; // i.e. for meta/stable it's 5
 
   // check for token approvals
@@ -211,8 +210,6 @@ export default function CreatePageContent() {
     isDupePool,
     dupePool,
     createPoolArgs,
-    isLoadingPools,
-    errorLoadingPools,
   } = useCreatePool({
     tokens,
     normalizedWeights: weights,
@@ -231,11 +228,14 @@ export default function CreatePageContent() {
   }, [generatedPoolName, generatedPoolSymbol]);
 
   // Create the pool with UX feedback
+  const [createPoolErrorMessage, setCreatePoolErrorMessage] =
+    useState<string>("");
   const {
     write: writeCreatePool,
     ModalPortal,
     isLoading: isLoadingCreatePoolTx,
     isSubmitting: isSubmittingCreatePoolTx,
+    isSuccess: isSuccessCreatePoolTx,
   } = useTxn({
     message: "Creating new pool...",
     onSuccess: async (txHash) => {
@@ -254,7 +254,7 @@ export default function CreatePageContent() {
       captureException(new Error("Create pool failed"), {
         data: { rawError: e },
       });
-      setErrorMessage(`Error creating pool: ${e?.message}`);
+      setCreatePoolErrorMessage(`Error creating pool: ${e?.message}`);
     },
   });
 
@@ -467,19 +467,11 @@ export default function CreatePageContent() {
             console.log("createPoolArgs", createPoolArgs);
             writeCreatePool(createPoolArgs);
           }}
+          isSuccessCreatePoolTx={isSuccessCreatePoolTx}
+          createPoolErrorMessage={createPoolErrorMessage}
           tokensNeedApproval={tokensNeedApproval}
           refreshAllowances={refreshAllowances}
         />
-
-        {errorMessage && (
-          <Alert
-            variant="destructive"
-            className="my-4 text-destructive-foreground"
-          >
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        )}
       </div>
     </div>
   );
