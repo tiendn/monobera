@@ -20,6 +20,7 @@ const useMultipleTokenApprovalsWithSlippage = (
     () =>
       tokenInput
         .filter((token: TokenInput) => token !== undefined)
+        .filter((token) => token.amount !== "0")
         .map((token) => token),
     [tokenInput],
   );

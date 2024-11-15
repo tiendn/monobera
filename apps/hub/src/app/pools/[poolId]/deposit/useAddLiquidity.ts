@@ -121,6 +121,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
       setPriceImpact(priceImpact);
       setQueryOutput(queryOutput);
     } catch (error) {
+      console.error("Error", error);
       if (
         typeof error === "object" &&
         error !== null &&
