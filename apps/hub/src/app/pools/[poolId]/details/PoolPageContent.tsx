@@ -35,6 +35,7 @@ import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 import { Icons } from "@bera/ui/icons";
 import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
+import { useOnChainPoolData } from "~/b-sdk/useOnChainPoolData";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -146,9 +147,24 @@ export default function PoolPageContent({
     id: poolId,
   });
 
-  const [pool, v3Pool] = data ?? [];
+  const { data: onChainPoolData } = useOnChainPoolData(poolId);
+
+  const [_pool, v3Pool] = data ?? [];
+
+  const pool = useMemo(() => {
+    if (!_pool) return onChainPoolData;
+    const merge = { ..._pool };
+    if (onChainPoolData) {
+      merge.swapFee = onChainPoolData.swapFee;
+      merge.totalShares = onChainPoolData.totalShares;
+      merge.createTime = onChainPoolData.createTime ?? merge.createTime;
+    }
+
+    return merge;
+  }, [onChainPoolData, _pool]);
 
   const { isConnected } = useBeraJs();
+
   const { data: userLpBalance, isLoading: isUserLpBalanceLoading } =
     usePollBalance({
       address: pool?.address,
