@@ -4,7 +4,7 @@ import {
   bgtTokenAddress,
   honeyTokenAddress,
 } from "@bera/config";
-import { GetTokenInformation } from "@bera/graphql";
+import { GetTokenInformation, dexClient } from "@bera/graphql";
 import { Address } from "viem";
 
 import { BeraConfig } from "~/types/global";
@@ -26,11 +26,7 @@ export const getTokenHoneyPrice = async ({
   if (!config.subgraphs?.dexSubgraph) {
     throw new Error("dex subgraph uri s not found in config");
   }
-  const subgraphEndpoint = config.subgraphs?.dexSubgraph;
-  const dexClient = new ApolloClient({
-    uri: subgraphEndpoint,
-    cache: new InMemoryCache(),
-  });
+
   if (!tokenAddress) {
     return "0";
   }

@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { getRecentSwaps } from "@bera/graphql";
+import { dexClient, getRecentSwaps } from "@bera/graphql";
 import { formatUnits } from "viem";
 
 import { BeraConfig, ISwaps, PoolV2, Token } from "~/types";
@@ -37,11 +37,6 @@ export const getPoolRecentSwaps = async ({
       "getPoolRecentSwaps: missing config from params - config.subgraphs.dexSubgraph",
     );
   }
-
-  const dexClient = new ApolloClient({
-    uri: config.subgraphs?.dexSubgraph,
-    cache: new InMemoryCache(),
-  });
 
   try {
     const swaps: ISwaps[] | undefined = await dexClient

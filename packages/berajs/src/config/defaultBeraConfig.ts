@@ -3,7 +3,6 @@ import {
   beraTokenAddress,
   bgtTokenAddress,
   // TODO: remove the croc addresses & endpoints
-  crocIndexerEndpoint,
   crocSubgraphEndpoint,
   governanceSubgraphUrl,
   governanceTimelockAddress,
@@ -29,7 +28,6 @@ import type { BeraConfig } from "..";
 
 export const defaultBeraConfig: BeraConfig = {
   endpoints: {
-    dexIndexer: crocIndexerEndpoint,
     tokenList: tokenListUrl,
     validatorList: validatorListUrl,
     marketList: marketListUrl,

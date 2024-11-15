@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { beraTokenAddress } from "@bera/config";
-import { getApyInfo, getTokenHoneyPriceReq } from "@bera/graphql";
+import { dexClient, getApyInfo, getTokenHoneyPriceReq } from "@bera/graphql";
 import { Address } from "viem";
 
 import { BeraConfig } from "~/types/global";
@@ -30,11 +30,6 @@ export const getBgtApy = async ({
   }
   const bgtClient = new ApolloClient({
     uri: config.subgraphs?.polSubgraph,
-    cache: new InMemoryCache(),
-  });
-
-  const dexClient = new ApolloClient({
-    uri: config.subgraphs?.dexSubgraph,
     cache: new InMemoryCache(),
   });
 

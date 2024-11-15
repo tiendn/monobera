@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { getRecentProvisions } from "@bera/graphql";
+import { dexClient, getRecentProvisions } from "@bera/graphql";
 import { formatUnits } from "viem";
 
 import { IProvision, PoolV2 } from "~/types";
@@ -37,11 +37,6 @@ export const getPoolRecentProvisions = async ({
       "getPoolRecentProvisions: missing config from params - config.subgraphs.dexSubgraph",
     );
   }
-
-  const dexClient = new ApolloClient({
-    uri: config.subgraphs?.dexSubgraph,
-    cache: new InMemoryCache(),
-  });
 
   try {
     const provisions: IProvision[] | undefined = await dexClient

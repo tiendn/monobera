@@ -5,7 +5,6 @@ import type { Token } from "./dex";
 
 export interface BeraConfig {
   endpoints?: {
-    dexIndexer?: string;
     tokenList?: string;
     validatorList?: string;
     marketList?: string;

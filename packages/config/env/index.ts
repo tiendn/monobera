@@ -212,10 +212,6 @@ export const governanceTokenAddress = process.env
 export const governanceTimelockAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TIMELOCK_ADDRESS as Address;
 
-// Crocswap TODO (#): remove croc definitions
-export const crocIndexerEndpoint = process.env
-  .NEXT_PUBLIC_RPC_CROC_INDEXER_ENDPOINT as Address;
-
 // Balancer
 export const balancerVaultAddress = process.env
   .NEXT_PUBLIC_BALANCER_VAULT_ADDRESS as Address;

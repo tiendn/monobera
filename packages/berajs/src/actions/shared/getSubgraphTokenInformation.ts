@@ -1,9 +1,9 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { beraTokenAddress, bgtTokenAddress } from "@bera/config";
-import { GetTokenInformation } from "@bera/graphql";
+import { GetTokenInformation, dexClient } from "@bera/graphql";
 import { Address } from "viem";
-import { Token } from "~/types";
 
+import { Token } from "~/types";
 import { BeraConfig } from "~/types/global";
 import { handleNativeBera } from "~/utils";
 
@@ -23,11 +23,7 @@ export const getSubgraphTokenInformation = async ({
   if (!config.subgraphs?.dexSubgraph) {
     throw new Error("dex subgraph uri s not found in config");
   }
-  const subgraphEndpoint = config.subgraphs?.dexSubgraph;
-  const dexClient = new ApolloClient({
-    uri: subgraphEndpoint,
-    cache: new InMemoryCache(),
-  });
+
   if (!tokenAddress) {
     return undefined;
   }
