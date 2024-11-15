@@ -1,8 +1,6 @@
 import {
   blockExplorerName,
   blockExplorerUrl,
-  dexName,
-  dexUrl,
   faucetName,
   faucetUrl,
   homepageName,

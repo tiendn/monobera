@@ -1,9 +1,8 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
-import { dexName, isIPFS } from "@bera/config";
+import { hubName, isIPFS } from "@bera/config";
 
 import WithdrawPageContent from "../../[poolId]/withdraw/WithdrawPageContent";
-import { balancerApi } from "~/b-sdk/b-sdk";
 import { PoolPageWrapper } from "../details/PoolPageContent";
 import { bexSubgraphClient } from "@bera/graphql";
 import {
@@ -16,7 +15,7 @@ export { generateStaticParams } from "../details/page";
 export function generateMetadata(): Metadata {
   return {
     title: "Withdraw Liquidity",
-    description: `Withdraw your liquidity from ${dexName}`,
+    description: `Withdraw your liquidity from ${hubName}`,
   };
 }
 
