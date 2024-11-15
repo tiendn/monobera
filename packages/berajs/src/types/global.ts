@@ -13,7 +13,6 @@ export interface BeraConfig {
   };
   subgraphs?: {
     honeySubgraph?: string;
-    dexSubgraph?: string;
     lendSubgraph?: string;
     polSubgraph?: string;
     governanceSubgraph?: string;

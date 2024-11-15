@@ -36,7 +36,6 @@ export const defaultBeraConfig: BeraConfig = {
   },
   subgraphs: {
     honeySubgraph: honeySubgraphUrl,
-    dexSubgraph: crocSubgraphEndpoint, // TODO (#): swap to balancer subgraph
     lendSubgraph: lendSubgraphUrl,
     polSubgraph: polSubgraphUrl,
     governanceSubgraph: governanceSubgraphUrl,

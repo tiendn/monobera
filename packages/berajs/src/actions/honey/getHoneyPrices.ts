@@ -21,10 +21,6 @@ export const getTokenHoneyPrices = async ({
   tokenAddresses,
   config,
 }: FetchHoneyPricesArgs): Promise<TokenHoneyPrices | undefined> => {
-  if (!config.subgraphs?.dexSubgraph) {
-    throw new Error("dex subgraph uri s not found in config");
-  }
-
   if (!tokenAddresses || tokenAddresses.some((token) => token === undefined)) {
     return {};
   }

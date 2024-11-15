@@ -31,11 +31,6 @@ export const getPoolRecentSwaps = async ({
   if (!pool) {
     return undefined;
   }
-  if (!config.subgraphs?.dexSubgraph) {
-    throw new Error(
-      "getPoolRecentSwaps: missing config from params - config.subgraphs.dexSubgraph",
-    );
-  }
 
   try {
     const swaps: ISwaps[] | undefined = await dexClient

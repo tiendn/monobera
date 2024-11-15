@@ -20,10 +20,6 @@ export const getSubgraphTokenInformation = async ({
   tokenAddress,
   config,
 }: FetchSubgraphTokenInformationArgs): Promise<Token | undefined> => {
-  if (!config.subgraphs?.dexSubgraph) {
-    throw new Error("dex subgraph uri s not found in config");
-  }
-
   if (!tokenAddress) {
     return undefined;
   }
