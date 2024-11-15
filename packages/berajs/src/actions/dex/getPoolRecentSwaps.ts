@@ -1,4 +1,3 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { dexClient, getRecentSwaps } from "@bera/graphql";
 import { formatUnits } from "viem";
 

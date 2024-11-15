@@ -15,7 +15,6 @@ import { Icons } from "@bera/ui/icons";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 
-import MyPool from "./components/pools/my-pool";
 import { getPoolUrl } from "./fetchPools";
 import { usePoolTable } from "./usePoolTable";
 import { useBeraJs } from "@bera/berajs";
@@ -216,7 +215,6 @@ export const PoolSearch = ({
           ) : (
             <NotFoundBear title="No Pools found." />
           )}
-          {/* <MyPool keyword={keyword} /> */}
         </TabsContent>
       </Tabs>
     </div>
