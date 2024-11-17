@@ -29,7 +29,6 @@ export const useSubgraphTokenInformation = (
         tokenAddress: args.tokenAddress,
         config: options?.beraConfigOverride ?? beraConfig,
       });
-      console.log("useSubgraphTokenInformation", token);
       return token;
     },
     {
