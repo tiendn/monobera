@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useMultipleTokenInformation, useTokenInformation } from "@bera/berajs";
 import { balancerVaultAddress } from "@bera/config";
 import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex/api";
@@ -15,6 +16,7 @@ export function useOnChainPoolData(poolId: string) {
   const address = poolId.slice(0, 42) as Address;
   const publicClient = usePublicClient();
 
+  const [pool, setPool] = useState<SubgraphPoolFragment | undefined>(undefined);
   const isAddressValid = isAddress(address);
 
   const isValid = isAddressValid && !!publicClient;
@@ -61,7 +63,7 @@ export function useOnChainPoolData(poolId: string) {
 
       const version = JSON.parse(_version);
 
-      let virtualSupply;
+      let virtualSupply, weights;
 
       if (version.name === "ComposableStablePool") {
         // This returns the actual supply excluding preminted BPTs
@@ -82,6 +84,12 @@ export function useOnChainPoolData(poolId: string) {
           ],
           functionName: "getActualSupply",
         });
+      } else if (version.name === "WeightedPool") {
+        weights = await publicClient.readContract({
+          address,
+          abi: weightedPoolV4Abi_V2,
+          functionName: "getNormalizedWeights",
+        });
       }
 
       return {
@@ -90,6 +98,7 @@ export function useOnChainPoolData(poolId: string) {
         totalSupply: virtualSupply ?? totalSupply,
         swapFee,
         decimals,
+        weights,
         version,
       };
     },
@@ -99,29 +108,39 @@ export function useOnChainPoolData(poolId: string) {
     addresses: poolData?.poolTokens[0] ?? [],
   });
 
-  if (!poolData || !tokenInformation) return { data: undefined };
+  useEffect(() => {
+    if (!poolData || !tokenInformation) {
+      setPool(undefined);
+      return;
+    }
 
-  const pool: SubgraphPoolFragment | undefined = {
-    address,
-    id: poolId,
-    type:
-      poolData.version.name === "ComposableStablePool"
-        ? GqlPoolType.Stable
-        : GqlPoolType.Weighted,
-    totalShares: formatUnits(poolData.totalSupply, poolData.decimals),
-    totalLiquidity: undefined,
-    swapFee: formatEther(poolData.swapFee),
-    createTime: 0,
-    name: poolData.name,
-    tokens: tokenInformation.map((token, idx) => ({
-      address: token.address,
-      name: token.name,
-      decimals: token.decimals,
-      symbol: token.symbol,
-      balance: formatUnits(poolData.poolTokens[1][idx], token.decimals),
-      token: { __typename: "Token", token },
-    })),
-  };
+    const pool: SubgraphPoolFragment = {
+      address: address.toLowerCase(),
+      id: poolId.toLowerCase(),
+      type:
+        poolData.version.name === "ComposableStablePool"
+          ? GqlPoolType.Stable
+          : GqlPoolType.Weighted,
+      totalShares: formatUnits(poolData.totalSupply, poolData.decimals),
+      totalLiquidity: undefined,
+      swapFee: formatEther(poolData.swapFee),
+      createTime: 0,
+      name: poolData.name,
+      tokens: tokenInformation.map((token, idx) => ({
+        address: token.address.toLowerCase(),
+        name: token.name,
+        decimals: token.decimals,
+        symbol: token.symbol,
+        weight: poolData.weights
+          ? formatEther(poolData.weights.at(idx) ?? 0n)
+          : undefined,
+        balance: formatUnits(poolData.poolTokens[1][idx], token.decimals),
+        token: { __typename: "Token", token },
+      })),
+    };
+
+    setPool(pool);
+  }, [poolData, tokenInformation]);
 
   return {
     data: pool,
