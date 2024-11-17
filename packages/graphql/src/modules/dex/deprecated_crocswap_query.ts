@@ -38,14 +38,3 @@ export const GetTokenInformations = gql`
     }
   }
 `;
-
-export const GetWeeklyBgtInflation = gql`
-  query BgtInflation($wbera: String) {
-    globalIncentivesUsages(interval: "day", first: 7) {
-      bgtDistributed
-    }
-    tokenInformation(id: $wbera) {
-      usdValue
-    }
-  }
-`;

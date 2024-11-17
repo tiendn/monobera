@@ -200,3 +200,12 @@ query GetGauges {
     }
   }
 }
+
+query GetWeeklyBgtInflation($wbera: ID!) {
+  globalIncentivesUsages(interval: day, first: 7) {
+    bgtDistributed
+  }
+  tokenInformation(id: $wbera) {
+    usdValue
+  }
+}

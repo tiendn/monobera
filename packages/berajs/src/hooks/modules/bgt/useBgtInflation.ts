@@ -1,8 +1,9 @@
-import useSWR from "swr";
-import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
-import { beraTokenAddress, polSubgraphUrl } from "@bera/config";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { GetWeeklyBgtInflation } from "@bera/graphql";
+import { beraTokenAddress, polSubgraphUrl } from "@bera/config";
+import { GetWeeklyBgtInflation } from "@bera/graphql/pol";
+import useSWR from "swr";
+
+import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
 
 export interface BgtInflation {
   bgtPerYear: number;
