@@ -17,7 +17,6 @@ export * from "./tokens/usePollWalletBalances";
 export * from "./tokens/useMultipleTokenInformation";
 export * from "./usePollEstimateFeesPerGas";
 export * from "./tokens/useSubgraphTokenInformation";
-export * from "./tokens/useSubgraphTokenInformations";
 export * from "./useValidatorList";
 export * from "./useGaugesMetadata";
 export * from "./modules/perps/useTpsl";

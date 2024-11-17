@@ -18,7 +18,6 @@ interface FetchHoneyPriceArgs {
 /**
  * fetch the current honey price of a given token
  */
-
 export const getTokenHoneyPrice = async ({
   tokenAddress,
   config,

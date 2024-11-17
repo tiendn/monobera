@@ -7,5 +7,4 @@ export * from "./getAllowances";
 export * from "./getBeraBalance";
 export * from "./getWalletBalances";
 export * from "./getTokens";
-export * from "./getPoolRecentSwaps";
 export * from "./searchUserPools";
