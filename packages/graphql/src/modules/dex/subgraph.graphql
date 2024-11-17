@@ -30,6 +30,26 @@ query GetSubgraphPool($id: ID!) {
   }
 }
 
+fragment SubgraphToken on Token {
+  usdValue: latestUSDPrice
+  address
+  name
+  symbol
+  decimals
+}
+
+query GetToken($id: ID!) {
+  token(id: $id) {
+    ...SubgraphToken
+  }
+}
+
+query GetTokens($ids: [String!]!) {
+  tokens(where: { address_in: $ids }) {
+    ...SubgraphToken
+  }
+}
+
 query GetDedupedSubgraphPools($tokens: [Bytes!]!, $type: String!) {
   pools(
     where: { tokensList_contains_nocase: $tokens, poolType: $type }

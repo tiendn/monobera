@@ -1,6 +1,10 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { beraTokenAddress, bgtTokenAddress } from "@bera/config";
-import { GetTokenInformation, dexClient } from "@bera/graphql";
+import { bexSubgraphClient } from "@bera/graphql";
+import {
+  GetToken,
+  GetTokenQuery,
+  GetTokenQueryVariables,
+} from "@bera/graphql/dex/subgraph";
 import { Address } from "viem";
 
 import { Token } from "~/types";
@@ -23,22 +27,18 @@ export const getSubgraphTokenInformation = async ({
   if (!tokenAddress) {
     return undefined;
   }
-  return await dexClient
-    .query({
-      query: GetTokenInformation,
-      variables: {
-        id:
-          handleNativeBera(tokenAddress as Address).toLowerCase() ===
-          bgtTokenAddress.toLowerCase()
-            ? beraTokenAddress.toLowerCase()
-            : handleNativeBera(tokenAddress as Address).toLowerCase(),
-      },
-    })
-    .then((res: any) => {
-      return res.data.tokenInformation;
-    })
-    .catch((e: any) => {
-      console.log(e);
-      return undefined;
-    });
+  const res = await bexSubgraphClient.query<
+    GetTokenQuery,
+    GetTokenQueryVariables
+  >({
+    query: GetToken,
+    variables: {
+      id:
+        handleNativeBera(tokenAddress as Address).toLowerCase() ===
+        bgtTokenAddress.toLowerCase()
+          ? beraTokenAddress.toLowerCase()
+          : handleNativeBera(tokenAddress as Address).toLowerCase(),
+    },
+  });
+  return (res.data?.token as Token) ?? undefined;
 };
