@@ -279,7 +279,7 @@ export default function DynamicPoolCreationPreview({
                       isRelayerApprovalSubmitting
                     }
                     onClick={handleRelayerApproval}
-                    className="mt-4 w-full"
+                    className="w-full"
                   >
                     Approve Pool Creation Helper
                     {(isRelayerApprovalLoading ||
@@ -315,7 +315,7 @@ export default function DynamicPoolCreationPreview({
                   <Button
                     onClick={writeCreatePool}
                     disabled={isLoadingCreatePoolTx || isSubmittingCreatePoolTx}
-                    className="mt-6 w-full bg-white py-3 font-semibold text-black"
+                    className="w-full bg-white font-semibold text-black"
                   >
                     {isLoadingCreatePoolTx || isSubmittingCreatePoolTx
                       ? "Creating Pool..."
