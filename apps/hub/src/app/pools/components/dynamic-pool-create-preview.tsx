@@ -143,7 +143,7 @@ export default function DynamicPoolCreationPreview({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg bg-black p-8 text-white sm:w-[500px]">
+      <DialogContent className="rounded-lg bg-black p-8 text-foreground sm:w-[500px]">
         <DialogHeader>
           {isSuccessCreatePoolTx ? (
             <div className="mx-auto flex max-w-xs flex-col items-center gap-2">
@@ -167,13 +167,14 @@ export default function DynamicPoolCreationPreview({
             </div>
           ) : (
             <>
-              <DialogTitle className="mb-1 text-sm font-semibold text-gray-400">
+              <DialogTitle className="mb-1 text-sm font-semibold text-foreground">
                 {poolType}
               </DialogTitle>
               <h2 className="text-3xl font-bold">{poolName}</h2>
             </>
           )}
         </DialogHeader>
+        {ModalPortalRelayerApproval}
 
         <div className="mt-4 space-y-6">
           {/* Initial Liquidity Section */}
@@ -182,20 +183,20 @@ export default function DynamicPoolCreationPreview({
             {tokens.map((token, index) => (
               <div
                 key={index}
-                className="mb-2 flex items-center justify-between text-gray-300"
+                className="mb-2 flex items-center justify-between text-foreground"
               >
                 <div className="flex items-center gap-2">
                   <TokenIcon address={token.address} symbol={token.symbol} />
                   <span className="font-semibold">{token.symbol}</span>
                   {poolType === PoolType.Weighted && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-foreground">
                       {Number(formatUnits(weights[index], 16)).toFixed(2)}%
                     </span>
                   )}
                 </div>
-                <span className="text-sm text-white">
+                <span className="text-sm text-foreground">
                   {Number(token.amount).toFixed(2)}{" "}
-                  <span className="text-gray-400">
+                  <span className="text-foreground">
                     {tokenPrices?.[token.address] &&
                       `(${formatUsd(
                         tokenPrices[token.address] *
@@ -207,45 +208,35 @@ export default function DynamicPoolCreationPreview({
             ))}
           </section>
 
-          <hr className="my-4 border-t border-gray-700" />
+          <hr className="my-4 border-t" />
 
           {/* Pool Details Section */}
-          <section className="space-y-2">
+          <section className="space-y-2 text-sm text-foreground">
             <div className="flex justify-between">
-              <span className="font-semibold text-gray-400">Pool Name</span>
-              <span className="w-2/3 text-right text-xs font-medium text-white">
-                {poolName}
-              </span>
+              <span className="font-semibold">Pool Name</span>
+              <span className="w-2/3 text-right">{poolName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold text-gray-400">Pool Symbol</span>
-              <span className="w-2/3 text-right text-xs font-medium text-white">
-                {poolSymbol}
-              </span>
+              <span className="font-semibold">Pool Symbol</span>
+              <span className="w-2/3 text-right">{poolSymbol}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold text-gray-400">Pool Type</span>
-              <span className="text-xs font-medium text-white">{poolType}</span>
+              <span className="font-semibold">Pool Type</span>
+              <span>{poolType}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold text-gray-400">Swap Fee</span>
-              <span className="text-xs font-medium text-white">{swapFee}%</span>
+              <span className="font-semibold">Swap Fee</span>
+              <span>{swapFee}%</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold text-gray-400">Owner Address</span>
-              <span className="text-xs font-medium text-white">
-                {formattedOwnerAddress}
-              </span>
+              <span className="font-semibold">Owner Address</span>
+              <span>{formattedOwnerAddress}</span>
             </div>
             {(poolType === PoolType.ComposableStable ||
               poolType === PoolType.MetaStable) && (
               <div className="flex justify-between">
-                <span className="font-semibold text-gray-400">
-                  Amplification
-                </span>
-                <span className="text-xs font-medium text-white">
-                  {amplification}
-                </span>
+                <span className="font-semibold">Amplification</span>
+                <span>{amplification}</span>
               </div>
             )}
             {/* TODO (#): we will want to display rate providers here */}
