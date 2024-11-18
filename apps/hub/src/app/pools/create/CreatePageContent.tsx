@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   balancerPoolCreationHelperAbi,
+  formatUsd,
   useBeraJs,
   useCreatePool,
   useSubgraphTokenInformations,
@@ -257,80 +258,89 @@ export default function CreatePageContent() {
     },
   });
 
-  // reset the error message if you close/reopen the preview
+  // Reset the error message if you close/reopen the preview
   useEffect(() => {
     if (!isPreviewOpen) {
       setCreatePoolErrorMessage("");
     }
   }, [isPreviewOpen]);
 
-  const [liquidityMismatchWarning, setLiquidityMismatchWarning] = useState<
-    string | null
-  >(null);
+  // Determine if there are any liquidity mismatches in the pool (supply imbalances in terms of pool weights)
+  const [liquidityMismatchInfo, setLiquidityMismatchInfo] = useState<{
+    title: string | null;
+    message: string | null;
+  }>({ title: null, message: null });
+
   useEffect(() => {
-    if (!tokenPrices || !tokens || !weights) return;
+    if (!tokenPrices || !tokens || !weights || weightsError) return;
 
     let totalLiquidityUSD = 0;
     const tokenUSDValues: number[] = [];
     let liquidityMismatch = false;
 
-    // Calculate total liquidity in USD and individual token USD contributions
     tokens.forEach((token) => {
       const tokenPriceUSD = tokenPrices[token.address];
       const tokenAmount = parseFloat(token.amount);
-
       if (!tokenPriceUSD || tokenAmount <= 0) return;
       const tokenLiquidityUSD = Number(tokenPriceUSD) * tokenAmount;
       tokenUSDValues.push(tokenLiquidityUSD);
       totalLiquidityUSD += tokenLiquidityUSD;
     });
 
+    if (totalLiquidityUSD === 0) {
+      setLiquidityMismatchInfo({ title: null, message: null });
+      return;
+    }
+
     if (
       poolType === PoolType.Stable ||
       poolType === PoolType.ComposableStable
     ) {
-      // For stable pools, ensure all token USD values are roughly equal
-      const averageLiquidityUSD =
-        tokenUSDValues.reduce((sum, value) => sum + value, 0) /
-        tokenUSDValues.length;
-
-      const mismatchTolerance =
-        LIQUIDITY_MISMATCH_TOLERANCE_PERCENT * averageLiquidityUSD;
-
-      liquidityMismatch = tokenUSDValues.some(
-        (value) => Math.abs(value - averageLiquidityUSD) > mismatchTolerance,
-      );
+      const averageLiquidityUSD = totalLiquidityUSD / tokenUSDValues.length;
+      liquidityMismatch = tokenUSDValues.some((value) => {
+        const percentageDifference =
+          Math.abs(value - averageLiquidityUSD) / averageLiquidityUSD;
+        return percentageDifference > LIQUIDITY_MISMATCH_TOLERANCE_PERCENT;
+      });
     } else if (poolType === PoolType.Weighted) {
-      // For weighted pools, handle weight-based mismatch
-      const totalWeight = weights.reduce((sum, weight) => sum + weight, 0n);
-
-      tokens.forEach((_, index) => {
-        const weightDecimal =
-          Number(weights[index]) / Number(parseUnits("1", 18));
-        const weightProportion = weightDecimal / Number(totalWeight);
-        const expectedWeightUSD = weightProportion * totalLiquidityUSD;
-        const mismatchTolerance =
-          LIQUIDITY_MISMATCH_TOLERANCE_PERCENT * totalLiquidityUSD;
-
-        if (
-          Math.abs(tokenUSDValues[index] - expectedWeightUSD) >
-          mismatchTolerance
-        ) {
-          liquidityMismatch = true;
-        }
+      liquidityMismatch = tokenUSDValues.some((value, index) => {
+        const weightProportion = Number(weights[index]) / Number(BigInt(1e18)); // FIXME: precision
+        const expectedWeightUSD = totalLiquidityUSD * weightProportion;
+        if (expectedWeightUSD === 0) return false;
+        const percentageDifference =
+          Math.abs(value - expectedWeightUSD) / expectedWeightUSD;
+        return percentageDifference > LIQUIDITY_MISMATCH_TOLERANCE_PERCENT;
       });
     }
 
-    if (liquidityMismatch) {
-      setLiquidityMismatchWarning(
-        poolType === PoolType.Weighted
-          ? "Warning: Liquidity input amounts do not match token weights. This may cause arbitrage after pool creation."
-          : "Warning: Liquidity input amounts are imbalanced in USD value. This may cause arbitrage after pool creation.",
-      );
-    } else {
-      setLiquidityMismatchWarning(null);
+    if (!liquidityMismatch) {
+      setLiquidityMismatchInfo({ title: null, message: null });
+      return;
     }
-  }, [tokenPrices, tokens, weights, poolType]);
+
+    const arbitrageDifference = tokenUSDValues
+      .map((value, index) => {
+        const weightProportion =
+          poolType === PoolType.Weighted
+            ? Number(weights[index]) / Number(BigInt(1e18)) // FIXME: precision
+            : 1 / tokenUSDValues.length;
+        const expectedWeightUSD = totalLiquidityUSD * weightProportion;
+        return Math.abs(value - expectedWeightUSD);
+      })
+      .reduce((sum, diff) => sum + diff, 0)
+      .toFixed(2);
+
+    const mismatchPercentage = (
+      (parseFloat(arbitrageDifference) / totalLiquidityUSD) *
+      100
+    ).toFixed(2);
+
+    setLiquidityMismatchInfo({
+      title: `You could lose up to $${arbitrageDifference} (${mismatchPercentage}%)`,
+      message: `Based on current token USD pricing in terms of HONEY, the value of tokens added does not align with the 
+      specified pool weights and you are vulnerable to losing funds to arbitrageurs.`,
+    });
+  }, [tokenPrices, tokens, weights, weightsError, poolType]);
 
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
@@ -444,12 +454,13 @@ export default function CreatePageContent() {
                 />
               ))}
             </ul>
-            {liquidityMismatchWarning && (
-              <p>
-                Warning: if you seed liquidity in amounts that differ (in terms
-                of USD) from the weighting you are likely to encounter arbitrage
-                after pool creation.
-              </p>
+            {!weightsError && liquidityMismatchInfo.message && (
+              <Alert variant="destructive" className="my-4">
+                <AlertTitle>{liquidityMismatchInfo.title}</AlertTitle>
+                <AlertDescription>
+                  {liquidityMismatchInfo.message}
+                </AlertDescription>
+              </Alert>
             )}
           </div>
         </section>
