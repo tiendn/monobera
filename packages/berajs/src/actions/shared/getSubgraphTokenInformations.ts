@@ -3,7 +3,7 @@ import { GetTokenInformations } from "@bera/graphql";
 import { getAddress } from "viem";
 
 import type { BeraConfig, Token } from "~/types";
-import { handleNativeBera } from "~/utils";
+import { getSafeNumber, handleNativeBera } from "~/utils";
 
 interface FetchSubgraphTokenInformationsArgs {
   tokenAddresses?: string[] | undefined;
@@ -11,12 +11,13 @@ interface FetchSubgraphTokenInformationsArgs {
 }
 
 export interface SubgraphTokenInformations {
-  [key: string]: Token;
+  [key: string]: number; // aka Token.USDValue
 }
 /**
  * fetch the current honey prices of a series of tokens
  */
 
+// NOTE: the name of this is a bit misleading, we dont return anything more than just the USD value of that token.
 export const getSubgraphTokenInformations = async ({
   tokenAddresses,
   config,
@@ -47,12 +48,17 @@ export const getSubgraphTokenInformations = async ({
     });
 
     return res.data?.tokenInformations.reduce(
-      (allPrices: any, tokenInformation: Token) => ({
-        ...allPrices,
-        [getAddress(tokenInformation.address)]: tokenInformation.usdValue,
-      }),
+      (allPrices: SubgraphTokenInformations, tokenInformation: Token) => {
+        if (!tokenInformation.usdValue) return allPrices; // NOTE: we Skip tokens without a defined usdValue
+        return {
+          ...allPrices,
+          [getAddress(tokenInformation.address)]: getSafeNumber(
+            tokenInformation.usdValue,
+          ),
+        };
+      },
       {},
-    ) as SubgraphTokenInformations;
+    );
   } catch (e) {
     console.log(e);
     return undefined;
