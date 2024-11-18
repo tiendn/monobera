@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  SubgraphTokenInformations,
   balancerVaultAbi,
   formatUsd,
   getSafeNumber,
   useBeraJs,
 } from "@bera/berajs";
+import { SubgraphTokenInformations } from "@bera/berajs/actions";
 import {
   balancerPoolCreationHelper,
   balancerVaultAddress,
