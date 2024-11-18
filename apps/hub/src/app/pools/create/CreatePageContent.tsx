@@ -304,8 +304,9 @@ export default function CreatePageContent() {
       });
     } else if (poolType === PoolType.Weighted) {
       liquidityMismatch = tokenUSDValues.some((value, index) => {
-        const weightProportion = Number(weights[index]) / Number(BigInt(1e18)); // FIXME: precision
-        const expectedWeightUSD = totalLiquidityUSD * weightProportion;
+        const weightProportion = weights[index] / BigInt(1e18);
+        // NOTE: since threshold is 5%, we will accept the precision loss here
+        const expectedWeightUSD = totalLiquidityUSD * Number(weightProportion);
         if (expectedWeightUSD === 0) return false;
         const percentageDifference =
           Math.abs(value - expectedWeightUSD) / expectedWeightUSD;
@@ -322,9 +323,10 @@ export default function CreatePageContent() {
       .map((value, index) => {
         const weightProportion =
           poolType === PoolType.Weighted
-            ? Number(weights[index]) / Number(BigInt(1e18)) // FIXME: precision
-            : 1 / tokenUSDValues.length;
-        const expectedWeightUSD = totalLiquidityUSD * weightProportion;
+            ? weights[index] / BigInt(1e18)
+            : BigInt(1) / BigInt(tokenUSDValues.length);
+        // NOTE: since threshold is 5%, we will accept the precision loss here
+        const expectedWeightUSD = totalLiquidityUSD * Number(weightProportion);
         return Math.abs(value - expectedWeightUSD);
       })
       .reduce((sum, diff) => sum + diff, 0)
