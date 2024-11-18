@@ -141,6 +141,25 @@ export default function DynamicPoolCreationPreview({
     6,
   )}...${ownerAddress.slice(-4)} (${ownershipType})`;
 
+  const poolDetails = [
+    { label: "Pool Name", value: poolName },
+    { label: "Pool Symbol", value: poolSymbol },
+    { label: "Pool Type", value: poolType },
+    { label: "Swap Fee", value: `${swapFee}%` },
+    { label: "Owner Address", value: formattedOwnerAddress },
+    // TODO (#): we will want to display rate providers here
+  ];
+
+  if (
+    poolType === PoolType.ComposableStable ||
+    poolType === PoolType.MetaStable
+  ) {
+    poolDetails.push({
+      label: "Amplification",
+      value: amplification.toString(),
+    });
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="rounded-lg bg-black p-8 text-foreground sm:w-[500px]">
@@ -212,34 +231,12 @@ export default function DynamicPoolCreationPreview({
 
           {/* Pool Details Section */}
           <section className="space-y-2 text-sm text-foreground">
-            <div className="flex justify-between">
-              <span className="font-semibold">Pool Name</span>
-              <span className="w-2/3 text-right">{poolName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Pool Symbol</span>
-              <span className="w-2/3 text-right">{poolSymbol}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Pool Type</span>
-              <span>{poolType}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Swap Fee</span>
-              <span>{swapFee}%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Owner Address</span>
-              <span>{formattedOwnerAddress}</span>
-            </div>
-            {(poolType === PoolType.ComposableStable ||
-              poolType === PoolType.MetaStable) && (
-              <div className="flex justify-between">
-                <span className="font-semibold">Amplification</span>
-                <span>{amplification}</span>
+            {poolDetails.map((detail, index) => (
+              <div key={index} className="flex justify-between">
+                <span className="font-semibold">{detail.label}</span>
+                <span className="w-2/3 text-right">{detail.value}</span>
               </div>
-            )}
-            {/* TODO (#): we will want to display rate providers here */}
+            ))}
           </section>
 
           {/* NOTE: we display pool creation tx errors in this dialog, and not in the background page. */}
