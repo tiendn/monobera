@@ -17,6 +17,12 @@ export interface UseAddLiquidityArgs {
   wethIsEth: boolean;
 }
 
+export type AddLiquidityError = {
+  error?: unknown;
+  balanceError?: `BAL#${string}`;
+  message?: string;
+};
+
 export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
   const [type, setType] = useState<AddLiquidityKind>(
     AddLiquidityKind.Unbalanced,
@@ -30,11 +36,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
   >([]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<{
-    error?: unknown;
-    balanceError?: string;
-    message?: string;
-  }>();
+  const [error, setError] = useState<AddLiquidityError>();
 
   const [priceImpact, setPriceImpact] = useState<PriceImpactAmount>();
 
@@ -131,7 +133,7 @@ export const useAddLiquidity = ({ pool, wethIsEth }: UseAddLiquidityArgs) => {
         const e = error as ContractFunctionExecutionError;
         setError({
           error: e,
-          balanceError: e?.shortMessage?.split("\n").at(1),
+          balanceError: e?.shortMessage?.split("\n").at(1) as `BAL#${string}`,
           message: e.shortMessage,
         });
       } else {

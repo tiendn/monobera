@@ -49,6 +49,7 @@ import { beraToken, wBeraToken } from "@bera/wagmi";
 import { useAddLiquidity } from "./useAddLiquidity";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Checkbox } from "@bera/ui/checkbox";
+import AddLiquidityError from "./AddLiquidityError";
 
 interface IAddLiquidityContent {
   poolId: Address;
@@ -326,18 +327,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
             priceImpact={priceImpact}
             exchangeRate="Details"
           />
-          {error && (
-            <Alert variant="destructive">
-              <AlertTitle>
-                <Icons.tooltip className="mt-[-4px] inline h-4 w-4" /> Error
-              </AlertTitle>
-              <AlertDescription className="text-xs">
-                {error.balanceError
-                  ? `Balancer error ${error.balanceError}`
-                  : error.message}
-              </AlertDescription>
-            </Alert>
-          )}
+          <AddLiquidityError error={error} transactionType={type} />
           {/* {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
