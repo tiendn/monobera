@@ -237,7 +237,7 @@ export default function CreatePageContent() {
     isSubmitting: isSubmittingCreatePoolTx,
     isSuccess: isSuccessCreatePoolTx,
   } = useTxn({
-    message: "Creating new pool...",
+    message: `Create pool ${poolName}`,
     onSuccess: async (txHash) => {
       track("create_pool_success");
       const poolId = await getPoolIdFromTx(txHash as `0x${string}`);
