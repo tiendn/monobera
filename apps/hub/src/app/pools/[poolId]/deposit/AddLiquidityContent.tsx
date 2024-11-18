@@ -28,6 +28,7 @@ import {
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
+import { Switch } from "@bera/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Address, formatEther } from "viem";
@@ -298,22 +299,28 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                 );
               })}
           </TokenList>
-          {process.env.NODE_ENV === "development" && (
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="balance-amounts"
-                checked={type === AddLiquidityKind.Proportional}
-                onClick={() =>
-                  setType((t) =>
-                    t === AddLiquidityKind.Proportional
-                      ? AddLiquidityKind.Unbalanced
-                      : AddLiquidityKind.Proportional,
-                  )
-                }
-              />
-              <label htmlFor="balance-amounts">Balance amounts</label>
-            </div>
-          )}
+
+          <div className="flex items-center gap-2">
+            <Switch
+              size="sm"
+              checked={type === AddLiquidityKind.Proportional}
+              onClick={() =>
+                setType((t) =>
+                  t === AddLiquidityKind.Proportional
+                    ? AddLiquidityKind.Unbalanced
+                    : AddLiquidityKind.Proportional,
+                )
+              }
+              id="balance-amounts"
+            />
+            <label
+              htmlFor="balance-amounts"
+              className="text-sm text-muted-foreground"
+            >
+              Keep amounts balanced
+            </label>
+          </div>
+
           <AddLiquidityDetails
             totalValue={totalValue?.toString()}
             priceImpact={priceImpact}
