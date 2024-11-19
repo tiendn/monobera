@@ -7,7 +7,7 @@ import {
   useSelectedGaugeValidators,
   type UserValidator,
 } from "@bera/berajs";
-import { bgtVaultBlackList, blockExplorerUrl } from "@bera/config";
+import { lendRewardsAddress, blockExplorerUrl } from "@bera/config";
 import { DataTable, GaugeIcon, MarketIcon, PoolHeader } from "@bera/shared-ui";
 import { getHubValidatorPath } from "@bera/shared-ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
@@ -92,7 +92,7 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
             ]}
             className="border-b border-border pb-8"
           />
-          {gaugeAddress !== bgtVaultBlackList ? (
+          {gaugeAddress.toLowerCase() !== lendRewardsAddress.toLowerCase() ? (
             <MyGaugeDetails gauge={gauge} />
           ) : (
             <BendRewardsBanner />
