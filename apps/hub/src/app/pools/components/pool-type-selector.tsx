@@ -39,7 +39,7 @@ const PoolTypeSelector: React.FC<PoolTypeSelectorProps> = ({
         >
           <span className="text-lg font-semibold">Weighted</span>
           <span className="-mt-1 text-sm text-muted-foreground">
-            Set customizable pool, token and weight
+            Customizable pool tokens and weights
           </span>
         </Card>
         <Card
