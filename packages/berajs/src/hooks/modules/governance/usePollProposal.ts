@@ -1,5 +1,6 @@
 import { ProposalWithVotesFragment } from "@bera/graphql/governance";
 import useSWR from "swr";
+import { usePublicClient } from "wagmi";
 
 import { getProposalDetails } from "~/actions/governance/getProposalDetails";
 import { useBeraJs } from "~/contexts";
@@ -14,12 +15,14 @@ export const usePollProposal = (
   options?: DefaultHookOptions,
 ): UsePollProposalResponse => {
   const { config: beraConfig } = useBeraJs();
+  const publicClient = usePublicClient();
   const config = options?.beraConfigOverride ?? beraConfig;
   const QUERY_KEY = ["usePollProposal", proposalId];
 
   const swrResponse = useSWR<ProposalWithVotesFragment>(
     QUERY_KEY,
-    async () => await getProposalDetails({ proposalId, config }),
+    async () =>
+      await getProposalDetails({ proposalId, config, client: publicClient }),
     {
       ...options?.opts,
       refreshInterval: options?.opts?.refreshInterval ?? POLLING.SLOW,

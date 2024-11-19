@@ -26,8 +26,16 @@ export const StatusBadge = ({
   proposal,
   className,
 }: { proposal: ProposalSelectionFragment; className?: string }) => {
-  const start = useBlockToTimestamp(proposal.voteStartBlock);
-  const end = useBlockToTimestamp(proposal.voteEndBlock);
+  const start = useBlockToTimestamp(
+    proposal.status === ProposalStatus.Pending
+      ? proposal.voteStartBlock
+      : undefined,
+  );
+  const end = useBlockToTimestamp(
+    proposal.status === ProposalStatus.Active
+      ? proposal.voteEndBlock
+      : undefined,
+  );
 
   return (
     <div
