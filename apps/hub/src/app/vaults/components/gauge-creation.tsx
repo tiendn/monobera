@@ -1,13 +1,11 @@
 import Link from "next/link";
-// import { truncateHash, useBeraJs, useSelectedValidator } from "@bera/berajs";
 import { ValidatorIcon } from "@bera/shared-ui";
-// import { getHubValidatorPath } from "@bera/shared-ui/src/utils/getHubUrls";
 import { Icons } from "@bera/ui/icons";
 
 export const GaugeCreation = () => {
   return (
     <Link
-      className="rounded-sm border px-4 py-6 mb-12"
+      className="mb-10 rounded-sm border px-4 py-6"
       href="/vaults/create-gauge"
     >
       <div className="flex items-center gap-3 text-2xl font-semibold leading-loose">

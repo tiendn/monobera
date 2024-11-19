@@ -50,6 +50,13 @@ const errorMsgMap: ErrorMessages = {
         "The price of the asset you are trying to borrow has fluctuated too much. Please try again.",
     },
   },
+  POL: {
+    REWARD_VAULT_FACTORY: {
+      keywords: ["VaultAlreadyExists"],
+      errorMSG:
+        "Failed to create rewards vault. A vault already exists with this staking token.",
+    },
+  },
   PERPS: {
     WRONG_LIMIT_PRICE: {
       keywords: ["WrongLimitPrice"],

@@ -48,4 +48,7 @@ export enum TransactionActionType {
   DELEGATE_OCT = "Delegate",
   REVOKE_OCT = "Revoke",
   REFER = "Refer",
+
+  // POL
+  CREATE_REWARDS_VAULT = "Create Rewards Vault",
 }

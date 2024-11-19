@@ -200,3 +200,21 @@ query GetGauges {
     }
   }
 }
+
+query GetRewardVault($stakingToken: String) {
+  vaults(first: 1, where: {stakingToken: $stakingToken}) {
+    stakingToken {
+      address
+      beraValue
+      decimals
+      id
+      name
+      symbol
+      usdValue
+    }
+    vaultAddress
+    stakingTokenAmount
+    id
+    activeIncentivesValueUsd
+  }
+}
