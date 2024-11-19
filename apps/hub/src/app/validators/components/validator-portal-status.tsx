@@ -44,7 +44,7 @@ export const ValidatorPortalStatus = () => {
           </ActionButton>
         </div>
       </div>
-
+      {/* 
       <div className="relative flex flex-1 flex-col rounded-md border border-border p-6 text-left">
         <div className="text-sm font-medium leading-[14px] text-muted-foreground">
           SETUP
@@ -61,7 +61,7 @@ export const ValidatorPortalStatus = () => {
           Get started in setting up your own validator
         </div>
         <span className="absolute right-14 text-8xl">🛠️</span>
-      </div>
+      </div> */}
     </div>
   );
 };

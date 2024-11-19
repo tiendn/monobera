@@ -115,7 +115,7 @@ export default function ValidatorsTable() {
                 }}
                 placeholder="Search..."
                 id="all-pool-search"
-                className="w-full md:w-[350px]"
+                className="w-full bg-background md:w-[350px]"
               />
             </div>
           </TabsContent>

@@ -174,7 +174,7 @@ export const HowToEarn = () => {
   }, []);
 
   return (
-    <div>
+    <div className="z-10 ">
       <div className="leading-15 mb-6 text-5xl font-bold">
         How to earn{" "}
         <Icons.bgt className="inline-block drop-shadow-[0_5px_5px_rgba(251,191,36,0.5)] md:h-10 md:w-10" />{" "}
