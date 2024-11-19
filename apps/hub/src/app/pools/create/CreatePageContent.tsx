@@ -385,7 +385,7 @@ export default function CreatePageContent() {
               ))}
             </ul>
             {!weightsError && liquidityMismatchInfo.message && (
-              <Alert variant="destructive" className="my-4">
+              <Alert variant="warning" className="my-4">
                 <AlertTitle>{liquidityMismatchInfo.title}</AlertTitle>
                 <AlertDescription>
                   {liquidityMismatchInfo.message}
