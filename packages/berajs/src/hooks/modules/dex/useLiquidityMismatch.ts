@@ -118,7 +118,7 @@ export const useLiquidityMismatch = ({
         2,
       )} (${(totalMismatchPercentage * 100).toFixed(2)}%)`,
       message: `Based on current token USD pricing in terms of HONEY, the value of tokens added does not align with the 
-        specified pool weights. This creates vulnerability to arbitrageurs.`,
+      specified pool weights. This discrepancy could expose you to potential losses from arbitrageurs.`,
     });
   }, [
     tokenPrices,
