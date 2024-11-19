@@ -6,6 +6,7 @@ import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 import { PoolHistoricalDataFragment } from "@bera/graphql/dex/api";
+import { usePoolHistoricalData } from "@bera/berajs";
 
 const Options = {
   responsive: true,
@@ -154,16 +155,16 @@ const getDayStartTimestampDaysAgo = (daysAgo: number): number => {
 export const PoolChart = ({
   pool,
   currentTvl,
-  historicalData,
-  isLoading,
   timeCreated,
 }: {
   pool: SubgraphPoolFragment | undefined;
   currentTvl: number | undefined | null;
-  historicalData: PoolHistoricalDataFragment[] | undefined;
-  isLoading: boolean;
   timeCreated?: number | undefined;
 }) => {
+  const { data: historicalData, isLoading } = usePoolHistoricalData({
+    poolId: pool?.id,
+  });
+
   const quarterlyDayStartTimes: number[] = [];
   for (let i = 0; i < 90; i++) {
     const dayStartTimestamp = getDayStartTimestampDaysAgo(i);

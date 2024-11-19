@@ -103,7 +103,7 @@ fragment PoolHistoricalData on GqlPoolSnapshot {
 }
 
 query GetPoolHistoricalData($poolId: String!) {
-  poolGetSnapshots(id: $poolId, range: ALL_TIME, chain: BARTIO) {
+  poolGetSnapshots(id: $poolId, range: NINETY_DAYS, chain: BARTIO) {
     ...PoolHistoricalData
   }
 }

@@ -194,10 +194,6 @@ export default function PoolPageContent({
     stakingToken: pool?.address as Address,
   });
 
-  const { data: historicalData } = usePoolHistoricalData({
-    poolId,
-  });
-
   const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
 
@@ -282,9 +278,7 @@ export default function PoolPageContent({
           <PoolChart
             pool={pool}
             currentTvl={tvlInUsd}
-            historicalData={historicalData}
             timeCreated={pool?.createTime}
-            isLoading={isPoolLoading}
           />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="px-4 py-2">
