@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   balancerPoolCreationHelperAbi,
-  formatUsd,
   useBeraJs,
   useCreatePool,
+  useLiquidityMismatch,
   useSubgraphTokenInformations,
   type Token,
 } from "@bera/berajs";
@@ -54,8 +54,6 @@ const emptyToken: TokenInputType = {
   name: "",
   symbol: "",
 };
-
-const LIQUIDITY_MISMATCH_TOLERANCE_PERCENT = 0.05; // 5%
 
 export default function CreatePageContent() {
   const router = useRouter();
@@ -266,83 +264,13 @@ export default function CreatePageContent() {
   }, [isPreviewOpen]);
 
   // Determine if there are any liquidity mismatches in the pool (supply imbalances in terms of pool weights)
-  const [liquidityMismatchInfo, setLiquidityMismatchInfo] = useState<{
-    title: string | null;
-    message: string | null;
-  }>({ title: null, message: null });
-
-  useEffect(() => {
-    if (!tokenPrices || !tokens || !weights || weightsError) return;
-
-    let totalLiquidityUSD = 0;
-    const tokenUSDValues: number[] = [];
-    let liquidityMismatch = false;
-
-    tokens.forEach((token) => {
-      const tokenPriceUSD = tokenPrices[token.address];
-      const tokenAmount = parseFloat(token.amount);
-      if (!tokenPriceUSD || tokenAmount <= 0) return;
-      const tokenLiquidityUSD = Number(tokenPriceUSD) * tokenAmount;
-      tokenUSDValues.push(tokenLiquidityUSD);
-      totalLiquidityUSD += tokenLiquidityUSD;
-    });
-
-    if (totalLiquidityUSD === 0) {
-      setLiquidityMismatchInfo({ title: null, message: null });
-      return;
-    }
-
-    if (
-      poolType === PoolType.Stable ||
-      poolType === PoolType.ComposableStable
-    ) {
-      const averageLiquidityUSD = totalLiquidityUSD / tokenUSDValues.length;
-      liquidityMismatch = tokenUSDValues.some((value) => {
-        const percentageDifference =
-          Math.abs(value - averageLiquidityUSD) / averageLiquidityUSD;
-        return percentageDifference > LIQUIDITY_MISMATCH_TOLERANCE_PERCENT;
-      });
-    } else if (poolType === PoolType.Weighted) {
-      liquidityMismatch = tokenUSDValues.some((value, index) => {
-        const weightProportion = weights[index] / BigInt(1e18);
-        // NOTE: since threshold is 5%, we will accept the precision loss here
-        const expectedWeightUSD = totalLiquidityUSD * Number(weightProportion);
-        if (expectedWeightUSD === 0) return false;
-        const percentageDifference =
-          Math.abs(value - expectedWeightUSD) / expectedWeightUSD;
-        return percentageDifference > LIQUIDITY_MISMATCH_TOLERANCE_PERCENT;
-      });
-    }
-
-    if (!liquidityMismatch) {
-      setLiquidityMismatchInfo({ title: null, message: null });
-      return;
-    }
-
-    const arbitrageDifference = tokenUSDValues
-      .map((value, index) => {
-        const weightProportion =
-          poolType === PoolType.Weighted
-            ? weights[index] / BigInt(1e18)
-            : BigInt(1) / BigInt(tokenUSDValues.length);
-        // NOTE: since threshold is 5%, we will accept the precision loss here
-        const expectedWeightUSD = totalLiquidityUSD * Number(weightProportion);
-        return Math.abs(value - expectedWeightUSD);
-      })
-      .reduce((sum, diff) => sum + diff, 0)
-      .toFixed(2);
-
-    const mismatchPercentage = (
-      (parseFloat(arbitrageDifference) / totalLiquidityUSD) *
-      100
-    ).toFixed(2);
-
-    setLiquidityMismatchInfo({
-      title: `You could lose up to $${arbitrageDifference} (${mismatchPercentage}%)`,
-      message: `Based on current token USD pricing in terms of HONEY, the value of tokens added does not align with the 
-      specified pool weights and you are vulnerable to losing funds to arbitrageurs.`,
-    });
-  }, [tokenPrices, tokens, weights, weightsError, poolType]);
+  const liquidityMismatchInfo = useLiquidityMismatch({
+    tokenPrices,
+    tokens,
+    weights,
+    weightsError,
+    poolType,
+  });
 
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
