@@ -266,6 +266,7 @@ export default function CreatePageContent() {
   // Determine if there are any liquidity mismatches in the pool (supply imbalances in terms of pool weights)
   const liquidityMismatchInfo = useLiquidityMismatch({
     tokenPrices,
+    isLoadingTokenPrices,
     tokens,
     weights,
     weightsError,

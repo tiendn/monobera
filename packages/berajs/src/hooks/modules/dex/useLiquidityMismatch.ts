@@ -13,6 +13,7 @@ export type LiquidityMismatchInfo = {
 
 interface UseLiquidityMismatchParams {
   tokenPrices?: SubgraphTokenInformations;
+  isLoadingTokenPrices: boolean;
   tokens: TokenWithAmount[] | null;
   weights: bigint[] | null;
   weightsError: string | null;
@@ -26,6 +27,7 @@ interface UseLiquidityMismatchParams {
  * detected, it provides a title and message to warn the user.
  *
  * @param {SubgraphTokenInformations} tokenPrices - Pricing information for tokens, including USD values.
+ * @param {boolean} isLoadingTokenPrices - Indicates if token prices are still loading.
  * @param {TokenWithAmount[]} tokens - Array of tokens with addresses & amounts.
  * @param {bigint[]} weights - Array of weights for each token, used for proportional calculations.
  * @param {string | null} weightsError - Message inidicating there's an error with token weights (don't fire hook if true).
@@ -34,6 +36,7 @@ interface UseLiquidityMismatchParams {
  */
 export const useLiquidityMismatch = ({
   tokenPrices,
+  isLoadingTokenPrices,
   tokens,
   weights,
   weightsError,
@@ -46,8 +49,29 @@ export const useLiquidityMismatch = ({
   }>({ title: null, message: null });
 
   useEffect(() => {
-    if (!tokenPrices || !tokens || !weights || weightsError) {
+    if (
+      !tokenPrices ||
+      isLoadingTokenPrices ||
+      !tokens ||
+      !weights ||
+      weightsError ||
+      tokens.some((token) => !token.address) // TODO: stateful input so we dont need to check for EmptyToken like this
+    ) {
       setLiquidityMismatchInfo({ title: null, message: null });
+      return;
+    }
+
+    if (
+      Object.keys(tokenPrices).length !== tokens.length ||
+      Object.values(tokenPrices).some((price) => Number(price) === 0 || !price)
+    ) {
+      // Display a generic warning since price information is either incomplete or isn't available.
+      // TODO: the hook should return a flag if the results are incomplete
+      setLiquidityMismatchInfo({
+        title: "Token price data not available",
+        message: `Please ensure that the value of each token is proportional to its assigned weight in the pool. 
+        If there is a mismatch the pool may be at risk of arbitrage after creation.`,
+      });
       return;
     }
 
