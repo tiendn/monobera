@@ -39,13 +39,13 @@ export const UpdateFriendsOfChef = ({
       <div className="flex flex-col gap-2">
         <InputWithLabel
           variant="black"
-          label="Gauge Address"
+          label="Reward Vault Address"
           value={gauge?.vault}
           error={
             errors.vault === ProposalErrorCodes.REQUIRED
               ? "A Vault Must Be Chosen"
               : errors.vault === ProposalErrorCodes.INVALID_ADDRESS
-                ? "Invalid gauge address."
+                ? "Invalid Vault address."
                 : errors.vault
           }
           onChange={async (e) => {

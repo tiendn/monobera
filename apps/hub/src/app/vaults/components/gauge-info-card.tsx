@@ -105,9 +105,11 @@ export default function GaugeInfoCard() {
                 validator: { stakedVotingPower: number; validator: Validator },
                 index: number,
               ) => (
-                <div
-                  className="flex w-full flex-1 items-center gap-2 rounded-sm border border-border bg-background px-4 py-2"
+                <Link
+                  className="cursor-pointer flex w-full flex-1 items-center gap-2 rounded-sm border border-border bg-background px-4 py-2"
                   key={`${index}-${validator.validator.id}`}
+                  href={getHubValidatorPath(validator.validator.id)}
+                  target="_blank"
                 >
                   <ValidatorIcon
                     address={validator.validator.id}
@@ -115,14 +117,10 @@ export default function GaugeInfoCard() {
                     imgOverride={validator.validator.metadata?.logoURI}
                   />
                   <div>
-                    <Link
-                      className="cursor-pointer text-nowrap text-sm font-semibold leading-5"
-                      href={getHubValidatorPath(validator.validator.id)}
-                      target="_blank"
-                    >
+                    <div className="text-nowrap text-sm font-semibold leading-5">
                       {validator.validator?.metadata?.name ??
                         truncateHash(validator.validator.id)}
-                    </Link>
+                    </div>
                     <FormattedNumber
                       value={getValidatorEstimatedBgtPerYear(
                         validator.validator,
@@ -133,7 +131,7 @@ export default function GaugeInfoCard() {
                       className="block text-nowrap text-[10px] font-medium leading-3 text-muted-foreground"
                     />
                   </div>
-                </div>
+                </Link>
               ),
             )
           ) : (

@@ -171,7 +171,7 @@ export const usePoolTable = ({
             <div
               className={`flex items-center justify-start text-sm ${
                 row.original.dynamicData.aprItems?.at(0)?.apr === 0
-                  ? "text-muted-foreground"
+                  ? "text-info-foreground"
                   : "text-warning-foreground"
               }`}
             >
