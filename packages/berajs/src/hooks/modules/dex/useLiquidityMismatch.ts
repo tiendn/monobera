@@ -117,8 +117,8 @@ export const useLiquidityMismatch = ({
       title: `You could lose up to $${totalMismatchedLiquidityUSD.toFixed(
         2,
       )} (${(totalMismatchPercentage * 100).toFixed(2)}%)`,
-      message: `Based on current token USD pricing in terms of HONEY, the value of tokens added does not align with the 
-      specified pool weights. This discrepancy could expose you to potential losses from arbitrageurs.`,
+      message: `Based on the market token prices, the value of tokens does not align with the specified pool weights. 
+      This discrepancy could expose you to potential losses from arbitrageurs.`,
     });
   }, [
     tokenPrices,
