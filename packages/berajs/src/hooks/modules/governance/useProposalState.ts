@@ -5,7 +5,7 @@ import { usePublicClient } from "wagmi";
 
 import { GOVERNANCE_ABI } from "../../../abi";
 
-enum ProposalState {
+export enum ProposalState {
   Pending = 0,
   Active = 1,
   Canceled = 2,
