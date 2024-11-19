@@ -16,9 +16,8 @@ import { balancerVaultAddress, cloudinaryUrl } from "@bera/config";
 import {
   ActionButton,
   ApproveButton,
-  InfoBoxList,
-  InfoBoxListItem,
   PreviewToken,
+  Spinner,
   TokenIcon,
   TokenInput,
   TokenList,
@@ -29,6 +28,7 @@ import {
 } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
+import { Switch } from "@bera/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Address, formatEther } from "viem";
@@ -49,6 +49,7 @@ import { beraToken, wBeraToken } from "@bera/wagmi";
 import { useAddLiquidity } from "./useAddLiquidity";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Checkbox } from "@bera/ui/checkbox";
+import AddLiquidityError from "./AddLiquidityError";
 
 interface IAddLiquidityContent {
   poolId: Address;
@@ -201,7 +202,10 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
       <Card className="mx-6 w-full sm:w-[480px] md:mx-0 ">
         <CardHeader>
           <CardTitle className="center flex justify-between font-bold">
-            Add Liquidity
+            <span className="flex items-center gap-2">
+              Add Liquidity
+              {isLoadingAddLiquidity && <Spinner color="white" size={16} />}
+            </span>
             <SettingsPopover showDeadline={false} />
           </CardTitle>
         </CardHeader>
@@ -296,39 +300,34 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                 );
               })}
           </TokenList>
-          {process.env.NODE_ENV === "development" && (
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="balance-amounts"
-                checked={type === AddLiquidityKind.Proportional}
-                onClick={() =>
-                  setType((t) =>
-                    t === AddLiquidityKind.Proportional
-                      ? AddLiquidityKind.Unbalanced
-                      : AddLiquidityKind.Proportional,
-                  )
-                }
-              />
-              <label htmlFor="balance-amounts">Balance amounts</label>
-            </div>
-          )}
+
+          <div className="flex items-center gap-2">
+            <Switch
+              size="sm"
+              checked={type === AddLiquidityKind.Proportional}
+              onClick={() =>
+                setType((t) =>
+                  t === AddLiquidityKind.Proportional
+                    ? AddLiquidityKind.Unbalanced
+                    : AddLiquidityKind.Proportional,
+                )
+              }
+              id="balance-amounts"
+            />
+            <label
+              htmlFor="balance-amounts"
+              className="text-sm text-muted-foreground"
+            >
+              Keep amounts balanced
+            </label>
+          </div>
+
           <AddLiquidityDetails
             totalValue={totalValue?.toString()}
             priceImpact={priceImpact}
             exchangeRate="Details"
           />
-          {error && (
-            <Alert variant="destructive">
-              <AlertTitle>
-                <Icons.tooltip className="mt-[-4px] inline h-4 w-4" /> Error
-              </AlertTitle>
-              <AlertDescription className="text-xs">
-                {error.balanceError
-                  ? `Balancer error ${error.balanceError}`
-                  : error.message}
-              </AlertDescription>
-            </Alert>
-          )}
+          <AddLiquidityError error={error} transactionType={type} />
           {/* {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>

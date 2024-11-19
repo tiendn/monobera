@@ -59,7 +59,7 @@ const TokenView = ({
     address: string;
     symbol: string;
     value: string | number;
-    valueUSD?: string | number;
+    valueUSD?: string | number | null;
     weight?: string | number;
   }[];
   isLoading: boolean;
@@ -107,7 +107,14 @@ const TokenView = ({
                     <FormattedNumber value={token.value} />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <FormattedNumber value={token.valueUSD ?? 0} symbol="USD" />
+                    {token.valueUSD === null ? (
+                      "–"
+                    ) : (
+                      <FormattedNumber
+                        value={token.valueUSD ?? 0}
+                        symbol="USD"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -174,7 +181,11 @@ export default function PoolPageContent({
 
   const isLoading = isPoolLoading;
 
-  const tvlInUsd = pool ? Number(pool?.totalLiquidity ?? 0) : undefined;
+  const tvlInUsd = pool
+    ? pool?.totalLiquidity
+      ? Number(pool?.totalLiquidity ?? 0)
+      : null
+    : undefined;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
   const { data: rewardVault } = useRewardVaultBalanceFromStakingToken({
@@ -277,7 +288,11 @@ export default function PoolPageContent({
                 </div>
               </div>
               <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
-                <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
+                {tvlInUsd !== null ? (
+                  <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
+                ) : (
+                  "–"
+                )}
               </div>
             </Card>
             <Card className="px-4 py-2">
@@ -321,6 +336,8 @@ export default function PoolPageContent({
               <div className="text-2xl">
                 {pool === undefined ? (
                   <Skeleton className="h-10 w-20" />
+                ) : tvlInUsd === null ? (
+                  "–"
                 ) : (
                   <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
                 )}
@@ -337,9 +354,10 @@ export default function PoolPageContent({
                     symbol: t.symbol!,
                     weight: t.weight,
                     value: parseFloat(t.balance),
-                    valueUSD:
-                      parseFloat(t.balance) *
-                      parseFloat(t.token?.latestUSDPrice ?? "0"),
+                    valueUSD: t.token?.latestUSDPrice
+                      ? parseFloat(t.balance) *
+                        parseFloat(t.token?.latestUSDPrice ?? "0")
+                      : null,
                   })) ?? []
               }
             />
@@ -399,6 +417,8 @@ export default function PoolPageContent({
                       <span>Total</span>
                       {isUserLpBalanceLoading || tvlInUsd === undefined ? (
                         <Skeleton className="h-[32px] w-[150px]" />
+                      ) : tvlInUsd === null ? (
+                        "–"
                       ) : (
                         <FormattedNumber
                           value={tvlInUsd * userSharePercentage}

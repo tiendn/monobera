@@ -30,11 +30,24 @@ fs.writeFileSync(
     flag: "w+",
   },
 );
-fs.appendFileSync(
-  ".env",
-  fs.readFileSync(path.resolve(process.cwd(), `.env.${env}`), "utf-8"),
-  "utf-8",
-);
+
+let envFileContent;
+
+if (fs.existsSync(path.resolve(process.cwd(), "secrets", `.env.${env}`))) {
+  envFileContent = fs.readFileSync(
+    path.resolve(process.cwd(), "secrets", `.env.${env}`),
+    "utf-8",
+  );
+} else if (fs.existsSync(path.resolve(process.cwd(), `.env.${env}`))) {
+  envFileContent = fs.readFileSync(
+    path.resolve(process.cwd(), `.env.${env}`),
+    "utf-8",
+  );
+} else {
+  throw new Error(`No env file found for ${env}`);
+}
+
+fs.appendFileSync(".env", envFileContent, "utf-8");
 
 fs.appendFileSync(
   ".env",

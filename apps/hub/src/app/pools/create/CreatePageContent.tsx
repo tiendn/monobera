@@ -4,22 +4,22 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   balancerPoolCreationHelperAbi,
-  balancerVaultAbi,
   useBeraJs,
   useCreatePool,
+  useSubgraphTokenInformations,
   type Token,
 } from "@bera/berajs";
 import {
   balancerDelegatedOwnershipAddress,
-  balancerPoolCreationHelper,
   balancerVaultAddress,
 } from "@bera/config";
 import {
   ActionButton,
-  ApproveButton,
+  TokenInput,
   useAnalytics,
   useTxn,
 } from "@bera/shared-ui";
+import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
@@ -32,20 +32,20 @@ import {
   weightedPoolFactoryV4Abi_V2,
 } from "@berachain-foundation/berancer-sdk";
 import { decodeEventLog, isAddress, parseUnits, zeroAddress } from "viem";
+import { usePublicClient } from "wagmi";
 
 import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { TokenInput } from "~/hooks/useMultipleTokenInput";
+import { TokenInput as TokenInputType } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
-import CreatePoolInitialLiquidityInput from "../components/create-pool-initial-liquidity-input";
 import CreatePoolInput from "../components/create-pool-input";
+import DynamicPoolCreationPreview from "../components/dynamic-pool-create-preview";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
-import { usePublicClient } from "wagmi";
 
-const emptyToken: TokenInput = {
+const emptyToken: TokenInputType = {
   address: "" as `0x${string}`,
   amount: "0",
   decimals: 18,
@@ -57,11 +57,14 @@ const emptyToken: TokenInput = {
 export default function CreatePageContent() {
   const router = useRouter();
   const { captureException, track } = useAnalytics();
-  const { account, isConnected } = useBeraJs();
+  const { account } = useBeraJs();
+  const publicClient = usePublicClient();
 
-  const [tokens, setTokens] = useState<TokenInput[]>([emptyToken, emptyToken]);
+  const [tokens, setTokens] = useState<TokenInputType[]>([
+    emptyToken,
+    emptyToken,
+  ]); // TODO: we should use useMultipleTokenInput here, but it will need weight handling and the ability to add/remove inputs
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [swapFee, setSwapFee] = useState<number>(0.1);
   const [owner, setOwner] = useState<string>(balancerDelegatedOwnershipAddress);
   const [poolName, setPoolName] = useState<string>("");
@@ -73,6 +76,12 @@ export default function CreatePageContent() {
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
   >(null);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
+
+  const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
+    useSubgraphTokenInformations({
+      tokenAddresses: tokens.map((token) => token?.address),
+    });
 
   async function getPoolIdFromTx(txHash: `0x${string}`) {
     const receipt = await publicClient?.waitForTransactionReceipt({
@@ -86,7 +95,9 @@ export default function CreatePageContent() {
             abi: [
               ...balancerPoolCreationHelperAbi,
               ...vaultV2Abi,
-              ...weightedPoolFactoryV4Abi_V2,
+              ...(poolType === PoolType.Weighted
+                ? weightedPoolFactoryV4Abi_V2
+                : composabableStablePoolV5Abi_V2),
             ],
             ...log,
             strict: false,
@@ -130,62 +141,12 @@ export default function CreatePageContent() {
   };
 
   // handle max/min tokens per https://docs.balancer.fi/concepts/pools/more/configuration.html
-  const minTokensLength = 2; // i.e. for meta/stable it's 2
+  const minTokensLength = 2; // i.e. for meta/stable/weighted it's 2
   const maxTokensLength = poolType === PoolType.Weighted ? 8 : 5; // i.e. for meta/stable it's 5
 
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
-
-  // Get relayer approval status and refresh function
-  // NOTE: if useTxn isnt here we dont receive updates properly for out submit button
-  const {
-    data: isRelayerApproved,
-    isLoading: isLoadingRelayerStatus,
-    error: isRelayerApprovalError,
-    refreshPoolCreationApproval,
-  } = usePollPoolCreationRelayerApproval();
-
-  // Use useTxn for the approval
-  const {
-    write,
-    ModalPortal: ModalPortalRelayerApproval,
-    isLoading: isRelayerApprovalLoading,
-    isSubmitting: isRelayerApprovalSubmitting,
-  } = useTxn({
-    message: "Approving the Pool Creation Helper...",
-    onSuccess: () => {
-      refreshPoolCreationApproval();
-    },
-    onError: (e) => {
-      setErrorMessage("Error approving relayer.");
-    },
-  });
-
-  const handleRelayerApproval = async () => {
-    if (!account || !balancerVaultAddress) {
-      console.error("Missing account or balancerVaultAddress");
-      return;
-    }
-    try {
-      await write({
-        address: balancerVaultAddress,
-        abi: balancerVaultAbi,
-        functionName: "setRelayerApproval",
-        params: [account, balancerPoolCreationHelper, true],
-      });
-    } catch (error) {
-      setErrorMessage(
-        "Error approving PoolCreationHelper as a Relayer on Vault contract",
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (isRelayerApprovalError) {
-      setErrorMessage("Error loading relayer approval status");
-    }
-  }, [isRelayerApprovalError]);
 
   const {
     weights,
@@ -220,13 +181,26 @@ export default function CreatePageContent() {
           amount: "0",
           exceeding: false,
           ...token,
-        } as TokenInput;
+        } as TokenInputType;
       }
       return updatedTokens;
     });
   };
 
-  const publicClient = usePublicClient();
+  // Update a specific token's amount and exceeding status (comes from liquidity input)
+  const handleTokenChange = (
+    index: number,
+    newValues: Partial<TokenInputType>,
+  ): void => {
+    setTokens((prevTokens) => {
+      const updatedTokens = [...prevTokens];
+      updatedTokens[index] = {
+        ...updatedTokens[index],
+        ...newValues,
+      };
+      return updatedTokens;
+    });
+  };
 
   // Initialize useCreatePool hook to get pool setup data and arguments for creating pool
   const {
@@ -235,8 +209,6 @@ export default function CreatePageContent() {
     isDupePool,
     dupePool,
     createPoolArgs,
-    isLoadingPools,
-    errorLoadingPools,
   } = useCreatePool({
     tokens,
     normalizedWeights: weights,
@@ -255,22 +227,23 @@ export default function CreatePageContent() {
   }, [generatedPoolName, generatedPoolSymbol]);
 
   // Create the pool with UX feedback
+  const [createPoolErrorMessage, setCreatePoolErrorMessage] =
+    useState<string>("");
+  const [poolId, setPoolId] = useState<string>("");
   const {
     write: writeCreatePool,
     ModalPortal,
     isLoading: isLoadingCreatePoolTx,
     isSubmitting: isSubmittingCreatePoolTx,
+    isSuccess: isSuccessCreatePoolTx,
   } = useTxn({
-    message: "Creating new pool...",
+    message: `Create pool ${poolName}`,
     onSuccess: async (txHash) => {
       track("create_pool_success");
-
       const poolId = await getPoolIdFromTx(txHash as `0x${string}`);
-
       console.log("poolId", poolId);
-
       if (poolId) {
-        return router.push(getPoolUrl({ id: poolId }));
+        setPoolId(poolId);
       }
     },
     onError: (e) => {
@@ -278,14 +251,20 @@ export default function CreatePageContent() {
       captureException(new Error("Create pool failed"), {
         data: { rawError: e },
       });
-      setErrorMessage(`Error creating pool: ${e?.message}`);
+      setCreatePoolErrorMessage(`Error creating pool: ${e?.message}`);
     },
   });
+
+  // reset the error message if you close/reopen the preview
+  useEffect(() => {
+    if (!isPreviewOpen) {
+      setCreatePoolErrorMessage("");
+    }
+  }, [isPreviewOpen]);
 
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
       {ModalPortal}
-      {ModalPortalRelayerApproval}
       <Button
         variant={"ghost"}
         size="sm"
@@ -371,22 +350,27 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
-                <CreatePoolInitialLiquidityInput
+                // TODO (#): we ought to handle isLoadingTokenPrices in price display
+                <TokenInput
                   key={`liq-${index}`}
+                  selected={token}
+                  amount={token.amount}
+                  isActionLoading={isLoadingTokenPrices}
+                  price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
                   disabled={false}
-                  token={token as Token}
-                  tokenAmount={token.amount}
-                  onTokenUSDValueChange={(usdValue) => {}} // TODO (#): we should use this to handle incorrect liquidity supply
-                  onTokenBalanceChange={(amount) => {
-                    setTokens((prevTokens) => {
-                      const updatedTokens = [...prevTokens];
-                      updatedTokens[index] = {
-                        ...updatedTokens[index],
-                        amount,
-                      };
-                      return updatedTokens;
-                    });
-                  }}
+                  setAmount={(amount) => handleTokenChange(index, { amount })}
+                  onExceeding={(isExceeding) =>
+                    handleTokenChange(index, { exceeding: isExceeding })
+                  }
+                  showExceeding
+                  hidePrice={false}
+                  selectable={false}
+                  forceShowBalance={true}
+                  hideMax={false}
+                  className={cn(
+                    "w-full grow border-0 bg-transparent pr-4 text-right text-2xl font-semibold outline-none",
+                    token.exceeding && "text-destructive-foreground",
+                  )}
                 />
               ))}
             </ul>
@@ -463,89 +447,53 @@ export default function CreatePageContent() {
           )}
         </section>
 
-        <section className="flex w-full flex-col gap-10">
-          <h2 className="self-start text-3xl font-semibold">
-            Approve & Submit
-          </h2>
+        <ActionButton>
+          <Button
+            onClick={() => setPreviewOpen(true)}
+            className="w-full"
+            disabled={
+              !poolName ||
+              !poolSymbol ||
+              !owner ||
+              !isAddress(owner) ||
+              !tokens.every(
+                (token) =>
+                  token.address && Number(token.amount) > 0 && !token.exceeding,
+              ) ||
+              (poolType === PoolType.Weighted
+                ? !weights.every((weight) => weight > 0n)
+                : !amplification)
+            }
+          >
+            Preview
+          </Button>
+        </ActionButton>
 
-          {/* TODO: below belongs in a preview page */}
-          {!isRelayerApproved ? (
-            <ActionButton>
-              <Button
-                disabled={
-                  !isConnected ||
-                  isRelayerApprovalLoading ||
-                  isLoadingRelayerStatus ||
-                  isRelayerApprovalSubmitting
-                }
-                onClick={handleRelayerApproval}
-                className="mt-4 w-full"
-              >
-                Approve Pool Creation Helper
-                {(isRelayerApprovalLoading || isRelayerApprovalSubmitting) &&
-                  "..."}
-              </Button>
-            </ActionButton>
-          ) : tokensNeedApproval.length > 0 ? (
-            (() => {
-              const approvalTokenIndex = tokens.findIndex(
-                (t) => t.address === tokensNeedApproval[0]?.address,
-              );
-              const approvalToken = tokens[approvalTokenIndex];
-              const approvalAmount = parseUnits(
-                approvalToken.amount,
-                approvalToken?.decimals ?? 18,
-              );
-
-              return (
-                <ApproveButton
-                  amount={approvalAmount}
-                  disabled={approvalAmount === BigInt(0) || !isConnected}
-                  token={approvalToken}
-                  spender={balancerVaultAddress}
-                  onApproval={() => refreshAllowances()}
-                />
-              );
-            })()
-          ) : (
-            <ActionButton>
-              <Button
-                disabled={
-                  !isConnected ||
-                  !createPoolArgs ||
-                  tokensNeedApproval.length > 0 ||
-                  !isRelayerApproved ||
-                  !isAddress(owner) ||
-                  poolName.length === 0 ||
-                  poolSymbol.length === 0 ||
-                  isLoadingCreatePoolTx ||
-                  isSubmittingCreatePoolTx ||
-                  isLoadingPools ||
-                  errorLoadingPools ||
-                  weightsError !== null ||
-                  tokens.some((t) => t.amount === "0")
-                }
-                className="w-full"
-                onClick={() => {
-                  console.log("createPoolArgs", createPoolArgs);
-                  writeCreatePool(createPoolArgs);
-                }}
-              >
-                Create Pool
-                {(isLoadingCreatePoolTx || isSubmittingCreatePoolTx) && "..."}
-              </Button>
-            </ActionButton>
-          )}
-          {errorMessage && (
-            <Alert
-              variant="destructive"
-              className="my-4 text-destructive-foreground"
-            >
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </section>
+        <DynamicPoolCreationPreview
+          open={isPreviewOpen}
+          setOpen={setPreviewOpen}
+          tokens={tokens}
+          tokenPrices={tokenPrices} // TODO: it would make more sense to set these inside TokenInput.usdValue
+          weights={weights}
+          poolName={poolName}
+          poolSymbol={poolSymbol}
+          poolType={poolType}
+          poolId={poolId}
+          swapFee={swapFee}
+          ownerAddress={owner}
+          ownershipType={ownershipType}
+          amplification={amplification}
+          isLoadingCreatePoolTx={isLoadingCreatePoolTx}
+          isSubmittingCreatePoolTx={isSubmittingCreatePoolTx}
+          writeCreatePool={() => {
+            console.log("createPoolArgs", createPoolArgs);
+            writeCreatePool(createPoolArgs);
+          }}
+          isSuccessCreatePoolTx={isSuccessCreatePoolTx}
+          createPoolErrorMessage={createPoolErrorMessage}
+          tokensNeedApproval={tokensNeedApproval}
+          refreshAllowances={refreshAllowances}
+        />
       </div>
     </div>
   );

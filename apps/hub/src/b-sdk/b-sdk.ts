@@ -28,7 +28,6 @@ import {
 } from "@berachain-foundation/berancer-sdk";
 
 API_CHAIN_NAMES[chainId] = "BARTIO";
-// @ts-expect-error not in network list
 CHAINS[chainId] = defaultBeraNetworkConfig.chain;
 BALANCER_RELAYER[chainId] = balancerRelayerAddress;
 VAULT[chainId] = balancerVaultAddress;

@@ -46,6 +46,7 @@ export default function CreatePoolInput({
       const weightInBigInt = parseUnits(e.target.value, 16);
       onWeightChange(index, weightInBigInt);
     } catch (e) {
+      // FIXME this fails to let a user type in a decimal value like 0.5 as it doesnt like `###.`
       // NOTE: this is likely a parsing error, ex: user has entered a non-numeric character
     }
   };
