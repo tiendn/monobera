@@ -10,6 +10,7 @@ import {
   ADDRESS_ZERO,
   useRewardVaultBalanceFromStakingToken,
   useSelectedGauge,
+  usePoolHistoricalData,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
@@ -36,6 +37,7 @@ import { unstable_serialize } from "swr";
 import { Icons } from "@bera/ui/icons";
 import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
 import { useOnChainPoolData } from "~/b-sdk/useOnChainPoolData";
+import { PoolChart } from "./PoolChart";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -192,6 +194,10 @@ export default function PoolPageContent({
     stakingToken: pool?.address as Address,
   });
 
+  const { data: historicalData } = usePoolHistoricalData({
+    poolId,
+  });
+
   const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
 
@@ -272,14 +278,14 @@ export default function PoolPageContent({
         />
       )} */}
       <div className="w-full grid-cols-1 lg:grid-cols-12 gap-4 grid auto-rows-min ">
-        {/* <PoolChart
-            pool={pool}
-            currentTvl={pool?.tvlUsd}
-            historicalData={poolHistory}
-            timeCreated={timeCreated}
-            isLoading={isPoolHistoryLoading}
-          /> */}
         <div className="grid grid-cols-1 lg:col-span-7 auto-rows-auto gap-4">
+          <PoolChart
+            pool={pool}
+            currentTvl={tvlInUsd}
+            historicalData={historicalData}
+            timeCreated={pool?.createTime}
+            isLoading={isPoolLoading}
+          />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="px-4 py-2">
               <div className="flex flex-row items-center justify-between">
@@ -364,7 +370,7 @@ export default function PoolPageContent({
           </Card>
         </div>
         {isConnected && (
-          <div className="lg:col-span-5 grid grid-cols-1 gap-4 lg:row-start-1 lg:col-start-8 lg:row-span-2">
+          <div className="lg:col-span-5 grid grid-cols-1 gap-4 lg:row-start-1 lg:col-start-8 auto-rows-min lg:row-span-2">
             <Card>
               <CardContent className="flex h-full items-center flex-col justify-between gap-4 p-4">
                 <div className="flex h-8 w-full items-center justify-between text-lg font-semibold">
@@ -494,6 +500,7 @@ export default function PoolPageContent({
                       </div>
                     </CardContent>
                   </Card>
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex justify-between w-full">

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { formatUsd, type PoolV2 } from "@bera/berajs";
-import { Dropdown, SSRSpinner } from "@bera/shared-ui";
+import { Dropdown, FormattedNumber, SSRSpinner } from "@bera/shared-ui";
 import { BeraChart } from "@bera/ui/bera-chart";
 import { Card, CardContent, CardHeader } from "@bera/ui/card";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
+import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
+import { PoolHistoricalDataFragment } from "@bera/graphql/dex/api";
 
 const Options = {
   responsive: true,
@@ -157,9 +158,9 @@ export const PoolChart = ({
   isLoading,
   timeCreated,
 }: {
-  pool: PoolV2 | undefined;
-  currentTvl: number | undefined;
-  historicalData: any[] | undefined;
+  pool: SubgraphPoolFragment | undefined;
+  currentTvl: number | undefined | null;
+  historicalData: PoolHistoricalDataFragment[] | undefined;
   isLoading: boolean;
   timeCreated?: number | undefined;
 }) => {
@@ -190,9 +191,8 @@ export const PoolChart = ({
   let latestTvlSeen = 0;
   const completeDailyData: any[] = quarterlyDayStartTimes.map(
     (dayStartTimestamp: number, i) => {
-      const poolData: any | undefined = historicalData?.find(
-        (data) => data.date === dayStartTimestamp,
-      );
+      const poolData: PoolHistoricalDataFragment | undefined =
+        historicalData?.find((data) => data.timestamp === dayStartTimestamp);
 
       if (!poolData) {
         if (i === 0) {
@@ -215,21 +215,21 @@ export const PoolChart = ({
       }
 
       const formattedPoolData = {
-        date: poolData.date,
+        date: poolData.timestamp,
         volumeUsd: `${
-          parseFloat(poolData?.volumeUsd) < 0.01
+          parseFloat(poolData?.volume24h) < 0.01
             ? "0.009"
-            : parseFloat(poolData?.volumeUsd)
+            : parseFloat(poolData?.totalSwapVolume)
         }`,
         tvlUsd: `${
-          parseFloat(poolData?.tvlUsd) < 0.01
+          parseFloat(poolData?.totalLiquidity) < 0.01
             ? "0.009"
-            : parseFloat(poolData?.tvlUsd)
+            : parseFloat(poolData?.totalLiquidity)
         }`,
         feesUsd: `${
-          parseFloat(poolData?.feesUsd) < 0.01
+          parseFloat(poolData?.fees24h) < 0.01
             ? "0.009"
-            : parseFloat(poolData?.feesUsd)
+            : parseFloat(poolData?.totalSwapFee)
         }`,
       };
 
@@ -329,7 +329,7 @@ export const PoolChart = ({
   }, [historicalData, timeFrame, chart]);
 
   return (
-    <Card className="bg-muted p-0">
+    <Card className=" p-0">
       <Tabs
         defaultValue={Chart.VOLUME}
         onValueChange={(value: string) => setChart(value as Chart)}
@@ -340,7 +340,7 @@ export const PoolChart = ({
               {isLoading ? (
                 <Skeleton className="h-[32px] w-[150px]" />
               ) : (
-                formatUsd(total)
+                <FormattedNumber value={total} symbol="USD" />
               )}
             </div>
             {/* <div
@@ -356,10 +356,16 @@ export const PoolChart = ({
           </div>
 
           <div className="flex w-full flex-row items-center justify-start gap-2 sm:justify-end">
-            <TabsList className="border border-border">
-              <TabsTrigger value={Chart.VOLUME}>Volume</TabsTrigger>
-              <TabsTrigger value={Chart.TVL}>TVL</TabsTrigger>
-              <TabsTrigger value={Chart.FEES}>Fees</TabsTrigger>
+            <TabsList className="border border-border" variant="outline">
+              <TabsTrigger variant="outline" value={Chart.VOLUME}>
+                Volume
+              </TabsTrigger>
+              <TabsTrigger variant="outline" value={Chart.TVL}>
+                TVL
+              </TabsTrigger>
+              <TabsTrigger variant="outline" value={Chart.FEES}>
+                Fees
+              </TabsTrigger>
             </TabsList>
             <Dropdown
               selected={timeFrame}
