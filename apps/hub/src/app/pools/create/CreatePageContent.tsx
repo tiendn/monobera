@@ -368,13 +368,13 @@ export default function CreatePageContent() {
                   amount={token.amount}
                   isActionLoading={isLoadingTokenPrices}
                   price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
+                  hidePrice={!tokenPrices?.[token?.address]}
                   disabled={false}
                   setAmount={(amount) => handleTokenChange(index, { amount })}
                   onExceeding={(isExceeding) =>
                     handleTokenChange(index, { exceeding: isExceeding })
                   }
                   showExceeding
-                  hidePrice={false}
                   selectable={false}
                   forceShowBalance={true}
                   hideMax={false}
