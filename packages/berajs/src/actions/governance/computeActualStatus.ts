@@ -3,7 +3,7 @@ import {
   ProposalStatus,
 } from "@bera/graphql/governance";
 
-import { ProposalState } from "~/hooks";
+import { ProposalState } from "~/types";
 
 export const MOCKED_PROPOSAL_STATUSES: readonly ProposalStatus[] = [
   ProposalStatus.Active,
