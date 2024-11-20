@@ -32,11 +32,10 @@ import { Separator } from "@bera/ui/separator";
 import {
   PoolType,
   ZERO_ADDRESS,
-  composabableStablePoolV5Abi_V2,
   vaultV2Abi,
   weightedPoolFactoryV4Abi_V2,
 } from "@berachain-foundation/berancer-sdk";
-import { decodeEventLog, isAddress, parseUnits, zeroAddress } from "viem";
+import { decodeEventLog, isAddress, zeroAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
 import BeraTooltip from "~/components/bera-tooltip";
@@ -132,8 +131,8 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-          ? ZERO_ADDRESS
-          : account || zeroAddress,
+        ? ZERO_ADDRESS
+        : account || zeroAddress,
     );
   };
 
