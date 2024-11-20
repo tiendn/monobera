@@ -1,8 +1,12 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { GetTokenInformations } from "@bera/graphql";
+import { bexSubgraphClient } from "@bera/graphql";
+import {
+  GetTokensDocument,
+  GetTokensQuery,
+  GetTokensQueryVariables,
+} from "@bera/graphql/dex/subgraph";
 import { getAddress } from "viem";
 
-import type { BeraConfig, Token } from "~/types";
+import type { BeraConfig } from "~/types";
 import { getSafeNumber, handleNativeBera } from "~/utils";
 
 interface FetchSubgraphTokenInformationsArgs {
@@ -24,31 +28,27 @@ export const getSubgraphTokenInformations = async ({
 }: FetchSubgraphTokenInformationsArgs): Promise<
   SubgraphTokenInformations | undefined
 > => {
-  if (!config.subgraphs?.dexSubgraph) {
-    throw new Error("dex subgraph uri s not found in config");
-  }
-  const subgraphEndpoint = config.subgraphs?.dexSubgraph;
-  const dexClient = new ApolloClient({
-    uri: subgraphEndpoint,
-    cache: new InMemoryCache(),
-  });
-
   if (!tokenAddresses || tokenAddresses.some((token) => token === undefined)) {
     return {};
   }
+
   const swappedAddresses = tokenAddresses.map((token: string | undefined) =>
     handleNativeBera(token).toLowerCase(),
   );
+
   try {
-    const res = await dexClient.query({
-      query: GetTokenInformations,
+    const res = await bexSubgraphClient.query<
+      GetTokensQuery,
+      GetTokensQueryVariables
+    >({
+      query: GetTokensDocument,
       variables: {
-        id: swappedAddresses,
+        ids: swappedAddresses,
       },
     });
 
-    return res.data?.tokenInformations.reduce(
-      (allPrices: SubgraphTokenInformations, tokenInformation: Token) => {
+    return res.data?.tokens.reduce(
+      (allPrices: SubgraphTokenInformations, tokenInformation) => {
         if (!tokenInformation.usdValue) return allPrices; // NOTE: we Skip tokens without a defined usdValue
         return {
           ...allPrices,

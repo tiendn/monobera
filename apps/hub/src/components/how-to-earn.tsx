@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { cloudinaryUrl, dexUrl, lendUrl, perpsUrl } from "@bera/config";
+import { cloudinaryUrl, lendUrl, perpsUrl } from "@bera/config";
 import { FadeSlides } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { cn } from "@bera/ui";
@@ -43,14 +43,9 @@ export const HowToEarn = () => {
       subtitle: (
         <>
           Deposit tokens in a{" "}
-          <a
-            href={dexUrl}
-            target="_blank"
-            className="underline"
-            rel="noreferrer"
-          >
+          <Link href={"/pools/"} className="underline" rel="noreferrer">
             BEX liquidity Pool
-          </a>
+          </Link>
         </>
       ),
     },

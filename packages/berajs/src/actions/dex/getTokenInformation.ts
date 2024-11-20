@@ -50,7 +50,7 @@ export const getTokenInformation = async ({
       typeof token.name !== "string" ||
       typeof token.symbol !== "string"
     )
-      throw new Error("Invalid ERC20 token");
+      throw new Error(`Invalid ERC20 token. Address: ${address}`);
     return token as Token;
   } catch (e: any) {
     console.log(e);

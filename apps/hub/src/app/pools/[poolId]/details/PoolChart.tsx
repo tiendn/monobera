@@ -5,7 +5,6 @@ import { BeraChart } from "@bera/ui/bera-chart";
 import { Card, CardContent, CardHeader } from "@bera/ui/card";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
-import { PoolDayData } from "@bera/berajs/actions";
 
 const Options = {
   responsive: true,
@@ -160,7 +159,7 @@ export const PoolChart = ({
 }: {
   pool: PoolV2 | undefined;
   currentTvl: number | undefined;
-  historicalData: PoolDayData[] | undefined;
+  historicalData: any[] | undefined;
   isLoading: boolean;
   timeCreated?: number | undefined;
 }) => {
@@ -191,7 +190,7 @@ export const PoolChart = ({
   let latestTvlSeen = 0;
   const completeDailyData: any[] = quarterlyDayStartTimes.map(
     (dayStartTimestamp: number, i) => {
-      const poolData: PoolDayData | undefined = historicalData?.find(
+      const poolData: any | undefined = historicalData?.find(
         (data) => data.date === dayStartTimestamp,
       );
 

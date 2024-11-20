@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
-import { cloudinaryUrl, dexUrl } from "@bera/config";
+import { cloudinaryUrl, hubUrl } from "@bera/config";
 import { GetGlobalData } from "@bera/graphql";
 import { FormattedNumber } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
@@ -111,7 +111,7 @@ const ArcadeData = () => {
       </div>
       <Link
         className="mt-4 flex h-11 w-20 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-yellow-900 px-3 py-2 text-xl text-yellow-50"
-        href={`${dexUrl}/pools`}
+        href={`${hubUrl}/pools`}
         target="_blank"
       >
         Add

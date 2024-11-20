@@ -1,6 +1,10 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { beraTokenAddress } from "@bera/config";
-import { getApyInfo, getTokenHoneyPriceReq } from "@bera/graphql";
+import { beraTokenAddress, honeyTokenAddress } from "@bera/config";
+import { bexSubgraphClient, bgtClient } from "@bera/graphql";
+import { GetTokenInformation } from "@bera/graphql/dex/subgraph";
+import {
+  GetGlobalCuttingBoard,
+  type GetGlobalCuttingBoardQuery,
+} from "@bera/graphql/pol";
 import { Address } from "viem";
 
 import { BeraConfig } from "~/types/global";
@@ -25,18 +29,6 @@ export const getBgtApy = async ({
   if (!config.subgraphs?.polSubgraph) {
     throw new Error("bgt subgraph uri is not found in config");
   }
-  if (!config.subgraphs?.dexSubgraph) {
-    throw new Error("dex subgraph uri is not found in config");
-  }
-  const bgtClient = new ApolloClient({
-    uri: config.subgraphs?.polSubgraph,
-    cache: new InMemoryCache(),
-  });
-
-  const dexClient = new ApolloClient({
-    uri: config.subgraphs?.dexSubgraph,
-    cache: new InMemoryCache(),
-  });
 
   if (!receiptTokenAddress) {
     return undefined;
@@ -45,23 +37,27 @@ export const getBgtApy = async ({
     return undefined;
   }
 
-  const beraHoneyPrice = await dexClient
+  const beraHoneyPrice = await bexSubgraphClient
     .query({
-      query: getTokenHoneyPriceReq,
+      query: GetTokenInformation,
       variables: {
-        id: beraTokenAddress.toLowerCase(),
+        asset: beraTokenAddress.toLowerCase(),
+        pricingAsset: honeyTokenAddress.toLowerCase(),
       },
     })
     .then((res: any) => {
-      return res.data.tokenHoneyPrice?.price;
+      return res.data.tokenPrices?.[0]?.price ?? "0";
     })
     .catch((e: any) => {
       console.log(e);
       return "0";
     });
-  const apyInfo: any = await bgtClient
-    .query({
-      query: getApyInfo,
+
+  console.log("checking123", beraHoneyPrice);
+
+  const apyInfo = await bgtClient
+    .query<GetGlobalCuttingBoardQuery>({
+      query: GetGlobalCuttingBoard,
     })
     .then((res: any) => {
       return res;
@@ -71,13 +67,16 @@ export const getBgtApy = async ({
       return undefined;
     });
 
+  console.log("apyInfo", beraHoneyPrice, apyInfo);
   if (!apyInfo) return "0";
 
   const globalRewardRate =
-    parseFloat(apyInfo.data.globalInfo.baseRewardRate) +
-    parseFloat(apyInfo.data.globalInfo.rewardRate);
+    parseFloat(apyInfo.data.globalInfos?.[0].baseRewardRate ?? "0") +
+    parseFloat(apyInfo.data.globalInfos?.[0].rewardRate ?? "0");
 
-  const totalBgtStaked = parseFloat(apyInfo.data.globalInfo.totalBgtStaked);
+  const totalBgtStaked = parseFloat(
+    apyInfo.data.globalInfos?.[0].totalBgtStaked ?? "0",
+  );
 
   const selectedCuttingBoard = apyInfo.data.globalCuttingBoardWeights.find(
     (cb: any) =>

@@ -33,6 +33,14 @@ export const useTokenInformation = (
   const swrResponse = useSWRImmutable<Token | undefined>(
     QUERY_KEY,
     async () => {
+      if (args?.address === nativeTokenAddress) {
+        return {
+          address: nativeTokenAddress,
+          decimals: gasTokenDecimals,
+          name: gasTokenName,
+          symbol: gasTokenSymbol,
+        } satisfies Token;
+      }
       if (!args?.address || !isAddress(args.address, { strict: false })) {
         throw new Error("Invalid address");
       }

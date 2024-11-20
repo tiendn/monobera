@@ -347,6 +347,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
                 .filter((a) => a.token.address !== pool?.address)
                 .map((amount) => (
                   <PreviewToken
+                    key={amount.token.address}
                     token={
                       wethIsEth &&
                       amount.token.address.toLowerCase() ===

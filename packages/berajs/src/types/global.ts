@@ -5,7 +5,6 @@ import type { Token } from "./dex";
 
 export interface BeraConfig {
   endpoints?: {
-    dexIndexer?: string;
     tokenList?: string;
     validatorList?: string;
     marketList?: string;
@@ -14,7 +13,6 @@ export interface BeraConfig {
   };
   subgraphs?: {
     honeySubgraph?: string;
-    dexSubgraph?: string;
     lendSubgraph?: string;
     polSubgraph?: string;
     governanceSubgraph?: string;

@@ -201,8 +201,34 @@ query GetGauges {
   }
 }
 
+query GetWeeklyBgtInflation($wbera: ID!) {
+  globalIncentivesUsages(interval: day, first: 7) {
+    bgtDistributed
+  }
+  tokenInformation(id: $wbera) {
+    usdValue
+  }
+}
+
+query GetGlobalCuttingBoard {
+  globalCuttingBoardWeights {
+    id
+    amount
+    vault {
+      id
+      stakingToken {
+        id
+      }
+    }
+  }
+  globalInfos {
+    totalBgtStaked
+    rewardRate
+    baseRewardRate
+  }
+}
 query GetRewardVault($stakingToken: String) {
-  vaults(first: 1, where: {stakingToken: $stakingToken}) {
+  vaults(first: 1, where: { stakingToken: $stakingToken }) {
     stakingToken {
       address
       beraValue

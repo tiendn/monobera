@@ -1,6 +1,6 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
-import { dexName } from "@bera/config";
+import { hubName } from "@bera/config";
 import { Address } from "viem";
 
 import AddLiquidityContent from "./AddLiquidityContent";
@@ -14,7 +14,7 @@ import { PoolPageWrapper } from "../details/PoolPageContent";
 export function generateMetadata(): Metadata {
   return {
     title: "Add Liquidity",
-    description: `Add liquidity to ${dexName}`,
+    description: `Add liquidity to ${hubName}`,
   };
 }
 

@@ -21,8 +21,6 @@ export const blockExplorerName = process.env
 export const polEndpointUrl = process.env.NEXT_PUBLIC_POL_ENDPOINT as string;
 
 // Subgraphs
-export const crocSubgraphEndpoint = process.env // TODO (#): croc subgraph definition
-  .NEXT_PUBLIC_RPC_CROC_SUBGRAPH as Address;
 export const balancerApiUrl = process.env
   .NEXT_PUBLIC_BALANCER_API_URL as Address;
 export const honeySubgraphUrl = process.env
@@ -43,8 +41,6 @@ export const honeyUrl = process.env.NEXT_PUBLIC_HONEY_URL as string;
 export const honeyName = process.env.NEXT_PUBLIC_HONEY_NAME as string;
 export const hubUrl = process.env.NEXT_PUBLIC_HUB_URL as string;
 export const hubName = process.env.NEXT_PUBLIC_HUB_NAME as string;
-export const dexName = process.env.NEXT_PUBLIC_DEX_NAME as string;
-export const dexUrl = process.env.NEXT_PUBLIC_DEX_URL as string;
 export const lendName = process.env.NEXT_PUBLIC_LEND_NAME as string;
 export const lendUrl = process.env.NEXT_PUBLIC_LEND_URL as string;
 export const perpsName = process.env.NEXT_PUBLIC_PERPS_NAME as string;
@@ -180,10 +176,6 @@ export const governanceTokenAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TOKEN_ADDRESS as Address;
 export const governanceTimelockAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TIMELOCK_ADDRESS as Address;
-
-// Crocswap TODO (#): remove croc definitions
-export const crocIndexerEndpoint = process.env
-  .NEXT_PUBLIC_RPC_CROC_INDEXER_ENDPOINT as Address;
 
 // Balancer
 export const balancerVaultAddress = process.env
