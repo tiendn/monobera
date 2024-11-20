@@ -19,7 +19,7 @@ export const CuttingBoardDisplay = ({
 }: {
   cuttingBoard: CuttingBoardWeight | undefined;
 }) => {
-  if (!cuttingBoard) return <div>No Gauge Found</div>;
+  if (!cuttingBoard) return <div>No Rewards Vaults Found</div>;
   return (
     <Link
       className="flex  h-full w-[160px] items-center justify-start gap-2"
@@ -115,7 +115,7 @@ export default function ValidatorsTable() {
                 }}
                 placeholder="Search..."
                 id="all-pool-search"
-                className="w-full md:w-[350px]"
+                className="w-full bg-background md:w-[350px]"
               />
             </div>
           </TabsContent>

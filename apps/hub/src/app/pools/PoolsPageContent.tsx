@@ -3,17 +3,13 @@
 import React from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { cloudinaryUrl } from "@bera/config";
-
-import { PoolSearch } from "./PoolsTable";
 import { SWRFallback } from "@bera/berajs";
+import { cloudinaryUrl } from "@bera/config";
 import { unstable_serialize } from "swr";
 
-export function PoolsPageContent({
-  pools,
-}: {
-  pools?: any;
-}) {
+import { PoolSearch } from "./PoolsTable";
+
+export function PoolsPageContent({ pools }: { pools?: any }) {
   const sp = useSearchParams();
   const poolType = sp.get("pool") as "allPools" | "userPools";
 
@@ -23,13 +19,15 @@ export function PoolsPageContent({
     >
       <div className="mx-auto flex w-full flex-col items-center justify-center gap-8">
         {/* Large Screen */}
-        <Image
-          src={`${cloudinaryUrl}/DEX/raqbge7ojm9k2w8ouznn.png`}
-          alt="Large Screen Image"
-          width={1200}
-          height={600}
-          className="h-auto w-full  object-cover"
-        />
+        <div className="relative w-full">
+          <Image
+            src={`${cloudinaryUrl}/station/ctshf1lmqqpyyxkssclz.png`}
+            alt="Large Screen Image"
+            width={1200}
+            height={600}
+            className="h-auto w-full object-cover"
+          />
+        </div>
 
         {/* Tablet Screen
       <div className="hidden md:block lg:hidden">

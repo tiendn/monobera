@@ -4,24 +4,21 @@ type Address = `0x${string}`;
 export const isIPFS = process.env.NEXT_PUBLIC_HOST === "ipfs";
 
 // endpoints
+/**
+ * TODO: Uptime need work on beaconkit to add
+ */
 export const indexerUrl = process.env.NEXT_PUBLIC_INDEXER_ENDPOINT as string;
 export const tokenListUrl = process.env.NEXT_PUBLIC_TOKEN_LIST as string;
 export const gaugeListUrl = process.env.NEXT_PUBLIC_GAUGE_LIST as string;
 export const marketListUrl = process.env.NEXT_PUBLIC_MARKETS_LIST as string;
 export const validatorListUrl = process.env
   .NEXT_PUBLIC_VALIDATOR_LIST as string;
-export const publicAnalyticsUrl = process.env.NEXT_PUBLIC_ANALYTICS as string;
 export const cloudinaryUrl = process.env.NEXT_PUBLIC_CLOUDINARY_URL as string;
 export const blockExplorerUrl = process.env
   .NEXT_PUBLIC_BLOCK_EXPLORER as string;
 export const blockExplorerName = process.env
   .NEXT_PUBLIC_BLOCK_EXPLORER_NAME as string;
 export const polEndpointUrl = process.env.NEXT_PUBLIC_POL_ENDPOINT as string;
-export const lendEndpointUrl = process.env.NEXT_PUBLIC_LEND_ENDPOINT as string;
-export const validatorEndpointUrl = process.env.NEXT_PUBLIC_VALIDATOR_ENDPOINT;
-export const awsUrl = process.env.NEXT_PUBLIC_AWS_URL as string;
-export const governanceUrl = process.env.NEXT_PUBLIC_GOVERNANCE_URL as string;
-export const governanceName = process.env.NEXT_PUBLIC_GOVERNANCE_NAME as string;
 
 // Subgraphs
 export const balancerApiUrl = process.env
@@ -84,11 +81,6 @@ export const gasTokenDecimals = Number(
 );
 export const dynamicWalletKey = process.env
   .NEXT_PUBLIC_DYNAMIC_API_KEY as string;
-export const stakingToken = process.env.NEXT_PUBLIC_STAKING_TOKEN as string;
-export const bech32Prefix = process.env.NEXT_PUBLIC_BECH32_PREFIX as string;
-export const governanceMinDeposit = Number(
-  process.env.NEXT_PUBLIC_GOVERNANCE_MIN_DEPOSIT,
-);
 
 /**
  * Default block time in seconds, in case the dynamic block time is not available
@@ -104,25 +96,12 @@ export const multicallCreationBlock = process.env
   .NEXT_PUBLIC_MULTICALL_CREATION_BLOCK
   ? Number(process.env.NEXT_PUBLIC_MULTICALL_CREATION_BLOCK)
   : undefined;
-export const erc20DexAddress = process.env
-  .NEXT_PUBLIC_ERC20_DEX_ADDRESS as Address;
-export const erc20ModuleAddress = process.env
-  .NEXT_PUBLIC_ERC20_MODULE_ADDRESS as Address;
-export const stakingAddress = process.env
-  .NEXT_PUBLIC_STAKING_ADDRESS as Address;
-export const bankAddress = process.env.NEXT_PUBLIC_BANK_ADDRESS as Address;
-export const epochsAddress = process.env.NEXT_PUBLIC_EPOCHS_ADDRESS as Address;
+
 export const honeyAddress = process.env.NEXT_PUBLIC_HONEY_ADDRESS as Address;
 export const rewardsAddress = process.env
   .NEXT_PUBLIC_REWARDS_ADDRESS as Address;
 export const honeyRouterAddress = process.env
   .NEXT_PUBLIC_HONEY_ROUTER_ADDRESS as Address;
-export const erc20BribeModule = process.env
-  .NEXT_PUBLIC_ERC20BRIBEMODULE_ADDRESS as Address;
-export const erc20BribeAddress = process.env
-  .NEXT_PUBLIC_ERC20_BRIBE_ADDRESS as Address;
-export const erc20RewardsAddress = process.env
-  .NEXT_PUBLIC_REWARDS_ADDRESS as Address;
 export const lendPoolImplementationAddress = process.env
   .NEXT_PUBLIC_LEND_POOL_IMPLEMENTATION_ADDRESS as Address;
 export const lendOracleAddress = process.env
@@ -133,6 +112,8 @@ export const lendPoolAddressProviderAddress = process.env
   .NEXT_PUBLIC_LEND_POOL_ADDRESS_PROVIDER as Address;
 export const lendRewardsAddress = process.env
   .NEXT_PUBLIC_LEND_REWARDS_ADDRESS as Address;
+
+// PERPS
 export const perpsReferralsAddress = process.env
   .NEXT_PUBLIC_REFERRALS_CONTRACT_ADDRESS as Address;
 export const tradingContractAddress = process.env
@@ -149,8 +130,6 @@ export const pythContractAddress = process.env
   .NEXT_PUBLIC_PYTH_CONTRACT_ADDRESS as Address;
 export const peripheryDebtToken = process.env
   .NEXT_PUBLIC_PERIPHERY_DEBT_TOKEN_ADDRESS as Address;
-export const bgtVaultBlackList = process.env
-  .NEXT_PUBLIC_BGT_VAULT_BLACKLIST as Address;
 
 // TOKENS
 export const honeyTokenAddress = process.env
@@ -159,8 +138,6 @@ export const nativeTokenAddress = process.env
   .NEXT_PUBLIC_BERA_ADDRESS as Address;
 export const beraTokenAddress = process.env
   .NEXT_PUBLIC_WBERA_ADDRESS as Address;
-export const stgusdcTokenAddress = process.env
-  .NEXT_PUBLIC_STGUSDC_ADDRESS as Address;
 export const wbtcTokenAddress = process.env.NEXT_PUBLIC_WBTC_ADDRESS as Address;
 export const wethTokenAddress = process.env.NEXT_PUBLIC_WETH_ADDRESS as Address;
 export const aHoneyTokenAddress = process.env
@@ -181,14 +158,6 @@ export const perpsPythPricesMocked = process.env
   .NEXT_PUBLIC_PERPS_PYTH_PRICES_MOCKED as string;
 export const perpsTradingviewEnabled = process.env
   .NEXT_PUBLIC_PERPS_TRADINGVIEW_ENABLED as string;
-
-export const bannerEnabled = Boolean(
-  process.env.NEXT_PUBLIC_BANNER_ENABLED,
-) as boolean;
-
-export const rpcBannerEnabled = Boolean(
-  process.env.NEXT_PUBLIC_RPC_BANNER_ENABLED,
-);
 
 // BGT
 export const bgtStaker = process.env.NEXT_PUBLIC_BGT_STAKER as Address;

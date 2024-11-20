@@ -18,9 +18,6 @@ import {
   BalancerApi,
   CHAINS,
   COMPOSABLE_STABLE_POOL_FACTORY,
-  CreatePool,
-  InitPool,
-  InitPoolDataProvider,
   NATIVE_ASSETS,
   Token,
   VAULT,
@@ -28,6 +25,7 @@ import {
 } from "@berachain-foundation/berancer-sdk";
 
 API_CHAIN_NAMES[chainId] = "BARTIO";
+// @ts-ignore
 CHAINS[chainId] = defaultBeraNetworkConfig.chain;
 BALANCER_RELAYER[chainId] = balancerRelayerAddress;
 VAULT[chainId] = balancerVaultAddress;

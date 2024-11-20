@@ -113,7 +113,7 @@ export const PoolSearch = ({
                 }}
                 isLoading={isTyping || (isLoading && keyword !== "")}
                 id="all-pool-search"
-                className="w-full sm:w-[400px]"
+                className="w-full bg-background sm:w-[400px]"
               />
               <Button
                 size="md"
@@ -178,6 +178,8 @@ export const PoolSearch = ({
                 table={table}
                 flexTable
                 dynamicFlex
+                variant="ghost"
+                mutedBackgroundOnHead={false}
                 onRowClick={(row) => router.push(getPoolUrl(row.original))}
                 wrapperClassName="bg-transparent border-none"
                 showToolbar={true}
@@ -207,6 +209,8 @@ export const PoolSearch = ({
                 table={table}
                 flexTable
                 dynamicFlex
+                variant="ghost"
+                mutedBackgroundOnHead={false}
                 onRowClick={(row) => router.push(getPoolUrl(row.original))}
                 wrapperClassName="bg-transparent border-none"
                 showToolbar={true}

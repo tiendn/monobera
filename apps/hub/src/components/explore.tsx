@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import {
-  hubUrl,
   blockExplorerUrl,
   faucetUrl,
   homepageUrl,
   honeyUrl,
+  hubUrl,
   lendUrl,
   perpsUrl,
 } from "@bera/config";

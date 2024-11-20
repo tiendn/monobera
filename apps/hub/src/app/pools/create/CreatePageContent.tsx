@@ -6,6 +6,7 @@ import {
   balancerPoolCreationHelperAbi,
   useBeraJs,
   useCreatePool,
+  useLiquidityMismatch,
   useSubgraphTokenInformations,
   type Token,
 } from "@bera/berajs";
@@ -255,12 +256,22 @@ export default function CreatePageContent() {
     },
   });
 
-  // reset the error message if you close/reopen the preview
+  // Reset the error message if you close/reopen the preview
   useEffect(() => {
     if (!isPreviewOpen) {
       setCreatePoolErrorMessage("");
     }
   }, [isPreviewOpen]);
+
+  // Determine if there are any liquidity mismatches in the pool (supply imbalances in terms of pool weights)
+  const liquidityMismatchInfo = useLiquidityMismatch({
+    tokenPrices,
+    isLoadingTokenPrices,
+    tokens,
+    weights,
+    weightsError,
+    poolType,
+  });
 
   return (
     <div className="flex w-full max-w-[600px] flex-col items-center justify-center gap-6">
@@ -357,13 +368,13 @@ export default function CreatePageContent() {
                   amount={token.amount}
                   isActionLoading={isLoadingTokenPrices}
                   price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
+                  hidePrice={!tokenPrices?.[token?.address]}
                   disabled={false}
                   setAmount={(amount) => handleTokenChange(index, { amount })}
                   onExceeding={(isExceeding) =>
                     handleTokenChange(index, { exceeding: isExceeding })
                   }
                   showExceeding
-                  hidePrice={false}
                   selectable={false}
                   forceShowBalance={true}
                   hideMax={false}
@@ -374,12 +385,13 @@ export default function CreatePageContent() {
                 />
               ))}
             </ul>
-            {poolType === PoolType.Weighted && (
-              <p>
-                Warning: if you seed liquidity in amounts that differ (in terms
-                of USD) from the weighting you are likely to encounter arbitrage
-                after pool creation.
-              </p>
+            {!weightsError && liquidityMismatchInfo.message && (
+              <Alert variant="warning" className="my-4">
+                <AlertTitle>{liquidityMismatchInfo.title}</AlertTitle>
+                <AlertDescription>
+                  {liquidityMismatchInfo.message}
+                </AlertDescription>
+              </Alert>
             )}
           </div>
         </section>
