@@ -24,8 +24,6 @@ export const governanceUrl = process.env.NEXT_PUBLIC_GOVERNANCE_URL as string;
 export const governanceName = process.env.NEXT_PUBLIC_GOVERNANCE_NAME as string;
 
 // Subgraphs
-export const crocSubgraphEndpoint = process.env // TODO (#): croc subgraph definition
-  .NEXT_PUBLIC_RPC_CROC_SUBGRAPH as Address;
 export const balancerApiUrl = process.env
   .NEXT_PUBLIC_BALANCER_API_URL as Address;
 export const honeySubgraphUrl = process.env

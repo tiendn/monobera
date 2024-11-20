@@ -2,8 +2,6 @@ import {
   balancerVaultAddress,
   beraTokenAddress,
   bgtTokenAddress,
-  // TODO: remove the croc addresses & endpoints
-  crocSubgraphEndpoint,
   governanceSubgraphUrl,
   governanceTimelockAddress,
   governorAddress,

@@ -60,3 +60,36 @@ query GetDedupedSubgraphPools($tokens: [Bytes!]!, $type: String!) {
     ...SubgraphPool
   }
 }
+
+query GetTokenInformation($pricingAsset: Bytes, $asset: Bytes) {
+  tokenPrices(
+    where: {pricingAsset: $pricingAsset, asset: $asset}
+    first: 1
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    amount
+    asset
+    block
+    id
+    price
+    pricingAsset
+    timestamp
+  }
+}
+
+query GetTokenInformations($pricingAsset: Bytes, $assets: [Bytes!]!) {
+  tokenPrices(
+    where: {pricingAsset: $pricingAsset, asset_in: $assets}
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    amount
+    asset
+    block
+    id
+    price
+    pricingAsset
+    timestamp
+  }
+}

@@ -1,6 +1,9 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { GetTokenInformations, dexClient } from "@bera/graphql";
-import { getAddress } from "viem";
+import { bexSubgraphClient } from "@bera/graphql";
+import {
+  GetTokenInformations,
+  GetTokenInformationsQuery,
+} from "@bera/graphql/dex/subgraph";
+import { honeyTokenAddress } from "@bera/config";
 
 import { BeraConfig, Token } from "~/types";
 import { handleNativeBera } from "~/utils";
@@ -28,19 +31,25 @@ export const getTokenHoneyPrices = async ({
     handleNativeBera(token).toLowerCase(),
   );
   try {
-    const res = await dexClient.query({
+    const res = await bexSubgraphClient.query<GetTokenInformationsQuery>({
       query: GetTokenInformations,
       variables: {
-        id: swappedAddresses,
+        pricingAsset: honeyTokenAddress,
+        assets: swappedAddresses,
       },
     });
-    return res.data?.tokenInformations.reduce(
-      (allPrices: any, tokenInformation: Token) => ({
-        ...allPrices,
-        [getAddress(tokenInformation.address)]: tokenInformation.usdValue,
-      }),
-      {},
-    ) as TokenHoneyPrices;
+    const prices: TokenHoneyPrices = {};
+
+    for (const tokenPrice of res.data?.tokenPrices || []) {
+      if (Object.keys(prices).length === swappedAddresses.length) {
+        break;
+      }
+
+      if (!Object.hasOwn(prices, tokenPrice.asset)) {
+        prices[tokenPrice.asset] = tokenPrice.price;
+      }
+    }
+    return prices;
   } catch (e) {
     console.log(e);
     return undefined;

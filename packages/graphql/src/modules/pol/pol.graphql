@@ -209,3 +209,21 @@ query GetWeeklyBgtInflation($wbera: ID!) {
     usdValue
   }
 }
+
+query GetGlobalCuttingBoard {
+  globalCuttingBoardWeights {
+    id
+    amount
+    vault {
+      id
+      stakingToken {
+        id
+      }
+    }
+  }
+  globalInfos {
+    totalBgtStaked
+    rewardRate
+    baseRewardRate
+  }
+}
