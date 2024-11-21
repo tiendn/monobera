@@ -31,8 +31,6 @@ if [ -d "secrets/static" ]; then
 
     mkdir -p apps/perp/public/internal-env
     cp -r secrets/static/* apps/perp/public/internal-env
-
-    echo "Copied secrets/static to apps/hub/public/internal-env, apps/honey/public/internal-env, apps/lend/public/internal-env, and apps/perp/public/internal-env"
 fi
 
 
