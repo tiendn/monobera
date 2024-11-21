@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { type Token } from "@bera/berajs";
 import {
   beraTokenAddress,
@@ -41,13 +41,34 @@ export default function CreatePoolInput({
   onLockToggle,
   onRemoveToken,
 }: Props) {
+  const [rawInput, setRawInput] = useState(
+    weight ? formatUnits(weight < 0n ? 0n : weight, 16) : "0",
+  );
+
+  // Make sure that the input values are updated when the weight changes
+  useEffect(() => {
+    if (weight !== undefined) {
+      setRawInput(formatUnits(weight < 0n ? 0n : weight, 16));
+    }
+  }, [weight]);
+
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // This lets the user type in numbers with a period character without sending invalid bigInt to usePoolWeights
+    const inputValue = e.target.value;
+    const numericCharacterCount = inputValue.replace(/[^0-9]/g, "").length;
+    if (numericCharacterCount > 18) {
+      return;
+    }
+
+    setRawInput(inputValue);
+
     try {
-      const weightInBigInt = parseUnits(e.target.value, 16);
+      if (inputValue === "" || Number.isNaN(Number(inputValue))) return;
+
+      const weightInBigInt = parseUnits(inputValue, 16);
       onWeightChange(index, weightInBigInt);
-    } catch (e) {
-      // FIXME this fails to let a user type in a decimal value like 0.5 as it doesnt like `###.`
-      // NOTE: this is likely a parsing error, ex: user has entered a non-numeric character
+    } catch {
+      // Ignore errors and keep the raw input value
     }
   };
 
@@ -55,7 +76,6 @@ export default function CreatePoolInput({
     <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-2">
       <SelectToken
         token={token}
-        // TODO: we should handle wrapping when adding liquidity, but for pool token selection it cannot be BERA itself.
         filter={[bgtTokenAddress, nativeTokenAddress]}
         selectable={selectable}
         onTokenSelection={(selectedToken: Token | undefined) =>
@@ -73,9 +93,7 @@ export default function CreatePoolInput({
             <InputWithLabel
               variant="black"
               type="text"
-              // NOTE: weight is 18 decimalized and we input it as a %, so we use 16 decimalized for the input
-              // NOTE: if a weight is negative internally we will clamp it to 0 in the display (but an error is shown)
-              value={weight ? formatUnits(weight < 0n ? 0n : weight, 16) : "0"}
+              value={rawInput}
               onChange={handleWeightChange}
               className="w-52 rounded-md border bg-transparent text-center text-white"
             />
