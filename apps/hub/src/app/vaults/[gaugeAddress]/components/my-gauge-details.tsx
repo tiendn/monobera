@@ -81,7 +81,7 @@ export const MyGaugeDetails = ({ gauge }: { gauge: Gauge }) => {
                   address: gauge.vaultAddress,
                   abi: BERA_VAULT_REWARDS_ABI,
                   functionName: "getReward",
-                  params: [account!],
+                  params: [account!, account!], // TODO: A second param is needed here for recipient. Added current account twice for now
                 })
               }
             >
