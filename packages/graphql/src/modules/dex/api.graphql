@@ -92,3 +92,18 @@ query GetPool($id: String!, $userAddress: String) {
     ...MinimalPool
   }
 }
+fragment PoolHistoricalData on GqlPoolSnapshot {
+  id
+  volume24h
+  totalSwapVolume
+  timestamp
+  totalLiquidity
+  fees24h
+  totalSwapFee
+}
+
+query GetPoolHistoricalData($poolId: String!) {
+  poolGetSnapshots(id: $poolId, range: NINETY_DAYS, chain: BARTIO) {
+    ...PoolHistoricalData
+  }
+}
