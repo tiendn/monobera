@@ -18,6 +18,23 @@ if [ -n "$SECRET_SUBMODULE_PAT" ]; then
     git submodule update --quiet --init --recursive
 fi
 
+# if secrets folder exists, copy the static folder to the apps
+if [ -d "secrets/static" ]; then
+    mkdir -p apps/hub/public/internal-env
+    cp -r secrets/static/* apps/hub/public/internal-env
+
+    mkdir -p apps/honey/public/internal-env
+    cp -r secrets/static/* apps/honey/public/internal-env
+
+    mkdir -p apps/lend/public/internal-env
+    cp -r secrets/static/* apps/lend/public/internal-env
+
+    mkdir -p apps/perp/public/internal-env
+    cp -r secrets/static/* apps/perp/public/internal-env
+
+    echo "Copied secrets/static to apps/hub/public/internal-env, apps/honey/public/internal-env, apps/lend/public/internal-env, and apps/perp/public/internal-env"
+fi
+
 
 # echo "The URL of the submodule '$SUBMODULE_NAME' has been updated to '$AUTH_URL'."
 
