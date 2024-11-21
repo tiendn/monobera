@@ -56,7 +56,12 @@ export default function CreatePoolInput({
     // This lets the user type in numbers with a period character without sending invalid bigInt to usePoolWeights
     const inputValue = e.target.value;
     const numericCharacterCount = inputValue.replace(/[^0-9]/g, "").length;
+
     if (numericCharacterCount > 18) {
+      return;
+    }
+
+    if ((inputValue.match(/\./g) || []).length > 1) {
       return;
     }
 
