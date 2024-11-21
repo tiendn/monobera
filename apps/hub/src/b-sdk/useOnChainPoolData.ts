@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { useMultipleTokenInformation, useTokenInformation } from "@bera/berajs";
+import {
+  useMultipleTokenInformation,
+  useSubgraphTokenInformations,
+  useTokenInformation,
+} from "@bera/berajs";
 import { balancerVaultAddress } from "@bera/config";
 import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex/api";
 import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
@@ -108,6 +112,10 @@ export function useOnChainPoolData(poolId: string) {
     addresses: poolData?.poolTokens[0] ?? [],
   });
 
+  const { data: tokenPrices } = useSubgraphTokenInformations({
+    tokenAddresses: poolData?.poolTokens[0] as Address[],
+  });
+
   useEffect(() => {
     if (!poolData || !tokenInformation) {
       setPool(undefined);
@@ -135,12 +143,23 @@ export function useOnChainPoolData(poolId: string) {
           ? formatEther(poolData.weights.at(idx) ?? 0n)
           : undefined,
         balance: formatUnits(poolData.poolTokens[1][idx], token.decimals),
-        token: { __typename: "Token", token },
+        token: {
+          __typename: "Token",
+          token,
+          latestUSDPrice: tokenPrices?.[token.address],
+        },
       })),
     };
 
+    const totalLiquidity = pool.tokens?.reduce((acc, token) => {
+      if (!token.token.latestUSDPrice) return acc;
+      return acc + Number(token.token.latestUSDPrice) * Number(token.balance);
+    }, 0);
+
+    pool.totalLiquidity = totalLiquidity;
+
     setPool(pool);
-  }, [poolData, tokenInformation]);
+  }, [poolData, tokenInformation, tokenPrices]);
 
   return {
     data: pool,
