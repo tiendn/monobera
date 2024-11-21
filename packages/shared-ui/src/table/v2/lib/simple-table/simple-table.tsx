@@ -18,6 +18,7 @@ export type SimpleTableProps<TData> = TableBodyProps<TData> & {
   flexTable?: boolean;
   dynamicFlex?: boolean;
   onRowClick?: (row: any) => void;
+  onRowHover?: (row: any) => void;
   wrapperClassName?: string;
   toolbarContent?: React.ReactNode;
   showToolbar?: boolean;
@@ -39,6 +40,7 @@ export function SimpleTable<TData>({
   showSelection = true,
   mutedBackgroundOnHead = true,
   onRowClick,
+  onRowHover,
   variant = "",
   ...props
 }: SimpleTableProps<TData>) {
@@ -103,6 +105,7 @@ export function SimpleTable<TData>({
                   row={row}
                   key={row.id}
                   flexTable={flexTable}
+                  onRowHover={onRowHover}
                   onRowClick={onRowClick}
                 >
                   {row.getVisibleCells().map((cell) => (

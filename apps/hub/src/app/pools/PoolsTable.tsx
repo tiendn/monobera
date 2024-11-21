@@ -180,6 +180,9 @@ export const PoolSearch = ({
                 dynamicFlex
                 variant="ghost"
                 mutedBackgroundOnHead={false}
+                onRowHover={(row) => {
+                  router.prefetch(getPoolUrl(row.original));
+                }}
                 onRowClick={(row) => router.push(getPoolUrl(row.original))}
                 wrapperClassName="bg-transparent border-none"
                 showToolbar={true}
