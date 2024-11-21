@@ -3,8 +3,8 @@ import useSWR from "swr";
 import { usePublicClient } from "wagmi";
 
 import { GlobalInfo, getBGTGlobalInfo } from "~/actions/bgt/getBGTGlobalInfo";
+import { getBgtTokenTotalSupply } from "~/actions/bgt/getBgtTokenTotalSupply";
 import { getGlobalCuttingBoard } from "~/actions/bgt/getGlobalCuttingBoard";
-import { getTokenTotalSupply } from "~/actions/bgt/getTokenTotalSupply";
 import {
   CuttingBoardWeight,
   DefaultHookOptions,
@@ -33,8 +33,7 @@ export const usePollGlobalData = (
         await Promise.all([
           getBGTGlobalInfo(config),
           getGlobalCuttingBoard(300, config),
-          getTokenTotalSupply({
-            token: bgtTokenAddress,
+          getBgtTokenTotalSupply({
             publicClient,
           }),
         ]);

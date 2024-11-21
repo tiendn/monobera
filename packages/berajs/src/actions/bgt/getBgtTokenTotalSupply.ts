@@ -1,19 +1,19 @@
+import { bgtTokenAddress } from "@bera/config";
 import { Address, PublicClient, erc20Abi, formatEther } from "viem";
 
-export interface GetTokenTotalSupply {
-  token: Address;
+export interface GetBgtTokenTotalSupply {
   publicClient: PublicClient | undefined;
 }
 
-export const getTokenTotalSupply = async ({
-  token,
+export const getBgtTokenTotalSupply = async ({
   publicClient,
-}: GetTokenTotalSupply): Promise<string> => {
+}: GetBgtTokenTotalSupply): Promise<string> => {
   if (!publicClient) throw new Error("Missing public client");
-  if (!token) throw new Error("Missing token address");
+  if (!bgtTokenAddress) throw new Error("Missing BGT token address");
+
   try {
     const result = await publicClient.readContract({
-      address: token,
+      address: bgtTokenAddress,
       abi: erc20Abi,
       functionName: "totalSupply",
       args: [],
