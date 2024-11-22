@@ -9,9 +9,11 @@ import {
   useCreatePool,
   useLiquidityMismatch,
   useSubgraphTokenInformations,
+  wBeraToken,
   wrapNativeToken,
   wrapNativeTokens,
   type Token,
+  type TokenInput as TokenInputType,
 } from "@bera/berajs";
 import {
   balancerDelegatedOwnershipAddress,
@@ -29,6 +31,7 @@ import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { Separator } from "@bera/ui/separator";
+import { beraToken } from "@bera/wagmi";
 import {
   PoolType,
   ZERO_ADDRESS,
@@ -38,10 +41,11 @@ import {
 import { decodeEventLog, isAddress, zeroAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
+import { isBera, isBeratoken } from "~/utils/isBeraToken";
 import BeraTooltip from "~/components/bera-tooltip";
+import { nativeToken } from "~/b-sdk/b-sdk";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
-import { TokenInput as TokenInputType } from "~/hooks/useMultipleTokenInput";
 import CreatePoolInput from "../components/create-pool-input";
 import DynamicPoolCreationPreview from "../components/dynamic-pool-create-preview";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
@@ -371,6 +375,11 @@ export default function CreatePageContent() {
                   selected={token}
                   amount={token.amount}
                   isActionLoading={isLoadingTokenPrices}
+                  customTokenList={
+                    isBera(token) || isBeratoken(token)
+                      ? [wBeraToken, beraToken]
+                      : undefined
+                  }
                   price={Number(
                     tokenPrices?.[wrapNativeToken(token)?.address] ?? 0,
                   )} // TODO (#): this would make more sense as token.usdValue
@@ -381,7 +390,7 @@ export default function CreatePageContent() {
                     handleTokenChange(index, { exceeding: isExceeding })
                   }
                   showExceeding
-                  selectable={false}
+                  selectable={isBera(token) || isBeratoken(token)}
                   forceShowBalance={true}
                   hideMax={false}
                   className={cn(

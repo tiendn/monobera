@@ -9,6 +9,7 @@ import {
   getSafeNumber,
   useBeraJs,
   wrapNativeTokens,
+  type TokenInput,
 } from "@bera/berajs";
 import { SubgraphTokenInformations } from "@bera/berajs/actions";
 import {
@@ -33,7 +34,6 @@ import {
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { formatUnits, parseUnits } from "viem";
 
-import { TokenInput } from "~/hooks/useMultipleTokenInput";
 import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
 import { getPoolUrl } from "../fetchPools";
 import { OwnershipType } from "./ownership-input";

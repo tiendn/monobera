@@ -6,7 +6,11 @@ import {
   GetDedupedSubgraphPoolsQuery,
   SubgraphPoolFragment,
 } from "@bera/graphql/dex/subgraph";
-import { PoolType } from "@berachain-foundation/berancer-sdk";
+import {
+  InputToken,
+  PoolType,
+  Token,
+} from "@berachain-foundation/berancer-sdk";
 import useSWRImmutable from "swr/immutable";
 import { formatUnits, keccak256, parseUnits } from "viem";
 

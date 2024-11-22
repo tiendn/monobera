@@ -1,10 +1,9 @@
-import { nativeTokenAddress } from "@bera/config";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { formatUnits } from "viem";
 
-import { Token } from "~/types";
+import { TokenInput } from "~/types";
 
-export const generatePoolName = (tokens: Token[]): string => {
+export const generatePoolName = (tokens: TokenInput[]): string => {
   if (tokens.length === 0) {
     return "";
   }
@@ -12,7 +11,7 @@ export const generatePoolName = (tokens: Token[]): string => {
 };
 
 export const generatePoolSymbol = (
-  tokens: Token[],
+  tokens: TokenInput[],
   weights: bigint[],
   poolType: PoolType,
 ): string => {

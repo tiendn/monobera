@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { type Token } from "@bera/berajs";
+import { type Token, type TokenInput } from "@bera/berajs";
 import {
   beraTokenAddress,
   bgtTokenAddress,
@@ -9,8 +9,6 @@ import { SelectToken } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { formatUnits, parseUnits } from "viem";
-
-import { TokenInput } from "~/hooks/useMultipleTokenInput";
 
 type Props = {
   token: TokenInput | undefined;
@@ -77,27 +75,11 @@ export default function CreatePoolInput({
     }
   };
 
-  // Do not allow the user to select BERA and WBERA as a token pair. (NOTE: BERA is wrapped during create)
-  const filteredTokens = [bgtTokenAddress];
-  if (
-    selectedTokens.find(
-      (selectedToken) => selectedToken.address === nativeTokenAddress,
-    )
-  ) {
-    filteredTokens.push(beraTokenAddress);
-  } else if (
-    selectedTokens.find(
-      (selectedToken) => selectedToken.address === beraTokenAddress,
-    )
-  ) {
-    filteredTokens.push(nativeTokenAddress);
-  }
-
   return (
     <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-2">
       <SelectToken
         token={token}
-        filter={filteredTokens}
+        filter={[nativeTokenAddress, bgtTokenAddress]} // NOTE: it is never possible to create a pool with BERA, but you can add BERA as liquidity later
         selectable={selectable}
         onTokenSelection={(selectedToken: Token | undefined) =>
           onTokenSelection(selectedToken)

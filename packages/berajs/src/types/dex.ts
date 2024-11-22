@@ -25,6 +25,11 @@ export interface BalanceToken extends Token {
   formattedBalance: string;
 }
 
+export interface TokenInput extends Token {
+  amount: string;
+  exceeding: boolean;
+}
+
 export interface SwapRequest {
   tokenIn: Address;
   tokenOut: Address;

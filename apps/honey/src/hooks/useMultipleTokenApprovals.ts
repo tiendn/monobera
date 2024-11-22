@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePollAllowances, type Token } from "@bera/berajs";
-
-import { type TokenInput } from "./useMultipleTokenInput";
+import { usePollAllowances, type Token, type TokenInput } from "@bera/berajs";
 import { Address } from "viem";
 
 const useMultipleTokenApprovals = (
