@@ -21,7 +21,7 @@ export default async function Pool() {
 
   return (
     <div className="flex w-full flex-col gap-5">
-      <PoolsPageContent pools={res.data.poolGetPools} />
+      <PoolsPageContent pools={res?.data.poolGetPools ?? []} />
     </div>
   );
 }
