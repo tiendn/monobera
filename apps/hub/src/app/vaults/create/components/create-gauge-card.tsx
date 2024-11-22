@@ -2,21 +2,20 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  TransactionActionType,
-  rewardVaultFactoryAbi,
-  usePollRewardVault,
-} from "@bera/berajs";
-import { rewardVaultFactoryAddress } from "@bera/config";
-import { Spinner, Tooltip, useTxn } from "@bera/shared-ui";
+import { usePollRewardVault } from "@bera/berajs";
+import { Spinner, Tooltip } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Input } from "@bera/ui/input";
 import { Address, isAddress } from "viem";
+import { useCreateRewardVault } from "./useCreateRewardVault";
 
 export const CreateGaugeCard: React.FC = () => {
   const [targetAddress, setTargetAddress] = useState("");
+  const { createRewardVault, ModalPortal } = useCreateRewardVault({
+    tokenAddress: targetAddress as Address,
+  });
 
   const { data: rewardVaultData, isLoading: isLoadingRewardVault } =
     usePollRewardVault(
@@ -32,28 +31,6 @@ export const CreateGaugeCard: React.FC = () => {
   );
 
   const router = useRouter();
-
-  const { write, ModalPortal } = useTxn({
-    message: "Creating Reward Vault",
-    actionType: TransactionActionType.CREATE_REWARDS_VAULT,
-    onSuccess: async (txHash: string) => {
-      console.log("Success", txHash);
-    },
-    onError: (e) => {
-      console.log("Error", e);
-    },
-  });
-
-  const handleCreateVault = () => {
-    // Logic to create the vault
-    const address = targetAddress as Address;
-    write({
-      address: rewardVaultFactoryAddress,
-      abi: rewardVaultFactoryAbi,
-      functionName: "createRewardsVault",
-      params: [address],
-    });
-  };
 
   return (
     <div>
@@ -162,7 +139,7 @@ export const CreateGaugeCard: React.FC = () => {
           </div>
           <Button
             className="w-full"
-            onClick={handleCreateVault}
+            onClick={() => createRewardVault()}
             disabled={
               isLoadingRewardVault || !!rewardVault || !isAddress(targetAddress)
             }

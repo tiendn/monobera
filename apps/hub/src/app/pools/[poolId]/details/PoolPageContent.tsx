@@ -10,7 +10,6 @@ import {
   ADDRESS_ZERO,
   useRewardVaultBalanceFromStakingToken,
   useSelectedGauge,
-  usePoolHistoricalData,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
@@ -38,6 +37,7 @@ import { Icons } from "@bera/ui/icons";
 import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
 import { useOnChainPoolData } from "~/b-sdk/useOnChainPoolData";
 import { PoolChart } from "./PoolChart";
+import { useCreateRewardVault } from "~/app/vaults/create/components/useCreateRewardVault";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -190,9 +190,10 @@ export default function PoolPageContent({
     : undefined;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
-  const { data: rewardVault } = useRewardVaultBalanceFromStakingToken({
-    stakingToken: pool?.address as Address,
-  });
+  const { data: rewardVault, refresh: refreshRewardVault } =
+    useRewardVaultBalanceFromStakingToken({
+      stakingToken: pool?.address as Address,
+    });
 
   const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
@@ -495,7 +496,10 @@ export default function PoolPageContent({
                   </Card>
                 </>
               ) : (
-                <PoolCreateRewardVault />
+                <PoolCreateRewardVault
+                  onSuccess={() => refreshRewardVault()}
+                  address={pool?.address as Address}
+                />
               )
             ) : null}
           </div>

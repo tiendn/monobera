@@ -1,12 +1,22 @@
 import { Button } from "@bera/ui/button";
 import { Card, CardContent } from "@bera/ui/card";
-import { Separator } from "@bera/ui/separator";
-import { Skeleton } from "@bera/ui/skeleton";
-import Link from "next/link";
+import { Address } from "viem";
+import { useCreateRewardVault } from "~/app/vaults/create/components/useCreateRewardVault";
 
-export const PoolCreateRewardVault = () => {
+export const PoolCreateRewardVault = ({
+  address,
+  onSuccess,
+}: {
+  address: Address;
+  onSuccess?: () => void;
+}) => {
+  const { createRewardVault, ModalPortal } = useCreateRewardVault({
+    tokenAddress: address,
+    onSuccess,
+  });
   return (
     <Card>
+      {ModalPortal}
       <CardContent className="p-4">
         <div className="flex justify-between gap-2 items-center w-full">
           <div>
@@ -21,8 +31,7 @@ export const PoolCreateRewardVault = () => {
             <Button
               variant="outline"
               size="md"
-              as={Link}
-              href="/vaults/create/"
+              onClick={() => createRewardVault()}
             >
               Create
             </Button>
