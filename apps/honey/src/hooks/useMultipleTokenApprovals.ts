@@ -28,7 +28,7 @@ const useMultipleTokenApprovals = (
           );
           if (
             allowance.formattedAllowance === "0" ||
-            Number(allowance.formattedAllowance) < (token?.amount ?? 0)
+            Number(allowance.formattedAllowance) < Number(token?.amount ?? 0)
           ) {
             return allowance;
           }

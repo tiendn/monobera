@@ -43,7 +43,6 @@ import { usePublicClient } from "wagmi";
 
 import { isBera, isBeratoken } from "~/utils/isBeraToken";
 import BeraTooltip from "~/components/bera-tooltip";
-import { nativeToken } from "~/b-sdk/b-sdk";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import CreatePoolInput from "../components/create-pool-input";
@@ -52,11 +51,17 @@ import OwnershipInput, { OwnershipType } from "../components/ownership-input";
 import PoolTypeSelector from "../components/pool-type-selector";
 import { getPoolUrl } from "../fetchPools";
 
-const emptyToken: TokenInputType = {
+const emptyTokenInput: TokenInputType = {
   address: "" as `0x${string}`,
   amount: "0",
   decimals: 18,
   exceeding: false,
+  name: "",
+  symbol: "",
+};
+const emptyToken: Token = {
+  address: "" as `0x${string}`,
+  decimals: 18,
   name: "",
   symbol: "",
 };
@@ -67,10 +72,15 @@ export default function CreatePageContent() {
   const { account } = useBeraJs();
   const publicClient = usePublicClient();
 
-  const [tokens, setTokens] = useState<TokenInputType[]>([
+  // States for Pool Creation and Initial Liquidity
+  const [poolCreateTokens, setpoolCreateTokens] = useState<Token[]>([
     emptyToken,
     emptyToken,
-  ]); // TODO: we should use useMultipleTokenInput here, but it will need weight handling and the ability to add/remove inputs
+  ]);
+  const [initialLiquidityTokens, setInitialLiquidityTokens] = useState<
+    TokenInputType[]
+  >([emptyTokenInput, emptyTokenInput]);
+
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [swapFee, setSwapFee] = useState<number>(0.1);
   const [owner, setOwner] = useState<string>(ZERO_ADDRESS);
@@ -87,7 +97,10 @@ export default function CreatePageContent() {
 
   const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
     useSubgraphTokenInformations({
-      tokenAddresses: wrapNativeTokens(tokens).map((token) => token.address),
+      // FIXME we need both create and initial liquidity tokens set here
+      tokenAddresses: poolCreateTokens
+        .map((token) => token.address)
+        .concat(initialLiquidityTokens.map((token) => token.address)),
     });
 
   async function getPoolIdFromTx(txHash: `0x${string}`) {
@@ -135,8 +148,8 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-        ? ZERO_ADDRESS
-        : account || zeroAddress,
+          ? ZERO_ADDRESS
+          : account || zeroAddress,
     );
   };
 
@@ -153,7 +166,10 @@ export default function CreatePageContent() {
 
   // check for token approvals
   const { needsApproval: tokensNeedApproval, refresh: refreshAllowances } =
-    useMultipleTokenApprovalsWithSlippage(tokens, balancerVaultAddress);
+    useMultipleTokenApprovalsWithSlippage(
+      initialLiquidityTokens,
+      balancerVaultAddress,
+    );
 
   const {
     weights,
@@ -165,45 +181,56 @@ export default function CreatePageContent() {
     removeWeight,
   } = usePoolWeights([500000000000000000n, 500000000000000000n]);
 
-  const addTokenInput = () => {
-    if (tokens.length < maxTokensLength) {
-      setTokens([...tokens, emptyToken]);
+  const handleAddToken = () => {
+    if (poolCreateTokens.length < maxTokensLength) {
+      setpoolCreateTokens((prevTokens) => [...prevTokens, emptyToken]);
+      setInitialLiquidityTokens((prevTokens) => [
+        ...prevTokens,
+        emptyTokenInput,
+      ]);
       addWeight();
     }
   };
 
   const handleRemoveToken = (index: number) => {
-    if (tokens.length > minTokensLength) {
-      setTokens((prevTokens) => prevTokens.filter((_, i) => i !== index));
+    if (poolCreateTokens.length > minTokensLength) {
+      setpoolCreateTokens((prevTokens) =>
+        prevTokens.filter((_, i) => i !== index),
+      );
+      setInitialLiquidityTokens((prevTokens) =>
+        prevTokens.filter((_, i) => i !== index),
+      );
       removeWeight(index);
     }
   };
 
-  // Update token selection and reset weights when we change tokens
-  const handleTokenSelection = (token: Token | undefined, index: number) => {
-    setTokens((prevTokens) => {
+  // Handle create pool token changes
+  const handlePoolTokenChange = (index: number, newToken: Token): void => {
+    setpoolCreateTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
-      if (token) {
-        updatedTokens[index] = {
-          amount: "0",
-          exceeding: false,
-          ...token,
-        } as TokenInputType;
+      updatedTokens[index] = { ...updatedTokens[index], ...newToken };
+      return updatedTokens;
+    });
+    setInitialLiquidityTokens((prevTokens) => {
+      const updatedTokens = [...prevTokens];
+      if (!updatedTokens[index]) {
+        updatedTokens[index] = { ...emptyTokenInput, ...newToken };
+      } else {
+        updatedTokens[index] = { ...updatedTokens[index], ...newToken };
       }
       return updatedTokens;
     });
   };
 
-  // Update a specific token's amount and exceeding status (comes from liquidity input)
-  const handleTokenChange = (
+  const handleAddLiquidityTokenChange = (
     index: number,
-    newValues: Partial<TokenInputType>,
+    updates: Partial<TokenInputType>,
   ): void => {
-    setTokens((prevTokens) => {
+    setInitialLiquidityTokens((prevTokens) => {
       const updatedTokens = [...prevTokens];
       updatedTokens[index] = {
-        ...updatedTokens[index],
-        ...newValues,
+        ...updatedTokens[index], // Preserve existing properties
+        ...updates, // Apply partial updates
       };
       return updatedTokens;
     });
@@ -217,7 +244,8 @@ export default function CreatePageContent() {
     dupePool,
     createPoolArgs,
   } = useCreatePool({
-    tokens,
+    poolCreateTokens,
+    initialLiquidityTokens,
     normalizedWeights: weights,
     poolType,
     swapFee,
@@ -273,7 +301,7 @@ export default function CreatePageContent() {
   const liquidityMismatchInfo = useLiquidityMismatch({
     tokenPrices,
     isLoadingTokenPrices,
-    tokens,
+    tokens: initialLiquidityTokens,
     weights,
     weightsError,
     poolType,
@@ -299,20 +327,23 @@ export default function CreatePageContent() {
             poolType === PoolType.Weighted ? "& Weighting" : ""
           }`}</h2>
           <div className="flex w-full flex-col gap-2">
-            {tokens.map((token, index) => (
+            {poolCreateTokens.map((token, index) => (
               <CreatePoolInput
                 // NOTE: WBERA and BERA are mutually exclusive options, we wrap BERA -> WBERA in poolCreationHelper
                 key={`token-${index}`}
                 token={token}
-                selectedTokens={tokens}
+                selectedTokens={poolCreateTokens}
                 weight={weights[index]}
                 displayWeight={poolType === PoolType.Weighted}
                 locked={lockedWeights[index]}
-                displayRemove={tokens.length > minTokensLength}
+                displayRemove={poolCreateTokens.length > minTokensLength}
                 index={index}
-                onTokenSelection={(selectedToken) =>
-                  handleTokenSelection(selectedToken, index)
-                }
+                onTokenSelection={(selectedToken) => {
+                  if (selectedToken) {
+                    // FIXME: how is this needing to be handled??
+                    handlePoolTokenChange(index, selectedToken);
+                  }
+                }}
                 onWeightChange={handleWeightChange}
                 onLockToggle={toggleLock}
                 onRemoveToken={handleRemoveToken}
@@ -320,12 +351,12 @@ export default function CreatePageContent() {
             ))}
           </div>
 
-          {tokens.length < maxTokensLength && (
+          {poolCreateTokens.length < maxTokensLength && (
             <>
               <Separator className="text-muted-foreground opacity-50" />
               <div className="mr-auto -translate-x-4">
                 <Button
-                  onClick={addTokenInput}
+                  onClick={handleAddToken}
                   variant="ghost"
                   className="text-foreground"
                 >
@@ -367,7 +398,7 @@ export default function CreatePageContent() {
           </h2>
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
-              {tokens.map((token, index) => (
+              {initialLiquidityTokens.map((token, index) => (
                 // TODO (#): we ought to handle isLoadingTokenPrices in price display
                 // NOTE: prices for BERA (wrapped create) must be given in WBERA as that is the wrapped token's value.
                 <TokenInput
@@ -385,10 +416,19 @@ export default function CreatePageContent() {
                   )} // TODO (#): this would make more sense as token.usdValue
                   hidePrice={!tokenPrices?.[wrapNativeToken(token)?.address]}
                   disabled={false}
-                  setAmount={(amount) => handleTokenChange(index, { amount })}
-                  onExceeding={(isExceeding) =>
-                    handleTokenChange(index, { exceeding: isExceeding })
+                  setAmount={(amount) =>
+                    handleAddLiquidityTokenChange(index, { amount })
                   }
+                  onExceeding={(isExceeding) =>
+                    handleAddLiquidityTokenChange(index, {
+                      exceeding: isExceeding,
+                    })
+                  }
+                  onTokenSelection={(selectedToken) => {
+                    // NOTE: this is specifically used for if the user wants to select BERA or WBERA
+                    selectedToken &&
+                      handleAddLiquidityTokenChange(index, selectedToken);
+                  }}
                   showExceeding
                   selectable={isBera(token) || isBeratoken(token)}
                   forceShowBalance={true}
@@ -485,7 +525,8 @@ export default function CreatePageContent() {
               !poolSymbol ||
               !owner ||
               !isAddress(owner) ||
-              !tokens.every(
+              !(poolCreateTokens.length === initialLiquidityTokens.length) ||
+              !initialLiquidityTokens.every(
                 (token) =>
                   token.address && Number(token.amount) > 0 && !token.exceeding,
               ) ||
@@ -501,7 +542,8 @@ export default function CreatePageContent() {
         <DynamicPoolCreationPreview
           open={isPreviewOpen}
           setOpen={setPreviewOpen}
-          tokens={tokens}
+          poolCreateTokens={poolCreateTokens}
+          initialLiquidityTokens={initialLiquidityTokens}
           tokenPrices={tokenPrices} // TODO: it would make more sense to set these inside TokenInput.usdValue
           weights={weights}
           poolName={poolName}

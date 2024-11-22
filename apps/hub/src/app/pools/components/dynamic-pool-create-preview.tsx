@@ -8,7 +8,8 @@ import {
   formatUsd,
   getSafeNumber,
   useBeraJs,
-  wrapNativeTokens,
+  wrapNativeToken,
+  type Token,
   type TokenInput,
 } from "@bera/berajs";
 import { SubgraphTokenInformations } from "@bera/berajs/actions";
@@ -41,7 +42,8 @@ import { OwnershipType } from "./ownership-input";
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  tokens: TokenInput[];
+  poolCreateTokens: Token[];
+  initialLiquidityTokens: TokenInput[];
   tokenPrices?: SubgraphTokenInformations;
   weights: bigint[];
   poolName: string;
@@ -64,7 +66,8 @@ type Props = {
 export default function DynamicPoolCreationPreview({
   open,
   setOpen,
-  tokens,
+  poolCreateTokens,
+  initialLiquidityTokens,
   tokenPrices,
   weights,
   poolName,
@@ -175,7 +178,7 @@ export default function DynamicPoolCreationPreview({
                 height={150}
               />
               <div className="flex flex-row items-center gap-2">
-                {wrapNativeTokens(tokens).map((token, idx: number) => (
+                {poolCreateTokens.map((token, idx: number) => (
                   <TokenIcon
                     key={`${token}-${idx}`}
                     address={token.address}
@@ -201,33 +204,36 @@ export default function DynamicPoolCreationPreview({
           {/* Initial Liquidity Section */}
           <section>
             <h3 className="mb-2 text-lg font-medium">Initial Liquidity</h3>
-            {tokens.map((token, index) => (
-              <div
-                key={index}
-                className="mb-2 flex items-center justify-between text-foreground"
-              >
-                <div className="flex items-center gap-2">
-                  {/* FIXME: do we want to display some kind tooltip explaining the BERA -> WBERA case? */}
-                  <TokenIcon address={token.address} symbol={token.symbol} />
-                  <span className="font-semibold">{token.symbol}</span>
-                  {poolType === PoolType.Weighted && (
-                    <span className="text-sm text-foreground">
-                      {Number(formatUnits(weights[index], 16)).toFixed(2)}%
+            {initialLiquidityTokens.map((token, index) => {
+              const wrappedToken = wrapNativeToken(token); // NOTE: prices are always for WBERA, never BERA
+              return (
+                <div
+                  key={index}
+                  className="mb-2 flex items-center justify-between text-foreground"
+                >
+                  <div className="flex items-center gap-2">
+                    {/* FIXME: do we want to display some kind tooltip explaining the BERA -> WBERA case? */}
+                    <TokenIcon address={token.address} symbol={token.symbol} />
+                    <span className="font-semibold">{token.symbol}</span>
+                    {poolType === PoolType.Weighted && (
+                      <span className="text-sm text-foreground">
+                        {Number(formatUnits(weights[index], 16)).toFixed(2)}%
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm text-foreground">
+                    {Number(token.amount).toFixed(2)}{" "}
+                    <span className="text-foreground">
+                      {tokenPrices?.[wrappedToken.address] && // FIXME this should use a wrapped address
+                        `(${formatUsd(
+                          tokenPrices[wrappedToken.address] *
+                            getSafeNumber(wrappedToken.amount),
+                        )})`}
                     </span>
-                  )}
-                </div>
-                <span className="text-sm text-foreground">
-                  {Number(token.amount).toFixed(2)}{" "}
-                  <span className="text-foreground">
-                    {tokenPrices?.[token.address] &&
-                      `(${formatUsd(
-                        tokenPrices[token.address] *
-                          getSafeNumber(token.amount),
-                      )})`}
                   </span>
-                </span>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </section>
 
           <hr className="my-4 border-t" />
@@ -280,10 +286,11 @@ export default function DynamicPoolCreationPreview({
                 </ActionButton>
               ) : tokensNeedApproval.length > 0 ? (
                 (() => {
-                  const approvalTokenIndex = tokens.findIndex(
+                  const approvalTokenIndex = initialLiquidityTokens.findIndex(
                     (t) => t.address === tokensNeedApproval[0]?.address,
                   );
-                  const approvalToken = tokens[approvalTokenIndex];
+                  const approvalToken =
+                    initialLiquidityTokens[approvalTokenIndex];
                   const approvalAmount = parseUnits(
                     approvalToken.amount,
                     approvalToken?.decimals ?? 18,

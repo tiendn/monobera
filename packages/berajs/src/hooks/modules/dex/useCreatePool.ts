@@ -1,16 +1,16 @@
 import { useMemo } from "react";
-import { balancerPoolCreationHelper, nativeTokenAddress } from "@bera/config";
+import {
+  balancerPoolCreationHelper,
+  beraTokenAddress,
+  nativeTokenAddress,
+} from "@bera/config";
 import { bexSubgraphClient } from "@bera/graphql";
 import {
   GetDedupedSubgraphPools,
   GetDedupedSubgraphPoolsQuery,
   SubgraphPoolFragment,
 } from "@bera/graphql/dex/subgraph";
-import {
-  InputToken,
-  PoolType,
-  Token,
-} from "@berachain-foundation/berancer-sdk";
+import { PoolType } from "@berachain-foundation/berancer-sdk";
 import useSWRImmutable from "swr/immutable";
 import { formatUnits, keccak256, parseUnits } from "viem";
 
@@ -19,13 +19,14 @@ import { wrapNativeToken, wrapNativeTokens } from "~/utils/tokenWrapping";
 import { balancerPoolCreationHelperAbi } from "~/abi";
 import { ADDRESS_ZERO } from "~/config";
 import { IContractWrite } from "~/hooks/useContractWrite";
-import { TokenWithAmount } from "~/types";
+import { Token, TokenInput } from "~/types";
 
 const DEFAULT_WEIGHTS_DUPLICATION_THRESHOLD = 0.005;
 const DEFAULT_POOL_CREATE_GAS_LIMIT = 7920027n; // NOTE: this is the metamask gas limit, in experiments we find we can easily use 75% of this.
 
 interface UseCreatePoolProps {
-  tokens: TokenWithAmount[];
+  poolCreateTokens: Token[];
+  initialLiquidityTokens: TokenInput[];
   normalizedWeights: bigint[]; // NOTE: if you pass weights that have off-by-1 errors pool create will fail (ex: 0.3 repeating)
   poolType: PoolType;
   swapFee: number;
@@ -47,7 +48,8 @@ interface UseCreatePoolReturn {
 }
 
 const createStablePoolArgs = (
-  tokens: TokenWithAmount[],
+  poolCreateTokens: Token[],
+  initialLiquidityTokens: TokenInput[],
   swapFeePercentage: bigint,
   salt: string,
   poolName: string,
@@ -56,32 +58,47 @@ const createStablePoolArgs = (
   amplification: number,
   gasLimit: bigint = DEFAULT_POOL_CREATE_GAS_LIMIT,
 ) => {
-  // When joining stable pools with BERA we pass value = the amount, wrap it to WBERA in createPoolTokens & we set the joinWBERAPoolWithBERA true.
-  const wrappedTokens = wrapNativeTokens(tokens);
+  // Map and sort pool creation token addresses NOTE: we should never see BERA in this array.
+  const sortedPoolCreateAddresses = poolCreateTokens
+    .map((token) => token.address.toLowerCase())
+    .sort((a, b) => (a < b ? -1 : 1));
 
-  // Sort tokens and their corresponding amounts together
-  const sortedTokensAndAmounts = wrappedTokens
-    .map((token) => ({
-      address: token.address.toLowerCase(),
-      amount: parseUnits(token.amount, token.decimals ?? 18),
-      decimals: token.decimals,
-    }))
-    .sort((a, b) => (a.address < b.address ? -1 : 1));
+  // Match sorted pool creation tokens with initial liquidity amounts
+  const sortedAmountsIn = sortedPoolCreateAddresses.map((address) => {
+    const liquidityToken = initialLiquidityTokens.find((token) => {
+      return (
+        token.address.toLowerCase() === address ||
+        (address === beraTokenAddress.toLowerCase() &&
+          token.address.toLowerCase() === nativeTokenAddress)
+      );
+    });
 
-  const createPoolTokens = sortedTokensAndAmounts.map((item) => item.address);
-  const sortedAmountsIn = sortedTokensAndAmounts.map((item) => item.amount);
+    if (!liquidityToken) {
+      return 0n; // Ensure 0 amount if no matching liquidity token is found (tx will fail)
+    }
 
-  // Determine if the native token (BERA) is included and set value/flag accordingly
-  const nativeTokenIndex = tokens.findIndex(
-    (token) => token.address.toLowerCase() === nativeTokenAddress.toLowerCase(),
+    return parseUnits(liquidityToken.amount, liquidityToken.decimals);
+  });
+
+  // Determine if native token (BERA) is included, and if so calculate its value, that is the value of this tx
+  const nativeTokenIndex = initialLiquidityTokens.findIndex(
+    (token) => token.address.toLowerCase() === nativeTokenAddress,
   );
   const value =
-    nativeTokenIndex !== -1 ? sortedAmountsIn[nativeTokenIndex] : 0n;
+    nativeTokenIndex !== -1
+      ? parseUnits(
+          initialLiquidityTokens[nativeTokenIndex].amount,
+          initialLiquidityTokens[nativeTokenIndex].decimals,
+        )
+      : 0n;
   const joinWBERAPoolWithBERA = value > 0n;
 
-  // Default rate providers and cache durations for stable pools TODO: these should be set and sorted if we are metastable.
-  const rateProviders = Array(createPoolTokens.length).fill(ADDRESS_ZERO);
-  const cacheDurations = Array(createPoolTokens.length).fill(BigInt(100)); // default safe duration
+  const rateProviders = Array(sortedPoolCreateAddresses.length).fill(
+    ADDRESS_ZERO,
+  );
+  const cacheDurations = Array(sortedPoolCreateAddresses.length).fill(
+    BigInt(100),
+  );
 
   return {
     address: balancerPoolCreationHelper,
@@ -90,7 +107,7 @@ const createStablePoolArgs = (
     params: [
       poolName,
       poolSymbol,
-      createPoolTokens,
+      sortedPoolCreateAddresses,
       BigInt(amplification),
       rateProviders,
       cacheDurations,
@@ -110,7 +127,8 @@ const createStablePoolArgs = (
 };
 
 const createWeightedPoolArgs = (
-  tokens: TokenWithAmount[],
+  poolCreateTokens: Token[],
+  initialLiquidityTokens: TokenInput[],
   normalizedWeights: bigint[],
   swapFeePercentage: bigint,
   salt: string,
@@ -125,19 +143,16 @@ const createWeightedPoolArgs = (
   const sortedWeights: bigint[] = [];
   const sortedAmountsIn: bigint[] = [];
 
-  tokens
+  poolCreateTokens
     .map((token, index) => {
-      // NOTE: would prefer to use isBera here... but it's not accessible as it's in wagmi package.
-      const isNativeToken = token.address === nativeTokenAddress;
-      const wrappedAddress = isNativeToken
-        ? wrapNativeToken(token).address
-        : token.address;
-
       return {
-        createToken: wrappedAddress, // Use wrapped token for pool creation
-        joinToken: token.address, // Allow native token for joining
-        weight: normalizedWeights[index], // Normalized weight
-        amountIn: parseUnits(token.amount || "0", token.decimals ?? 18), // Token amount
+        createToken: token.address,
+        joinToken: initialLiquidityTokens[index].address, // NOTE: this will allow native token as a join token
+        weight: normalizedWeights[index],
+        amountIn: parseUnits(
+          initialLiquidityTokens[index].amount,
+          initialLiquidityTokens[index].decimals,
+        ),
       };
     })
     .sort((a, b) =>
@@ -180,7 +195,8 @@ const createWeightedPoolArgs = (
 };
 
 export const useCreatePool = ({
-  tokens,
+  poolCreateTokens,
+  initialLiquidityTokens,
   normalizedWeights,
   poolType,
   poolName,
@@ -196,13 +212,19 @@ export const useCreatePool = ({
     error: errorLoadingPools,
     isLoading: isLoadingPools,
   } = useSWRImmutable<SubgraphPoolFragment | null>(
-    ["useCreatePool__deduped_pool", tokens, poolType, normalizedWeights],
+    [
+      "useCreatePool__deduped_pool",
+      poolCreateTokens,
+      poolType,
+      normalizedWeights,
+    ],
     async () => {
-      if (tokens.length === 0 || !poolType) {
+      if (poolCreateTokens.length === 0 || !poolType) {
         return null;
       }
       try {
-        const tokensSorted = wrapNativeTokens(tokens)
+        // NOTE: it should not be possible for native token to be in poolCreateTokens
+        const tokensSorted = wrapNativeTokens(poolCreateTokens)
           .map((token) => token.address.toLowerCase())
           .sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : 1));
 
@@ -246,16 +268,15 @@ export const useCreatePool = ({
 
   // Generated names
   const { generatedPoolName, generatedPoolSymbol } = useMemo(() => {
-    if (!tokens) {
+    if (!poolCreateTokens) {
       return {
         generatedPoolName: "",
         generatedPoolSymbol: "",
       };
     }
-    const wrappedTokens = wrapNativeTokens(tokens);
-    const generatedPoolName = generatePoolName(wrappedTokens);
+    const generatedPoolName = generatePoolName(poolCreateTokens);
     const generatedPoolSymbol = generatePoolSymbol(
-      wrappedTokens,
+      poolCreateTokens,
       normalizedWeights,
       poolType,
     );
@@ -264,11 +285,17 @@ export const useCreatePool = ({
       generatedPoolName,
       generatedPoolSymbol,
     };
-  }, [tokens, normalizedWeights, poolType]);
+  }, [poolCreateTokens, normalizedWeights, poolType]);
 
   // Pool create tx
   const createPoolArgs = useMemo(() => {
-    if (!owner || poolName === "" || poolSymbol === "") {
+    if (
+      !owner ||
+      poolName === "" ||
+      poolSymbol === "" ||
+      poolCreateTokens.length !== initialLiquidityTokens.length ||
+      poolCreateTokens.length === 0
+    ) {
       return null;
     }
 
@@ -277,7 +304,8 @@ export const useCreatePool = ({
 
     if (poolType === PoolType.Weighted) {
       return createWeightedPoolArgs(
-        tokens,
+        poolCreateTokens,
+        initialLiquidityTokens,
         normalizedWeights,
         swapFeePercentage,
         salt,
@@ -292,7 +320,8 @@ export const useCreatePool = ({
       poolType === PoolType.MetaStable
     ) {
       return createStablePoolArgs(
-        tokens,
+        poolCreateTokens,
+        initialLiquidityTokens,
         swapFeePercentage,
         salt,
         poolName,
@@ -304,7 +333,8 @@ export const useCreatePool = ({
 
     return null;
   }, [
-    tokens,
+    poolCreateTokens,
+    initialLiquidityTokens,
     normalizedWeights,
     poolType,
     swapFee,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { type Token, type TokenInput } from "@bera/berajs";
+import { type Token } from "@bera/berajs";
 import {
   beraTokenAddress,
   bgtTokenAddress,
@@ -11,8 +11,8 @@ import { InputWithLabel } from "@bera/ui/input";
 import { formatUnits, parseUnits } from "viem";
 
 type Props = {
-  token: TokenInput | undefined;
-  selectedTokens: TokenInput[];
+  token: Token | undefined;
+  selectedTokens: Token[];
   weight?: bigint;
   displayWeight?: boolean;
   displayRemove?: boolean;
