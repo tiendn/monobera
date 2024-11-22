@@ -97,7 +97,6 @@ export default function CreatePageContent() {
 
   const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
     useSubgraphTokenInformations({
-      // FIXME we need both create and initial liquidity tokens set here
       tokenAddresses: poolCreateTokens
         .map((token) => token.address)
         .concat(initialLiquidityTokens.map((token) => token.address)),
@@ -399,7 +398,6 @@ export default function CreatePageContent() {
           <div className="flex flex-col gap-4">
             <ul className="divide-y divide-border rounded-lg border">
               {initialLiquidityTokens.map((token, index) => (
-                // TODO (#): we ought to handle isLoadingTokenPrices in price display
                 // NOTE: prices for BERA (wrapped create) must be given in WBERA as that is the wrapped token's value.
                 <TokenInput
                   key={`liq-${index}`}

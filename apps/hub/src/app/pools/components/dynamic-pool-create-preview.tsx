@@ -212,7 +212,6 @@ export default function DynamicPoolCreationPreview({
                   className="mb-2 flex items-center justify-between text-foreground"
                 >
                   <div className="flex items-center gap-2">
-                    {/* FIXME: do we want to display some kind tooltip explaining the BERA -> WBERA case? */}
                     <TokenIcon address={token.address} symbol={token.symbol} />
                     <span className="font-semibold">{token.symbol}</span>
                     {poolType === PoolType.Weighted && (
@@ -224,7 +223,7 @@ export default function DynamicPoolCreationPreview({
                   <span className="text-sm text-foreground">
                     {Number(token.amount).toFixed(2)}{" "}
                     <span className="text-foreground">
-                      {tokenPrices?.[wrappedToken.address] && // FIXME this should use a wrapped address
+                      {tokenPrices?.[wrappedToken.address] &&
                         `(${formatUsd(
                           tokenPrices[wrappedToken.address] *
                             getSafeNumber(wrappedToken.amount),
