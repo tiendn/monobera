@@ -73,7 +73,7 @@ export default function CreatePageContent() {
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
   const [ownershipType, setOwnerShipType] = useState<OwnershipType>(
-    OwnershipType.Governance,
+    OwnershipType.Fixed,
   );
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
@@ -130,8 +130,8 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-          ? ZERO_ADDRESS
-          : account || zeroAddress,
+        ? ZERO_ADDRESS
+        : account || zeroAddress,
     );
   };
 

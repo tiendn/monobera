@@ -58,7 +58,7 @@ export function SwapFeeInput({
           className="w-full border-none bg-transparent pr-10 font-semibold"
           aria-label="Swap Fee Input"
         />
-        <div className="flex gap-1 pr-4">
+        <div className="flex gap-2 pr-4">
           {predefinedFees.map((preset) => (
             <button
               type="button"
