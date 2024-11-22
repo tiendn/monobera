@@ -36,31 +36,33 @@ export const PoolHeader = ({
     >
       <div
         className={cn(
-          "flex w-full flex-col items-center gap-4",
-          !center && "md:items-start",
+          "flex w-full flex-col gap-4",
+          center ? "items-center" : "items-start",
         )}
       >
         <Button
           variant={"ghost"}
           size="sm"
-          className="flex items-center gap-1"
+          className="flex gap-1"
           onClick={() => (backHref ? router.push(backHref) : router.back())}
         >
           <Icons.arrowLeft className="h-4 w-4" />
-          <div className="text-sm font-medium">Go Back</div>
+          <div className="text-sm font-medium">
+            {backHref ? "Go Back" : "All Pools"}
+          </div>
         </Button>
         <span
           className={cn(
-            "flex w-full justify-center gap-4 text-center text-2xl font-semibold md:text-left",
-            !center && " md:justify-start",
+            "flex w-full gap-4 text-2xl font-semibold items-start",
+            center && "justify-center text-center  md:text-left",
           )}
         >
           {title}
         </span>
         <div
           className={cn(
-            "flex w-full flex-row flex-wrap items-center justify-center gap-x-4 leading-7 text-muted-foreground",
-            !center && "md:justify-start",
+            "flex w-full gap-x-2 flex-row flex-wrap items-center leading-7 text-muted-foreground",
+            center && " justify-center ",
           )}
         >
           {subtitles.map((subtitle, index) => (
@@ -69,7 +71,7 @@ export const PoolHeader = ({
               {subtitle.tooltip ? <> {subtitle.tooltip}:</> : ":"}
               <span
                 className={cn(
-                  "flex items-center gap-1 text-sm",
+                  "flex items-center gap-1 text-sm font-semibold",
                   subtitle.color
                     ? `text-${subtitle.color}-foreground`
                     : "text-foreground",

@@ -70,12 +70,12 @@ export const PoolSearch = ({
       id="poolstable"
     >
       <Tabs className="flex flex-col gap-4" value={poolType}>
-        <div className="flex w-full flex-col items-start justify-between  gap-2 lg:flex-row lg:items-center">
+        <div className="flex w-full flex-col items-start justify-between  gap-x-2 gap-y-8 lg:flex-row lg:items-center">
           <TabsList className="w-full  justify-start p-0" variant="ghost">
             <TabsTrigger
               value="allPools"
               className="w-full sm:w-fit"
-              variant="ghost"
+              variant="compact"
               onClick={handleClearSearch}
             >
               <Link href="/pools?pool=allPools">All Pools</Link>
@@ -83,7 +83,7 @@ export const PoolSearch = ({
             <TabsTrigger
               value="userPools"
               className="w-full sm:w-fit"
-              variant="ghost"
+              variant="compact"
               onClick={handleClearSearch}
             >
               <Link href="/pools/?pool=userPools">My Pools</Link>
@@ -91,7 +91,7 @@ export const PoolSearch = ({
           </TabsList>
 
           <TabsContent value="allPools" className="w-full text-center">
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex w-full gap-y-3 gap-x-6 sm:items-center">
               <SearchInput
                 value={search}
                 onChange={(e) => {
@@ -127,7 +127,7 @@ export const PoolSearch = ({
             </div>
           </TabsContent>
           <TabsContent value="userPools" className="w-full text-center">
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex w-full gap-y-3 gap-x-6 sm:items-center">
               <SearchInput
                 value={search}
                 onChange={(e) => {
