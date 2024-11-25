@@ -68,12 +68,12 @@ export default function CreatePageContent() {
   ]); // TODO: we should use useMultipleTokenInput here, but it will need weight handling and the ability to add/remove inputs
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [swapFee, setSwapFee] = useState<number>(0.1);
-  const [owner, setOwner] = useState<string>(ZERO_ADDRESS);
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
+  const [owner, setOwner] = useState<string>(balancerDelegatedOwnershipAddress);
   const [ownershipType, setOwnerShipType] = useState<OwnershipType>(
-    OwnershipType.Fixed,
+    OwnershipType.Governance,
   );
   const [invalidAddressErrorMessage, setInvalidAddressErrorMessage] = useState<
     string | null
