@@ -44,6 +44,344 @@ const errorMsgMap: ErrorMessages = {
       errorMSG: "You rejected the transaction.",
     },
   },
+  // NOTE: these codes are from https://github.com/balancer/balancer-v2-monorepo/blob/master/pkg/balancer-js/src/utils/errors.ts
+  BALANCER: {
+    BAL000: {
+      keywords: ["BAL#000"],
+      errorMSG: "Addition overflow occurred during calculation.",
+    },
+    BAL001: {
+      keywords: ["BAL#001"],
+      errorMSG: "Subtraction overflow occurred during calculation.",
+    },
+    BAL002: {
+      keywords: ["BAL#002"],
+      errorMSG: "Subtraction underflow occurred during calculation.",
+    },
+    BAL003: {
+      keywords: ["BAL#003"],
+      errorMSG: "Multiplication overflow occurred during calculation.",
+    },
+    BAL004: { keywords: ["BAL#004"], errorMSG: "Attempted division by zero." },
+    BAL005: {
+      keywords: ["BAL#005"],
+      errorMSG: "Internal error occurred during division.",
+    },
+    BAL006: { keywords: ["BAL#006"], errorMSG: "X value is out of bounds." },
+    BAL007: { keywords: ["BAL#007"], errorMSG: "Y value is out of bounds." },
+    BAL008: {
+      keywords: ["BAL#008"],
+      errorMSG: "Product result is out of bounds.",
+    },
+    BAL009: {
+      keywords: ["BAL#009"],
+      errorMSG: "Invalid exponent provided in calculation.",
+    },
+    BAL100: {
+      keywords: ["BAL#100"],
+      errorMSG: "Value is out of acceptable bounds.",
+    },
+    BAL101: {
+      keywords: ["BAL#101"],
+      errorMSG: "Array is not sorted as required.",
+    },
+    BAL102: {
+      keywords: ["BAL#102"],
+      errorMSG: "Tokens are not sorted as required.",
+    },
+    BAL103: {
+      keywords: ["BAL#103"],
+      errorMSG: "Input length mismatch detected.",
+    },
+    BAL104: {
+      keywords: ["BAL#104"],
+      errorMSG: "A zero token value was encountered.",
+    },
+    BAL105: {
+      keywords: ["BAL#105"],
+      errorMSG: "Insufficient data provided for the operation.",
+    },
+    BAL200: {
+      keywords: ["BAL#200"],
+      errorMSG: "Minimum number of tokens not met.",
+    },
+    BAL201: {
+      keywords: ["BAL#201"],
+      errorMSG: "Maximum number of tokens exceeded.",
+    },
+    BAL202: {
+      keywords: ["BAL#202"],
+      errorMSG: "Swap fee percentage exceeds the maximum allowed.",
+    },
+    BAL203: {
+      keywords: ["BAL#203"],
+      errorMSG: "Swap fee percentage is below the minimum allowed.",
+    },
+    BAL204: {
+      keywords: ["BAL#204"],
+      errorMSG: "The required minimum BPT amount has not been met.",
+    },
+    BAL205: {
+      keywords: ["BAL#205"],
+      errorMSG: "Caller is not authorized to interact with the vault.",
+    },
+    BAL206: {
+      keywords: ["BAL#206"],
+      errorMSG: "The requested pool is uninitialized.",
+    },
+    BAL207: {
+      keywords: ["BAL#207"],
+      errorMSG: "Maximum BPT input amount exceeded.",
+    },
+    BAL208: {
+      keywords: ["BAL#208"],
+      errorMSG: "Minimum BPT output amount not met.",
+    },
+    BAL209: {
+      keywords: ["BAL#209"],
+      errorMSG: "Permit signature has expired.",
+    },
+    BAL210: {
+      keywords: ["BAL#210"],
+      errorMSG: "Operation requires exactly two tokens.",
+    },
+    BAL211: {
+      keywords: ["BAL#211"],
+      errorMSG: "The requested functionality is disabled.",
+    },
+    BAL300: {
+      keywords: ["BAL#300"],
+      errorMSG: "The amplification parameter is below the minimum allowed.",
+    },
+    BAL301: {
+      keywords: ["BAL#301"],
+      errorMSG: "The amplification parameter exceeds the maximum allowed.",
+    },
+    BAL302: {
+      keywords: ["BAL#302"],
+      errorMSG: "The weight parameter is below the minimum allowed.",
+    },
+    BAL303: {
+      keywords: ["BAL#303"],
+      errorMSG: "The number of stable tokens exceeds the maximum allowed.",
+    },
+    BAL304: {
+      keywords: ["BAL#304"],
+      errorMSG: "Input token amount exceeds the maximum allowed ratio.",
+    },
+    BAL305: {
+      keywords: ["BAL#305"],
+      errorMSG: "Output token amount exceeds the maximum allowed ratio.",
+    },
+    BAL306: {
+      keywords: ["BAL#306"],
+      errorMSG:
+        "BPT input amount for token output is below the minimum required.",
+    },
+    BAL307: {
+      keywords: ["BAL#307"],
+      errorMSG:
+        "BPT output amount for token input exceeds the maximum allowed.",
+    },
+    BAL308: {
+      keywords: ["BAL#308"],
+      errorMSG: "Normalized weights invariant validation failed.",
+    },
+    BAL309: {
+      keywords: ["BAL#309"],
+      errorMSG: "Invalid token provided for operation.",
+    },
+    BAL310: {
+      keywords: ["BAL#310"],
+      errorMSG: "Unhandled join kind operation.",
+    },
+    BAL311: {
+      keywords: ["BAL#311"],
+      errorMSG: "Zero invariant detected during the operation.",
+    },
+    BAL312: {
+      keywords: ["BAL#312"],
+      errorMSG: "Invalid query for oracle seconds data.",
+    },
+    BAL313: {
+      keywords: ["BAL#313"],
+      errorMSG: "Oracle has not been initialized.",
+    },
+    BAL314: {
+      keywords: ["BAL#314"],
+      errorMSG: "Oracle query data is too old.",
+    },
+    BAL315: { keywords: ["BAL#315"], errorMSG: "Oracle index is invalid." },
+    BAL316: {
+      keywords: ["BAL#316"],
+      errorMSG: "Oracle seconds data is malformed.",
+    },
+    BAL317: {
+      keywords: ["BAL#317"],
+      errorMSG: "Amplification end time is too close to the start time.",
+    },
+    BAL318: {
+      keywords: ["BAL#318"],
+      errorMSG: "Amplification parameter update is ongoing.",
+    },
+    BAL319: {
+      keywords: ["BAL#319"],
+      errorMSG: "Amplification rate exceeds the maximum allowed.",
+    },
+    BAL320: {
+      keywords: ["BAL#320"],
+      errorMSG: "No ongoing amplification parameter update detected.",
+    },
+    BAL321: {
+      keywords: ["BAL#321"],
+      errorMSG: "Stable pool invariant calculation did not converge.",
+    },
+    BAL322: {
+      keywords: ["BAL#322"],
+      errorMSG: "Stable pool balance calculation did not converge.",
+    },
+    BAL323: {
+      keywords: ["BAL#323"],
+      errorMSG: "Relayer must be a valid contract.",
+    },
+    BAL324: {
+      keywords: ["BAL#324"],
+      errorMSG: "Base pool relayer was not called correctly.",
+    },
+    BAL325: {
+      keywords: ["BAL#325"],
+      errorMSG: "Rebalancing relayer operation re-entered unexpectedly.",
+    },
+    BAL326: {
+      keywords: ["BAL#326"],
+      errorMSG: "Detected time travel in gradual updates.",
+    },
+    BAL327: {
+      keywords: ["BAL#327"],
+      errorMSG: "Swaps are disabled for this pool.",
+    },
+    BAL328: {
+      keywords: ["BAL#328"],
+      errorMSG: "Caller is not the owner of the LBP.",
+    },
+    BAL329: {
+      keywords: ["BAL#329"],
+      errorMSG: "Price rate calculation resulted in overflow.",
+    },
+    BAL330: {
+      keywords: ["BAL#330"],
+      errorMSG: "Invalid join/exit kind while swaps are disabled.",
+    },
+    BAL331: {
+      keywords: ["BAL#331"],
+      errorMSG: "Weight change is occurring too quickly.",
+    },
+    BAL332: {
+      keywords: ["BAL#332"],
+      errorMSG: "Lower target exceeds upper target in configuration.",
+    },
+    BAL333: {
+      keywords: ["BAL#333"],
+      errorMSG: "Upper target value is too high.",
+    },
+    BAL334: {
+      keywords: ["BAL#334"],
+      errorMSG: "Unhandled operation by the linear pool.",
+    },
+    BAL335: {
+      keywords: ["BAL#335"],
+      errorMSG: "Out of the target range for the operation.",
+    },
+    BAL336: {
+      keywords: ["BAL#336"],
+      errorMSG: "Unhandled exit kind detected.",
+    },
+    BAL337: {
+      keywords: ["BAL#337"],
+      errorMSG: "Unauthorized exit from the pool.",
+    },
+    BAL338: {
+      keywords: ["BAL#338"],
+      errorMSG: "Management swap fee percentage exceeded the maximum.",
+    },
+    BAL339: {
+      keywords: ["BAL#339"],
+      errorMSG: "Unhandled operation by the managed pool.",
+    },
+    BAL340: {
+      keywords: ["BAL#340"],
+      errorMSG: "Unhandled operation by the phantom pool.",
+    },
+    BAL341: {
+      keywords: ["BAL#341"],
+      errorMSG: "Token does not have a valid rate provider.",
+    },
+    BAL342: {
+      keywords: ["BAL#342"],
+      errorMSG: "Invalid pool initialization parameters provided.",
+    },
+    BAL343: {
+      keywords: ["BAL#343"],
+      errorMSG: "Value is out of the new target range for the operation.",
+    },
+    BAL344: {
+      keywords: ["BAL#344"],
+      errorMSG: "This feature is currently disabled.",
+    },
+    BAL345: {
+      keywords: ["BAL#345"],
+      errorMSG: "The pool controller is uninitialized.",
+    },
+    BAL346: {
+      keywords: ["BAL#346"],
+      errorMSG: "Cannot set swap fee during an ongoing fee change.",
+    },
+    BAL347: {
+      keywords: ["BAL#347"],
+      errorMSG: "Cannot set swap fee during pending fee changes.",
+    },
+    BAL348: {
+      keywords: ["BAL#348"],
+      errorMSG: "Cannot change tokens during a weight change.",
+    },
+    BAL349: {
+      keywords: ["BAL#349"],
+      errorMSG: "Cannot change tokens during pending weight changes.",
+    },
+    BAL350: {
+      keywords: ["BAL#350"],
+      errorMSG: "Weight parameter exceeds the maximum allowed.",
+    },
+    BAL351: { keywords: ["BAL#351"], errorMSG: "Unauthorized join operation." },
+    BAL352: {
+      keywords: ["BAL#352"],
+      errorMSG: "Management AUM fee percentage exceeded the maximum allowed.",
+    },
+    BAL353: {
+      keywords: ["BAL#353"],
+      errorMSG: "Fractional target values are not supported.",
+    },
+    BAL354: {
+      keywords: ["BAL#354"],
+      errorMSG: "Adding or removing BPT is not allowed in this context.",
+    },
+    BAL355: {
+      keywords: ["BAL#355"],
+      errorMSG: "Invalid circuit breaker bounds configuration.",
+    },
+    BAL356: {
+      keywords: ["BAL#356"],
+      errorMSG: "The circuit breaker has been triggered.",
+    },
+    BAL357: {
+      keywords: ["BAL#357"],
+      errorMSG: "Malicious query detected and reverted.",
+    },
+    BAL358: {
+      keywords: ["BAL#358"],
+      errorMSG: "Joins and exits are currently disabled for this pool.",
+    },
+  },
   LEND: {
     PRICE_FLUCTUATION: {
       keywords: [`function "borrow"`, `function "repay"`, "repay", "borrow"],
@@ -190,7 +528,10 @@ const errorMsgMap: ErrorMessages = {
   },
 };
 
-export const getCustomAppErrorMessages = (e: any, app: "PERPS" | "BEND") => {
+export const getCustomAppErrorMessages = (
+  e: any,
+  app: "PERPS" | "BEND" | "BALANCER",
+) => {
   if (e?.metaMessages?.[0]) {
     const errors = errorMsgMap[app] as ErrorCategory;
     for (const type in errors) {
@@ -206,7 +547,8 @@ export const getCustomAppErrorMessages = (e: any, app: "PERPS" | "BEND") => {
   }
 };
 
-export const getErrorMessage = (e: any) => {
+export const getErrorMessage = (e: any): string => {
+  // Extract error message from different levels of the error object
   let errorMsgDetails = "";
 
   for (const key in e) {
