@@ -10,11 +10,9 @@ import { Icons } from "@bera/ui/icons";
 import { InputWithLabel } from "@bera/ui/input";
 import { formatUnits, parseUnits } from "viem";
 
-import { TokenInput } from "~/hooks/useMultipleTokenInput";
-
 type Props = {
-  token: TokenInput | undefined;
-  selectedTokens: TokenInput[];
+  token: Token | undefined;
+  selectedTokens: Token[];
   weight?: bigint;
   displayWeight?: boolean;
   displayRemove?: boolean;
@@ -81,7 +79,7 @@ export default function CreatePoolInput({
     <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-2">
       <SelectToken
         token={token}
-        filter={[bgtTokenAddress, nativeTokenAddress]}
+        filter={[nativeTokenAddress, bgtTokenAddress]} // NOTE: it is never possible to create a pool with BERA, but you can add BERA as liquidity later
         selectable={selectable}
         onTokenSelection={(selectedToken: Token | undefined) =>
           onTokenSelection(selectedToken)
