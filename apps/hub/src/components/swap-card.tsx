@@ -8,6 +8,7 @@ import {
   // @ts-ignore - ignore Token typing import error
   Token,
   TransactionActionType,
+  getErrorMessage,
   useBeraJs,
   useBgtUnstakedBalance,
   usePollWalletBalances,
@@ -632,7 +633,7 @@ export function SwapCard({
                     <Alert variant="destructive">
                       <AlertTitle>Error</AlertTitle>
                       <AlertDescription className="text-xs">
-                        {`Swap query failed due to '${error}'`}
+                        {`Swap query failed: ${getErrorMessage(error)}`}
                       </AlertDescription>
                     </Alert>
                   )}
