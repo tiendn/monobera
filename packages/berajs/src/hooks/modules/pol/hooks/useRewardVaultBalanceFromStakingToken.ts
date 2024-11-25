@@ -1,6 +1,6 @@
 import { beraChefAddress } from "@bera/config";
 import useSWR from "swr";
-import { Address, formatEther } from "viem";
+import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { BERA_CHEF_ABI, BERA_VAULT_REWARDS_ABI } from "~/abi";

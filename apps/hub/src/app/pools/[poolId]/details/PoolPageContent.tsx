@@ -30,14 +30,13 @@ import { Address, formatUnits } from "viem";
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
-import { GqlPoolEventType, GqlPoolType } from "@bera/graphql/dex/api";
+import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 import { Icons } from "@bera/ui/icons";
 import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
 import { useOnChainPoolData } from "~/b-sdk/useOnChainPoolData";
 import { PoolChart } from "./PoolChart";
-import { useCreateRewardVault } from "~/app/vaults/create/components/useCreateRewardVault";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -109,7 +108,7 @@ const TokenView = ({
                     <FormattedNumber value={token.value} />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {token.valueUSD === null ? (
+                    {!token.valueUSD ? (
                       "–"
                     ) : (
                       <FormattedNumber
@@ -348,7 +347,10 @@ export default function PoolPageContent({
                   <>
                     <div className="mt-4 grow self-stretch">
                       <TokenView
-                        isLoading={isUserLpBalanceLoading || isPoolLoading}
+                        isLoading={
+                          (!userLpBalance && isUserLpBalanceLoading) ||
+                          isPoolLoading
+                        }
                         tokens={
                           pool?.tokens
                             ?.filter((t) => t.address !== pool.address)
