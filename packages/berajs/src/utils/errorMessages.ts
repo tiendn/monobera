@@ -48,338 +48,371 @@ const errorMsgMap: ErrorMessages = {
   BALANCER: {
     BAL000: {
       keywords: ["BAL#000"],
-      errorMSG: "Addition overflow occurred during calculation.",
+      errorMSG: "Addition overflow occurred during calculation. (BAL #000)",
     },
     BAL001: {
       keywords: ["BAL#001"],
-      errorMSG: "Subtraction overflow occurred during calculation.",
+      errorMSG: "Subtraction overflow occurred during calculation. (BAL #001)",
     },
     BAL002: {
       keywords: ["BAL#002"],
-      errorMSG: "Subtraction underflow occurred during calculation.",
+      errorMSG: "Subtraction underflow occurred during calculation. (BAL #002)",
     },
     BAL003: {
       keywords: ["BAL#003"],
-      errorMSG: "Multiplication overflow occurred during calculation.",
+      errorMSG:
+        "Multiplication overflow occurred during calculation. (BAL #003)",
     },
-    BAL004: { keywords: ["BAL#004"], errorMSG: "Attempted division by zero." },
+    BAL004: {
+      keywords: ["BAL#004"],
+      errorMSG: "Attempted division by zero. (BAL #004)",
+    },
     BAL005: {
       keywords: ["BAL#005"],
-      errorMSG: "Internal error occurred during division.",
+      errorMSG: "Internal error occurred during division. (BAL #005)",
     },
-    BAL006: { keywords: ["BAL#006"], errorMSG: "X value is out of bounds." },
-    BAL007: { keywords: ["BAL#007"], errorMSG: "Y value is out of bounds." },
+    BAL006: {
+      keywords: ["BAL#006"],
+      errorMSG: "X value is out of bounds. (BAL #006)",
+    },
+    BAL007: {
+      keywords: ["BAL#007"],
+      errorMSG: "Y value is out of bounds. (BAL #007)",
+    },
     BAL008: {
       keywords: ["BAL#008"],
-      errorMSG: "Product result is out of bounds.",
+      errorMSG: "Product result is out of bounds. (BAL #008)",
     },
     BAL009: {
       keywords: ["BAL#009"],
-      errorMSG: "Invalid exponent provided in calculation.",
+      errorMSG: "Invalid exponent provided in calculation. (BAL #009)",
     },
     BAL100: {
       keywords: ["BAL#100"],
-      errorMSG: "Value is out of acceptable bounds.",
+      errorMSG: "Value is out of acceptable bounds. (BAL #100)",
     },
     BAL101: {
       keywords: ["BAL#101"],
-      errorMSG: "Array is not sorted as required.",
+      errorMSG: "Array is not sorted as required. (BAL #101)",
     },
     BAL102: {
       keywords: ["BAL#102"],
-      errorMSG: "Tokens are not sorted as required.",
+      errorMSG: "Tokens are not sorted as required. (BAL #102)",
     },
     BAL103: {
       keywords: ["BAL#103"],
-      errorMSG: "Input length mismatch detected.",
+      errorMSG: "Input length mismatch detected. (BAL #103)",
     },
     BAL104: {
       keywords: ["BAL#104"],
-      errorMSG: "A zero token value was encountered.",
+      errorMSG: "A zero token value was encountered. (BAL #104)",
     },
     BAL105: {
       keywords: ["BAL#105"],
-      errorMSG: "Insufficient data provided for the operation.",
+      errorMSG: "Insufficient data provided for the operation. (BAL #105)",
     },
     BAL200: {
       keywords: ["BAL#200"],
-      errorMSG: "Minimum number of tokens not met.",
+      errorMSG: "Minimum number of tokens not met. (BAL #200)",
     },
     BAL201: {
       keywords: ["BAL#201"],
-      errorMSG: "Maximum number of tokens exceeded.",
+      errorMSG: "Maximum number of tokens exceeded. (BAL #201)",
     },
     BAL202: {
       keywords: ["BAL#202"],
-      errorMSG: "Swap fee percentage exceeds the maximum allowed.",
+      errorMSG: "Swap fee percentage exceeds the maximum allowed. (BAL #202)",
     },
     BAL203: {
       keywords: ["BAL#203"],
-      errorMSG: "Swap fee percentage is below the minimum allowed.",
+      errorMSG: "Swap fee percentage is below the minimum allowed. (BAL #203)",
     },
     BAL204: {
       keywords: ["BAL#204"],
-      errorMSG: "The required minimum BPT amount has not been met.",
+      errorMSG: "The required minimum BPT amount has not been met. (BAL #204)",
     },
     BAL205: {
       keywords: ["BAL#205"],
-      errorMSG: "Caller is not authorized to interact with the vault.",
+      errorMSG:
+        "Caller is not authorized to interact with the vault. (BAL #205)",
     },
     BAL206: {
       keywords: ["BAL#206"],
-      errorMSG: "The requested pool is uninitialized.",
+      errorMSG: "The requested pool is uninitialized. (BAL #206)",
     },
     BAL207: {
       keywords: ["BAL#207"],
-      errorMSG: "Maximum BPT input amount exceeded.",
+      errorMSG: "Maximum BPT input amount exceeded. (BAL #207)",
     },
     BAL208: {
       keywords: ["BAL#208"],
-      errorMSG: "Minimum BPT output amount not met.",
+      errorMSG: "Minimum BPT output amount not met. (BAL #208)",
     },
     BAL209: {
       keywords: ["BAL#209"],
-      errorMSG: "Permit signature has expired.",
+      errorMSG: "Permit signature has expired. (BAL #209)",
     },
     BAL210: {
       keywords: ["BAL#210"],
-      errorMSG: "Operation requires exactly two tokens.",
+      errorMSG: "Operation requires exactly two tokens. (BAL #210)",
     },
     BAL211: {
       keywords: ["BAL#211"],
-      errorMSG: "The requested functionality is disabled.",
+      errorMSG: "The requested functionality is disabled. (BAL #211)",
     },
     BAL300: {
       keywords: ["BAL#300"],
-      errorMSG: "The amplification parameter is below the minimum allowed.",
+      errorMSG:
+        "The amplification parameter is below the minimum allowed. (BAL #300)",
     },
     BAL301: {
       keywords: ["BAL#301"],
-      errorMSG: "The amplification parameter exceeds the maximum allowed.",
+      errorMSG:
+        "The amplification parameter exceeds the maximum allowed. (BAL #301)",
     },
     BAL302: {
       keywords: ["BAL#302"],
-      errorMSG: "The weight parameter is below the minimum allowed.",
+      errorMSG: "The weight parameter is below the minimum allowed. (BAL #302)",
     },
     BAL303: {
       keywords: ["BAL#303"],
-      errorMSG: "The number of stable tokens exceeds the maximum allowed.",
+      errorMSG:
+        "The number of stable tokens exceeds the maximum allowed. (BAL #303)",
     },
     BAL304: {
       keywords: ["BAL#304"],
-      errorMSG: "Input token amount exceeds the maximum allowed ratio.",
+      errorMSG:
+        "Input token amount exceeds the maximum allowed ratio. (BAL #304)",
     },
     BAL305: {
       keywords: ["BAL#305"],
-      errorMSG: "Output token amount exceeds the maximum allowed ratio.",
+      errorMSG:
+        "Output token amount exceeds the maximum allowed ratio. (BAL #305)",
     },
     BAL306: {
       keywords: ["BAL#306"],
       errorMSG:
-        "BPT input amount for token output is below the minimum required.",
+        "BPT input amount for token output is below the minimum required. (BAL #306)",
     },
     BAL307: {
       keywords: ["BAL#307"],
       errorMSG:
-        "BPT output amount for token input exceeds the maximum allowed.",
+        "BPT output amount for token input exceeds the maximum allowed. (BAL #307)",
     },
     BAL308: {
       keywords: ["BAL#308"],
-      errorMSG: "Normalized weights invariant validation failed.",
+      errorMSG: "Normalized weights invariant validation failed. (BAL #308)",
     },
     BAL309: {
       keywords: ["BAL#309"],
-      errorMSG: "Invalid token provided for operation.",
+      errorMSG: "Invalid token provided for operation. (BAL #309)",
     },
     BAL310: {
       keywords: ["BAL#310"],
-      errorMSG: "Unhandled join kind operation.",
+      errorMSG: "Unhandled join kind operation. (BAL #310)",
     },
     BAL311: {
       keywords: ["BAL#311"],
-      errorMSG: "Zero invariant detected during the operation.",
+      errorMSG: "Zero invariant detected during the operation. (BAL #311)",
     },
     BAL312: {
       keywords: ["BAL#312"],
-      errorMSG: "Invalid query for oracle seconds data.",
+      errorMSG: "Invalid query for oracle seconds data. (BAL #312)",
     },
     BAL313: {
       keywords: ["BAL#313"],
-      errorMSG: "Oracle has not been initialized.",
+      errorMSG: "Oracle has not been initialized. (BAL #313)",
     },
     BAL314: {
       keywords: ["BAL#314"],
-      errorMSG: "Oracle query data is too old.",
+      errorMSG: "Oracle query data is too old. (BAL #314)",
     },
-    BAL315: { keywords: ["BAL#315"], errorMSG: "Oracle index is invalid." },
+    BAL315: {
+      keywords: ["BAL#315"],
+      errorMSG: "Oracle index is invalid. (BAL #315)",
+    },
     BAL316: {
       keywords: ["BAL#316"],
-      errorMSG: "Oracle seconds data is malformed.",
+      errorMSG: "Oracle seconds data is malformed. (BAL #316)",
     },
     BAL317: {
       keywords: ["BAL#317"],
-      errorMSG: "Amplification end time is too close to the start time.",
+      errorMSG:
+        "Amplification end time is too close to the start time. (BAL #317)",
     },
     BAL318: {
       keywords: ["BAL#318"],
-      errorMSG: "Amplification parameter update is ongoing.",
+      errorMSG: "Amplification parameter update is ongoing. (BAL #318)",
     },
     BAL319: {
       keywords: ["BAL#319"],
-      errorMSG: "Amplification rate exceeds the maximum allowed.",
+      errorMSG: "Amplification rate exceeds the maximum allowed. (BAL #319)",
     },
     BAL320: {
       keywords: ["BAL#320"],
-      errorMSG: "No ongoing amplification parameter update detected.",
+      errorMSG:
+        "No ongoing amplification parameter update detected. (BAL #320)",
     },
     BAL321: {
       keywords: ["BAL#321"],
-      errorMSG: "Stable pool invariant calculation did not converge.",
+      errorMSG:
+        "Stable pool invariant calculation did not converge. (BAL #321)",
     },
     BAL322: {
       keywords: ["BAL#322"],
-      errorMSG: "Stable pool balance calculation did not converge.",
+      errorMSG: "Stable pool balance calculation did not converge. (BAL #322)",
     },
     BAL323: {
       keywords: ["BAL#323"],
-      errorMSG: "Relayer must be a valid contract.",
+      errorMSG: "Relayer must be a valid contract. (BAL #323)",
     },
     BAL324: {
       keywords: ["BAL#324"],
-      errorMSG: "Base pool relayer was not called correctly.",
+      errorMSG: "Base pool relayer was not called correctly. (BAL #324)",
     },
     BAL325: {
       keywords: ["BAL#325"],
-      errorMSG: "Rebalancing relayer operation re-entered unexpectedly.",
+      errorMSG:
+        "Rebalancing relayer operation re-entered unexpectedly. (BAL #325)",
     },
     BAL326: {
       keywords: ["BAL#326"],
-      errorMSG: "Detected time travel in gradual updates.",
+      errorMSG: "Detected time travel in gradual updates. (BAL #326)",
     },
     BAL327: {
       keywords: ["BAL#327"],
-      errorMSG: "Swaps are disabled for this pool.",
+      errorMSG: "Swaps are disabled for this pool. (BAL #327)",
     },
     BAL328: {
       keywords: ["BAL#328"],
-      errorMSG: "Caller is not the owner of the LBP.",
+      errorMSG: "Caller is not the owner of the LBP. (BAL #328)",
     },
     BAL329: {
       keywords: ["BAL#329"],
-      errorMSG: "Price rate calculation resulted in overflow.",
+      errorMSG: "Price rate calculation resulted in overflow. (BAL #329)",
     },
     BAL330: {
       keywords: ["BAL#330"],
-      errorMSG: "Invalid join/exit kind while swaps are disabled.",
+      errorMSG: "Invalid join/exit kind while swaps are disabled. (BAL #330)",
     },
     BAL331: {
       keywords: ["BAL#331"],
-      errorMSG: "Weight change is occurring too quickly.",
+      errorMSG: "Weight change is occurring too quickly. (BAL #331)",
     },
     BAL332: {
       keywords: ["BAL#332"],
-      errorMSG: "Lower target exceeds upper target in configuration.",
+      errorMSG:
+        "Lower target exceeds upper target in configuration. (BAL #332)",
     },
     BAL333: {
       keywords: ["BAL#333"],
-      errorMSG: "Upper target value is too high.",
+      errorMSG: "Upper target value is too high. (BAL #333)",
     },
     BAL334: {
       keywords: ["BAL#334"],
-      errorMSG: "Unhandled operation by the linear pool.",
+      errorMSG: "Unhandled operation by the linear pool. (BAL #334)",
     },
     BAL335: {
       keywords: ["BAL#335"],
-      errorMSG: "Out of the target range for the operation.",
+      errorMSG: "Out of the target range for the operation. (BAL #335)",
     },
     BAL336: {
       keywords: ["BAL#336"],
-      errorMSG: "Unhandled exit kind detected.",
+      errorMSG: "Unhandled exit kind detected. (BAL #336)",
     },
     BAL337: {
       keywords: ["BAL#337"],
-      errorMSG: "Unauthorized exit from the pool.",
+      errorMSG: "Unauthorized exit from the pool. (BAL #337)",
     },
     BAL338: {
       keywords: ["BAL#338"],
-      errorMSG: "Management swap fee percentage exceeded the maximum.",
+      errorMSG:
+        "Management swap fee percentage exceeded the maximum. (BAL #338)",
     },
     BAL339: {
       keywords: ["BAL#339"],
-      errorMSG: "Unhandled operation by the managed pool.",
+      errorMSG: "Unhandled operation by the managed pool. (BAL #339)",
     },
     BAL340: {
       keywords: ["BAL#340"],
-      errorMSG: "Unhandled operation by the phantom pool.",
+      errorMSG: "Unhandled operation by the phantom pool. (BAL #340)",
     },
     BAL341: {
       keywords: ["BAL#341"],
-      errorMSG: "Token does not have a valid rate provider.",
+      errorMSG: "Token does not have a valid rate provider. (BAL #341)",
     },
     BAL342: {
       keywords: ["BAL#342"],
-      errorMSG: "Invalid pool initialization parameters provided.",
+      errorMSG: "Invalid pool initialization parameters provided. (BAL #342)",
     },
     BAL343: {
       keywords: ["BAL#343"],
-      errorMSG: "Value is out of the new target range for the operation.",
+      errorMSG:
+        "Value is out of the new target range for the operation. (BAL #343)",
     },
     BAL344: {
       keywords: ["BAL#344"],
-      errorMSG: "This feature is currently disabled.",
+      errorMSG: "This feature is currently disabled. (BAL #344)",
     },
     BAL345: {
       keywords: ["BAL#345"],
-      errorMSG: "The pool controller is uninitialized.",
+      errorMSG: "The pool controller is uninitialized. (BAL #345)",
     },
     BAL346: {
       keywords: ["BAL#346"],
-      errorMSG: "Cannot set swap fee during an ongoing fee change.",
+      errorMSG: "Cannot set swap fee during an ongoing fee change. (BAL #346)",
     },
     BAL347: {
       keywords: ["BAL#347"],
-      errorMSG: "Cannot set swap fee during pending fee changes.",
+      errorMSG: "Cannot set swap fee during pending fee changes. (BAL #347)",
     },
     BAL348: {
       keywords: ["BAL#348"],
-      errorMSG: "Cannot change tokens during a weight change.",
+      errorMSG: "Cannot change tokens during a weight change. (BAL #348)",
     },
     BAL349: {
       keywords: ["BAL#349"],
-      errorMSG: "Cannot change tokens during pending weight changes.",
+      errorMSG:
+        "Cannot change tokens during pending weight changes. (BAL #349)",
     },
     BAL350: {
       keywords: ["BAL#350"],
-      errorMSG: "Weight parameter exceeds the maximum allowed.",
+      errorMSG: "Weight parameter exceeds the maximum allowed. (BAL #350)",
     },
-    BAL351: { keywords: ["BAL#351"], errorMSG: "Unauthorized join operation." },
+    BAL351: {
+      keywords: ["BAL#351"],
+      errorMSG: "Unauthorized join operation. (BAL #351)",
+    },
     BAL352: {
       keywords: ["BAL#352"],
-      errorMSG: "Management AUM fee percentage exceeded the maximum allowed.",
+      errorMSG:
+        "Management AUM fee percentage exceeded the maximum allowed. (BAL #352)",
     },
     BAL353: {
       keywords: ["BAL#353"],
-      errorMSG: "Fractional target values are not supported.",
+      errorMSG: "Fractional target values are not supported. (BAL #353)",
     },
     BAL354: {
       keywords: ["BAL#354"],
-      errorMSG: "Adding or removing BPT is not allowed in this context.",
+      errorMSG:
+        "Adding or removing BPT is not allowed in this context. (BAL #354)",
     },
     BAL355: {
       keywords: ["BAL#355"],
-      errorMSG: "Invalid circuit breaker bounds configuration.",
+      errorMSG: "Invalid circuit breaker bounds configuration. (BAL #355)",
     },
     BAL356: {
       keywords: ["BAL#356"],
-      errorMSG: "The circuit breaker has been triggered.",
+      errorMSG: "The circuit breaker has been triggered. (BAL #356)",
     },
     BAL357: {
       keywords: ["BAL#357"],
-      errorMSG: "Malicious query detected and reverted.",
+      errorMSG: "Malicious query detected and reverted. (BAL #357)",
     },
     BAL358: {
       keywords: ["BAL#358"],
-      errorMSG: "Joins and exits are currently disabled for this pool.",
+      errorMSG:
+        "Joins and exits are currently disabled for this pool. (BAL #358)",
     },
   },
   LEND: {
