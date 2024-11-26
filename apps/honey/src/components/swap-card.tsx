@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { honeyFactoryAbi } from "@bera/berajs";
-import { honeyRouterAddress } from "@bera/config";
+import { honeyFactoryAddress } from "@bera/config";
 import {
   ApproveButton,
   ConnectButton,
@@ -134,7 +134,7 @@ export function SwapCard() {
             ) : needsApproval && !exceedBalance ? (
               <ApproveButton
                 token={selectedFrom}
-                spender={honeyRouterAddress}
+                spender={honeyFactoryAddress}
                 amount={parseUnits(
                   fromAmount ?? "0",
                   selectedFrom?.decimals ?? 18,
@@ -152,7 +152,7 @@ export function SwapCard() {
                 }
                 onClick={() => {
                   write({
-                    address: honeyRouterAddress,
+                    address: honeyFactoryAddress,
                     abi: honeyFactoryAbi,
                     functionName: isMint ? "mint" : "redeem",
                     params: payload!,

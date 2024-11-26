@@ -11,7 +11,7 @@ import {
   useTokens,
   type Token,
 } from "@bera/berajs";
-import { honeyRouterAddress, honeyTokenAddress } from "@bera/config";
+import { honeyFactoryAddress, honeyTokenAddress } from "@bera/config";
 import { useAnalytics, useTxn } from "@bera/shared-ui";
 import BigNumber from "bignumber.js";
 import { getAddress, parseUnits, type Address } from "viem";
@@ -68,7 +68,7 @@ export const usePsm = () => {
   const { isReady, account } = useBeraJs();
 
   const { data: allowance } = usePollAllowance({
-    spender: honeyRouterAddress,
+    spender: honeyFactoryAddress,
     token: selectedFrom,
   });
 

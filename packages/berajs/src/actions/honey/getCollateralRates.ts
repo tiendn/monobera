@@ -28,21 +28,21 @@ export const getCollateralRates = async ({
   collateralList,
 }: collateralRatesArgs): Promise<CollateralRatesMap | undefined> => {
   try {
-    if (!config.contracts?.honeyRouterAddress)
-      throw new Error("missing contract address honeyRouterAddress");
+    if (!config.contracts?.honeyFactoryAddress)
+      throw new Error("missing contract address honeyFactoryAddress");
     if (!config.contracts?.multicallAddress)
       throw new Error("missing contract address multicallAddress");
 
     const calls: any[] = [];
     collateralList.forEach((collateral: Address) => {
       calls.push({
-        address: config.contracts!.honeyRouterAddress,
+        address: config.contracts!.honeyFactoryAddress,
         abi: honeyFactoryAbi,
         functionName: "mintRate",
         args: [collateral],
       });
       calls.push({
-        address: config.contracts!.honeyRouterAddress,
+        address: config.contracts!.honeyFactoryAddress,
         abi: honeyFactoryAbi,
         functionName: "redeemRate",
         args: [collateral],
