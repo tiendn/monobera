@@ -213,7 +213,7 @@ export function HoneyMachine() {
       address: honeyRouterAddress,
       abi: honeyRouterAbi,
       functionName: "mint",
-      params: payload,
+      params: payload!,
     });
 
   const performRedeeming = () =>
@@ -221,7 +221,7 @@ export function HoneyMachine() {
       address: honeyRouterAddress,
       abi: honeyRouterAbi,
       functionName: "redeem",
-      params: payload,
+      params: payload!,
     });
 
   return (

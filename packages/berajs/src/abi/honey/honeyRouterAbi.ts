@@ -586,4 +586,4 @@ export const honeyRouterAbi = [
     name: "VaultAlreadyRegistered",
     inputs: [{ name: "asset", type: "address", internalType: "address" }],
   },
-];
+] as const;

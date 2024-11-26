@@ -147,14 +147,15 @@ export function SwapCard() {
                   !fromAmount ||
                   !toAmount ||
                   exceedBalance ||
-                  isTyping
+                  isTyping ||
+                  !payload
                 }
                 onClick={() => {
                   write({
                     address: honeyRouterAddress,
                     abi: honeyRouterAbi,
                     functionName: isMint ? "mint" : "redeem",
-                    params: payload,
+                    params: payload!,
                   });
                 }}
               >

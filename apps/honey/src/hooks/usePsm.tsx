@@ -136,14 +136,17 @@ export const usePsm = () => {
     setGivenIn(!givenIn);
   };
 
-  const payload = [
-    collateral?.address,
-    parseUnits(
-      fromAmount ?? "0",
-      (isMint ? collateral?.decimals : honey?.decimals) ?? 18,
-    ),
-    account ?? "",
-  ];
+  const payload =
+    collateral && account
+      ? ([
+          collateral?.address,
+          parseUnits(
+            fromAmount ?? "0",
+            (isMint ? collateral?.decimals : honey?.decimals) ?? 18,
+          ),
+          account ?? "",
+        ] as const)
+      : undefined;
 
   const needsApproval = BigNumber(fromAmount ?? "0").gt(
     allowance?.formattedAllowance ?? "0",
