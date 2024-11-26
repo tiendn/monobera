@@ -384,6 +384,7 @@ export function SwapCard({
             write={() => {
               const calldata = swapInfo.buildCall(slippage ?? 0);
               // @ts-expect-error export args from buildCall so we can simulate
+              // FIXME we need to simulate here properly
               write({
                 address: calldata.to,
                 data: calldata.callData,
