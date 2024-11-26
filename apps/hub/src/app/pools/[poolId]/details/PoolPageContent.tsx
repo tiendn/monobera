@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { ComponentProps, ReactNode, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   SWRFallback,
@@ -10,7 +10,6 @@ import {
   ADDRESS_ZERO,
   useRewardVaultBalanceFromStakingToken,
   useSelectedGauge,
-  usePoolHistoricalData,
 } from "@bera/berajs";
 import { beraTokenAddress, blockExplorerUrl } from "@bera/config";
 import {
@@ -31,7 +30,7 @@ import { Address, formatUnits } from "viem";
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
 import { usePool } from "~/b-sdk/usePool";
-import { GqlPoolEventType, GqlPoolType } from "@bera/graphql/dex/api";
+import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 import { Icons } from "@bera/ui/icons";
@@ -109,7 +108,7 @@ const TokenView = ({
                     <FormattedNumber value={token.value} />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {token.valueUSD === null ? (
+                    {!token.valueUSD ? (
                       "–"
                     ) : (
                       <FormattedNumber
@@ -190,9 +189,10 @@ export default function PoolPageContent({
     : undefined;
 
   const { data: userPositionBreakdown } = usePoolUserPosition({ pool: pool });
-  const { data: rewardVault } = useRewardVaultBalanceFromStakingToken({
-    stakingToken: pool?.address as Address,
-  });
+  const { data: rewardVault, refresh: refreshRewardVault } =
+    useRewardVaultBalanceFromStakingToken({
+      stakingToken: pool?.address as Address,
+    });
 
   const { data: gauge } = useSelectedGauge(rewardVault?.address as Address);
   const userSharePercentage = userPositionBreakdown?.userSharePercentage ?? 0;
@@ -209,6 +209,56 @@ export default function PoolPageContent({
       ? poolTypeLabels[pool?.type as keyof typeof poolTypeLabels]
       : undefined;
 
+  const cards: ({ label: string } & ComponentProps<typeof FormattedNumber>)[] =
+    [
+      {
+        label: "TVL",
+        value: tvlInUsd ?? 0,
+        symbol: "USD",
+      },
+      {
+        label: "Volume (24h)",
+        value: v3Pool?.volume24h ?? 0,
+        symbol: "USD",
+      },
+      {
+        label: "Fees (24h)",
+        value: v3Pool?.fees24h ?? 0,
+        symbol: "USD",
+      },
+      {
+        label: "APR",
+        value: v3Pool?.aprItems.at(0)?.apr ?? 0,
+        percent: true,
+        colored: true,
+      },
+    ];
+
+  const tabs: [Selection, string, ReactNode][] = [
+    [
+      Selection.AllTransactions,
+      "All transactions",
+      <EventTable pool={pool} isLoading={isLoading} />,
+    ],
+    [
+      Selection.Swaps,
+      "Swaps",
+      <EventTable
+        pool={pool}
+        types={[GqlPoolEventType.Swap]}
+        isLoading={isLoading}
+      />,
+    ],
+    [
+      Selection.AddsWithdrawals,
+      "Adds & Withdraws",
+      <EventTable
+        pool={pool}
+        types={[GqlPoolEventType.Add, GqlPoolEventType.Remove]}
+        isLoading={isLoading}
+      />,
+    ],
+  ];
   return (
     <div className="flex flex-col gap-8">
       <PoolHeader
@@ -250,7 +300,6 @@ export default function PoolPageContent({
             ) : (
               <Skeleton className="h-4 w-8" />
             ),
-            color: "success",
           },
           {
             title: "Pool Contract",
@@ -264,107 +313,9 @@ export default function PoolPageContent({
         ]}
       />
       <Separator />
-      {/* {isPoolLoading ? (
-        <Skeleton className="h-16 w-full" />
-      ) : (
-        <BgtStationBanner
-          isHub
-          receiptTokenAddress={pool?.address as Address}
-          vaultAddress={pool?.id as Address}
-        />
-      )} */}
       <div className="w-full grid-cols-1 lg:grid-cols-12 gap-4 grid auto-rows-min ">
-        <div className="grid grid-cols-1 lg:col-span-7 auto-rows-auto gap-4">
-          <PoolChart
-            pool={pool}
-            currentTvl={tvlInUsd}
-            timeCreated={pool?.createTime}
-          />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="px-4 py-2">
-              <div className="flex flex-row items-center justify-between">
-                <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
-                  TVL
-                </div>
-              </div>
-              <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
-                {tvlInUsd !== null ? (
-                  <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
-                ) : (
-                  "–"
-                )}
-              </div>
-            </Card>
-            <Card className="px-4 py-2">
-              <div className="flex flex-row items-center justify-between">
-                <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
-                  Volume (24h)
-                </div>
-              </div>
-              <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
-                <FormattedNumber value={v3Pool?.volume24h ?? 0} symbol="USD" />
-              </div>
-            </Card>
-            <Card className="px-4 py-2">
-              <div className="flex flex-row items-center justify-between">
-                <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
-                  Fees (24h)
-                </div>
-              </div>
-              <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
-                <FormattedNumber value={v3Pool?.fees24h ?? 0} symbol="USD" />
-              </div>
-            </Card>
-            <Card className="px-4 py-2">
-              <div className="flex flex-row items-center justify-between">
-                <div className="flex flex-row items-center gap-1 overflow-hidden truncate whitespace-nowrap text-sm ">
-                  APR
-                </div>
-              </div>
-              <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold text-warning-foreground">
-                <FormattedNumber
-                  value={v3Pool?.aprItems.at(0)?.apr ?? 0}
-                  colored
-                  percent
-                />
-              </div>
-            </Card>
-          </div>
-          <Card className="p-4">
-            <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold">
-              Pool Liquidity
-              <div className="text-2xl">
-                {pool === undefined ? (
-                  <Skeleton className="h-10 w-20" />
-                ) : tvlInUsd === null ? (
-                  "–"
-                ) : (
-                  <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
-                )}
-              </div>
-            </div>
-            <TokenView
-              showWeights
-              isLoading={pool === undefined}
-              tokens={
-                pool?.tokens
-                  ?.filter((t) => t.address !== pool.address)
-                  .map((t) => ({
-                    address: t.address!,
-                    symbol: t.symbol!,
-                    weight: t.weight,
-                    value: parseFloat(t.balance),
-                    valueUSD: t.token?.latestUSDPrice
-                      ? parseFloat(t.balance) *
-                        parseFloat(t.token?.latestUSDPrice ?? "0")
-                      : null,
-                  })) ?? []
-              }
-            />
-          </Card>
-        </div>
         {isConnected && (
-          <div className="lg:col-span-5 grid grid-cols-1 gap-4 lg:row-start-1 lg:col-start-8 auto-rows-min lg:row-span-2">
+          <div className="lg:col-span-5 grid grid-cols-1 gap-4 lg:row-start-1 row-start-1 lg:col-start-8 auto-rows-min lg:row-span-2">
             <Card>
               <CardContent className="flex h-full items-center flex-col justify-between gap-4 p-4">
                 <div className="flex h-8 w-full items-center justify-between text-lg font-semibold">
@@ -396,7 +347,10 @@ export default function PoolPageContent({
                   <>
                     <div className="mt-4 grow self-stretch">
                       <TokenView
-                        isLoading={isUserLpBalanceLoading || isPoolLoading}
+                        isLoading={
+                          (!userLpBalance && isUserLpBalanceLoading) ||
+                          isPoolLoading
+                        }
                         tokens={
                           pool?.tokens
                             ?.filter((t) => t.address !== pool.address)
@@ -494,7 +448,6 @@ export default function PoolPageContent({
                       </div>
                     </CardContent>
                   </Card>
-
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex justify-between w-full">
@@ -545,70 +498,93 @@ export default function PoolPageContent({
                   </Card>
                 </>
               ) : (
-                <PoolCreateRewardVault />
+                <PoolCreateRewardVault
+                  onSuccess={() => refreshRewardVault()}
+                  address={pool?.address as Address}
+                />
               )
             ) : null}
           </div>
         )}
+        <div className="grid grid-cols-1 lg:col-span-7 lg:col-start-1 auto-rows-auto gap-4">
+          <PoolChart
+            pool={pool}
+            currentTvl={tvlInUsd}
+            timeCreated={pool?.createTime}
+          />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {cards.map((card) => (
+              <Card className="px-4 py-2" key={card.label}>
+                <div className="flex flex-row items-center justify-between">
+                  <div className="overflow-hidden truncate whitespace-nowrap text-sm ">
+                    {card.label}
+                  </div>
+                </div>
+                <div className="overflow-hidden truncate whitespace-nowrap text-lg font-semibold">
+                  {card.value !== null ? (
+                    <FormattedNumber value={card.value ?? 0} symbol="USD" />
+                  ) : (
+                    "–"
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+          <Card className="p-4">
+            <div className="mb-4 flex h-8 w-full items-center justify-between text-lg font-semibold">
+              Pool Liquidity
+              <div className="text-2xl">
+                {pool === undefined ? (
+                  <Skeleton className="h-10 w-20" />
+                ) : tvlInUsd === null ? (
+                  "–"
+                ) : (
+                  <FormattedNumber value={tvlInUsd ?? 0} symbol="USD" />
+                )}
+              </div>
+            </div>
+            <TokenView
+              showWeights
+              isLoading={pool === undefined}
+              tokens={
+                pool?.tokens
+                  ?.filter((t) => t.address !== pool.address)
+                  .map((t) => ({
+                    address: t.address!,
+                    symbol: t.symbol!,
+                    weight: t.weight,
+                    value: parseFloat(t.balance),
+                    valueUSD: t.token?.latestUSDPrice
+                      ? parseFloat(t.balance) *
+                        parseFloat(t.token?.latestUSDPrice ?? "0")
+                      : null,
+                  })) ?? []
+              }
+            />
+          </Card>
+        </div>
       </div>
       <Separator />
       <section>
-        <Tabs
-          defaultValue={Selection.AllTransactions}
-          // onValueChange={(value: string) => setSelectedTab(value as Selection)}
-        >
+        <Tabs defaultValue={Selection.AllTransactions}>
           <TabsList className="w-full" variant="compact">
-            <TabsTrigger
-              value={Selection.AllTransactions}
-              className="w-full text-xs sm:text-sm"
-              variant="compact"
-            >
-              All transactions
-            </TabsTrigger>
-            <TabsTrigger
-              value={Selection.Swaps}
-              variant="compact"
-              className="w-full text-xs sm:text-sm"
-            >
-              Swaps
-            </TabsTrigger>
-            <TabsTrigger
-              value={Selection.AddsWithdrawals}
-              variant="compact"
-              className="w-full text-xs sm:text-sm"
-            >
-              Adds &amp; Withdraws
-            </TabsTrigger>
+            {tabs.map(([value, label]) => (
+              <TabsTrigger
+                value={value}
+                className="w-full text-xs sm:text-sm"
+                variant="compact"
+              >
+                {label}
+              </TabsTrigger>
+            ))}
           </TabsList>
           <Card className="mt-4">
-            <TabsContent
-              value={Selection.AllTransactions}
-              className="mt-0 overflow-x-auto"
-            >
-              <EventTable pool={pool} isLoading={isLoading} />
-            </TabsContent>
-            <TabsContent
-              value={Selection.Swaps}
-              className="mt-0 overflow-x-auto"
-            >
-              <EventTable
-                pool={pool}
-                types={[GqlPoolEventType.Swap]}
-                isLoading={isLoading}
-              />
-            </TabsContent>
-            <TabsContent
-              value={Selection.AddsWithdrawals}
-              className="mt-0 overflow-x-auto"
-            >
-              <EventTable
-                pool={pool}
-                types={[GqlPoolEventType.Add, GqlPoolEventType.Remove]}
-                isLoading={isLoading}
-              />
-            </TabsContent>
+            {tabs.map(([value, _label, content]) => (
+              <TabsContent value={value} className="mt-0 overflow-x-auto">
+                {content}
+              </TabsContent>
+            ))}
           </Card>
-          {/* <div className="mt-4 flex justify-center">{getLoadMoreButton()}</div> */}
         </Tabs>
       </section>
     </div>

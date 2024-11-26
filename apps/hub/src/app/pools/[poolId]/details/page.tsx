@@ -62,11 +62,19 @@ export default async function PoolPage({
     });
 
     if (!pool) {
+      console.error("Pool not found");
       notFound();
     }
 
+    let subgraphPool;
+    try {
+      subgraphPool = (await subgraphPromise).data.pool;
+    } catch (e) {
+      console.error("Subgraph pool not found");
+    }
+
     return (
-      <PoolPageWrapper pool={(await subgraphPromise).data.pool}>
+      <PoolPageWrapper pool={subgraphPool}>
         <PoolPageContent poolId={params.poolId} />
       </PoolPageWrapper>
     );
