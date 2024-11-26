@@ -580,12 +580,14 @@ export const getCustomAppErrorMessages = (
   }
 };
 
-const tryMatchBalancerErrorCode = (errorMsgDetails: string) => {
+export const tryMatchBalancerErrorCode = (
+  errorMsgDetails: string,
+): `BAL#${number}` | undefined => {
   // As a last-chance to catch a Balancer `BAL#` error code, we will attempt to string match
   if (errorMsgDetails.includes("BAL#")) {
-    const unmatchedBalError = errorMsgDetails.match(/BAL#\d{3}/)?.[0];
-    return `Balancer error: (${unmatchedBalError})`;
+    return errorMsgDetails.match(/BAL#\d{3}/)?.[0] as `BAL#${number}`;
   }
+  return undefined;
 };
 
 export const getErrorMessage = (e: any): string => {
@@ -617,8 +619,8 @@ export const getErrorMessage = (e: any): string => {
   }
 
   // Attempt to identify a BAL# error code (unmapped)
-  const balCodeReason = tryMatchBalancerErrorCode(errorMsgDetails);
-  if (balCodeReason) return balCodeReason;
+  const balCode = tryMatchBalancerErrorCode(errorMsgDetails);
+  if (balCode) return `Balancer Error: ${balCode}`;
 
   return errorMsgMap.GENERAL_ERROR;
 };
@@ -654,8 +656,8 @@ export const getRevertReason = async (
     }
 
     // Attempt to identify a BAL# error code (unmapped)
-    const balCodeReason = tryMatchBalancerErrorCode(cleanedReason);
-    if (balCodeReason) return balCodeReason;
+    const balCode = tryMatchBalancerErrorCode(cleanedReason);
+    if (balCode) return `Balancer Error: ${balCode}`;
 
     // Fallback for unknown errors
     return cleanedReason || "Transaction reverted for an unknown reason.";
