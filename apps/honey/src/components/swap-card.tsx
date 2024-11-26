@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { honeyRouterAbi } from "@bera/berajs";
+import { honeyFactoryAbi } from "@bera/berajs";
 import { honeyRouterAddress } from "@bera/config";
 import {
   ApproveButton,
@@ -153,7 +153,7 @@ export function SwapCard() {
                 onClick={() => {
                   write({
                     address: honeyRouterAddress,
-                    abi: honeyRouterAbi,
+                    abi: honeyFactoryAbi,
                     functionName: isMint ? "mint" : "redeem",
                     params: payload!,
                   });

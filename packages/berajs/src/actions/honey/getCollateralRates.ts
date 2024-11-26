@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { Address, PublicClient, formatUnits } from "viem";
 
-import { honeyRouterAbi } from "~/abi";
+import { honeyFactoryAbi } from "~/abi";
 import { BeraConfig } from "~/types/global";
 
 export interface CollateralRates {
@@ -37,14 +37,14 @@ export const getCollateralRates = async ({
     collateralList.forEach((collateral: Address) => {
       calls.push({
         address: config.contracts!.honeyRouterAddress,
-        abi: honeyRouterAbi,
-        functionName: "getMintRate",
+        abi: honeyFactoryAbi,
+        functionName: "mintRate",
         args: [collateral],
       });
       calls.push({
         address: config.contracts!.honeyRouterAddress,
-        abi: honeyRouterAbi,
-        functionName: "getRedeemRate",
+        abi: honeyFactoryAbi,
+        functionName: "redeemRate",
         args: [collateral],
       });
     });

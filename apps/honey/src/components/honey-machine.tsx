@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  honeyRouterAbi,
+  honeyFactoryAbi,
   TransactionActionType,
   truncateHash,
 } from "@bera/berajs";
@@ -211,7 +211,7 @@ export function HoneyMachine() {
   const performMinting = () =>
     write({
       address: honeyRouterAddress,
-      abi: honeyRouterAbi,
+      abi: honeyFactoryAbi,
       functionName: "mint",
       params: payload!,
     });
@@ -219,7 +219,7 @@ export function HoneyMachine() {
   const performRedeeming = () =>
     write({
       address: honeyRouterAddress,
-      abi: honeyRouterAbi,
+      abi: honeyFactoryAbi,
       functionName: "redeem",
       params: payload!,
     });
