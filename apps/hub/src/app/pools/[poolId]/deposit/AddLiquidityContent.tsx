@@ -42,21 +42,19 @@ import {
   AddLiquidityKind,
   vaultV2Abi,
 } from "@berachain-foundation/berancer-sdk";
-import { usePool } from "~/b-sdk/usePool";
 import { AddLiquidityDetails } from "./AddLiquidiyDetails";
 import { getPoolUrl } from "../../fetchPools";
 import { beraToken, wBeraToken } from "@bera/wagmi";
 import { useAddLiquidity } from "./useAddLiquidity";
-import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
-import { Checkbox } from "@bera/ui/checkbox";
 import AddLiquidityError from "./AddLiquidityError";
+import { usePool } from "~/b-sdk/usePool";
 
 interface IAddLiquidityContent {
   poolId: Address;
 }
 
 export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
-  const { data, isLoading } = usePool({ id: poolId });
+  const { data, isLoading } = usePool({ poolId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [pool, v3Pool] = data ?? [];
@@ -132,7 +130,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
   const { refresh } = usePollWalletBalances();
   const { write, ModalPortal } = useTxn({
     message: `Add liquidity to ${pool?.name}`,
-    onSuccess: async (txHash) => {
+    onSuccess: async () => {
       reset();
       refresh();
     },

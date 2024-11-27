@@ -21,6 +21,7 @@ export function useOnChainPoolData(poolId: string) {
   const publicClient = usePublicClient();
 
   const [pool, setPool] = useState<SubgraphPoolFragment | undefined>(undefined);
+
   const isAddressValid = isAddress(address);
 
   const isValid = isAddressValid && !!publicClient;
@@ -139,6 +140,7 @@ export function useOnChainPoolData(poolId: string) {
         name: token.name,
         decimals: token.decimals,
         symbol: token.symbol,
+        index: idx,
         weight: poolData.weights
           ? formatEther(poolData.weights.at(idx) ?? 0n)
           : undefined,
