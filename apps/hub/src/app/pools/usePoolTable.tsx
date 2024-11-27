@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useBgtInflation, type PoolV2 } from "@bera/berajs";
+import { useBgtInflation } from "@bera/berajs";
 import {
   DataTableColumnHeader,
   FormattedNumber,

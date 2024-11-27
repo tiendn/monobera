@@ -1,4 +1,5 @@
-import { PoolHistoricalDataFragment } from "@bera/graphql/dex/api";
+import { balancerApiChainName } from "@bera/config";
+import { GqlChain, PoolHistoricalDataFragment } from "@bera/graphql/dex/api";
 import useSWR from "swr";
 
 import { getPoolHistoricalData } from "~/actions";
@@ -22,7 +23,11 @@ export const usePoolHistoricalData = (
     any
   >(QUERY_KEY, async () => {
     if (!poolId) return undefined;
-    return await getPoolHistoricalData({ poolId, config });
+    return await getPoolHistoricalData({
+      poolId,
+      config,
+      chain: balancerApiChainName as GqlChain,
+    });
   });
 
   return {
