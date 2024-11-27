@@ -50,7 +50,7 @@ import AddLiquidityError from "./AddLiquidityError";
 import { usePool } from "~/b-sdk/usePool";
 
 interface IAddLiquidityContent {
-  poolId: Address;
+  poolId: string;
 }
 
 export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {

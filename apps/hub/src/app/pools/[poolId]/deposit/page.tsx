@@ -57,7 +57,7 @@ export default async function PoolPage({
 
     return (
       <PoolPageWrapper pool={subgraphPool}>
-        <AddLiquidityContent poolId={params.poolId as Address} />
+        <AddLiquidityContent poolId={params.poolId} />
       </PoolPageWrapper>
     );
   } catch (e) {
