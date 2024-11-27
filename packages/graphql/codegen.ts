@@ -5,14 +5,25 @@ dotenv.config({
   path: ["../../.env.local", "../../.env"],
 });
 
-export const getEndpointsMap = () =>
-  [
+export const getEndpointsMap = () => {
+  const endpoints = [
     ["governance", process.env.NEXT_PUBLIC_GOVERNANCE_SUBGRAPH_URL],
     ["chain", process.env.NEXT_PUBLIC_CHAIN_BLOCKS_SUBGRAPH_URL],
     ["pol", process.env.NEXT_PUBLIC_POL_SUBGRAPH_URL],
     ["dex/subgraph", process.env.NEXT_PUBLIC_BALANCER_SUBGRAPH],
     ["dex/api", process.env.NEXT_PUBLIC_BALANCER_API_URL],
   ] as const;
+
+  for (const endpoint of endpoints) {
+    if (!endpoint[1]) {
+      console.error(
+        `GraphQL schema URL for ${endpoint[0]} is not defined in the environment variables.`,
+      );
+    }
+  }
+
+  return endpoints;
+};
 
 export const endpointsMap = getEndpointsMap();
 
