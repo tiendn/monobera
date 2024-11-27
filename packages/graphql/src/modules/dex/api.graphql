@@ -1,7 +1,11 @@
-query GetPoolEvents($poolId: String!, $typeIn: [GqlPoolEventType!]!) {
+query GetPoolEvents(
+  $poolId: String!
+  $typeIn: [GqlPoolEventType!]!
+  $chain: GqlChain = BARTIO
+) {
   poolGetEvents(
     poolId: $poolId
-    chain: BARTIO
+    chain: $chain
     range: NINETY_DAYS
     typeIn: $typeIn
   ) {
@@ -75,8 +79,15 @@ fragment MinimalPool on GqlPoolBase {
     ...UserBalance
   }
 }
-query GetPools($textSearch: String, $userAddress: String) {
-  poolGetPools(textSearch: $textSearch, where: { userAddress: $userAddress }) {
+query GetPools(
+  $textSearch: String
+  $userAddress: String
+  $chain: [GqlChain!] = [BARTIO]
+) {
+  poolGetPools(
+    textSearch: $textSearch
+    where: { userAddress: $userAddress, chainIn: $chain }
+  ) {
     ...MinimalPoolInList
   }
 }
