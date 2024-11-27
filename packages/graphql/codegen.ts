@@ -24,12 +24,17 @@ export const endpointsMap = getEndpointsMap();
 //   }
 // });
 
-console.log(endpointsMap);
-
 const config: CodegenConfig = {
   overwrite: true,
   generates: endpointsMap.reduce<CodegenConfig["generates"]>(
     (acc, [entry, url]) => {
+      if (!url) {
+        console.error(
+          `GraphQL schema URL for ${entry} is not defined in the environment variables.`,
+        );
+        return acc;
+      }
+
       const [dir, file] = entry.split("/");
 
       acc[`./src/modules/${dir}/${file ?? dir}.codegen.ts`] = {

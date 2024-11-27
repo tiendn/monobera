@@ -29,14 +29,13 @@ import { Address, formatUnits } from "viem";
 
 import { EventTable } from "./PoolEventTable";
 import { getPoolAddLiquidityUrl, getPoolWithdrawUrl } from "../../fetchPools";
-import { usePool } from "~/b-sdk/usePool";
 import { GqlPoolEventType } from "@bera/graphql/dex/api";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { unstable_serialize } from "swr";
 import { Icons } from "@bera/ui/icons";
 import { PoolCreateRewardVault } from "./PoolCreateRewardVault";
-import { useOnChainPoolData } from "~/b-sdk/useOnChainPoolData";
 import { PoolChart } from "./PoolChart";
+import { usePool } from "~/b-sdk/usePool";
 
 enum Selection {
   AllTransactions = "allTransactions",
@@ -151,28 +150,12 @@ export default function PoolPageContent({
 }: {
   poolId: string;
 }) {
-  const { data, isLoading: isPoolLoading } = usePool({
-    id: poolId,
+  const {
+    data: [pool, v3Pool] = [],
+    isLoading: isPoolLoading,
+  } = usePool({
+    poolId,
   });
-
-  const { data: onChainPool } = useOnChainPoolData(poolId);
-
-  const [subgraphPool, v3Pool] = data ?? [];
-
-  const pool = useMemo(() => {
-    if (!subgraphPool) return onChainPool;
-
-    const merge = { ...subgraphPool };
-
-    if (onChainPool) {
-      merge.swapFee = onChainPool.swapFee;
-      merge.totalShares = onChainPool.totalShares;
-      merge.createTime = onChainPool.createTime ?? merge.createTime;
-    }
-
-    return merge;
-  }, [onChainPool, subgraphPool]);
-
   const { isConnected } = useBeraJs();
 
   const { data: userLpBalance, isLoading: isUserLpBalanceLoading } =

@@ -2,7 +2,13 @@ import { type Metadata } from "next";
 
 import { PoolsPageContent } from "./PoolsPageContent";
 import { bexApiGraphqlClient } from "@bera/graphql";
-import { GetPools, GetPoolsQuery } from "@bera/graphql/dex/api";
+import {
+  GetPools,
+  GetPoolsQuery,
+  GetPoolsQueryVariables,
+  GqlChain,
+} from "@bera/graphql/dex/api";
+import { balancerApiChainName } from "@bera/config";
 
 export const metadata: Metadata = {
   title: "Pools",
@@ -12,10 +18,14 @@ export const metadata: Metadata = {
 export const revalidate = 120;
 
 export default async function Pool() {
-  const res = await bexApiGraphqlClient.query<GetPoolsQuery>({
+  const res = await bexApiGraphqlClient.query<
+    GetPoolsQuery,
+    GetPoolsQueryVariables
+  >({
     query: GetPools,
     variables: {
       textSearch: undefined,
+      chain: balancerApiChainName as GqlChain,
     },
   });
 

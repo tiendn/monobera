@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   TokenBalance,
   TransactionActionType,
   formatUsd,
   useBeraJs,
-  type Token,
 } from "@bera/berajs";
 import {
   beraTokenAddress,
@@ -18,8 +16,6 @@ import {
 import {
   ActionButton,
   FormattedNumber,
-  InfoBoxList,
-  InfoBoxListItem,
   PreviewToken,
   TokenIcon,
   TokenList,
@@ -39,8 +35,6 @@ import { Icons } from "@bera/ui/icons";
 import { Slider } from "@bera/ui/slider";
 
 import { Skeleton } from "@bera/ui/skeleton";
-import { PoolStateWithBalances } from "@berachain-foundation/berancer-sdk";
-import { usePool } from "~/b-sdk/usePool";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { useRemoveLiquidity } from "./useWithdrawLiquidity";
 import { Address, formatEther, parseEther } from "viem";
@@ -53,9 +47,11 @@ import { Checkbox } from "@bera/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import Link from "next/link";
 import { nativeToken } from "~/b-sdk/b-sdk";
+import { usePool } from "~/b-sdk/usePool";
+import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 interface ITokenSummary {
   title: string;
-  pool: PoolStateWithBalances | undefined;
+  pool: SubgraphPoolFragment | undefined;
   tokenBalances?: TokenBalance[];
   isLoading: boolean;
 }
@@ -70,8 +66,8 @@ const TokenSummary = ({
     <div className="flex w-full flex-col items-center justify-center gap-3 rounded-lg border border-border p-6">
       <p className="w-full text-left text-lg font-semibold">{title}</p>
       {pool?.tokens
-        .filter((t) => t.address !== pool.address)
-        .map((token) => {
+        ?.filter((t) => t.address !== pool.address)
+        .map((token, idx) => {
           return (
             <div
               key={token.address}
@@ -83,9 +79,11 @@ const TokenSummary = ({
               <div className="flex flex-row items-center gap-1 font-medium">
                 {isLoading ? (
                   "..."
-                ) : tokenBalances?.at(token.index)?.formattedBalance ? (
+                ) : tokenBalances?.at(token.index ?? idx)?.formattedBalance ? (
                   <FormattedNumber
-                    value={tokenBalances.at(token.index)!.formattedBalance}
+                    value={
+                      tokenBalances.at(token.index ?? idx)!.formattedBalance
+                    }
                     symbol={token?.symbol}
                   />
                 ) : (
@@ -107,8 +105,8 @@ export default function WithdrawLiquidityContent({
 }) {
   const { isConnected } = useBeraJs();
 
-  const { data, isLoading: isPoolLoading } = usePool({ id: poolId });
-  const [v2Pool, v3Pool] = data ?? [];
+  const { data, isLoading: isPoolLoading } = usePool({ poolId: poolId });
+  const [pool, v3Pool] = data ?? [];
 
   const reset = () => {
     setPreviewOpen(false);
@@ -124,7 +122,7 @@ export default function WithdrawLiquidityContent({
     data: userPositionBreakdown,
     isLoading: isPositionBreakdownLoading,
     refresh,
-  } = usePoolUserPosition({ pool: v2Pool });
+  } = usePoolUserPosition({ pool: pool });
 
   const {
     queryOutput,
@@ -146,7 +144,7 @@ export default function WithdrawLiquidityContent({
   const isLoading = isPoolLoading || isWithdrawLoading;
 
   const { write, ModalPortal } = useTxn({
-    message: `Withdraw liquidity from ${v2Pool?.name}`,
+    message: `Withdraw liquidity from ${pool?.name}`,
     onSuccess: () => {
       reset();
       refresh();
@@ -195,17 +193,17 @@ export default function WithdrawLiquidityContent({
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
       {ModalPortal}
       <Card className="mx-6 w-full items-center bg-background p-4 sm:mx-0 sm:w-[480px] flex flex-col">
-        {!v2Pool && isPoolLoading ? (
+        {!pool && isPoolLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
-          <p className="text-center text-2xl font-semibold">{v2Pool?.name}</p>
+          <p className="text-center text-2xl font-semibold">{pool?.name}</p>
         )}
         <div className="flex w-full flex-row items-center justify-center rounded-lg p-4">
-          {!v2Pool && isPoolLoading ? (
+          {!pool && isPoolLoading ? (
             <Skeleton className="h-12 w-24" />
           ) : (
-            v2Pool?.tokens
-              ?.filter((t) => t.address !== v2Pool.address)
+            pool?.tokens
+              ?.filter((t) => t.address !== pool.address)
               .map((token, i) => {
                 return (
                   <TokenIcon
@@ -219,7 +217,7 @@ export default function WithdrawLiquidityContent({
           )}
         </div>
         <Link
-          href={v2Pool ? getPoolUrl(v2Pool) : "#"}
+          href={pool ? getPoolUrl(pool) : "#"}
           className="flex items-center justify-center text-sm font-normal leading-tight text-muted-foreground hover:cursor-pointer hover:underline"
         >
           View Pool Details
@@ -255,8 +253,8 @@ export default function WithdrawLiquidityContent({
             onValueChange={(value) => setTokenOut(value as Address)}
             className="grid grid-cols-1 gap-2"
           >
-            {v2Pool?.tokens
-              ?.filter((t) => t.address !== v2Pool.address)
+            {pool?.tokens
+              ?.filter((t) => t.address !== pool.address)
               .map((token) => (
                 <div
                   className="flex items-center gap-3 font-medium"
@@ -383,7 +381,7 @@ export default function WithdrawLiquidityContent({
                   const isWrappedBera =
                     tk.address === beraTokenAddress.toLowerCase();
 
-                  const tokenUSDPrice = v2Pool?.tokens?.find(
+                  const tokenUSDPrice = pool?.tokens?.find(
                     (t) => t.address === tk.address.toLowerCase(),
                   )?.token.latestUSDPrice;
 
@@ -474,8 +472,8 @@ export default function WithdrawLiquidityContent({
             }
           >
             <TokenList className="divide-muted bg-muted">
-              {v2Pool?.tokens
-                ?.filter((t) => t.address !== v2Pool.address.toLowerCase())
+              {pool?.tokens
+                ?.filter((t) => t.address !== pool.address.toLowerCase())
                 .map((token) => (
                   <PreviewToken
                     key={token.address}
@@ -521,7 +519,7 @@ export default function WithdrawLiquidityContent({
       {isConnected ? (
         <div className="sm:w-[480px] mx-auto">
           <TokenSummary
-            pool={v3Pool}
+            pool={pool}
             tokenBalances={userPositionBreakdown?.tokenBalances}
             title="Your Tokens In the Pool"
             isLoading={isPositionBreakdownLoading}

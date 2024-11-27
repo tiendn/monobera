@@ -1,5 +1,6 @@
 import { ADDRESS_ZERO } from "@bera/berajs/config";
 import {
+  balancerApiChainName,
   balancerApiUrl,
   balancerQueriesAddress,
   balancerRelayerAddress,
@@ -24,7 +25,7 @@ import {
   WEIGHTED_POOL_FACTORY_BALANCER_V2,
 } from "@berachain-foundation/berancer-sdk";
 
-API_CHAIN_NAMES[chainId] = "BARTIO";
+API_CHAIN_NAMES[chainId] = balancerApiChainName;
 // @ts-ignore
 CHAINS[chainId] = defaultBeraNetworkConfig.chain;
 BALANCER_RELAYER[chainId] = balancerRelayerAddress;

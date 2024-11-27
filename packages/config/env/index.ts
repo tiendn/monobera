@@ -192,6 +192,8 @@ export const balancerPoolCreationHelper = process.env
   .NEXT_PUBLIC_BALANCER_POOL_CREATION_HELPER as Address;
 export const balancerDelegatedOwnershipAddress = process.env
   .NEXT_PUBLIC_BALANCER_DELEGATED_OWNERSHIP_ADDRESS as Address;
+export const balancerApiChainName = process.env
+  .NEXT_PUBLIC_BALANCER_API_CHAIN_NAME as string;
 
 // Sentry && Mixpanel
 export const developmentAnalytics = process.env

@@ -1,8 +1,9 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hubName } from "@bera/config";
+import { balancerVaultAddress, hubName } from "@bera/config";
 import { Address } from "viem";
 
+import { readContract } from "@wagmi/core";
 import AddLiquidityContent from "./AddLiquidityContent";
 import { bexSubgraphClient } from "@bera/graphql";
 import {
@@ -10,6 +11,8 @@ import {
   GetSubgraphPoolQuery,
 } from "@bera/graphql/dex/subgraph";
 import { PoolPageWrapper } from "../details/PoolPageContent";
+import { wagmiConfig } from "@bera/wagmi/config";
+import { vaultV2Abi } from "@berachain-foundation/berancer-sdk";
 
 export function generateMetadata(): Metadata {
   return {
@@ -26,20 +29,35 @@ export default async function PoolPage({
   params: { poolId: string };
 }) {
   try {
-    const res = await bexSubgraphClient.query<GetSubgraphPoolQuery>({
+    const subgraphPromise = bexSubgraphClient.query<GetSubgraphPoolQuery>({
       query: GetSubgraphPool,
       variables: {
         id: params.poolId,
       },
     });
 
-    if (!res.data.pool) {
+    const pool = await readContract(wagmiConfig, {
+      address: balancerVaultAddress,
+      abi: vaultV2Abi,
+      functionName: "getPool",
+      args: [params.poolId as Address],
+    });
+
+    if (!pool) {
+      console.error("Pool not found");
       notFound();
     }
 
+    let subgraphPool;
+    try {
+      subgraphPool = (await subgraphPromise).data.pool;
+    } catch (e) {
+      console.error("Subgraph pool not found");
+    }
+
     return (
-      <PoolPageWrapper pool={res.data.pool}>
-        <AddLiquidityContent poolId={params.poolId as Address} />
+      <PoolPageWrapper pool={subgraphPool}>
+        <AddLiquidityContent poolId={params.poolId} />
       </PoolPageWrapper>
     );
   } catch (e) {
