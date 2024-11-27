@@ -3,6 +3,7 @@ import {
   GetPoolHistoricalDataDocument,
   GetPoolHistoricalDataQuery,
   GetPoolHistoricalDataQueryVariables,
+  GqlChain,
   PoolHistoricalDataFragment,
 } from "@bera/graphql/dex/api";
 
@@ -18,11 +19,13 @@ export type PoolDayData = {
 
 interface getPoolHistoricalDataProps {
   poolId: string;
+  chain: GqlChain;
   config: BeraConfig;
 }
 
 export const getPoolHistoricalData = async ({
   poolId,
+  chain,
   config,
 }: getPoolHistoricalDataProps): Promise<
   PoolHistoricalDataFragment[] | undefined
@@ -34,7 +37,7 @@ export const getPoolHistoricalData = async ({
     GetPoolHistoricalDataQueryVariables
   >({
     query: GetPoolHistoricalDataDocument,
-    variables: { poolId },
+    variables: { poolId, chain },
   });
   return data.poolGetSnapshots;
 };

@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import {
   useMultipleTokenInformation,
   useSubgraphTokenInformations,
-  useTokenInformation,
 } from "@bera/berajs";
 import { balancerVaultAddress } from "@bera/config";
-import { GqlPoolType, MinimalPoolFragment } from "@bera/graphql/dex/api";
+import { GqlPoolType } from "@bera/graphql/dex/api";
 import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 import {
   composabableStablePoolV5Abi_V2,
@@ -21,6 +20,7 @@ export function useOnChainPoolData(poolId: string) {
   const publicClient = usePublicClient();
 
   const [pool, setPool] = useState<SubgraphPoolFragment | undefined>(undefined);
+
   const isAddressValid = isAddress(address);
 
   const isValid = isAddressValid && !!publicClient;
@@ -139,6 +139,7 @@ export function useOnChainPoolData(poolId: string) {
         name: token.name,
         decimals: token.decimals,
         symbol: token.symbol,
+        index: idx,
         weight: poolData.weights
           ? formatEther(poolData.weights.at(idx) ?? 0n)
           : undefined,

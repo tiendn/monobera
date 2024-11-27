@@ -4,10 +4,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   BGT_ABI,
+  IContractWrite,
   // Vault
   // @ts-ignore - ignore Token typing import error
   Token,
   TransactionActionType,
+  balancerVaultAbi,
   getErrorMessage,
   useBeraJs,
   useBgtUnstakedBalance,
@@ -24,6 +26,7 @@ import {
 } from "@bera/config";
 import {
   ActionButton,
+  AddTokenDialog,
   ApproveButton,
   BREAKPOINTS,
   TokenInput,
@@ -33,14 +36,13 @@ import {
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
-import { AddTokenDialog } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { SwapBuildOutputExactIn } from "@berachain-foundation/berancer-sdk";
-import { formatUnits, isAddress, parseUnits } from "viem";
+import { decodeFunctionData, formatUnits, isAddress, parseUnits } from "viem";
 
 import { WRAP_TYPE, useSwap } from "~/hooks/useSwap";
 import { SwapCardHeader } from "./swap-card-header";
@@ -383,13 +385,21 @@ export function SwapCard({
             setOpen={setOpenPreview}
             write={() => {
               const calldata = swapInfo.buildCall(slippage ?? 0);
-              // @ts-expect-error export args from buildCall so we can simulate
-              // FIXME we need to simulate here properly
+              // NOTE: the decode and write here is a kludge to avoid re-writing the way the balancer SDK builds txs so we can simulate
+              const decodedData = decodeFunctionData({
+                abi: balancerVaultAbi,
+                data: calldata.callData,
+              });
               write({
                 address: calldata.to,
-                data: calldata.callData,
+                abi: balancerVaultAbi,
+                functionName: decodedData.functionName,
+                params: decodedData.args,
                 value: calldata.value,
-              });
+              } as IContractWrite<
+                typeof balancerVaultAbi,
+                typeof decodedData.functionName
+              >);
             }}
             isLoading={isLoading}
             minAmountOut={minAmountOut ?? "n/a"}

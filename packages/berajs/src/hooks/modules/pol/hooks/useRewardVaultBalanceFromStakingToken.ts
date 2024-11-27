@@ -1,6 +1,6 @@
 import { beraChefAddress } from "@bera/config";
 import useSWR from "swr";
-import { Address, formatEther } from "viem";
+import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { BERA_CHEF_ABI, BERA_VAULT_REWARDS_ABI } from "~/abi";
@@ -18,12 +18,15 @@ export const useRewardVaultBalanceFromStakingToken = ({
   const { account } = useBeraJs();
   const client = usePublicClient();
 
-  const { data: rewardVaultAddress = _rewardVaultAddress, error } =
-    useRewardVaultFromToken({
-      tokenAddress: stakingToken,
-    });
+  const {
+    data: rewardVaultAddress = _rewardVaultAddress,
+    error,
+    mutate: mutateRewardVaultAddress,
+  } = useRewardVaultFromToken({
+    tokenAddress: stakingToken,
+  });
 
-  return useSWR(
+  const swrResponse = useSWR(
     rewardVaultAddress
       ? ["useVaultBalanceFromStakingToken", rewardVaultAddress, account]
       : null,
@@ -61,4 +64,12 @@ export const useRewardVaultBalanceFromStakingToken = ({
       };
     },
   );
+
+  return {
+    ...swrResponse,
+    refresh: () => {
+      mutateRewardVaultAddress();
+      swrResponse.mutate();
+    },
+  };
 };
