@@ -18,7 +18,7 @@ export default async function Withdraw({
 }: {
   params: { shareAddress: string };
 }) {
-  if (isIPFS) {
+  if (!isIPFS) {
     return null;
   }
 
