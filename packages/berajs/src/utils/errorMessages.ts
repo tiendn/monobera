@@ -442,6 +442,337 @@ const errorMsgMap: ErrorMessages = {
       errorMSG:
         "Joins and exits are currently disabled for this pool. (BAL #358)",
     },
+    // Lib
+    BAL400: {
+      keywords: ["BAL#400"],
+      errorMSG: "Reentrancy detected. (BAL #400)",
+    },
+    BAL401: {
+      keywords: ["BAL#401"],
+      errorMSG: "The sender is not allowed to perform this action. (BAL #401)",
+    },
+    BAL402: {
+      keywords: ["BAL#402"],
+      errorMSG: "The contract is currently paused. (BAL #402)",
+    },
+    BAL403: {
+      keywords: ["BAL#403"],
+      errorMSG: "The pause window has expired. (BAL #403)",
+    },
+    BAL404: {
+      keywords: ["BAL#404"],
+      errorMSG:
+        "The maximum pause window duration has been exceeded. (BAL #404)",
+    },
+    BAL405: {
+      keywords: ["BAL#405"],
+      errorMSG:
+        "The maximum buffer period duration has been exceeded. (BAL #405)",
+    },
+    BAL406: {
+      keywords: ["BAL#406"],
+      errorMSG: "The account has insufficient balance. (BAL #406)",
+    },
+    BAL407: {
+      keywords: ["BAL#407"],
+      errorMSG: "The account has insufficient allowance. (BAL #407)",
+    },
+    BAL408: {
+      keywords: ["BAL#408"],
+      errorMSG: "ERC20: Transfer from zero address. (BAL #408)",
+    },
+    BAL409: {
+      keywords: ["BAL#409"],
+      errorMSG: "ERC20: Transfer to zero address. (BAL #409)",
+    },
+    BAL410: {
+      keywords: ["BAL#410"],
+      errorMSG: "ERC20: Mint to zero address. (BAL #410)",
+    },
+    BAL411: {
+      keywords: ["BAL#411"],
+      errorMSG: "ERC20: Burn from zero address. (BAL #411)",
+    },
+    BAL412: {
+      keywords: ["BAL#412"],
+      errorMSG: "ERC20: Approve from zero address. (BAL #412)",
+    },
+    BAL413: {
+      keywords: ["BAL#413"],
+      errorMSG: "ERC20: Approve to zero address. (BAL #413)",
+    },
+    BAL414: {
+      keywords: ["BAL#414"],
+      errorMSG: "ERC20: Transfer exceeds allowance. (BAL #414)",
+    },
+    BAL415: {
+      keywords: ["BAL#415"],
+      errorMSG: "ERC20: Decreased allowance below zero. (BAL #415)",
+    },
+    BAL416: {
+      keywords: ["BAL#416"],
+      errorMSG: "ERC20: Transfer exceeds balance. (BAL #416)",
+    },
+    BAL417: {
+      keywords: ["BAL#417"],
+      errorMSG: "ERC20: Burn exceeds allowance. (BAL #417)",
+    },
+    BAL418: {
+      keywords: ["BAL#418"],
+      errorMSG: "SafeERC20: Call failed. (BAL #418)",
+    },
+    BAL419: {
+      keywords: ["BAL#419"],
+      errorMSG: "Address has insufficient balance. (BAL #419)",
+    },
+    BAL420: {
+      keywords: ["BAL#420"],
+      errorMSG: "Address cannot send value. (BAL #420)",
+    },
+    BAL421: {
+      keywords: ["BAL#421"],
+      errorMSG: "SafeCast: Value cannot fit into int256. (BAL #421)",
+    },
+    BAL422: {
+      keywords: ["BAL#422"],
+      errorMSG: "AccessControl: Grant sender is not an admin. (BAL #422)",
+    },
+    BAL423: {
+      keywords: ["BAL#423"],
+      errorMSG: "AccessControl: Revoke sender is not an admin. (BAL #423)",
+    },
+    BAL424: {
+      keywords: ["BAL#424"],
+      errorMSG:
+        "AccessControl: Renounce sender not allowed for accounts other than self. (BAL #424)",
+    },
+    BAL425: {
+      keywords: ["BAL#425"],
+      errorMSG: "Buffer period has expired. (BAL #425)",
+    },
+    BAL426: {
+      keywords: ["BAL#426"],
+      errorMSG: "Caller is not the owner. (BAL #426)",
+    },
+    BAL427: {
+      keywords: ["BAL#427"],
+      errorMSG: "New owner cannot be zero address. (BAL #427)",
+    },
+    BAL428: {
+      keywords: ["BAL#428"],
+      errorMSG: "Code deployment failed. (BAL #428)",
+    },
+    BAL429: {
+      keywords: ["BAL#429"],
+      errorMSG: "Call to non-contract address. (BAL #429)",
+    },
+    BAL430: {
+      keywords: ["BAL#430"],
+      errorMSG: "Low-level call failed. (BAL #430)",
+    },
+    BAL431: {
+      keywords: ["BAL#431"],
+      errorMSG: "The contract is not paused. (BAL #431)",
+    },
+    BAL432: {
+      keywords: ["BAL#432"],
+      errorMSG: "Address is already allowlisted. (BAL #432)",
+    },
+    BAL433: {
+      keywords: ["BAL#433"],
+      errorMSG: "Address is not allowlisted. (BAL #433)",
+    },
+    BAL434: {
+      keywords: ["BAL#434"],
+      errorMSG: "ERC20: Burn exceeds balance. (BAL #434)",
+    },
+    BAL435: {
+      keywords: ["BAL#435"],
+      errorMSG: "Invalid operation. (BAL #435)",
+    },
+    BAL436: {
+      keywords: ["BAL#436"],
+      errorMSG: "Codec overflow detected. (BAL #436)",
+    },
+    BAL437: {
+      keywords: ["BAL#437"],
+      errorMSG: "The system is in recovery mode. (BAL #437)",
+    },
+    BAL438: {
+      keywords: ["BAL#438"],
+      errorMSG: "The system is not in recovery mode. (BAL #438)",
+    },
+    BAL439: {
+      keywords: ["BAL#439"],
+      errorMSG: "Induced failure. (BAL #439)",
+    },
+    BAL440: {
+      keywords: ["BAL#440"],
+      errorMSG: "Expired signature. (BAL #440)",
+    },
+    BAL441: {
+      keywords: ["BAL#441"],
+      errorMSG: "Malformed signature. (BAL #441)",
+    },
+    BAL442: {
+      keywords: ["BAL#442"],
+      errorMSG: "SafeCast: Value cannot fit into uint64. (BAL #442)",
+    },
+    BAL443: {
+      keywords: ["BAL#443"],
+      errorMSG: "Unhandled fee type. (BAL #443)",
+    },
+    BAL444: {
+      keywords: ["BAL#444"],
+      errorMSG: "ERC20: Burn from zero address. (BAL #444)",
+    },
+    // Vault
+    BAL500: {
+      keywords: ["BAL#500"],
+      errorMSG: "Invalid pool ID. (BAL #500)",
+    },
+    BAL501: {
+      keywords: ["BAL#501"],
+      errorMSG: "Caller is not the pool. (BAL #501)",
+    },
+    BAL502: {
+      keywords: ["BAL#502"],
+      errorMSG: "Sender is not the asset manager. (BAL #502)",
+    },
+    BAL503: {
+      keywords: ["BAL#503"],
+      errorMSG: "User does not allow the relayer. (BAL #503)",
+    },
+    BAL504: {
+      keywords: ["BAL#504"],
+      errorMSG: "Invalid signature. (BAL #504)",
+    },
+    BAL505: {
+      keywords: ["BAL#505"],
+      errorMSG:
+        "Exit would yield fewer than the minimum tokens out. (BAL #505)",
+    },
+    BAL506: {
+      keywords: ["BAL#506"],
+      errorMSG: "Join would cost more than the maximum tokens in. (BAL #506)",
+    },
+    BAL507: {
+      keywords: ["BAL#507"],
+      errorMSG: "Swap violates user-supplied limits. (BAL #507)",
+    },
+    BAL508: {
+      keywords: ["BAL#508"],
+      errorMSG: "Swap transaction not mined within the deadline. (BAL #508)",
+    },
+    BAL509: {
+      keywords: ["BAL#509"],
+      errorMSG: "Cannot swap the same token. (BAL #509)",
+    },
+    BAL510: {
+      keywords: ["BAL#510"],
+      errorMSG: "Unknown amount in the first swap of a batch. (BAL #510)",
+    },
+    BAL511: {
+      keywords: ["BAL#511"],
+      errorMSG: "Malconstructed multihop swap. (BAL #511)",
+    },
+    BAL512: {
+      keywords: ["BAL#512"],
+      errorMSG: "Internal balance overflow. (BAL #512)",
+    },
+    BAL513: {
+      keywords: ["BAL#513"],
+      errorMSG: "Insufficient internal balance. (BAL #513)",
+    },
+    BAL514: {
+      keywords: ["BAL#514"],
+      errorMSG: "Invalid ETH internal balance. (BAL #514)",
+    },
+    BAL515: {
+      keywords: ["BAL#515"],
+      errorMSG:
+        "Flashloan must repay the loan in the same transaction. (BAL #515)",
+    },
+    BAL516: {
+      keywords: ["BAL#516"],
+      errorMSG: "Insufficient ETH balance. (BAL #516)",
+    },
+    BAL517: {
+      keywords: ["BAL#517"],
+      errorMSG: "Unallocated ETH. (BAL #517)",
+    },
+    BAL518: {
+      keywords: ["BAL#518"],
+      errorMSG:
+        "Relayers cannot receive ETH directly (only through the Vault). (BAL #518)",
+    },
+    BAL519: {
+      keywords: ["BAL#519"],
+      errorMSG: "Cannot use ETH sentinel for internal balance. (BAL #519)",
+    },
+    BAL520: {
+      keywords: ["BAL#520"],
+      errorMSG: "Tokens mismatch. (BAL #520)",
+    },
+    BAL521: {
+      keywords: ["BAL#521"],
+      errorMSG: "Token is not registered. (BAL #521)",
+    },
+    BAL522: {
+      keywords: ["BAL#522"],
+      errorMSG: "Token is already registered. (BAL #522)",
+    },
+    BAL523: {
+      keywords: ["BAL#523"],
+      errorMSG: "Tokens are already set. (BAL #523)",
+    },
+    BAL524: {
+      keywords: ["BAL#524"],
+      errorMSG: "Tokens length must be 2. (BAL #524)",
+    },
+    BAL525: {
+      keywords: ["BAL#525"],
+      errorMSG: "Nonzero token balance detected. (BAL #525)",
+    },
+    BAL526: {
+      keywords: ["BAL#526"],
+      errorMSG: "Balance total overflow detected. (BAL #526)",
+    },
+    BAL527: {
+      keywords: ["BAL#527"],
+      errorMSG: "Pool has no tokens. (BAL #527)",
+    },
+    BAL528: {
+      keywords: ["BAL#528"],
+      errorMSG: "Insufficient flash loan balance. (BAL #528)",
+    },
+    // Fees
+    BAL600: {
+      keywords: ["BAL#600"],
+      errorMSG: "Swap fee percentage is too high. (BAL #600)",
+    },
+    BAL601: {
+      keywords: ["BAL#601"],
+      errorMSG: "Flash loan fee percentage is too high. (BAL #601)",
+    },
+    BAL602: {
+      keywords: ["BAL#602"],
+      errorMSG: "Insufficient flash loan fee amount. (BAL #602)",
+    },
+    // FeeSplitter
+    BAL700: {
+      keywords: ["BAL#700"],
+      errorMSG: "Splitter fee percentage is too high. (BAL #700)",
+    },
+    // Misc
+    BAL998: {
+      keywords: ["BAL#998"],
+      errorMSG: "Unimplemented functionality. (BAL #998)",
+    },
+    BAL999: {
+      keywords: ["BAL#999"],
+      errorMSG: "An unexpected error occurred. (BAL #999)",
+    },
   },
   LEND: {
     PRICE_FLUCTUATION: {
