@@ -1,6 +1,10 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { beraTokenAddress, polSubgraphUrl } from "@bera/config";
-import { GetWeeklyBgtInflation } from "@bera/graphql/pol";
+import {
+  GetWeeklyBgtInflation,
+  GetWeeklyBgtInflationQuery,
+  GetWeeklyBgtInflationQueryVariables,
+} from "@bera/graphql/pol";
 import useSWR from "swr";
 
 import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
@@ -22,14 +26,18 @@ export const useBgtInflation = (
         cache: new InMemoryCache(),
       });
       return await bgtClient
-        .query({
-          query: GetWeeklyBgtInflation,
-          variables: {
-            wbera: beraTokenAddress.toLowerCase(),
+        .query<GetWeeklyBgtInflationQuery, GetWeeklyBgtInflationQueryVariables>(
+          {
+            query: GetWeeklyBgtInflation,
+            variables: {
+              wbera: beraTokenAddress.toLowerCase(),
+            },
           },
-        })
-        .then((res: any) => {
-          const weeklyInflationArray = res.data.globalIncentivesUsages;
+        )
+        .then((res) => {
+          const weeklyInflationArray = res.data.globalIncentivesUsages.map(
+            (usage) => usage.BGTDistributed,
+          );
           const avgDailyInflation =
             calculateAverageInflation(weeklyInflationArray);
           const annualizedInflation =
@@ -38,7 +46,8 @@ export const useBgtInflation = (
             bgtPerYear: annualizedInflation,
             usdPerYear:
               annualizedInflation *
-              parseFloat(res.data.tokenInformation.usdValue),
+              // @ts-expect-error
+              parseFloat(res.data.tokenInformation?.usdValue ?? "0"),
           };
         })
         .catch((e: any) => {
@@ -61,7 +70,7 @@ export const useBgtInflation = (
 function calculateAverageInflation(inflationArray: string[]): number {
   if (inflationArray.length === 0) return 0;
   const sum = inflationArray.reduce(
-    (acc, val: any) => acc + parseFloat(val.bgtDistributed),
+    (acc, val: any) => acc + parseFloat(val.BGTDistributed),
     0,
   );
   return sum / inflationArray.length;

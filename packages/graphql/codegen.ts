@@ -27,22 +27,11 @@ export const getEndpointsMap = () => {
 
 export const endpointsMap = getEndpointsMap();
 
-// endpointsMap.forEach((e) => {
-//   if (!e[1]) {
-//     throw new Error(
-//       `GraphQL schema URL for ${e[0]} is not defined in the environment variables.`,
-//     );
-//   }
-// });
-
 const config: CodegenConfig = {
   overwrite: true,
   generates: endpointsMap.reduce<CodegenConfig["generates"]>(
     (acc, [entry, url]) => {
       if (!url) {
-        console.error(
-          `GraphQL schema URL for ${entry} is not defined in the environment variables.`,
-        );
         return acc;
       }
 

@@ -1,16 +1,6 @@
-query GetTotalBgtDistributed {
-  globalInfo(id: "global") {
-    id
-    totalBGTDistributed
-  }
-}
-
-query GetBgtInflation {
-  globalInfo(id: "global") {
-    id
-    rewardRate
-    baseRewardRate
-  }
+fragment ValidatorMinimal on Validator {
+  coinbase
+  amountStaked
 }
 
 query GetUserValidatorInformation($address: Bytes!) {
@@ -22,58 +12,44 @@ query GetUserValidatorInformation($address: Bytes!) {
     user
     latestBlockTime
     validator {
-      coinbase
+      ...ValidatorMinimal
     }
   }
 }
 
 query GetValidValidator($address: ID!) {
   validator(id: $address) {
-    coinbase
+    ...ValidatorMinimal
   }
 }
 
 query GetAllValidators {
   validators(first: 1000, orderDirection: desc, orderBy: amountStaked) {
-    coinbase
-    amountStaked
+    ...ValidatorMinimal
   }
 }
 
+fragment ValidatorStakedBgts on ValidatorBGTStaked {
+  allTimeBgtStaked
+  BGTStaked
+  coinbase
+  timestamp
+}
 query GetValidatorBgtStaked($address: Bytes!, $timestamp: Timestamp!) {
   validatorBgtStaked: validatorBGTStakeds(
     interval: day
     where: { coinbase: $address, timestamp_gte: $timestamp }
   ) {
-    allTimeBgtStaked
-    bgtStaked
-    coinbase
-    timestamp
+    ...ValidatorStakedBgts
   }
 }
 
-query GetValidatorBgtStakedDelta($address: Bytes!, $timestamp: Timestamp!) {
-  validatorBgtStakedDelta: validatorBGTStakedDataPoints(
-    where: { coinbase: $address, timestamp_gte: $timestamp }
-  ) {
-    amountStaked
-    coinbase
-    timestamp
-  }
-}
-
-query GetValidatorBgtUsage($address: String!, $timestamp: Timestamp!) {
-  validatorUsages(
-    interval: day
-    where: { validator: $address, timestamp_gte: $timestamp }
-  ) {
-    bgtDirected
-    timestamp
-    allTimeBgtDirected
-    allTimeUsdValueBgtDirected
-    validator {
-      commission
-    }
+fragment BlockRewardStatsByValidator on BlockRewardStatsByValidator {
+  timestamp
+  # rewardRate
+  commissionRate
+  validator {
+    ...ValidatorMinimal
   }
 }
 
@@ -82,12 +58,7 @@ query GetValidatorBlockRewardStats($address: String!, $timestamp: Timestamp!) {
     interval: day
     where: { validator: $address, timestamp_gte: $timestamp }
   ) {
-    timestamp
-    rewardRate
-    commissionRate
-    validator {
-      coinbase
-    }
+    ...BlockRewardStatsByValidator
   }
 }
 
@@ -97,20 +68,18 @@ query GetValidatorTokenRewardUsages($address: String!, $timestamp: Timestamp!) {
     where: { validator: $address, timestamp_gte: $timestamp }
   ) {
     token {
-      address
-      id
-      name
-      symbol
-      decimals
+      ...StakingToken
     }
     tokenRewarded
-    usdValueTokenRewarded
+    # usdValueTokenRewarded
     timestamp
-    allTimeUsdValueTokenRewarded
+    allTimeTokenRewarded
+    # allTimeUsdValueTokenRewarded
     id
   }
   validatorUsages(interval: day, where: { validator: $address }, first: 1) {
-    allTimeUsdValueTokenRewarded
+    # allTimeUsdValueTokenRewarded
+    allTimeBgtDirected
   }
 }
 
@@ -161,86 +130,80 @@ query GetAllValidatorBlockCount($timestamp: Timestamp) {
     timestamp
   }
 }
+fragment StakingToken on TokenInformation {
+  address
+  # beraValue
+  decimals
+  name
+  symbol
+  # usdValue
+}
+
+fragment VaultMinimal on Vault {
+  id
+  stakingTokenAmount
+  vaultAddress
+  # activeIncentivesValueUsd
+}
+
+fragment VaultWithStakingToken on Vault {
+  ...VaultMinimal
+  stakingToken {
+    ...StakingToken
+  }
+}
+
+fragment GlobalInfo on GlobalInfo {
+  totalValidators
+  totalBGTStaked
+  totalBGTQueued
+  totalBGTDistributed
+  rewardRate
+  id
+  baseRewardRate
+}
+
+fragment GlobalRewardAllocation on GlobalRewardAllocation {
+  id
+  amount
+  receiver
+  vault {
+    ...VaultMinimal
+  }
+}
 
 # TODO: we need to figure out what to do when we have 1000+ reward vaults and this query is wrong
 query GetGauges {
   globalInfos(first: 1) {
-    totalValidators
-    totalIncentivesVolumeUsd
-    totalBgtStaked
-    totalBgtQueued
-    totalBGTDistributed
-    totalActiveIncentivesUsd
-    rewardRate
-    id
-    baseRewardRate
+    ...GlobalInfo
   }
-  globalCuttingBoardWeights(first: 1) {
-    amount
-    id
-    receiver
-    vault {
-      activeIncentivesValueUsd
-      id
-      stakingTokenAmount
-      vaultAddress
-    }
+  globalRewardAllocations(first: 1) {
+    ...GlobalRewardAllocation
   }
   vaults(first: 1000, where: { stakingTokenAmount_gt: "0" }) {
-    activeIncentivesValueUsd
-    vaultAddress
-    stakingTokenAmount
-    stakingToken {
-      address
-      beraValue
-      decimals
-      name
-      symbol
-      usdValue
-    }
+    ...VaultWithStakingToken
   }
 }
 
 query GetWeeklyBgtInflation($wbera: ID!) {
   globalIncentivesUsages(interval: day, first: 7) {
-    bgtDistributed
+    BGTDistributed
   }
   tokenInformation(id: $wbera) {
-    usdValue
+    ...StakingToken
   }
 }
 
 query GetGlobalCuttingBoard {
-  globalCuttingBoardWeights {
-    id
-    amount
-    vault {
-      id
-      stakingToken {
-        id
-      }
-    }
+  globalRewardAllocations {
+    ...GlobalRewardAllocation
   }
   globalInfos {
-    totalBgtStaked
-    rewardRate
-    baseRewardRate
+    ...GlobalInfo
   }
 }
 query GetRewardVault($stakingToken: String) {
   vaults(first: 1, where: { stakingToken: $stakingToken }) {
-    stakingToken {
-      address
-      beraValue
-      decimals
-      id
-      name
-      symbol
-      usdValue
-    }
-    vaultAddress
-    stakingTokenAmount
-    id
-    activeIncentivesValueUsd
+    ...VaultWithStakingToken
   }
 }
