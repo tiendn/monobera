@@ -29,6 +29,7 @@ export interface BeraConfig {
     lendUIDataProviderAddress?: Address;
     lendRewardsAggregatorAddress?: Address;
     honeyFactoryAddress?: Address;
+    honeyFactoryReaderAddress?: Address;
     perpsTradingContractAddress?: Address;
     governance?: {
       governor: Address;

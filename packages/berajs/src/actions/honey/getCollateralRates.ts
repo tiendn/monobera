@@ -38,13 +38,13 @@ export const getCollateralRates = async ({
       calls.push({
         address: config.contracts!.honeyFactoryAddress,
         abi: honeyFactoryAbi,
-        functionName: "mintRate",
+        functionName: "mintRates",
         args: [collateral],
       });
       calls.push({
         address: config.contracts!.honeyFactoryAddress,
         abi: honeyFactoryAbi,
-        functionName: "redeemRate",
+        functionName: "redeemRates",
         args: [collateral],
       });
     });
@@ -71,6 +71,7 @@ export const getCollateralRates = async ({
         }
       }
     });
+
     return obj;
   } catch (e) {
     console.log(e);

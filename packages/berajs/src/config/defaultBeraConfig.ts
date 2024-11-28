@@ -6,6 +6,7 @@ import {
   governanceTimelockAddress,
   governorAddress,
   honeyFactoryAddress,
+  honeyFactoryReaderAddress,
   honeySubgraphUrl,
   lendOracleAddress,
   lendPoolAddressProviderAddress,
@@ -49,6 +50,7 @@ export const defaultBeraConfig: BeraConfig = {
     lendUIDataProviderAddress: lendUIDataProviderAddress,
     lendRewardsAggregatorAddress: lendRewardsAddress,
     honeyFactoryAddress: honeyFactoryAddress,
+    honeyFactoryReaderAddress: honeyFactoryReaderAddress,
     perpsTradingContractAddress: tradingContractAddress,
     governance: {
       governor: governorAddress,

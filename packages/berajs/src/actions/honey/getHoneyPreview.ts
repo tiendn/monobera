@@ -43,7 +43,7 @@ export const getHoneyPreview = async ({
     }
 
     const result = (await client.readContract({
-      address: config.contracts.honeyFactoryAddress as Address,
+      address: config.contracts.honeyFactoryReaderAddress as Address,
       abi: honeyFactoryReaderAbi,
       functionName: method,
       args: [collateral.address, formattedAmount],
