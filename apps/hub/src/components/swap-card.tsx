@@ -403,7 +403,10 @@ export function SwapCard({
                 functionName: decodedData.functionName,
                 params: decodedData.args,
                 value: calldata.value,
-              } as IContractWrite<typeof balancerVaultAbi, typeof decodedData.functionName>);
+              } as IContractWrite<
+                typeof balancerVaultAbi,
+                typeof decodedData.functionName
+              >);
             }}
             isLoading={isLoading}
             minAmountOut={minAmountOut ?? "n/a"}
