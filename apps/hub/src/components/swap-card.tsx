@@ -197,10 +197,18 @@ export function SwapCard({
     actionType: TransactionActionType.SWAP,
     message: `Swap ${selectedFrom?.symbol} to ${selectedTo?.symbol}`,
     onSuccess: () => {
-      track("swap_token_success", {
-        tokenFrom: selectedFrom?.symbol,
-        tokenTo: selectedTo?.symbol,
-      });
+      if (!selectedFrom?.symbol || !selectedTo?.symbol) {
+        captureException(new Error("swap_token_with_unknown_symbols"));
+      } else if (!fromAmount || !toAmount) {
+        captureException(new Error("swap_token_with_unknown_amounts"));
+      } else {
+        track(`swap_${selectedFrom.symbol}`, {
+          tokenFrom: selectedFrom.symbol,
+          tokenTo: selectedTo.symbol,
+          fromAmount: fromAmount,
+          toAmount: toAmount,
+        });
+      }
       setFromAmount(undefined);
       setSwapAmount("");
       setToAmount(undefined);
@@ -395,10 +403,7 @@ export function SwapCard({
                 functionName: decodedData.functionName,
                 params: decodedData.args,
                 value: calldata.value,
-              } as IContractWrite<
-                typeof balancerVaultAbi,
-                typeof decodedData.functionName
-              >);
+              } as IContractWrite<typeof balancerVaultAbi, typeof decodedData.functionName>);
             }}
             isLoading={isLoading}
             minAmountOut={minAmountOut ?? "n/a"}

@@ -1,10 +1,12 @@
 "use client";
+
 import React, { useEffect, type PropsWithChildren } from "react";
-import { BeraWagmi } from "@bera/wagmi";
-import { ThemeProvider } from "~/components/theme-provider";
 import { BeraJsProvider, BlockTimeProvider } from "@bera/berajs";
-import { PostHogProvider } from "posthog-js/react";
+import { BeraWagmi } from "@bera/wagmi";
 import posthog from "posthog-js";
+import { PostHogProvider } from "posthog-js/react";
+
+import { ThemeProvider } from "~/components/theme-provider";
 
 export default function Providers({ children }: PropsWithChildren<any>) {
   useEffect(() => {
