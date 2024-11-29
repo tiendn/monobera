@@ -15,3 +15,4 @@ export { usePollIncentivesInfo } from "./usePollIncentivesInfo";
 export { useClaimableFees } from "./useClaimableFees";
 export * from "./useBgtInflation";
 export * from "./useIsFriendOfTheChef";
+export * from "./useRewardVault";
