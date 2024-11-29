@@ -1,3 +1,5 @@
+import { chainId } from "@bera/config";
+
 import { BeraConfig } from "../../types";
 import { Token } from "../../types/dex";
 
@@ -46,13 +48,19 @@ export const getTokens = async ({
         featuredTokenList: [],
         tokenDictionary: {},
       };
-    const defaultList = temp.tokens.map((token: any) => {
-      return { ...token, default: true };
-    });
+    const defaultList = temp.tokens
+      .filter(
+        (token: any) =>
+          !token.chainId || Number(token.chainId) === Number(chainId),
+      )
+      .map((token: any) => {
+        return { ...token, default: true };
+      });
 
-    const defaultFeaturedList = temp.tokens
+    const isFeatured = (tag: string) => tag === "featured";
+
+    const defaultFeaturedList = defaultList
       .filter((token: any) => {
-        const isFeatured = (tag: string) => tag === "featured";
         return token.tags.some(isFeatured);
       })
       .map((token: any) => {
@@ -65,6 +73,8 @@ export const getTokens = async ({
       (item, index) =>
         list.findIndex((i) => i.address === item.address) === index,
     );
+
+    console.log({ uniqueList, temp, defaultList, defaultFeaturedList });
 
     return {
       tokenList: uniqueList,
