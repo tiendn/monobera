@@ -47,7 +47,8 @@ query GetValidatorBgtStaked($address: Bytes!, $timestamp: Timestamp!) {
 fragment BlockRewardStatsByValidator on BlockRewardStatsByValidator {
   timestamp
   # rewardRate
-  commissionRate
+  # commissionRate
+
   validator {
     ...ValidatorMinimal
   }
