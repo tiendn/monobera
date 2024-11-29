@@ -70,6 +70,10 @@
       "types": "./dist/actions/index.d.ts",
       "import": "./dist/actions/index.js"
     },
+    "./abi": {
+      "types": "./dist/abi/index.d.ts",
+      "import": "./dist/abi/index.js"
+    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js"

@@ -22,7 +22,7 @@ export const getIncentivesInfo = async (
       abi: BERA_VAULT_REWARDS_ABI,
       functionName: "incentives",
       args: [token],
-    })) as [bigint, bigint, bigint];
+    })) as [bigint, bigint, bigint, Address]; // TODO: Check if address is now being used. Was updated in new abi
     return {
       minIncentiveRate: result[0],
       incentiveRate: result[1],

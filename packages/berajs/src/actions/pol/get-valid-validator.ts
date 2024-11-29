@@ -1,6 +1,7 @@
 import { bgtClient } from "@bera/graphql";
 import {
   GetValidValidator,
+  GetValidatorBgtBoostQueryVariables,
   type GetValidValidatorQuery,
 } from "@bera/graphql/pol";
 import { isAddress, type Address } from "viem";
@@ -19,7 +20,10 @@ export const getValidValidator = async ({
       throw new Error("pol subgraph uri is not found in config");
     }
 
-    const result = await bgtClient.query<GetValidValidatorQuery>({
+    const result = await bgtClient.query<
+      GetValidValidatorQuery,
+      GetValidatorBgtBoostQueryVariables
+    >({
       query: GetValidValidator,
       variables: { address: address.toLowerCase() },
     });

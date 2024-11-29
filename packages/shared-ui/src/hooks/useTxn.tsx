@@ -51,8 +51,10 @@ interface IUseTxn {
 interface UseTxnApi {
   write<
     TAbi extends Abi | any[] = Abi,
-    TFunctionName extends
-      ContractFunctionName<TAbi> = ContractFunctionName<TAbi>,
+    TFunctionName extends ContractFunctionName<
+      TAbi,
+      "payable" | "nonpayable"
+    > = ContractFunctionName<TAbi>,
   >(props: IContractWrite<TAbi, TFunctionName>): void;
   fundWrite: (props: IValueSend) => void;
   isLoading: boolean;

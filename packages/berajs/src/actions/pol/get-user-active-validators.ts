@@ -2,6 +2,7 @@ import { polEndpointUrl } from "@bera/config";
 import { bgtClient } from "@bera/graphql";
 import {
   GetUserValidatorInformation,
+  GetUserValidatorInformationQueryVariables,
   type GetUserValidatorInformationQuery,
 } from "@bera/graphql/pol";
 
@@ -24,17 +25,19 @@ export const getUserActiveValidators = async ({
     }
 
     // TODO: handle more than 1000 validators
-    const result = await bgtClient.query<GetUserValidatorInformationQuery>({
+    const result = await bgtClient.query<
+      GetUserValidatorInformationQuery,
+      GetUserValidatorInformationQueryVariables
+    >({
       query: GetUserValidatorInformation,
       variables: { address: account.toLowerCase() },
     });
 
     const url = `${polEndpointUrl}/user/${account}/validators`;
-    const validatorList = await fetch(url);
-    const formattedValidatorList: ValidatorResponse =
-      await validatorList.json();
+    const indexerRes = await fetch(url);
+    const indexerData: ValidatorResponse = await indexerRes.json();
     const validatorInfoList =
-      formattedValidatorList.userValidators.map((t) => t.validator) ?? [];
+      indexerData.userValidators.map((t) => t.validator) ?? [];
 
     const userDepositedData = result.data.userValidatorInformations;
 
@@ -44,6 +47,7 @@ export const getUserActiveValidators = async ({
           data.validator.coinbase.toLowerCase() ===
           validator.coinbase.toLowerCase(),
       );
+
       return {
         ...validator,
         amountDeposited: userDeposited?.amountDeposited ?? "0",

@@ -3,6 +3,8 @@ import { bexSubgraphClient, bgtClient } from "@bera/graphql";
 import { GetTokenInformation } from "@bera/graphql/dex/subgraph";
 import {
   GetGlobalCuttingBoard,
+  GetGlobalCuttingBoardQueryResult,
+  GetGlobalCuttingBoardQueryVariables,
   type GetGlobalCuttingBoardQuery,
 } from "@bera/graphql/pol";
 import { Address } from "viem";
@@ -53,10 +55,8 @@ export const getBgtApy = async ({
       return "0";
     });
 
-  console.log("checking123", beraHoneyPrice);
-
-  const apyInfo = await bgtClient
-    .query<GetGlobalCuttingBoardQuery>({
+  const apyInfo: GetGlobalCuttingBoardQueryResult | undefined = await bgtClient
+    .query<GetGlobalCuttingBoardQuery, GetGlobalCuttingBoardQueryVariables>({
       query: GetGlobalCuttingBoard,
     })
     .then((res: any) => {
@@ -71,14 +71,14 @@ export const getBgtApy = async ({
   if (!apyInfo) return "0";
 
   const globalRewardRate =
-    parseFloat(apyInfo.data.globalInfos?.[0].baseRewardRate ?? "0") +
-    parseFloat(apyInfo.data.globalInfos?.[0].rewardRate ?? "0");
+    parseFloat(apyInfo.data?.globalInfos?.[0].baseRewardRate ?? "0") +
+    parseFloat(apyInfo.data?.globalInfos?.[0].rewardRate ?? "0");
 
   const totalBgtStaked = parseFloat(
-    apyInfo.data.globalInfos?.[0].totalBgtStaked ?? "0",
+    apyInfo.data?.globalInfos?.[0].totalBGTStaked ?? "0",
   );
 
-  const selectedCuttingBoard = apyInfo.data.globalCuttingBoardWeights.find(
+  const selectedCuttingBoard = apyInfo.data?.globalRewardAllocations.find(
     (cb: any) =>
       cb.vault.stakingToken.id.toLowerCase() ===
       receiptTokenAddress.toLowerCase(),

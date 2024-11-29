@@ -273,8 +273,12 @@ export const useCreateProposal = ({
             if (!errors.vault) {
               actions[idx] = encodeFunctionData({
                 abi: BERA_CHEF_ABI,
-                functionName: "updateFriendsOfTheChef",
-                args: [action.vault!, !!action.isFriend!],
+                functionName: "setVaultWhitelistedStatus",
+                args: [
+                  action.vault!,
+                  !!action.isFriend!,
+                  action.metadata ?? "",
+                ], // TODO: A third param was added for metadata. It is optional but we should include it in our action
               });
             }
           } else if (action.type === ProposalTypeEnum.ERC20_TRANSFER) {

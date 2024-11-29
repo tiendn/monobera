@@ -1,3 +1,4 @@
+import { ValidatorStakedBgtsFragment } from "@bera/graphql/pol";
 import { Address } from "viem";
 
 import type { Token } from "./dex";
@@ -132,12 +133,10 @@ export type UserValidatorBoostDeposited = {
   user: Address;
 };
 
-export type ValidatorBgtStaked = {
-  allTimeBgtStaked: string;
-  bgtStaked: string;
-  coinbase: string;
-  timestamp: string;
-};
+/**
+ * @deprecated use ValidatorStakedBgtsFragment instead from @bera/graphql/pol
+ */
+export type ValidatorBgtStaked = ValidatorStakedBgtsFragment;
 
 export type ValidatorBgtStakedDelta = {
   amountStaked: string;
@@ -157,12 +156,6 @@ export type ValidatorUsage = {
   validator: {
     commission: string;
   };
-};
-
-export type BlockRewardStatsByValidators = {
-  timestamp: string;
-  rewardRate: string;
-  commissionRate: string;
 };
 
 export type AllTimeBlockCount = {

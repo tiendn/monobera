@@ -29,7 +29,7 @@ export const useCreateRewardVault = ({
         ? write({
             address: rewardVaultFactoryAddress,
             abi: rewardVaultFactoryAbi,
-            functionName: "createRewardsVault",
+            functionName: "createRewardVault",
             params: [tokenAddress],
           })
         : undefined,
