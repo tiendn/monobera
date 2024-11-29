@@ -1,6 +1,4 @@
-export * from "./pol/staking";
 export * from "./pol/bgt";
-export * from "./pol/rewards";
 export * from "./pol/reward-vault-factory";
 export * from "./pol/reward-vault";
 export * from "./pol/beraChef";

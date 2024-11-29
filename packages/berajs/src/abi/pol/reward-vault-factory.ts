@@ -1,34 +1,40 @@
 export const rewardVaultFactoryAbi = [
   {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "AccessControlBadConfirmation",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
-        name: "_bgt",
+        name: "account",
         type: "address",
       },
       {
-        internalType: "address",
-        name: "_distributor",
-        type: "address",
+        internalType: "bytes32",
+        name: "neededRole",
+        type: "bytes32",
       },
+    ],
+    name: "AccessControlUnauthorizedAccount",
+    type: "error",
+  },
+  {
+    inputs: [
       {
         internalType: "address",
-        name: "_berachef",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_governance",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_vaultImpl",
+        name: "target",
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    name: "AddressEmptyCode",
+    type: "error",
   },
   {
     inputs: [],
@@ -42,12 +48,7 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "BlockDoesNotExist",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BlockNotInBuffer",
+    name: "CannotRecoverIncentiveToken",
     type: "error",
   },
   {
@@ -62,7 +63,48 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "DelegateStakedOverflow",
+    name: "DepositNotMultipleOfGwei",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "DepositValueTooHigh",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "DonateAmountLessThanPayoutAmount",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
+    ],
+    name: "ERC1967InvalidImplementation",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ERC1967NonPayable",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FailedCall",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "IncentiveRateTooHigh",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "IndexOutOfRange",
     type: "error",
   },
   {
@@ -77,6 +119,11 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
+    name: "InsufficientDeposit",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "InsufficientSelfStake",
     type: "error",
   },
@@ -87,12 +134,32 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "InvalidCommission",
+    name: "InvalidActivateBoostDelay",
     type: "error",
   },
   {
     inputs: [],
-    name: "InvalidCuttingBoardWeights",
+    name: "InvalidBaseRate",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidBoostMultiplier",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidCredentialsLength",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidDropBoostDelay",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidInitialization",
     type: "error",
   },
   {
@@ -102,7 +169,42 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "InvalidMinter",
+    name: "InvalidMinBoostedRewardRate",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidProof",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidPubKeyLength",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidRewardAllocationWeights",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidRewardConvexity",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidRewardRate",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidRewardVaultAddress",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidSignatureLength",
     type: "error",
   },
   {
@@ -112,22 +214,27 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
+    name: "InvalidateDefaultRewardAllocation",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "InvariantCheckFailed",
     type: "error",
   },
   {
     inputs: [],
-    name: "MaxNumWeightsPerCuttingBoardIsZero",
+    name: "MaxNumWeightsPerRewardAllocationIsZero",
     type: "error",
   },
   {
     inputs: [],
-    name: "NoWhitelistedTokens",
+    name: "MinIncentiveRateIsZero",
     type: "error",
   },
   {
     inputs: [],
-    name: "NotActionableBlock",
+    name: "NotAContract",
     type: "error",
   },
   {
@@ -162,7 +269,17 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
+    name: "NotEnoughBoostedBalance",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NotEnoughTime",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotFactoryVault",
     type: "error",
   },
   {
@@ -172,12 +289,22 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "NotFriendOfTheChef",
+    name: "NotGovernance",
     type: "error",
   },
   {
     inputs: [],
-    name: "NotGovernance",
+    name: "NotIncentiveManager",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotInitializing",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotNewOperator",
     type: "error",
   },
   {
@@ -187,39 +314,17 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "NotProver",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "NotRootFollower",
     type: "error",
   },
   {
     inputs: [],
-    name: "NotValidatorOrOperator",
+    name: "NotWhitelistedVault",
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-    ],
-    name: "OwnableInvalidOwner",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "OwnableUnauthorizedAccount",
+    inputs: [],
+    name: "OperatorAlreadySet",
     type: "error",
   },
   {
@@ -229,17 +334,12 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "PayoutTokenIsZero",
+    name: "RewardAllocationAlreadyQueued",
     type: "error",
   },
   {
     inputs: [],
-    name: "QueuedCuttingBoardNotFound",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "QueuedCuttingBoardNotReady",
+    name: "RewardAllocationBlockDelayTooLarge",
     type: "error",
   },
   {
@@ -249,7 +349,17 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
+    name: "RewardsDurationIsZero",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "StakeAmountIsZero",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TimestampAlreadyProcessed",
     type: "error",
   },
   {
@@ -273,14 +383,19 @@ export const rewardVaultFactoryAbi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "UUPSUnauthorizedCallContext",
+    type: "error",
+  },
+  {
     inputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: "bytes32",
+        name: "slot",
+        type: "bytes32",
       },
     ],
-    name: "Unauthorized",
+    name: "UUPSUnsupportedProxiableUUID",
     type: "error",
   },
   {
@@ -299,22 +414,133 @@ export const rewardVaultFactoryAbi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "ZeroOperatorOnFirstDeposit",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ZeroPercentageWeight",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "version",
+        type: "uint64",
+      },
+    ],
+    name: "Initialized",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousAdminRole",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newAdminRole",
+        type: "bytes32",
+      },
+    ],
+    name: "RoleAdminChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleGranted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleRevoked",
+    type: "event",
+  },
+  {
     anonymous: false,
     inputs: [
       {
         indexed: true,
         internalType: "address",
-        name: "previousOwner",
+        name: "oldVaultImpl",
         type: "address",
       },
       {
         indexed: true,
         internalType: "address",
-        name: "newOwner",
+        name: "newVaultImpl",
         type: "address",
       },
     ],
-    name: "OwnershipTransferred",
+    name: "UpdateRewardVaultImplementation",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
+    ],
+    name: "Upgraded",
     type: "event",
   },
   {
@@ -335,6 +561,45 @@ export const rewardVaultFactoryAbi = [
     ],
     name: "VaultCreated",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "DEFAULT_ADMIN_ROLE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "UPGRADE_INTERFACE_VERSION",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "VAULT_MANAGER_ROLE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
@@ -370,20 +635,7 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "beacon",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "berachef",
+    name: "beaconDepositContract",
     outputs: [
       {
         internalType: "address",
@@ -415,7 +667,7 @@ export const rewardVaultFactoryAbi = [
         type: "address",
       },
     ],
-    name: "createRewardsVault",
+    name: "createRewardVault",
     outputs: [
       {
         internalType: "address",
@@ -442,6 +694,25 @@ export const rewardVaultFactoryAbi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+    ],
+    name: "getRoleAdmin",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "stakingToken",
         type: "address",
@@ -459,16 +730,78 @@ export const rewardVaultFactoryAbi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "owner",
-    outputs: [
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
       {
         internalType: "address",
-        name: "",
+        name: "account",
         type: "address",
       },
     ],
+    name: "grantRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "hasRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_bgt",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_distributor",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_beaconDepositContract",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_governance",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_vaultImpl",
+        type: "address",
+      },
+    ],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -479,7 +812,7 @@ export const rewardVaultFactoryAbi = [
         type: "address",
       },
     ],
-    name: "predictRewardsVaultAddress",
+    name: "predictRewardVaultAddress",
     outputs: [
       {
         internalType: "address",
@@ -492,7 +825,49 @@ export const rewardVaultFactoryAbi = [
   },
   {
     inputs: [],
-    name: "renounceOwnership",
+    name: "proxiableUUID",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "callerConfirmation",
+        type: "address",
+      },
+    ],
+    name: "renounceRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRole",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -501,13 +876,63 @@ export const rewardVaultFactoryAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "newOwner",
+        name: "_vaultImpl",
         type: "address",
       },
     ],
-    name: "transferOwnership",
+    name: "setRewardVaultImplementation",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "interfaceId",
+        type: "bytes4",
+      },
+    ],
+    name: "supportsInterface",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newImplementation",
+        type: "address",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "vaultImpl",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ] as const;
