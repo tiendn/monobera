@@ -180,6 +180,11 @@ export const governanceTokenAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TOKEN_ADDRESS as Address;
 export const governanceTimelockAddress = process.env
   .NEXT_PUBLIC_GOVERNANCE_TIMELOCK_ADDRESS as Address;
+/**
+ * If true, governance is successful if quorum was reached despite the voting period
+ */
+export const governanceAccelerateProposal = process.env
+  .NEXT_PUBLIC_GOVERNANCE_ACCELERATE_PROPOSAL as Address;
 
 // Balancer
 export const balancerVaultAddress = process.env
