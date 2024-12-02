@@ -15,6 +15,7 @@ export interface ValidatorInfo {
 export type Validator = {
   id: Address;
   coinbase: Address;
+  operator: Address;
   commission: number;
   amountStaked: string;
   amountQueued: string;

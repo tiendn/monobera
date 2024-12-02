@@ -170,6 +170,8 @@ export const beraChefAddress = process.env
   .NEXT_PUBLIC_BERA_CHEF_ADDRESS as Address;
 export const rewardVaultFactoryAddress = process.env
   .NEXT_PUBLIC_REWARD_VAULT_FACTORY_ADDRESS as Address;
+export const depositContractAddress = process.env
+  .NEXT_PUBLIC_DEPOSIT_CONTRACT_ADDRESS as Address;
 
 // Governance
 export const governorAddress = process.env
