@@ -5,8 +5,8 @@ dotenv.config({
   path: ["../../.env.local", "../../.env"],
 });
 
-export const getEndpointsMap = () =>
-  [
+export const getEndpointsMap = () => {
+  const endpoints = [
     ["governance", process.env.NEXT_PUBLIC_GOVERNANCE_SUBGRAPH_URL],
     ["chain", process.env.NEXT_PUBLIC_CHAIN_BLOCKS_SUBGRAPH_URL],
     ["pol", process.env.NEXT_PUBLIC_POL_SUBGRAPH_URL],
@@ -14,24 +14,24 @@ export const getEndpointsMap = () =>
     ["dex/api", process.env.NEXT_PUBLIC_BALANCER_API_URL],
   ] as const;
 
-export const endpointsMap = getEndpointsMap();
+  for (const endpoint of endpoints) {
+    if (!endpoint[1]) {
+      console.error(
+        `GraphQL schema URL for ${endpoint[0]} is not defined in the environment variables.`,
+      );
+    }
+  }
 
-// endpointsMap.forEach((e) => {
-//   if (!e[1]) {
-//     throw new Error(
-//       `GraphQL schema URL for ${e[0]} is not defined in the environment variables.`,
-//     );
-//   }
-// });
+  return endpoints;
+};
+
+export const endpointsMap = getEndpointsMap();
 
 const config: CodegenConfig = {
   overwrite: true,
   generates: endpointsMap.reduce<CodegenConfig["generates"]>(
     (acc, [entry, url]) => {
       if (!url) {
-        console.error(
-          `GraphQL schema URL for ${entry} is not defined in the environment variables.`,
-        );
         return acc;
       }
 

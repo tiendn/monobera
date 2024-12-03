@@ -374,8 +374,8 @@ export default function PoolPageContent({
                 )}
               </CardContent>
             </Card>
-            {didUserDeposit ? (
-              rewardVault && rewardVault.address !== ADDRESS_ZERO ? (
+            {rewardVault && rewardVault.address !== ADDRESS_ZERO ? (
+              didUserDeposit ? (
                 <>
                   <Card>
                     <CardContent className="p-4">
@@ -480,13 +480,13 @@ export default function PoolPageContent({
                     </CardContent>
                   </Card>
                 </>
-              ) : (
-                <PoolCreateRewardVault
-                  onSuccess={() => refreshRewardVault()}
-                  address={pool?.address as Address}
-                />
-              )
-            ) : null}
+              ) : null
+            ) : (
+              <PoolCreateRewardVault
+                onSuccess={() => refreshRewardVault()}
+                address={pool?.address as Address}
+              />
+            )}
           </div>
         )}
         <div className="grid grid-cols-1 lg:col-span-7 lg:col-start-1 auto-rows-auto gap-4">

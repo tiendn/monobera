@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import {
-  honeyRouterAbi,
+  honeyFactoryAbi,
   TransactionActionType,
   truncateHash,
 } from "@bera/berajs";
-import { honeyRouterAddress } from "@bera/config";
+import { honeyFactoryAddress } from "@bera/config";
 import {
   ConnectButton,
   SSRSpinner,
@@ -199,7 +199,7 @@ export function HoneyMachine() {
       abi: erc20Abi as unknown as (typeof erc20Abi)[],
       functionName: "approve",
       params: [
-        honeyRouterAddress,
+        honeyFactoryAddress,
         parseUnits(
           `${fromAmount ?? "0"}` as `${number}`,
           selectedFrom?.decimals ?? 18,
@@ -210,18 +210,18 @@ export function HoneyMachine() {
 
   const performMinting = () =>
     write({
-      address: honeyRouterAddress,
-      abi: honeyRouterAbi,
+      address: honeyFactoryAddress,
+      abi: honeyFactoryAbi,
       functionName: "mint",
-      params: payload,
+      params: payload!,
     });
 
   const performRedeeming = () =>
     write({
-      address: honeyRouterAddress,
-      abi: honeyRouterAbi,
+      address: honeyFactoryAddress,
+      abi: honeyFactoryAbi,
       functionName: "redeem",
-      params: payload,
+      params: payload!,
     });
 
   return (

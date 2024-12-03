@@ -1,11 +1,11 @@
 import React from "react";
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getGauge } from "@bera/berajs/actions";
 import { isIPFS } from "@bera/config";
-import { Address, isAddress } from "viem";
-
+import { Address, createPublicClient, http, isAddress } from "viem";
 import { GaugeDetails } from "./components/gauge-details";
+import { defaultBeraNetworkConfig } from "@bera/wagmi/config";
+import { BERA_VAULT_REWARDS_ABI } from "@bera/berajs/abi";
 
 export function generateMetadata(): Metadata {
   return {
@@ -28,10 +28,21 @@ export default async function PoolPage({
     console.error("Invalid gauge address", params.gaugeAddress);
     notFound();
   }
-  const gauge = await getGauge(params.gaugeAddress);
 
-  if (!gauge) {
-    console.error("gauge not found", gauge);
+  const publicClient = createPublicClient({
+    // @ts-ignore viem types
+    chain: defaultBeraNetworkConfig.chain,
+    transport: http(),
+  });
+
+  const stakeToken = await publicClient.readContract({
+    address: params.gaugeAddress,
+    abi: BERA_VAULT_REWARDS_ABI,
+    functionName: "stakeToken",
+  });
+
+  if (!stakeToken) {
+    console.error("Factory address not found, so vault is invalid", stakeToken);
     notFound();
   }
 

@@ -24,7 +24,7 @@ export const UnDelegateContent = ({
   userValidator: UserValidator;
   setIsValidatorDataLoading: (loading: boolean) => void;
 }) => {
-  const { isConnected } = useBeraJs();
+  const { isConnected, account } = useBeraJs();
   const { theme, systemTheme } = useTheme();
   const t = theme === "system" ? systemTheme : theme;
 
@@ -98,6 +98,7 @@ export const UnDelegateContent = ({
           <Button
             className="w-full"
             disabled={
+              !account || // no account connected
               !userValidator || // no validator selected
               isUnbondLoading || // unbond action processing
               Number(amount) > Number(bgtDelegated) ||
@@ -108,7 +109,7 @@ export const UnDelegateContent = ({
               unbondWrite({
                 address: bgtTokenAddress,
                 abi: BGT_ABI,
-                functionName: "dropBoost",
+                functionName: "queueDropBoost",
                 params: [
                   userValidator.coinbase as Address,
                   parseUnits(amount ?? "0", 18),

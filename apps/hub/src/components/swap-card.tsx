@@ -42,7 +42,14 @@ import { Button } from "@bera/ui/button";
 import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { SwapBuildOutputExactIn } from "@berachain-foundation/berancer-sdk";
-import { decodeFunctionData, formatUnits, isAddress, parseUnits } from "viem";
+import {
+  ContractFunctionArgs,
+  ContractFunctionName,
+  decodeFunctionData,
+  formatUnits,
+  isAddress,
+  parseUnits,
+} from "viem";
 
 import { WRAP_TYPE, useSwap } from "~/hooks/useSwap";
 import { SwapCardHeader } from "./swap-card-header";
@@ -390,16 +397,20 @@ export function SwapCard({
                 abi: balancerVaultAbi,
                 data: calldata.callData,
               });
+
               write({
                 address: calldata.to,
                 abi: balancerVaultAbi,
-                functionName: decodedData.functionName,
-                params: decodedData.args,
+                functionName: decodedData.functionName as ContractFunctionName<
+                  typeof balancerVaultAbi,
+                  "payable" | "nonpayable"
+                >,
+                params: decodedData.args as ContractFunctionArgs<
+                  typeof balancerVaultAbi,
+                  "payable" | "nonpayable"
+                >,
                 value: calldata.value,
-              } as IContractWrite<
-                typeof balancerVaultAbi,
-                typeof decodedData.functionName
-              >);
+              });
             }}
             isLoading={isLoading}
             minAmountOut={minAmountOut ?? "n/a"}

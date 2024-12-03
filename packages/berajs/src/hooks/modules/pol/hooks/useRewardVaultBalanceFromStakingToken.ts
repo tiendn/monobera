@@ -44,7 +44,7 @@ export const useRewardVaultBalanceFromStakingToken = ({
         client?.readContract({
           address: beraChefAddress,
           abi: BERA_CHEF_ABI,
-          functionName: "isFriendOfTheChef",
+          functionName: "isWhitelistedVault",
           args: [rewardVaultAddress!],
         }),
         account

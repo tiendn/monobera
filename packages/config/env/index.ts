@@ -100,8 +100,10 @@ export const multicallCreationBlock = process.env
 export const honeyAddress = process.env.NEXT_PUBLIC_HONEY_ADDRESS as Address;
 export const rewardsAddress = process.env
   .NEXT_PUBLIC_REWARDS_ADDRESS as Address;
-export const honeyRouterAddress = process.env
-  .NEXT_PUBLIC_HONEY_ROUTER_ADDRESS as Address;
+export const honeyFactoryAddress = process.env
+  .NEXT_PUBLIC_HONEY_FACTORY_ADDRESS as Address;
+export const honeyFactoryReaderAddress = process.env
+  .NEXT_PUBLIC_HONEY_FACTORY_READER as Address;
 export const lendPoolImplementationAddress = process.env
   .NEXT_PUBLIC_LEND_POOL_IMPLEMENTATION_ADDRESS as Address;
 export const lendOracleAddress = process.env

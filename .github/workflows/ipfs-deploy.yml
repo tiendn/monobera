@@ -1,8 +1,8 @@
 name: Deploy on Fleek
 
 on:
-  push:
-    branches: [ "v2" ]
+  # push:
+  #   branches: [ "v2" ]
   workflow_dispatch:
 
 jobs:  
@@ -32,14 +32,11 @@ jobs:
         node-version: 18.18.2        
         cache: 'pnpm'
 
-    - name: Install dependencies
-      run: pnpm install
+    - name: Install
+      run: bash ./.scripts/vercel-install.sh ${{ secrets.ENV_NAME }}
 
     - name: Install Fleek CLI
       run: pnpm i -g @fleek-platform/cli@3.5.2
-
-    - name: Set environment variables
-      run: pnpm setenv:bartio
       
     - name: Build all projects
       env:

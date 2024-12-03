@@ -10,8 +10,6 @@ import ValidatorsTable from "./components/validators-table";
 import Validator from "./validator/validator";
 
 export default function Validators() {
-  const searchParams = useSearchParams();
-
   return (
     <div className="flex flex-col gap-16">
       <ValidatorBanner />

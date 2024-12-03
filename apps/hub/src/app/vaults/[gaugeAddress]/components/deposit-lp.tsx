@@ -7,6 +7,7 @@ import {
   usePollWalletBalances,
   usePollAllowance,
   usePollVaultsInfo,
+  RewardVault,
 } from "@bera/berajs";
 import {
   ActionButton,
@@ -20,10 +21,10 @@ import { parseUnits } from "viem";
 
 export const DepositLP = ({
   lpToken,
-  gauge,
+  rewardVault,
 }: {
   lpToken: Token;
-  gauge: Gauge;
+  rewardVault: RewardVault;
 }) => {
   const { useSelectedWalletBalance } = usePollWalletBalances({
     externalTokenList: [lpToken],
@@ -35,7 +36,7 @@ export const DepositLP = ({
     BigNumber(depositAmount).lte(balance?.formattedBalance ?? "0");
 
   const { refresh } = usePollVaultsInfo({
-    vaultAddress: gauge.vaultAddress,
+    vaultAddress: rewardVault.address,
   });
 
   const { write, ModalPortal } = useTxn({
@@ -47,7 +48,7 @@ export const DepositLP = ({
   });
 
   const { data: allowance } = usePollAllowance({
-    spender: gauge.vaultAddress,
+    spender: rewardVault.address,
     token: lpToken,
   });
 
@@ -85,7 +86,7 @@ export const DepositLP = ({
         !exceeding ? (
           <ApproveButton
             token={lpToken}
-            spender={gauge.vaultAddress}
+            spender={rewardVault.address}
             amount={parseUnits(depositAmount, lpToken.decimals)}
           />
         ) : (
@@ -94,7 +95,7 @@ export const DepositLP = ({
             disabled={!validAmount || exceeding}
             onClick={() =>
               write({
-                address: gauge.vaultAddress,
+                address: rewardVault.address,
                 abi: BERA_VAULT_REWARDS_ABI,
                 functionName: "stake",
                 params: [parseUnits(depositAmount, lpToken.decimals)],

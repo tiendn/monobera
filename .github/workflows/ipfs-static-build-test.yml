@@ -27,12 +27,9 @@ jobs:
       with:
         node-version: 18.18.2
         cache: 'pnpm'
-
-    - name: Install dependencies
-      run: pnpm install
       
-    - name: Set environment variables
-      run: pnpm setenv:bartio
+    - name: Install
+      run: bash ./.scripts/vercel-install.sh ${{ secrets.ENV_NAME }}
 
     - name: Build all projects
       env: 

@@ -1,6 +1,7 @@
 import { bgtClient } from "@bera/graphql";
 import {
   GetAllValidators,
+  GetAllValidatorsQueryVariables,
   type GetAllValidatorsQuery,
 } from "@bera/graphql/pol";
 
@@ -16,7 +17,10 @@ export const getAllValidators = async ({
       throw new Error("pol subgraph uri is not found in config");
     }
 
-    const result = await bgtClient.query<GetAllValidatorsQuery>({
+    const result = await bgtClient.query<
+      GetAllValidatorsQuery,
+      GetAllValidatorsQueryVariables
+    >({
       query: GetAllValidators,
     });
 
