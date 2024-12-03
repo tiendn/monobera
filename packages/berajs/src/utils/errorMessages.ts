@@ -769,6 +769,11 @@ const errorMsgMap: ErrorMessages = {
       keywords: ["BAL#999"],
       errorMSG: "An unexpected error occurred. (BEX#999)",
     },
+    // SoR swap paths
+    NO_SWAP_PATHS: {
+      keywords: ["No swap paths returned"],
+      errorMSG: "No swap paths were found to make this swap.",
+    },
   },
   LEND: {
     PRICE_FLUCTUATION: {
@@ -946,14 +951,12 @@ export const tryMatchBalancerErrorCode = (
 };
 
 export const getErrorMessage = (e: any): string => {
-  // Extract error message from different levels of the error object
-  let errorMsgDetails = "";
+  let errorMsgDetails = e.message || "";
 
-  for (const key in e) {
-    if (e[key]) {
-      errorMsgDetails += `${key}: ${String(e[key])}, `;
-    }
-  }
+  // Normalize message for matching
+  errorMsgDetails = errorMsgDetails.trim().toLowerCase();
+
+  // Check against defined categories
   for (const category in errorMsgMap) {
     if (
       category !== "GENERAL_ERROR" &&
@@ -964,7 +967,7 @@ export const getErrorMessage = (e: any): string => {
         const errorType = errors[type];
         if (
           errorType?.keywords.some((keyword) =>
-            errorMsgDetails.includes(keyword),
+            errorMsgDetails.includes(keyword.toLowerCase().trim()),
           )
         ) {
           return errorType.errorMSG;

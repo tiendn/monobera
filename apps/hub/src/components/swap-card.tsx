@@ -644,7 +644,7 @@ export function SwapCard({
                     <Alert variant="destructive">
                       <AlertTitle>Error</AlertTitle>
                       <AlertDescription className="text-xs">
-                        {`Swap query failed: ${getErrorMessage(error)}`}
+                        {getErrorMessage(error)}
                       </AlertDescription>
                     </Alert>
                   )}
