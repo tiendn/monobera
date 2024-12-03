@@ -279,6 +279,7 @@ export default function CreatePageContent() {
     isLoading: isLoadingCreatePoolTx,
     isSubmitting: isSubmittingCreatePoolTx,
     isSuccess: isSuccessCreatePoolTx,
+    reset: resetCreatePoolTx,
   } = useTxn({
     message: `Create pool ${poolName}`,
     onSuccess: async (txHash) => {
@@ -317,8 +318,9 @@ export default function CreatePageContent() {
       setInvalidAddressErrorMessage(null);
       setPoolId("");
       resetWeights(DEFAULT_WEIGHTS);
+      resetCreatePoolTx();
     }
-  }, [isPreviewOpen]);
+  }, [isPreviewOpen, isSuccessCreatePoolTx]);
 
   // Determine if there are any liquidity mismatches in the pool (supply imbalances in terms of pool weights)
   const liquidityMismatchInfo = useLiquidityMismatch({
