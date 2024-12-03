@@ -772,7 +772,7 @@ const errorMsgMap: ErrorMessages = {
     // SoR swap paths
     NO_SWAP_PATHS: {
       keywords: ["No swap paths returned"],
-      errorMSG: "No swap paths were found to make this swap.",
+      errorMSG: "No swap paths were found.",
     },
   },
   LEND: {
