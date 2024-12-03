@@ -4,7 +4,7 @@ fragment ValidatorMinimal on Validator {
 }
 
 query GetUserValidatorInformation($address: Bytes!) {
-  userValidatorInformations(where: { user: $address }) {
+  userValidatorInformations(where: { user: $address }, first: 1000) {
     id
     amountQueued
     amountDeposited
@@ -35,6 +35,7 @@ fragment ValidatorStakedBgts on ValidatorBGTStaked {
   id
   timestamp
 }
+
 query GetValidatorBgtStaked($pubKey: String!, $timestamp: Timestamp!) {
   validatorBgtStaked: validatorBGTStakeds(
     interval: day

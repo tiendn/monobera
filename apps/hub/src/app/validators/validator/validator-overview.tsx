@@ -193,7 +193,7 @@ export const ValidatorOverview = ({ validator }: { validator: Validator }) => {
         {/* TODO: Uptime need work on beaconkit to add */}
         {/* <Uptime address={validator.id} /> */}
       </div>
-      <UserDelegation validator={validator.id} />
+      <UserDelegation validator={validator.coinbase} />
     </div>
   );
 };
