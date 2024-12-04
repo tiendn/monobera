@@ -38,7 +38,7 @@ const Content = () => {
         )}
       >
         <div className="container max-w-[1200px]">
-          <Data arcade={arcade} />
+          <Data />
           <div className="py-4">
             {arcade ? (
               <h3 className="mb-4 flex items-center gap-3 text-lg text-foregroundSecondary md:text-3xl">
@@ -67,7 +67,7 @@ const Content = () => {
 
             <HoneyChart />
           </div>
-          <HoneyTransactionsTable arcade={arcade} />
+          <HoneyTransactionsTable />
         </div>
       </div>
     </div>

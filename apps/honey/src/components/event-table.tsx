@@ -161,12 +161,10 @@ const getTokenDisplay = (event: HoneyTxn, tokenDictionary: any) => {
 export const EventTable = ({
   events,
   isLoading,
-  arcade,
 }: {
   // events: HoneyMint[] | HoneyRedemption[] ;
   events: HoneyTxn[];
   isLoading: boolean | undefined;
-  arcade: boolean;
 }) => {
   const { data: tokenData } = useTokens();
   console.log("tokenData", events);
@@ -189,14 +187,10 @@ export const EventTable = ({
           >
             Tokens
           </TableHead>
-          <TableHead
-            className={cn("hidden sm:table-cell", arcade && "text-blue-600")}
-          >
+          <TableHead className="hidden sm:table-cell text-blue-600">
             TxnHash
           </TableHead>
-          <TableHead className={cn("text-center", arcade && "text-blue-600")}>
-            Time
-          </TableHead>
+          <TableHead className="text-center text-blue-600">Time</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -205,10 +199,7 @@ export const EventTable = ({
             if (!event) return null;
             return (
               <TableRow
-                className={cn(
-                  "hover:cursor-pointer",
-                  arcade ? "hover:bg-blue-200" : "hover:bg-muted",
-                )}
+                className="hover:cursor-pointer hover:bg-blue-200"
                 key={event.id}
                 onClick={() =>
                   window.open(`${blockExplorerUrl}/tx/${event.id}`, "_blank")
