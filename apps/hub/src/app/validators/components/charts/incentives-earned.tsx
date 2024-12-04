@@ -124,7 +124,8 @@ export const IncentivesEarned = ({
             <span className="text-md font-semibold">Incentives Earned</span>
             <FormattedNumber
               value={
-                data?.validatorUsages[0]?.allTimeUsdValueTokenRewarded ?? ""
+                // @ts-expect-error
+                data?.validatorUsages.at(0)?.allTimeUsdValueTokenRewarded ?? ""
               }
               prefixText="Total: $"
               className="text-sm text-muted-foreground"

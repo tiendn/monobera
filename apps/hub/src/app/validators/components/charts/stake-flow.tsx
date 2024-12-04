@@ -136,7 +136,7 @@ export const StakeFlow = ({
                     <Cell
                       key={item.timestamp}
                       fill={
-                        Number(item.bgtStaked) > 0
+                        Number(item.BGTStaked) > 0
                           ? "hsl(142, 69%, 58%)"
                           : "hsl(0, 91%, 71%)"
                       }

@@ -30,8 +30,8 @@ export const useCollateralsRates = (
     async () => {
       if (!publicClient) throw new Error("publicClient is not defined");
       if (!config) throw new Error("missing beraConfig");
-      if (!config.contracts?.honeyRouterAddress)
-        throw new Error("missing contract address honeyRouterAddress");
+      if (!config.contracts?.honeyFactoryAddress)
+        throw new Error("missing contract address honeyFactoryAddress");
       if (!config.contracts?.multicallAddress)
         throw new Error("missing contract address multicallAddress");
       return await getCollateralRates({

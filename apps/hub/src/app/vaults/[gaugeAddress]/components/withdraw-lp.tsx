@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   BERA_VAULT_REWARDS_ABI,
   Gauge,
+  RewardVault,
   Token,
   TransactionActionType,
   usePollVaultsInfo,
@@ -14,16 +15,16 @@ import { parseUnits } from "viem";
 
 export const WithdrawLP = ({
   lpToken,
-  gauge,
+  rewardVault,
 }: {
   lpToken: Token;
-  gauge: Gauge;
+  rewardVault: RewardVault;
 }) => {
   const [withdrawAmount, setWithdrawAmount] = useState<`${number}`>("0");
   const [withdrawPercent, setWithdrawPercent] = useState<number>(0);
 
   const { data, refresh } = usePollVaultsInfo({
-    vaultAddress: gauge.vaultAddress,
+    vaultAddress: rewardVault.address,
   });
 
   const validAmount =
@@ -118,7 +119,7 @@ export const WithdrawLP = ({
           disabled={!validAmount}
           onClick={() =>
             write({
-              address: gauge.vaultAddress,
+              address: rewardVault.address,
               abi: BERA_VAULT_REWARDS_ABI,
               functionName: "withdraw",
               params: [parseUnits(withdrawAmount, lpToken.decimals)],

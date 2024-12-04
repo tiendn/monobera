@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Gauge,
+  RewardVault,
   truncateHash,
   useTokenHoneyPrice,
   type CuttingBoardWeight,
@@ -253,7 +254,7 @@ const ESTIMATED_YEARLY_BGT_GAUGE: ColumnDef<UserValidator> = {
   enableSorting: false,
 };
 
-export const getGaugeValidatorColumns = (gauge: Gauge) => {
+export const getGaugeValidatorColumns = (gauge: RewardVault) => {
   const gauge_validator_columns: ColumnDef<UserValidator>[] = [
     VALIDATOR_COLUMN,
     {
@@ -272,7 +273,8 @@ export const getGaugeValidatorColumns = (gauge: Gauge) => {
         });
 
         const cuttingBoard = row.original.cuttingBoard.weights.find(
-          (cb: any) => cb.receiver.toLowerCase() === gauge.id.toLowerCase(),
+          (cb: any) =>
+            cb.receiver.toLowerCase() === gauge.address.toLowerCase(),
         );
         if (!cuttingBoard)
           return (
@@ -324,7 +326,8 @@ export const getGaugeValidatorColumns = (gauge: Gauge) => {
         });
 
         const cuttingBoard = row.original.cuttingBoard.weights.find(
-          (cb: any) => cb.receiver.toLowerCase() === gauge.id.toLowerCase(),
+          (cb: any) =>
+            cb.receiver.toLowerCase() === gauge.address.toLowerCase(),
         );
         if (!cuttingBoard)
           return (

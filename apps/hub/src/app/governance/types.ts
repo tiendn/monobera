@@ -92,6 +92,7 @@ export type SafeProposalAction = {
       type: ProposalTypeEnum.UPDATE_REWARDS_GAUGE;
       vault: Address;
       isFriend: boolean;
+      metadata?: string | undefined;
     }
   | {
       type: ProposalTypeEnum.ERC20_TRANSFER;

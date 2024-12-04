@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { Address, PublicClient, formatUnits } from "viem";
 
-import { honeyRouterAbi } from "~/abi";
+import { honeyFactoryAbi } from "~/abi";
 import { BeraConfig } from "~/types/global";
 
 export interface CollateralRates {
@@ -28,23 +28,23 @@ export const getCollateralRates = async ({
   collateralList,
 }: collateralRatesArgs): Promise<CollateralRatesMap | undefined> => {
   try {
-    if (!config.contracts?.honeyRouterAddress)
-      throw new Error("missing contract address honeyRouterAddress");
+    if (!config.contracts?.honeyFactoryAddress)
+      throw new Error("missing contract address honeyFactoryAddress");
     if (!config.contracts?.multicallAddress)
       throw new Error("missing contract address multicallAddress");
 
     const calls: any[] = [];
     collateralList.forEach((collateral: Address) => {
       calls.push({
-        address: config.contracts!.honeyRouterAddress,
-        abi: honeyRouterAbi,
-        functionName: "getMintRate",
+        address: config.contracts!.honeyFactoryAddress,
+        abi: honeyFactoryAbi,
+        functionName: "mintRates",
         args: [collateral],
       });
       calls.push({
-        address: config.contracts!.honeyRouterAddress,
-        abi: honeyRouterAbi,
-        functionName: "getRedeemRate",
+        address: config.contracts!.honeyFactoryAddress,
+        abi: honeyFactoryAbi,
+        functionName: "redeemRates",
         args: [collateral],
       });
     });
@@ -71,6 +71,7 @@ export const getCollateralRates = async ({
         }
       }
     });
+
     return obj;
   } catch (e) {
     console.log(e);

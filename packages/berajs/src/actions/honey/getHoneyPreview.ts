@@ -1,6 +1,6 @@
 import { Address, PublicClient, formatUnits, parseUnits } from "viem";
 
-import { honeyRouterAbi } from "~/abi";
+import { honeyFactoryReaderAbi } from "~/abi";
 import { BeraConfig, Token } from "~/types";
 
 export enum HoneyPreviewMethod {
@@ -29,8 +29,8 @@ export const getHoneyPreview = async ({
   method,
 }: HoneyPreviewArgs): Promise<string | undefined> => {
   try {
-    if (!config.contracts?.honeyRouterAddress)
-      throw new Error("missing contract address honeyRouterAddress");
+    if (!config.contracts?.honeyFactoryAddress)
+      throw new Error("missing contract address honeyFactoryAddress");
 
     let formattedAmount = 0n;
     if (
@@ -43,8 +43,8 @@ export const getHoneyPreview = async ({
     }
 
     const result = (await client.readContract({
-      address: config.contracts.honeyRouterAddress as Address,
-      abi: honeyRouterAbi,
+      address: config.contracts.honeyFactoryReaderAddress as Address,
+      abi: honeyFactoryReaderAbi,
       functionName: method,
       args: [collateral.address, formattedAmount],
     })) as bigint;

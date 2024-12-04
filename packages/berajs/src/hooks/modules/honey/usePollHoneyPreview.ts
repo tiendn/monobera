@@ -29,7 +29,10 @@ export const usePollHoneyPreview = (
       ? HoneyPreviewMethod.Redeem
       : HoneyPreviewMethod.HoneyToRedeem;
 
-  const QUERY_KEY = [method, collateral?.address, amount, mint, given_in];
+  const QUERY_KEY =
+    collateral && amount && given_in
+      ? [method, collateral?.address, amount, mint, given_in]
+      : null;
   const { config: beraConfig } = useBeraJs();
   const config = options?.beraConfigOverride ?? beraConfig;
   const swrResponse = useSWR(
@@ -37,8 +40,8 @@ export const usePollHoneyPreview = (
     async () => {
       if (!publicClient) throw new Error("publicClient is not defined");
       if (!config) throw new Error("missing beraConfig");
-      if (!config.contracts?.honeyRouterAddress)
-        throw new Error("missing contract address honeyRouterAddress");
+      if (!config.contracts?.honeyFactoryAddress)
+        throw new Error("missing contract address honeyFactoryAddress");
       if (!collateral) throw new Error("invalid collateral");
       if (Number(amount) <= 0) throw new Error("invalid amount");
       return await getHoneyPreview({

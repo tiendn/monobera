@@ -11,7 +11,7 @@ import {
   useTokens,
   type Token,
 } from "@bera/berajs";
-import { honeyRouterAddress, honeyTokenAddress } from "@bera/config";
+import { honeyFactoryAddress, honeyTokenAddress } from "@bera/config";
 import { useAnalytics, useTxn } from "@bera/shared-ui";
 import BigNumber from "bignumber.js";
 import { getAddress, parseUnits, type Address } from "viem";
@@ -68,7 +68,7 @@ export const usePsm = () => {
   const { isReady, account } = useBeraJs();
 
   const { data: allowance } = usePollAllowance({
-    spender: honeyRouterAddress,
+    spender: honeyFactoryAddress,
     token: selectedFrom,
   });
 
@@ -136,14 +136,17 @@ export const usePsm = () => {
     setGivenIn(!givenIn);
   };
 
-  const payload = [
-    collateral?.address,
-    parseUnits(
-      fromAmount ?? "0",
-      (isMint ? collateral?.decimals : honey?.decimals) ?? 18,
-    ),
-    account ?? "",
-  ];
+  const payload =
+    collateral && account
+      ? ([
+          collateral?.address,
+          parseUnits(
+            fromAmount ?? "0",
+            (isMint ? collateral?.decimals : honey?.decimals) ?? 18,
+          ),
+          account ?? "",
+        ] as const)
+      : undefined;
 
   const needsApproval = BigNumber(fromAmount ?? "0").gt(
     allowance?.formattedAllowance ?? "0",

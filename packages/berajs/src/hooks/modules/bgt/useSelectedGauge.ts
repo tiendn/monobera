@@ -1,4 +1,3 @@
-import { polEndpointUrl } from "@bera/config";
 import useSWR, { mutate } from "swr";
 import { Address, isAddress } from "viem";
 
@@ -17,7 +16,7 @@ export const useSelectedGauge = (
     QUERY_KEY,
     async () => {
       if (!id || !isAddress(id)) throw new Error("Invalid address");
-      return getGauge(id);
+      return await getGauge(id);
     },
     {
       ...options?.opts,

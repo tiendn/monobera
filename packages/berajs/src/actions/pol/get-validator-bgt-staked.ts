@@ -1,6 +1,7 @@
 import { bgtClient } from "@bera/graphql";
 import {
   GetValidatorBgtStaked,
+  GetValidatorBgtStakedQueryVariables,
   type GetValidatorBgtStakedQuery,
 } from "@bera/graphql/pol";
 import { Address } from "viem";
@@ -22,7 +23,10 @@ export const getValidatorBgtStaked = async ({
       throw new Error("pol subgraph uri is not found in config");
     }
 
-    const result = await bgtClient.query<GetValidatorBgtStakedQuery>({
+    const result = await bgtClient.query<
+      GetValidatorBgtStakedQuery,
+      GetValidatorBgtStakedQueryVariables
+    >({
       query: GetValidatorBgtStaked,
       variables: {
         address: address.toLowerCase(),
