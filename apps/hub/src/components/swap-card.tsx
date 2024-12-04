@@ -209,7 +209,7 @@ export function SwapCard({
       } else if (!fromAmount || !toAmount) {
         captureException(new Error("swap_token_with_unknown_amounts"));
       } else {
-        track(`swap_${selectedFrom.symbol}`, {
+        track("swap_token", {
           tokenFrom: selectedFrom.symbol,
           tokenTo: selectedTo.symbol,
           fromAmount: fromAmount,
