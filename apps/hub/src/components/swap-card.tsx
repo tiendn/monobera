@@ -32,6 +32,7 @@ import {
   TooltipCustom,
   useAnalytics,
   useBreakpoint,
+  useDeadline,
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
@@ -92,6 +93,7 @@ export function SwapCard({
   className,
 }: ISwapCard) {
   const slippage = useSlippage();
+  const { deadline } = useDeadline();
 
   const {
     setSelectedFrom,
@@ -390,7 +392,7 @@ export function SwapCard({
             open={openPreview}
             setOpen={setOpenPreview}
             write={() => {
-              const calldata = swapInfo.buildCall(slippage ?? 0);
+              const calldata = swapInfo.buildCall(slippage ?? 0, deadline);
               // NOTE: the decode and write here is a kludge to avoid re-writing the way the balancer SDK builds txs so we can simulate
               const decodedData = decodeFunctionData({
                 abi: balancerVaultAbi,
