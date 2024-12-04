@@ -296,7 +296,11 @@ export function SwapCard({
   } = useTxn({
     message: "Redeeming BGT for BERA",
     actionType: TransactionActionType.REDEEM_BGT,
+    onError: () => {
+      captureException("swap_redeem_error");
+    },
     onSuccess: () => {
+      track("swap_redeem", { fromAmount: fromAmount, toAmount: toAmount });
       refreshBalance();
       setFromAmount("");
       setToAmount("");
