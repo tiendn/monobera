@@ -19,6 +19,7 @@ import useSWR from "swr";
 import { formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
 
+import { DEFAULT_DEADLINE } from "~/utils/constants";
 import { balancerApi, nativeToken } from "./b-sdk";
 
 type IUsePollSwapsArgs = SwapRequest;
@@ -108,7 +109,7 @@ export const usePollBalancerSwap = (
 
   const publicClient = usePublicClient();
   const { account, config: beraConfig } = useBeraJs();
-  const defaultDeadlineIn = 30; // seconds
+  const defaultDeadlineIn = DEFAULT_DEADLINE; // seconds
 
   const config = options?.beraConfigOverride ?? beraConfig;
   const QUERY_KEY =

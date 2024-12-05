@@ -185,7 +185,7 @@ export default function SwapSettings({
                     deadlineType === SELECTION.AUTO && "opacity-50",
                   )}
                 >
-                  min
+                  sec
                 </p>
               }
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

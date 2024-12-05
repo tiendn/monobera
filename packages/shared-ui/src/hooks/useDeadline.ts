@@ -23,7 +23,7 @@ export const useDeadline = () => {
       return deadline;
     }
     if (deadlineMode === TRANSACTION_MODE.INFINITY) {
-      return 100000;
+      return 100000; // seconds
     }
   }, [deadlineMode, deadline]);
 
