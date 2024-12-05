@@ -160,6 +160,7 @@ export default function WithdrawLiquidityContent({
       refresh();
     },
     onError: (e: Error | undefined) => {
+      track("pool_withdraw_failed");
       captureException(e);
     },
     actionType: TransactionActionType.WITHDRAW_LIQUIDITY,

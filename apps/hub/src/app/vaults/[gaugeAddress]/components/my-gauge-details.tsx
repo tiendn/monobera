@@ -8,7 +8,7 @@ import {
   type RewardVault,
 } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
-import { FormattedNumber, useTxn } from "@bera/shared-ui";
+import { FormattedNumber, useAnalytics, useTxn } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import BigNumber from "bignumber.js";
@@ -29,10 +29,13 @@ export const MyGaugeDetails = ({
   const { data: price } = useTokenHoneyPrice({
     tokenAddress: beraTokenAddress,
   });
+  const { captureException, track } = useAnalytics();
   const { write, ModalPortal } = useTxn({
     message: "Claim BGT Rewards",
     actionType: TransactionActionType.CLAIMING_REWARDS,
-    onSuccess: () => refresh(),
+    onSuccess: () => {
+      refresh();
+    },
   });
   return (
     <div className="flex flex-col gap-4 lg:flex-row">

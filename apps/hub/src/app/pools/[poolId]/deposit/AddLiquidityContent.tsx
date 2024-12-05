@@ -143,6 +143,7 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
       refresh();
     },
     onError: (e) => {
+      track("pool_deposit_failed");
       captureException(e);
     },
     CustomSuccessModal: pool?.address ? AddLiquiditySuccess : undefined,
