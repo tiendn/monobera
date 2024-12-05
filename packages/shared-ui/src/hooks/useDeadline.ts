@@ -13,7 +13,7 @@ export const useDeadline = () => {
     DEADLINE_TYPE,
     TRANSACTION_MODE.AUTO,
   );
-  const [deadline] = useLocalStorage<number>(DEADLINE_VALUE, DEFAULT_DEADLINE);
+  const [deadline] = useLocalStorage<number>(DEADLINE_VALUE, DEFAULT_DEADLINE); // seconds
 
   const computedDeadline = useMemo(() => {
     if (deadlineMode === TRANSACTION_MODE.AUTO) {
@@ -23,7 +23,7 @@ export const useDeadline = () => {
       return deadline;
     }
     if (deadlineMode === TRANSACTION_MODE.INFINITY) {
-      return 100000; // seconds
+      return Number.MAX_SAFE_INTEGER;
     }
   }, [deadlineMode, deadline]);
 
