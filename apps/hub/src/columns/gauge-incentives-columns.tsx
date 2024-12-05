@@ -103,7 +103,7 @@ export const gauge_incentives_columns: ColumnDef<ActiveIncentive>[] = [
 export const validator_gauge_columns: ColumnDef<ActiveIncentiveWithVault>[] = [
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gauge Vaults" />
+      <DataTableColumnHeader column={column} title="Reward Vaults" />
     ),
     cell: ({ row }) => (
       <GaugeHeaderWidget

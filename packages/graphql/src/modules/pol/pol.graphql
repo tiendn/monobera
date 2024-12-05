@@ -132,6 +132,7 @@ query GetAllValidatorBlockCount($timestamp: Timestamp) {
   ) {
     allTimeBlockCount
     validator {
+      id
       publicKey
     }
     timestamp

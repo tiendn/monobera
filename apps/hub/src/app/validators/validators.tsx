@@ -7,7 +7,6 @@ import { ValidatorBanner } from "./components/validator-banner";
 import { ValidatorGlobalInfo } from "./components/validator-global-info";
 import { ValidatorPortalStatus } from "./components/validator-portal-status";
 import ValidatorsTable from "./components/validators-table";
-import Validator from "./validator/validator";
 
 export default function Validators() {
   return (

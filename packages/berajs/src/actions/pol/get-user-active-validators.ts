@@ -44,7 +44,7 @@ export const getUserActiveValidators = async ({
     return validatorInfoList.map((validator) => {
       const userDeposited = userDepositedData.find(
         (data) =>
-          data.validator.id.toLowerCase() === validator.coinbase.toLowerCase(),
+          data.validator.id.toLowerCase() === validator.id.toLowerCase(),
       );
 
       return {

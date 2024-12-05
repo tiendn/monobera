@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Gauge,
   RewardVault,
   truncateHash,
   useTokenHoneyPrice,
@@ -33,7 +32,7 @@ const VALIDATOR_COLUMN: ColumnDef<UserValidator> = {
         imgOverride={row.original.metadata?.logoURI}
       />
       <span className="flex-grow truncate">
-        {row.original.metadata?.name ?? truncateHash(row.original.id)}
+        {row.original.metadata?.name ?? truncateHash(row.original.coinbase)}
       </span>
     </div>
   ),
@@ -174,83 +173,6 @@ const USER_QUEUED_COLUMN: ColumnDef<UserValidator> = {
   accessorKey: "amountQueued",
   sortingFn: (a, b) =>
     Number(a.original.amountQueued) - Number(b.original.amountQueued),
-  enableSorting: false,
-};
-
-const ESTIMATED_BGT_GAUGE: ColumnDef<UserValidator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader
-      column={column}
-      title="BGT Per Proposal"
-      tooltip={
-        "amount of BGT this validator is directing to this vault each proposal"
-      }
-    />
-  ),
-  cell: ({ row }) => {
-    const { data: price } = useTokenHoneyPrice({
-      tokenAddress: beraTokenAddress,
-    });
-
-    return (
-      <div className="flex flex-col gap-1">
-        <FormattedNumber
-          value={row.original.rewardRate}
-          compact
-          showIsSmallerThanMin
-          symbol="BGT"
-        />
-        <span className="text-xs text-muted-foreground">
-          <FormattedNumber
-            value={
-              parseFloat(row.original.rewardRate) * parseFloat(price ?? "0")
-            }
-            showIsSmallerThanMin
-            symbol="USD"
-          />
-        </span>
-      </div>
-    );
-  },
-  accessorKey: "rewardRate",
-  enableSorting: true,
-};
-
-const ESTIMATED_YEARLY_BGT_GAUGE: ColumnDef<UserValidator> = {
-  header: ({ column }) => (
-    <DataTableColumnHeader
-      column={column}
-      title="Estimated BGT/yr"
-      tooltip={
-        "amount of BGT this validator is directing to this vault each proposal"
-      }
-    />
-  ),
-  cell: ({ row }) => {
-    const { data: price } = useTokenHoneyPrice({
-      tokenAddress: beraTokenAddress,
-    });
-
-    const estimatedYearlyBgt = useValidatorEstimatedBgtPerYear(row.original);
-    return (
-      <div className="flex flex-col gap-1">
-        <FormattedNumber
-          value={estimatedYearlyBgt}
-          compact
-          showIsSmallerThanMin
-          symbol="BGT"
-        />
-        <span className="text-xs text-muted-foreground">
-          <FormattedNumber
-            value={estimatedYearlyBgt * parseFloat(price ?? "0")}
-            showIsSmallerThanMin
-            symbol="USD"
-          />
-        </span>
-      </div>
-    );
-  },
-  accessorKey: "yearlyBgt",
   enableSorting: false,
 };
 

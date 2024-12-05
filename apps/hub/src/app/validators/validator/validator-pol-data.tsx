@@ -11,26 +11,30 @@ export const getActiveIncentivesArray = (
   validator: Validator | undefined,
 ): ActiveIncentiveWithVault[] => {
   if (!validator) return [];
-  return validator?.activeIncentives.map((incentive: ActiveIncentive) => {
-    const vaultId = incentive.id.split("-")[0];
-    const cuttingBoard = validator?.cuttingBoard.weights.find(
-      (cb: any) => cb.receiver.toLowerCase() === vaultId.toLowerCase(),
-    );
-    if (!cuttingBoard) return;
-    return {
-      cuttingBoard: cuttingBoard,
-      token: incentive.token,
-      amountLeft: incentive.amountLeft,
-      incentiveRate: incentive.incentiveRate,
-    };
-  }) as ActiveIncentiveWithVault[];
+
+  console.log("getActiveIncentivesArray", { validator });
+
+  return [];
+  // return validator?.activeIncentives.map((incentive: ActiveIncentive) => {
+  //   const vaultId = incentive.id.split("-")[0];
+  //   const cuttingBoard = validator?.cuttingBoard.weights.find(
+  //     (cb: any) => cb.receiver.toLowerCase() === vaultId.toLowerCase(),
+  //   );
+  //   if (!cuttingBoard) return;
+  //   return {
+  //     cuttingBoard: cuttingBoard,
+  //     token: incentive.token,
+  //     amountLeft: incentive.amountLeft,
+  //     incentiveRate: incentive.incentiveRate,
+  //   };
+  // }) as ActiveIncentiveWithVault[];
 };
 export const ValidatorPolData = ({ validator }: { validator: Validator }) => {
   const {
     gaugeList,
     isLoading: isGaugeListLoading,
     isValidating: isGaugeListValidating,
-  } = usePollGauges({ validatorId: validator?.id });
+  } = usePollGauges({ validatorId: validator?.coinbase });
 
   const activeIncentivesArray: ActiveIncentiveWithVault[] =
     getActiveIncentivesArray(validator);
