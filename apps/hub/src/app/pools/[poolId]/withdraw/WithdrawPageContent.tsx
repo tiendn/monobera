@@ -20,6 +20,7 @@ import {
   TokenIcon,
   TokenList,
   TxnPreview,
+  useAnalytics,
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
@@ -143,11 +144,23 @@ export default function WithdrawLiquidityContent({
 
   const isLoading = isPoolLoading || isWithdrawLoading;
 
+  const { captureException, track } = useAnalytics();
+
   const { write, ModalPortal } = useTxn({
     message: `Withdraw liquidity from ${pool?.name}`,
     onSuccess: () => {
+      track("pool_withdraw", {
+        poolId: pool?.id,
+        poolName: pool?.name,
+        tokensOut: queryOutput?.amountsOut.map((a) => a.token.address),
+        amountsOut: queryOutput?.amountsOut.map((a) => a.amount),
+        kind,
+      });
       reset();
       refresh();
+    },
+    onError: (e: Error | undefined) => {
+      captureException(e);
     },
     actionType: TransactionActionType.WITHDRAW_LIQUIDITY,
   });
