@@ -23,6 +23,7 @@ import {
   TokenList,
   TxnPreview,
   getRewardsVaultUrl,
+  useAnalytics,
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
@@ -128,11 +129,21 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
     setInput([]);
   };
   const { refresh } = usePollWalletBalances();
+  const { captureException, track } = useAnalytics();
   const { write, ModalPortal } = useTxn({
     message: `Add liquidity to ${pool?.name}`,
     onSuccess: async () => {
+      track("pool_deposit", {
+        poolId: pool?.id,
+        poolName: pool?.name,
+        tokensIn: queryOutput?.amountsIn.map((a) => a.token.address),
+        amountsIn: queryOutput?.amountsIn.map((a) => a.amount),
+      });
       reset();
       refresh();
+    },
+    onError: (e) => {
+      captureException(e);
     },
     CustomSuccessModal: pool?.address ? AddLiquiditySuccess : undefined,
     customSuccessModalProps: pool?.address
