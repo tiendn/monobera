@@ -122,9 +122,7 @@ export const BoostQueue = ({
       {ActivateModalPortal}
       {CancelModalPortal}
       <div className="flex items-center">
-        <div className="mr-2 text-lg font-semibold leading-7">
-          Delegation Queue
-        </div>
+        <div className="mr-2 text-lg font-semibold leading-7">Queued</div>
         {isValidatorDataLoading && <Spinner size={18} color="white" />}
       </div>
 

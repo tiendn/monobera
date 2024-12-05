@@ -20,16 +20,24 @@ export const UserDelegation = ({ validator }: { validator: Address }) => {
     );
   }, [data]);
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 rounded-sm border border-border p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <div className="mr-2 text-xl font-semibold">Your Delegations</div>
+          <div className="mr-2 text-xl font-semibold">Your Boosts</div>
           {isValidatorDataLoading && <Spinner size={18} color="white" />}
         </div>
-        <DelegateModal
-          validator={validator}
-          setIsValidatorDataLoading={setIsValidatorDataLoading}
-        />
+        <div className="flex gap-2">
+          {userStaked ? (
+            <UnbondModal
+              userValidator={userStaked}
+              setIsValidatorDataLoading={setIsValidatorDataLoading}
+            />
+          ) : null}
+          <DelegateModal
+            validator={validator}
+            setIsValidatorDataLoading={setIsValidatorDataLoading}
+          />
+        </div>
       </div>
       {isLoading ? (
         <Skeleton className="h-full w-full" />
@@ -43,7 +51,7 @@ export const UserDelegation = ({ validator }: { validator: Address }) => {
             </div>
           ) : (
             <>
-              <div className="flex w-full justify-between rounded-sm border border-border p-4">
+              <div className="flex w-full justify-between">
                 <div className="font-medium leading-6">
                   <div className="flex items-center gap-1">
                     <FormattedNumber

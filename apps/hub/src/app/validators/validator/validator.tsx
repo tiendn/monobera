@@ -7,7 +7,6 @@ import { type Address } from "viem";
 
 import { ValidatorTabs } from "../components/validator-tabs";
 import ValidatorDetails from "./validator-details";
-import { useOnChainValidator } from "@bera/berajs";
 
 export default function Validator({
   validatorAddress,
@@ -15,20 +14,14 @@ export default function Validator({
   validatorAddress: Address;
 }) {
   const {
-    data: indexerValidator,
-    isLoading,
-    isValidating,
-  } = useSelectedValidator(validatorAddress);
-
-  const {
     data: validator,
     isLoading: isValidatorLoading,
     error,
   } = useValidator({ pubkey: validatorAddress });
 
-  if (!isValidatorLoading && !isValidating && !validator) return notFound();
+  if (!isValidatorLoading && !validator) return notFound();
 
-  return validator ? (
+  return validator?.operator ? (
     <>
       <div className="relative flex flex-col">
         <ValidatorDetails validator={validator} />

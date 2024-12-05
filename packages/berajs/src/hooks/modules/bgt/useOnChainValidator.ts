@@ -4,7 +4,7 @@ import {
   depositContractAddress,
 } from "@bera/config";
 import useSWR from "swr";
-import { Address } from "viem";
+import { Address, keccak256 } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { BERA_CHEF_ABI, BGT_ABI, beaconDepositAbi } from "~/abi";
@@ -43,7 +43,7 @@ export const useOnChainValidator = ({ pubkey }: { pubkey: Address }) => {
       console.log({ operator, depositCount, boostees, rewardAllocation });
 
       return {
-        id: pubkey,
+        id: keccak256(pubkey),
         coinbase: pubkey,
         amountStaked: "0",
         operator,
