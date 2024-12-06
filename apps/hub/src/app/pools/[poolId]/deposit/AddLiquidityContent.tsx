@@ -137,7 +137,14 @@ export default function AddLiquidityContent({ poolId }: IAddLiquidityContent) {
         track("pool_deposit", {
           poolId: pool?.id,
           poolName: pool?.name,
-          tokensIn: queryOutput?.amountsIn.map((a) => a.token.symbol),
+          tokensIn: queryOutput?.amountsIn.map((a) =>
+            pool?.tokens
+              ? pool.tokens.find(
+                  (t) =>
+                    t.address.toLowerCase() === a.token.address.toLowerCase(),
+                )?.symbol
+              : a.token.address,
+          ),
           amountsIn: queryOutput?.amountsIn.map((a) =>
             formatUnits(a.amount, a.token.decimals),
           ),
