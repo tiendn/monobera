@@ -153,8 +153,7 @@ export default function WithdrawLiquidityContent({
         track("pool_withdraw", {
           poolId: pool?.id,
           poolName: pool?.name,
-          tokensOut: queryOutput?.amountsOut.map((a) => a.token.address),
-          tokensOutSymbol: queryOutput?.amountsOut.map((a) => a.token.symbol),
+          tokensOut: queryOutput?.amountsOut.map((a) => a.token.symbol),
           amountsOut: queryOutput?.amountsOut.map((a) =>
             formatUnits(a.amount, a.token.decimals),
           ),
