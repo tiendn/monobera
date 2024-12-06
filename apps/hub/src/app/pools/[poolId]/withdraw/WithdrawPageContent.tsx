@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   TokenBalance,
   TransactionActionType,
@@ -13,6 +14,7 @@ import {
   gasTokenName,
   nativeTokenAddress,
 } from "@bera/config";
+import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
 import {
   ActionButton,
   FormattedNumber,
@@ -24,32 +26,30 @@ import {
   useSlippage,
   useTxn,
 } from "@bera/shared-ui";
-
+import { cn } from "@bera/ui";
+import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
+import { Button } from "@bera/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
+import { Checkbox } from "@bera/ui/checkbox";
+import { Icons } from "@bera/ui/icons";
+import { Label } from "@bera/ui/label";
+import { RadioGroup, RadioGroupItem } from "@bera/ui/radio-group";
+import { Skeleton } from "@bera/ui/skeleton";
+import { Slider } from "@bera/ui/slider";
 import {
   RemoveLiquidityKind,
   vaultV2Abi,
 } from "@berachain-foundation/berancer-sdk";
-import { cn } from "@bera/ui";
-import { Button } from "@bera/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
-import { Icons } from "@bera/ui/icons";
-import { Slider } from "@bera/ui/slider";
+import { BigNumber } from "bignumber.js";
 import { Address, formatEther, formatUnits, parseEther } from "viem";
 
-import { Skeleton } from "@bera/ui/skeleton";
-import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
-import { useRemoveLiquidity } from "./useWithdrawLiquidity";
-import { getPoolUrl } from "../../fetchPools";
-import { BigNumber } from "bignumber.js";
-import { RadioGroup, RadioGroupItem } from "@bera/ui/radio-group";
-import { Label } from "@bera/ui/label";
-import { WithdrawLiquidityDetails } from "./WithdrawLiquidityDetails";
-import { Checkbox } from "@bera/ui/checkbox";
-import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
-import Link from "next/link";
 import { nativeToken } from "~/b-sdk/b-sdk";
 import { usePool } from "~/b-sdk/usePool";
-import { SubgraphPoolFragment } from "@bera/graphql/dex/subgraph";
+import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
+import { getPoolUrl } from "../../fetchPools";
+import { WithdrawLiquidityDetails } from "./WithdrawLiquidityDetails";
+import { useRemoveLiquidity } from "./useWithdrawLiquidity";
+
 interface ITokenSummary {
   title: string;
   pool: SubgraphPoolFragment | undefined;
@@ -154,6 +154,7 @@ export default function WithdrawLiquidityContent({
           poolId: pool?.id,
           poolName: pool?.name,
           tokensOut: queryOutput?.amountsOut.map((a) => a.token.address),
+          tokensOutSymbol: queryOutput?.amountsOut.map((a) => a.token.symbol),
           amountsOut: queryOutput?.amountsOut.map((a) =>
             formatUnits(a.amount, a.token.decimals),
           ),
@@ -211,7 +212,7 @@ export default function WithdrawLiquidityContent({
   return (
     <div className="mt-16 flex w-full flex-col items-center justify-center gap-4">
       {ModalPortal}
-      <Card className="mx-6 w-full items-center bg-background p-4 sm:mx-0 sm:w-[480px] flex flex-col">
+      <Card className="mx-6 flex w-full flex-col items-center bg-background p-4 sm:mx-0 sm:w-[480px]">
         {!pool && isPoolLoading ? (
           <Skeleton className="h-8 w-40 self-center" />
         ) : (
@@ -240,7 +241,7 @@ export default function WithdrawLiquidityContent({
           className="flex items-center justify-center text-sm font-normal leading-tight text-muted-foreground hover:cursor-pointer hover:underline"
         >
           View Pool Details
-          <Icons.arrowRight className="w-4 h-4" />
+          <Icons.arrowRight className="h-4 w-4" />
         </Link>
       </Card>
       <Card className="mx-6 w-full sm:w-[480px] md:mx-0 ">
@@ -250,7 +251,7 @@ export default function WithdrawLiquidityContent({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4 w-full">
+          <div className="grid w-full grid-cols-2 gap-4">
             {kinds.map((item) => (
               <Card
                 onClick={() => setKind(item.kind)}
@@ -280,8 +281,8 @@ export default function WithdrawLiquidityContent({
                   key={token.index}
                 >
                   {kind === RemoveLiquidityKind.Proportional ? (
-                    <div className="flex items-center justify-between w-full gap-2">
-                      <span className="flex gap-2 items-center">
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className="flex items-center gap-2">
                         <TokenIcon
                           address={
                             wethIsEth &&
@@ -326,19 +327,19 @@ export default function WithdrawLiquidityContent({
                     <>
                       <div
                         className={cn(
-                          "w-4 h-4 border border-foreground rounded-full flex items-center justify-center",
+                          "flex h-4 w-4 items-center justify-center rounded-full border border-foreground",
                           tokenOut !== token.address && "opacity-50",
                         )}
                       >
                         <RadioGroupItem
                           id={`${token.address}-radio`}
                           value={token.address}
-                          className="w-3 h-3 aria-checked:bg-foreground rounded-full"
+                          className="h-3 w-3 rounded-full aria-checked:bg-foreground"
                         />
                       </div>
                       <Label
                         htmlFor={`${token.address}-radio`}
-                        className="text-sm font-semibold flex gap-1 items-center cursor-pointer"
+                        className="flex cursor-pointer items-center gap-1 text-sm font-semibold"
                       >
                         <TokenIcon
                           address={token.address}
@@ -386,7 +387,7 @@ export default function WithdrawLiquidityContent({
           </div>
           {kind === RemoveLiquidityKind.SingleTokenExactIn && (
             <div>
-              <h3 className="text-muted-foreground font-semibold text-sm mb-4">
+              <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
                 Receive
               </h3>
 
@@ -408,8 +409,8 @@ export default function WithdrawLiquidityContent({
                     Number(formatEther(amount?.scale18 ?? 0n)) * tokenUSDPrice;
 
                   return (
-                    <div className="flex justify-between items-center">
-                      <div className="flex flex-row items-center text-sm gap-2 text-foreground font-medium">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-row items-center gap-2 text-sm font-medium text-foreground">
                         <TokenIcon
                           address={
                             isWrappedBera && wethIsEth
@@ -418,7 +419,7 @@ export default function WithdrawLiquidityContent({
                           }
                         />
                         {isWithdrawLoading ? (
-                          <Skeleton className="w-3 h-4" />
+                          <Skeleton className="h-4 w-3" />
                         ) : (
                           <FormattedNumber
                             value={formatEther(amount?.scale18 ?? 0n)}
@@ -534,7 +535,7 @@ export default function WithdrawLiquidityContent({
         </CardContent>
       </Card>
       {isConnected ? (
-        <div className="sm:w-[480px] mx-auto">
+        <div className="mx-auto sm:w-[480px]">
           <TokenSummary
             pool={pool}
             tokenBalances={userPositionBreakdown?.tokenBalances}
