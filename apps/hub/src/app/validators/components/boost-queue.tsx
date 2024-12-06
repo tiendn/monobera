@@ -8,6 +8,7 @@ import {
   useBgtUnstakedBalance,
   useUserActiveValidators,
   useValidatorList,
+  useBeraJs,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
 import {
@@ -176,6 +177,7 @@ const ConfirmationCard = ({
     props: IContractWrite,
   ) => void;
 }) => {
+  const { account } = useBeraJs();
   const width = userValidator.canActivate
     ? 100
     : Math.round(Math.abs(1 - blocksLeft / HISTORY_BUFFER) * 100);
@@ -225,7 +227,7 @@ const ConfirmationCard = ({
                 address: bgtTokenAddress,
                 abi: BGT_ABI,
                 functionName: "activateBoost",
-                params: [userValidator.coinbase],
+                params: [account!, userValidator.coinbase],
               })
             }
           >

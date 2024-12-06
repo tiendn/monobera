@@ -67,8 +67,6 @@ export const ValidatorPolData = ({ validator }: { validator: Validator }) => {
     },
   });
 
-  console.log("val pol data", { validator });
-
   return (
     <div className="mt-6 flex w-full flex-col gap-6 lg:flex-row">
       <div className="w-full">

@@ -51,7 +51,7 @@ export const UserDelegation = ({ validator }: { validator: Address }) => {
             </div>
           ) : (
             <>
-              <div className="flex w-full justify-between">
+              <div className="w-full">
                 <div className="font-medium leading-6">
                   <div className="flex items-center gap-1">
                     <FormattedNumber
@@ -60,12 +60,7 @@ export const UserDelegation = ({ validator }: { validator: Address }) => {
                     <Icons.bgt className="ml-1 h-4 w-4" />
                     BGT
                   </div>
-                  <div className="text-muted-foreground">Delegated</div>
                 </div>
-                <UnbondModal
-                  setIsValidatorDataLoading={setIsValidatorDataLoading}
-                  userValidator={userStaked}
-                />
               </div>
               <hr />
               {/* {ActivateModalPortal}
