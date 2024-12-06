@@ -20,7 +20,7 @@ export const MyValidator = ({
         parseFloat(validator.amountQueued) !== 0
       ) {
         if (keyword === "") return true;
-        if (validator.id.includes(keyword)) return true;
+        if (validator.coinbase.includes(keyword)) return true;
         if (validator.metadata?.name.includes(keyword)) return true;
       } else {
         return false;

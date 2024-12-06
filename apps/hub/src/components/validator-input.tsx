@@ -47,7 +47,7 @@ export default function ValidatorInput({
 
   const selectedValidator = data?.find(
     (validator: UserValidator) =>
-      validator.id.toLowerCase() === validatorAddress?.toLowerCase(),
+      validator.coinbase.toLowerCase() === validatorAddress?.toLowerCase(),
   );
   const bgtDelegated = selectedValidator
     ? selectedValidator.amountDeposited

@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, keccak256 } from "viem";
 
 import { Validator } from "~/types";
 import { useOnChainValidator } from "./useOnChainValidator";
@@ -9,7 +9,7 @@ export const useValidator = ({ pubkey }: { pubkey: Address }) => {
     data: indexerValidator,
     isLoading: isIndexerValidatorLoading,
     error: indexerValidatorError,
-  } = useSelectedValidator(pubkey);
+  } = useSelectedValidator(keccak256(pubkey));
 
   const {
     data: onChainValidator,
@@ -23,6 +23,15 @@ export const useValidator = ({ pubkey }: { pubkey: Address }) => {
         ? ({
             ...indexerValidator,
             ...onChainValidator,
+            operator: onChainValidator?.operator ?? indexerValidator?.operator,
+            coinbase: onChainValidator?.coinbase ?? indexerValidator?.coinbase,
+            amountStaked:
+              onChainValidator?.amountStaked ?? indexerValidator?.amountStaked,
+            metadata: onChainValidator?.metadata ?? indexerValidator?.metadata,
+            id: onChainValidator?.id ?? indexerValidator?.id,
+            activeIncentives:
+              onChainValidator?.activeIncentives ??
+              indexerValidator?.activeIncentives,
           } as Validator)
         : null,
     isLoading: isIndexerValidatorLoading || isOnChainValidatorLoading,

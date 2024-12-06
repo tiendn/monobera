@@ -2,12 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { truncateHash, type Validator } from "@bera/berajs";
 import { blockExplorerUrl } from "@bera/config";
-import {
-  FormattedNumber,
-  Tooltip,
-  ValidatorIcon,
-  apyTooltipText,
-} from "@bera/shared-ui";
+import { FormattedNumber, Tooltip, ValidatorIcon } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 
 export default function ValidatorDetails({
@@ -15,22 +10,29 @@ export default function ValidatorDetails({
 }: {
   validator: Validator | undefined;
 }) {
+  console.log("vaaaal", { validator });
+
   const validatorDataItems = [
     {
-      title: "APY",
+      title: "BGT emitted",
       value: (
         <div className="text-xl font-semibold">
-          <FormattedNumber
-            value={(validator?.apy ?? 0) / 10000}
-            showIsSmallerThanMin
-            percent
-          />
+          <FormattedNumber value={0} />
         </div>
       ),
-      tooltipText: apyTooltipText(),
+      tooltipText: "Amount of BGT emitted by this validator",
     },
     {
-      title: "Voting Power",
+      title: "Bera staked",
+      value: (
+        <div className="text-xl font-semibold">
+          <FormattedNumber value={0} />
+        </div>
+      ),
+      tooltipText: "Amount of BERA staked by this validator",
+    },
+    {
+      title: "Boosted",
       value: (
         <span className="text-xl font-semibold">
           <FormattedNumber
@@ -38,31 +40,9 @@ export default function ValidatorDetails({
             showIsSmallerThanMin
             symbol="BGT"
           />
-          <span className="ml-1 text-sm text-muted-foreground">{"("}</span>
-
-          <FormattedNumber
-            className="text-sm text-muted-foreground"
-            value={validator ? validator.votingPower / 100 : 0}
-            showIsSmallerThanMin
-            percent
-          />
-          <span className="text-sm text-muted-foreground">{")"}</span>
         </span>
       ),
-      tooltipText:
-        "Represents the influence in network governance based on the amount delegated to this validator",
-    },
-    {
-      title: "Commission",
-      value: (
-        <FormattedNumber
-          className="text-xl font-semibold"
-          value={validator?.commission ?? 0}
-          showIsSmallerThanMin
-          percent
-        />
-      ),
-      tooltipText: "Amount of validator rewards retained by this validator",
+      tooltipText: "Amount of BGT boosted to this validator",
     },
     {
       title: "Website",
@@ -96,16 +76,16 @@ export default function ValidatorDetails({
             />
             {validator?.metadata?.name ?? truncateHash(validator?.id ?? "")}
           </div>
+
           <div className="my-4 flex w-full flex-row gap-1 text-muted-foreground">
-            Hex Address:
+            Operator:
             <span className="flex flex-row gap-1 text-foreground hover:underline">
-              <Link href={`${blockExplorerUrl}/address/${validator?.id}`}>
-                {truncateHash(validator?.id ?? "")}
+              <Link href={`${blockExplorerUrl}/address/${validator?.operator}`}>
+                {truncateHash(validator?.operator ?? "")}
               </Link>
               <Icons.externalLink className="h-4 w-4 self-center" />
             </span>
           </div>
-
           <div className="w-full overflow-hidden text-ellipsis text-foreground">
             {validator?.metadata?.Description ?? ""}
           </div>

@@ -57,7 +57,7 @@ export const DelegateContent = ({
       {ModalPortal}
       <div className="mt-4 flex flex-col gap-3">
         <div className="text-lg font-semibold capitalize leading-7 text-foreground">
-          Delegate
+          Boost
         </div>
         <Image
           src={ImageMapEnum.DELEGATE.light}

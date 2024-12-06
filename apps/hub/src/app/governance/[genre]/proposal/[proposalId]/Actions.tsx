@@ -1,4 +1,4 @@
-import { BERA_CHEF_ABI, truncateHash } from "@bera/berajs";
+import { BERA_CHEF_ABI, BERA_VAULT_REWARDS_ABI } from "@bera/berajs";
 import { Card } from "@bera/ui/card";
 
 import { useGetVerifiedAbi } from "@bera/berajs";
@@ -20,6 +20,7 @@ export const Actions = ({
 
         const abi: Abi = [
           ...BERA_CHEF_ABI,
+          ...BERA_VAULT_REWARDS_ABI,
           ...erc20Abi,
           ...(data && !error && !isLoading ? JSON.parse(data) : []),
         ];
