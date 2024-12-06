@@ -15,7 +15,7 @@ export const getActiveIncentivesArray = (
   console.log("getActiveIncentivesArray", { validator });
 
   return validator?.activeIncentives.map((incentive: ActiveIncentive) => {
-    const vaultId = incentive.id.split("-")[0];
+    const vaultId = incentive.id.slice(0, 42);
     const cuttingBoard = validator?.cuttingBoard.weights.find(
       (cb: any) => cb.receiver.toLowerCase() === vaultId.toLowerCase(),
     );
@@ -32,7 +32,7 @@ export const ValidatorPolData = ({ validator }: { validator: Validator }) => {
     gaugeList,
     isLoading: isGaugeListLoading,
     isValidating: isGaugeListValidating,
-  } = usePollGauges({ validatorId: validator?.id });
+  } = usePollGauges({ validatorId: validator?.coinbase });
 
   const activeIncentivesArray: ActiveIncentiveWithVault[] =
     getActiveIncentivesArray(validator);
