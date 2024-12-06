@@ -12,9 +12,7 @@ export const getActiveIncentivesArray = (
 ): ActiveIncentiveWithVault[] => {
   if (!validator) return [];
 
-  console.log("getActiveIncentivesArray", { validator });
-
-  return validator?.activeIncentives.map((incentive: ActiveIncentive) => {
+  return validator?.activeIncentives?.map((incentive: ActiveIncentive) => {
     const vaultId = incentive.id.slice(0, 42);
     const cuttingBoard = validator?.cuttingBoard.weights.find(
       (cb: any) => cb.receiver.toLowerCase() === vaultId.toLowerCase(),
