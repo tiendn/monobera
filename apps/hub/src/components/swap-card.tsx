@@ -206,11 +206,11 @@ export function SwapCard({
     message: `Swap ${selectedFrom?.symbol} to ${selectedTo?.symbol}`,
     onSuccess: () => {
       if (!selectedFrom?.symbol || !selectedTo?.symbol) {
-        captureException(new Error("swap_token_with_unknown_symbols"));
+        captureException(new Error("swap_with_unknown_symbols"));
       } else if (!fromAmount || !toAmount) {
-        captureException(new Error("swap_token_with_unknown_amounts"));
+        captureException(new Error("swap_with_unknown_amounts"));
       } else {
-        track("swap_token", {
+        track("swap", {
           tokenFrom: selectedFrom.symbol,
           tokenTo: selectedTo.symbol,
           fromAmount: fromAmount,
@@ -228,11 +228,11 @@ export function SwapCard({
       setOpenPreview(false);
     },
     onError: (e: Error | undefined) => {
-      track("swap_token_failed", {
+      track("swap_failed", {
         tokenFrom: selectedFrom?.symbol,
         tokenTo: selectedTo?.symbol,
       });
-      captureException(new Error("swap_token_failed"), {
+      captureException(new Error("swap_failed"), {
         data: {
           tokenFrom: selectedFrom?.symbol,
           tokenTo: selectedTo?.symbol,
