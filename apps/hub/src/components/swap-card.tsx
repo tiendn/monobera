@@ -301,7 +301,11 @@ export function SwapCard({
       captureException("redeem_error");
     },
     onSuccess: () => {
-      track("redeem", { fromAmount: fromAmount, toAmount: toAmount });
+      try {
+        track("redeem", { fromAmount: fromAmount, toAmount: toAmount });
+      } catch (e) {
+        captureException(e);
+      }
       refreshBalance();
       setFromAmount("");
       setToAmount("");

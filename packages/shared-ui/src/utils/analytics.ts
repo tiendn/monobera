@@ -42,17 +42,6 @@ if (isPosthogEnabled) {
     debug: true,
     persistence: "localStorage",
   });
-  console.log(
-    "POSTHOG IS ENABLED!!!!",
-    postHogProjectKey,
-    isDevelopmentWithoutAnalytics,
-  );
-} else {
-  console.log(
-    "POSTHOG IS NOT ENABLED!!!!",
-    postHogProjectKey,
-    isDevelopmentWithoutAnalytics,
-  );
 }
 
 export const useAnalytics = () => {

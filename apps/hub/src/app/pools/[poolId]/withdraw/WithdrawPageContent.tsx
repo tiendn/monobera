@@ -34,11 +34,11 @@ import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Slider } from "@bera/ui/slider";
+import { Address, formatEther, formatUnits, parseEther } from "viem";
 
 import { Skeleton } from "@bera/ui/skeleton";
 import { usePoolUserPosition } from "~/b-sdk/usePoolUserPosition";
 import { useRemoveLiquidity } from "./useWithdrawLiquidity";
-import { Address, formatEther, parseEther } from "viem";
 import { getPoolUrl } from "../../fetchPools";
 import { BigNumber } from "bignumber.js";
 import { RadioGroup, RadioGroupItem } from "@bera/ui/radio-group";
@@ -149,13 +149,18 @@ export default function WithdrawLiquidityContent({
   const { write, ModalPortal } = useTxn({
     message: `Withdraw liquidity from ${pool?.name}`,
     onSuccess: () => {
-      track("pool_withdraw", {
-        poolId: pool?.id,
-        poolName: pool?.name,
-        tokensOut: queryOutput?.amountsOut.map((a) => a.token.address),
-        amountsOut: queryOutput?.amountsOut.map((a) => a.amount),
-        kind,
-      });
+      try {
+        track("pool_withdraw", {
+          poolId: pool?.id,
+          poolName: pool?.name,
+          tokensOut: queryOutput?.amountsOut.map((a) => a.token.address),
+          amountsOut: queryOutput?.amountsOut.map((a) =>
+            formatUnits(a.amount, a.token.decimals),
+          ),
+        });
+      } catch (e) {
+        captureException(e);
+      }
       reset();
       refresh();
     },

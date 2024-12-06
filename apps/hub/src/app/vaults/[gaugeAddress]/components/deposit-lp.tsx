@@ -45,11 +45,15 @@ export const DepositLP = ({
     message: "Deposit LP Tokens", // AKA 'stake'
     actionType: TransactionActionType.ADD_LIQUIDITY,
     onSuccess: () => {
-      track("stake", {
-        quantity: depositAmount,
-        token: lpToken.symbol,
-        vault: rewardVault.address,
-      });
+      try {
+        track("stake", {
+          quantity: depositAmount,
+          token: lpToken.symbol,
+          vault: rewardVault.address,
+        });
+      } catch (e) {
+        captureException(e);
+      }
       refresh();
     },
     onError: (e: Error | undefined) => {

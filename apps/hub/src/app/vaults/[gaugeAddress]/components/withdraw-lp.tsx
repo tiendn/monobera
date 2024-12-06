@@ -41,11 +41,16 @@ export const WithdrawLP = ({
     message: "Withdraw LP Tokens", // aka unstake
     actionType: TransactionActionType.WITHDRAW_LIQUIDITY,
     onSuccess: () => {
-      track("unstake", {
-        quantity: withdrawAmount,
-        token: lpToken.symbol,
-        vault: rewardVault.address,
-      });
+      try {
+        track("unstake", {
+          quantity: withdrawAmount,
+          token: lpToken.symbol,
+          vault: rewardVault.address,
+        });
+      } catch (e) {
+        captureException(e);
+      }
+
       refresh();
     },
     onError: (e: Error | undefined) => {
