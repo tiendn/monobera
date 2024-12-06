@@ -9,10 +9,14 @@ export enum LOCAL_STORAGE_KEYS {
   DEADLINE_VALUE = "DEADLINE_VALUE",
 }
 
+// FIXME: this and settings.tsx are defining similar things (mostly for the swap-settings & settings inputs)
 export const DEFAULT_DEADLINE = 30; // seconds
-export const DEFAULT_SLIPPAGE = 1; // 0.3%
-export const DEFAULT_SOUND_ENABLED = true; // 1 if true, 0 if false
+export const DEFAULT_SLIPPAGE = 1; // 1%
 export const MAX_INPUT_DEADLINE = 100000; // seconds
+export const MIN_INPUT_DEADLINE = 1; // seconds
+export const MIN_SLIPPAGE = 0.1; // 0.1%
+export const MAX_SLIPPAGE = 100; // 100%
+export const DEFAULT_SOUND_ENABLED = true; // 1 if true, 0 if false
 
 export enum TRANSACTION_TYPES {
   LEGACY = "legacy",
