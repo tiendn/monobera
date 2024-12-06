@@ -26,26 +26,6 @@ export const getValidatorGaugeColumns = (validator: Validator) => {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Total Incentive Value"
-          className="whitespace-nowrap"
-          tooltip={"Total value of active incentives outstanding on this vault"}
-        />
-      ),
-      cell: ({ row }) => (
-        <FormattedNumber
-          symbol="USD"
-          compact={false}
-          compactThreshold={999_999_999}
-          value={row.original.activeIncentivesInHoney}
-        />
-      ),
-      accessorKey: "incentive-value",
-      enableSorting: false,
-    },
-    {
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
           title="BGT Per Proposal"
           className="whitespace-nowrap"
           tooltip={
@@ -85,6 +65,26 @@ export const getValidatorGaugeColumns = (validator: Validator) => {
         );
       },
       accessorKey: "bgt-staked",
+      enableSorting: false,
+    },
+    {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Total Incentive Value"
+          className="whitespace-nowrap"
+          tooltip={"Total value of active incentives outstanding on this vault"}
+        />
+      ),
+      cell: ({ row }) => (
+        <FormattedNumber
+          symbol="USD"
+          compact={false}
+          compactThreshold={999_999_999}
+          value={row.original.activeIncentivesInHoney}
+        />
+      ),
+      accessorKey: "incentive-value",
       enableSorting: false,
     },
     {

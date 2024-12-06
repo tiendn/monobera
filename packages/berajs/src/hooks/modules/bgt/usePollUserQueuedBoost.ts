@@ -23,7 +23,7 @@ export const usePollUserQueuedBoost = (
   const config = options?.beraConfigOverride ?? beraConfig;
   const { validatorInfoList } = usePollValidatorInfo();
   const validatorAddressList = validatorInfoList.map(
-    (validator) => validator.id,
+    (validator) => validator.coinbase,
   );
   const QUERY_KEY = [
     account,

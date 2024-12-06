@@ -45,25 +45,29 @@ query GetValidatorBgtStaked($pubKey: String!, $timestamp: Timestamp!) {
   }
 }
 
-# fragment BlockRewardStatsByValidator on BlockRewardStatsByValidator {
-#   timestamp
-#   # rewardRate
-#   # commissionRate
+fragment BlockRewardStatsByValidator on BlockRewardStatsByValidator {
+  timestamp
+  # rewardRate
+  # commissionRate
+  BGTEmitted
+  BGTEarned
+  allTimeBGTEmitted
+  allTimeBGTEarned
 
-#   validator {
-#     ...ValidatorMinimal
-#   }
-# }
+  validator {
+    ...ValidatorMinimal
+  }
+}
 
 # this is prob an issue.
-# query GetValidatorBlockRewardStats($address: String!, $timestamp: Timestamp!) {
-#   blockRewardStatsByValidators(
-#     interval: day
-#     where: { validator: $address, timestamp_gte: $timestamp }
-#   ) {
-#     ...BlockRewardStatsByValidator
-#   }
-# }
+query GetValidatorBlockRewardStats($address: String!, $timestamp: Timestamp!) {
+  blockRewardStatsByValidators(
+    interval: day
+    where: { validator: $address, timestamp_gte: $timestamp }
+  ) {
+    ...BlockRewardStatsByValidator
+  }
+}
 
 query GetValidatorIncentivesReceiveds(
   $address: String!
@@ -132,6 +136,7 @@ query GetAllValidatorBlockCount($timestamp: Timestamp) {
   ) {
     allTimeBlockCount
     validator {
+      id
       publicKey
     }
     timestamp

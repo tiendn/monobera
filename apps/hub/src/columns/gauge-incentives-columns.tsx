@@ -86,28 +86,17 @@ export const gauge_incentives_columns: ColumnDef<ActiveIncentive>[] = [
     accessorKey: "incentiveAmount",
     enableSorting: false,
   },
-  {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Add Incentives" />
-    ),
-    cell: ({ row }) => (
-      <Button size="sm" className="w-24">
-        Add
-      </Button>
-    ),
-    accessorKey: "hide",
-    enableSorting: false,
-  },
 ];
 
 export const validator_gauge_columns: ColumnDef<ActiveIncentiveWithVault>[] = [
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Gauge Vaults" />
+      <DataTableColumnHeader column={column} title="Reward Vaults" />
     ),
     cell: ({ row }) => (
       <GaugeHeaderWidget
-        address={row.original.cuttingBoard.receiver}
+        // TODO: fix this
+        address={row.original.cuttingBoard?.receiver ?? "0x"}
         className="w-[150px]"
       />
     ),

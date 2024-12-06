@@ -61,8 +61,8 @@ export const HeroCards: React.FC = () => {
     },
     {
       image: `${cloudinaryUrl}/Station/ug8exzswd7l3acphln0g.jpg`,
-      title: "Delegate",
-      subtitle: "Delegate BGT to validators",
+      title: "Boost",
+      subtitle: "Boost BGT to validators",
       link: "/validators",
     },
   ];

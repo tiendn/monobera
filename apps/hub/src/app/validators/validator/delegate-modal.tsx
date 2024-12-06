@@ -16,7 +16,7 @@ export const DelegateModal = ({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Delegate</Button>
+      <Button onClick={() => setOpen(true)}>Boost</Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">
           <DelegateContent

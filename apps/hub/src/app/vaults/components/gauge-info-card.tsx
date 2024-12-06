@@ -108,18 +108,18 @@ export default function GaugeInfoCard() {
                 <Link
                   className="cursor-pointer flex w-full flex-1 items-center gap-2 rounded-sm border border-border bg-background px-4 py-2"
                   key={`${index}-${validator.validator.id}`}
-                  href={getHubValidatorPath(validator.validator.id)}
+                  href={getHubValidatorPath(validator.validator.coinbase)}
                   target="_blank"
                 >
                   <ValidatorIcon
-                    address={validator.validator.id}
+                    address={validator.validator.coinbase}
                     size="xl"
                     imgOverride={validator.validator.metadata?.logoURI}
                   />
                   <div>
                     <div className="text-nowrap text-sm font-semibold leading-5">
                       {validator.validator?.metadata?.name ??
-                        truncateHash(validator.validator.id)}
+                        truncateHash(validator.validator.coinbase)}
                     </div>
                     <FormattedNumber
                       value={getValidatorEstimatedBgtPerYear(

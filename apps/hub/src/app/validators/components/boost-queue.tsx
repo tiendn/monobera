@@ -8,6 +8,7 @@ import {
   useBgtUnstakedBalance,
   useUserActiveValidators,
   useValidatorList,
+  useBeraJs,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
 import {
@@ -122,9 +123,7 @@ export const BoostQueue = ({
       {ActivateModalPortal}
       {CancelModalPortal}
       <div className="flex items-center">
-        <div className="mr-2 text-lg font-semibold leading-7">
-          Delegation Queue
-        </div>
+        <div className="mr-2 text-lg font-semibold leading-7">Queued</div>
         {isValidatorDataLoading && <Spinner size={18} color="white" />}
       </div>
 
@@ -178,6 +177,7 @@ const ConfirmationCard = ({
     props: IContractWrite,
   ) => void;
 }) => {
+  const { account } = useBeraJs();
   const width = userValidator.canActivate
     ? 100
     : Math.round(Math.abs(1 - blocksLeft / HISTORY_BUFFER) * 100);
@@ -227,7 +227,7 @@ const ConfirmationCard = ({
                 address: bgtTokenAddress,
                 abi: BGT_ABI,
                 functionName: "activateBoost",
-                params: [userValidator.coinbase],
+                params: [account!, userValidator.coinbase],
               })
             }
           >
