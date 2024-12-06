@@ -1,7 +1,6 @@
 import { type Token } from "@bera/berajs";
 import {
   ValidatorStakedBgtsFragment,
-  // @ts-expect-error TODOO
   type BlockRewardStatsByValidatorFragment,
   type GetValidatorIncentivesReceivedsQuery,
 } from "@bera/graphql/pol";
@@ -49,8 +48,14 @@ const generateValidatorRewardsEmptyData = (
 ): BlockRewardStatsByValidatorFragment => {
   return {
     timestamp: timestamp,
-    rewardRate: "0",
-    commissionRate: "0",
+    BGTEmitted: "0",
+    BGTEarned: "0",
+    allTimeBGTEmitted: "0",
+    allTimeBGTEarned: "0",
+    validator: {
+      id: "",
+      amountStaked: "0",
+    },
   };
 };
 

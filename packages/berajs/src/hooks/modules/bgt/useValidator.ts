@@ -29,6 +29,9 @@ export const useValidator = ({ pubkey }: { pubkey: Address }) => {
               onChainValidator?.amountStaked ?? indexerValidator?.amountStaked,
             metadata: onChainValidator?.metadata ?? indexerValidator?.metadata,
             id: onChainValidator?.id ?? indexerValidator?.id,
+            activeIncentives:
+              onChainValidator?.activeIncentives ??
+              indexerValidator?.activeIncentives,
           } as Validator)
         : null,
     isLoading: isIndexerValidatorLoading || isOnChainValidatorLoading,

@@ -45,10 +45,8 @@ export const useOnChainValidator = ({ pubkey }: { pubkey: Address }) => {
       return {
         id: keccak256(pubkey),
         coinbase: pubkey,
-        amountStaked: "0",
         operator,
         votingPower: Number(boostees),
-        activeIncentives: [],
         cuttingBoard: rewardAllocation,
       } as Partial<Validator>;
     },

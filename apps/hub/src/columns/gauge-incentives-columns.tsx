@@ -95,7 +95,8 @@ export const validator_gauge_columns: ColumnDef<ActiveIncentiveWithVault>[] = [
     ),
     cell: ({ row }) => (
       <GaugeHeaderWidget
-        address={row.original.cuttingBoard.receiver}
+        // TODO: fix this
+        address={row.original.cuttingBoard?.receiver ?? "0x"}
         className="w-[150px]"
       />
     ),
