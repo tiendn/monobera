@@ -7,6 +7,8 @@ import {
   useSelectedGauge,
   useSelectedGaugeValidators,
   type UserValidator,
+  useRewardVaultIncentives,
+  useMultipleTokenInformation,
 } from "@bera/berajs";
 import { lendRewardsAddress, blockExplorerUrl } from "@bera/config";
 import { DataTable, GaugeIcon, MarketIcon, PoolHeader } from "@bera/shared-ui";
@@ -55,7 +57,24 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
     isValidating: isValidatorsValidating,
   } = useSelectedGaugeValidators(gaugeAddress);
 
+  const { data: incentivesData } = useRewardVaultIncentives({
+    address: rewardVault?.address,
+  });
+
+  const { data: incentiveTokens } = useMultipleTokenInformation({
+    addresses: incentivesData?.map((incentive) => incentive.token),
+  });
+
+  const activeIncentives = incentivesData?.map((incentive) => {
+    const token = incentiveTokens?.find(
+      (token) => token.address === incentive.token,
+    ) ?? { address: incentive.token };
+    return { ...incentive, token };
+  });
+
   if (rewardVaultError) return notFound();
+
+  console.log({ gauge });
 
   return (
     <>
@@ -122,7 +141,7 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
                 loading={isGaugeLoading}
                 validating={isGaugeValidating}
                 columns={gauge_incentives_columns}
-                data={gauge?.activeIncentives ?? []}
+                data={activeIncentives ?? []}
                 className="max-h-[300px] min-w-[1000px] shadow"
                 onRowClick={(row: any) =>
                   router.push(

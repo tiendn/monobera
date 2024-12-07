@@ -24,7 +24,7 @@ export const getActiveIncentivesArray = (
     return {
       cuttingBoard: cuttingBoard,
       token: incentive.token,
-      amountLeft: incentive.amountLeft,
+      amountRemaining: incentive.amountRemaining,
       incentiveRate: incentive.incentiveRate,
     };
   }) as ActiveIncentiveWithVault[];

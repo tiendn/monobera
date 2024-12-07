@@ -67,7 +67,7 @@ export type Vault = {
 };
 
 export type RewardVaultIncentive = {
-  amountLeft: number;
+  amountRemaining: number;
   id: Address;
   incentiveRate: number;
   manager: Address;

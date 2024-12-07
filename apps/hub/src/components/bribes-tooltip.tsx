@@ -63,7 +63,7 @@ export const BribesTooltip = ({
         tokenHoneyPrices?.[ab.token.address] ?? "0",
       );
       return {
-        totalIncentives: acc.totalIncentives + ab.amountLeft * tokenPrice,
+        totalIncentives: acc.totalIncentives + ab.amountRemaining * tokenPrice,
         amountPerProposal:
           acc.amountPerProposal + ab.incentiveRate * tokenPrice,
       };
@@ -82,7 +82,8 @@ export const BribesTooltip = ({
               tokenHoneyPrices?.[ab.token.address] ?? "0",
             );
             return {
-              totalIncentives: acc.totalIncentives + ab.amountLeft * tokenPrice,
+              totalIncentives:
+                acc.totalIncentives + ab.amountRemaining * tokenPrice,
               amountPerProposal:
                 acc.amountPerProposal + ab.incentiveRate * tokenPrice,
             };
@@ -104,7 +105,7 @@ export const BribesTooltip = ({
           tokenHoneyPrices?.[ab.token.address] ?? "0",
         );
         const bribeTotalValues: TotalValues = {
-          totalIncentives: ab.amountLeft * tokenPrice,
+          totalIncentives: ab.amountRemaining * tokenPrice,
           amountPerProposal: ab.incentiveRate * tokenPrice,
           tokenAmountPerProposal: ab.incentiveRate,
         };
