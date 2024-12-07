@@ -1,5 +1,5 @@
 import React from "react";
-import { ActiveIncentive, useTokenHoneyPrice } from "@bera/berajs";
+import { RewardVaultIncentive, useTokenHoneyPrice } from "@bera/berajs";
 import {
   DataTableColumnHeader,
   FormattedNumber,
@@ -10,7 +10,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { type ActiveIncentiveWithVault } from "~/types/validators";
 import { GaugeHeaderWidget } from "~/components/gauge-header-widget";
 
-export const gauge_incentives_columns: ColumnDef<ActiveIncentive>[] = [
+export const gauge_incentives_columns: ColumnDef<RewardVaultIncentive>[] = [
   {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Incentive Breakdown" />

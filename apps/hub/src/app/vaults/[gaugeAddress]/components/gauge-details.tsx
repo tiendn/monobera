@@ -3,7 +3,7 @@
 import { notFound, useRouter } from "next/navigation";
 import {
   truncateHash,
-  useRewardVault,
+  useVaultAddress,
   useSelectedGauge,
   useSelectedGaugeValidators,
   type UserValidator,
@@ -47,7 +47,7 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
     data: rewardVault,
     isLoading: isRewardVaultLoading,
     error: rewardVaultError,
-  } = useRewardVault(gaugeAddress);
+  } = useVaultAddress(gaugeAddress);
 
   const {
     data: validators = [],

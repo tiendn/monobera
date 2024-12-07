@@ -1,5 +1,5 @@
 import React from "react";
-import { ActiveIncentive, Token, useTokenHoneyPrices } from "@bera/berajs";
+import { RewardVaultIncentive, Token, useTokenHoneyPrices } from "@bera/berajs";
 import {
   FormattedNumber,
   TokenIcon,
@@ -50,15 +50,15 @@ export const BribeTooltipRow = ({
 export const BribesTooltip = ({
   activeIncentive,
 }: {
-  activeIncentive: ActiveIncentive[];
+  activeIncentive: RewardVaultIncentive[];
 }) => {
   const { data: tokenHoneyPrices } = useTokenHoneyPrices({
     tokenAddresses: activeIncentive.map(
-      (ab: ActiveIncentive) => ab.token.address,
+      (ab: RewardVaultIncentive) => ab.token.address,
     ) as Address[],
   });
   const totalBribesValue: TotalValues = activeIncentive.reduce(
-    (acc: TotalValues, ab: ActiveIncentive) => {
+    (acc: TotalValues, ab: RewardVaultIncentive) => {
       const tokenPrice = parseFloat(
         tokenHoneyPrices?.[ab.token.address] ?? "0",
       );
@@ -77,7 +77,7 @@ export const BribesTooltip = ({
   const others: TotalValues | undefined =
     activeIncentive.length > 5
       ? activeIncentive.reduce(
-          (acc: TotalValues, ab: ActiveIncentive) => {
+          (acc: TotalValues, ab: RewardVaultIncentive) => {
             const tokenPrice = parseFloat(
               tokenHoneyPrices?.[ab.token.address] ?? "0",
             );
@@ -96,7 +96,7 @@ export const BribesTooltip = ({
 
   return (
     <div className="flex w-[250px] flex-col gap-1 p-1">
-      {activeIncentive.map((ab: ActiveIncentive, i: number) => {
+      {activeIncentive.map((ab: RewardVaultIncentive, i: number) => {
         if (i > 4) {
           return;
         }
@@ -158,7 +158,7 @@ export const ClaimBribesPopover = ({
   bribes,
   coinbase,
 }: {
-  bribes: ActiveIncentive[] | undefined;
+  bribes: RewardVaultIncentive[] | undefined;
   coinbase: Address;
 }) => {
   return (
@@ -194,7 +194,7 @@ export const ClaimBribesPopover = ({
 export const BribesPopover = ({
   incentives,
 }: {
-  incentives: ActiveIncentive[];
+  incentives: RewardVaultIncentive[];
 }) => {
   return (
     <>
