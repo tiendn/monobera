@@ -11,6 +11,7 @@ export type Token = {
   decimals: number;
   symbol: string;
   name: string;
+  totalSupply?: string;
   usdValue?: string;
   beraValue?: string;
   weight?: number;
