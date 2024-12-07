@@ -3,6 +3,7 @@ import {
   BERA_VAULT_REWARDS_ABI,
   type IContractWrite,
   useBeraJs,
+  usePollVaultsInfo,
 } from "@bera/berajs";
 import { DataTableColumnHeader, FormattedNumber } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
@@ -65,15 +66,21 @@ export const getUserBgtColumns = ({
           className="items-center whitespace-nowrap text-center"
         />
       ),
-      cell: ({ row }) => (
-        <div className="flex w-fit items-center gap-1 rounded-full bg-success bg-opacity-10 px-2 py-1 text-sm font-medium text-success-foreground">
-          <Icons.bgt className="h-6 w-6" />
-          <FormattedNumber
-            value={row.original.unclaimedBgt}
-            showIsSmallerThanMin
-          />
-        </div>
-      ),
+      cell: ({ row }) => {
+        const { data } = usePollVaultsInfo({
+          vaultAddress: row.original.vaultAddress,
+        });
+
+        return (
+          <div className="flex w-fit items-center gap-1 rounded-full bg-success bg-opacity-10 px-2 py-1 text-sm font-medium text-success-foreground">
+            <Icons.bgt className="h-6 w-6" />
+            <FormattedNumber
+              value={data?.rewards ?? row.original.unclaimedBgt}
+              showIsSmallerThanMin
+            />
+          </div>
+        );
+      },
       accessorKey: "unclaimedBgt",
       enableSorting: true,
     },
@@ -86,8 +93,8 @@ export const getUserBgtColumns = ({
         />
       ),
       cell: ({ row }) => {
-        const { account } = useBeraJs();
         const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+
         return (
           <>
             <ClaimBGTModal

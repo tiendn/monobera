@@ -25,19 +25,15 @@ export const MyGaugeDetails = ({
   rewardVault: RewardVault;
 }) => {
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
-  const { isReady, account } = useBeraJs();
+  const { isReady } = useBeraJs();
 
-  const { data, refresh } = usePollVaultsInfo({
+  const { data } = usePollVaultsInfo({
     vaultAddress: rewardVault.address,
   });
   const { data: price } = useTokenHoneyPrice({
     tokenAddress: beraTokenAddress,
   });
-  const { write, ModalPortal } = useTxn({
-    message: "Claim BGT Rewards",
-    actionType: TransactionActionType.CLAIMING_REWARDS,
-    onSuccess: () => refresh(),
-  });
+
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
       <GaugueLPChange rewardVault={rewardVault} />
@@ -100,7 +96,6 @@ export const MyGaugeDetails = ({
           </div>
         </div>
       )}
-      {ModalPortal}
     </div>
   );
 };
