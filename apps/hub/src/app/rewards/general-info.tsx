@@ -274,9 +274,9 @@ export const GeneralInfo = () => {
                     value={claimableFees}
                     compact
                     showIsSmallerThanMin
-                    symbol="HONEY"
+                    symbol="WBERA"
                   />{" "}
-                  <Icons.honey className="h-6 w-6" />
+                  <Icons.beraIcon className="h-6 w-6" />
                 </>
               ) : (
                 <Skeleton className="h-8 w-24" />
@@ -310,7 +310,6 @@ export const GeneralInfo = () => {
                 isClaimingRewardsLoading
               }
             >
-              <Icons.honey className="h-6 w-6" />
               Claim Fees
             </Button>
           </ActionButton>
