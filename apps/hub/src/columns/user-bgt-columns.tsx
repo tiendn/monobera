@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BERA_VAULT_REWARDS_ABI,
   type IContractWrite,
@@ -10,6 +10,7 @@ import { Icons } from "@bera/ui/icons";
 import { type ColumnDef } from "@tanstack/react-table";
 
 import { GaugeHeaderWidget } from "~/components/gauge-header-widget";
+import { ClaimBGTModal } from "~/app/vaults/components/claim-modal";
 
 export const getUserBgtColumns = ({
   isLoading,
@@ -86,24 +87,27 @@ export const getUserBgtColumns = ({
       ),
       cell: ({ row }) => {
         const { account } = useBeraJs();
+        const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
         return (
-          <Button
-            size="sm"
-            className="leading-5"
-            variant="ghost"
-            disabled={isLoading || row.original.unclaimedBgt === "0"}
-            onClick={(e: any) => {
-              e.stopPropagation();
-              write({
-                address: row.original.vaultAddress,
-                abi: BERA_VAULT_REWARDS_ABI,
-                functionName: "getReward",
-                params: [account, account], // TODO: A second param is needed here for recipient. Added current account twice for now
-              });
-            }}
-          >
-            Claim BGT
-          </Button>
+          <>
+            <ClaimBGTModal
+              isOpen={isClaimModalOpen}
+              onOpenChange={setIsClaimModalOpen}
+              rewardVault={row.original.vaultAddress}
+            />
+            <Button
+              size="sm"
+              className="leading-5"
+              variant="ghost"
+              disabled={isLoading || row.original.unclaimedBgt === "0"}
+              onClick={(e: any) => {
+                e.stopPropagation();
+                setIsClaimModalOpen(true);
+              }}
+            >
+              Claim BGT
+            </Button>
+          </>
         );
       },
       accessorKey: "inflation",
