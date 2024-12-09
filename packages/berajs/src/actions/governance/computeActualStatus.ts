@@ -26,6 +26,9 @@ export function computeActualStatus(
    * If the proposal state is provided, we can use it for early return.
    */
   if (proposalOnChainState !== undefined) {
+    if (proposal.status === ProposalStatus.CanceledByGuardian) {
+      return ProposalStatus.CanceledByGuardian;
+    }
     if (proposalOnChainState === ProposalState.Canceled) {
       if (proposal.voteStartBlock < currentBlock)
         return ProposalStatus.CanceledByUser;
