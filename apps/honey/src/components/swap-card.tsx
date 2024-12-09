@@ -109,10 +109,30 @@ export function SwapCard() {
                 setIsTyping={setIsTyping}
                 setAmount={(amount) => {
                   setGivenIn(true);
-                  setFromAmount([amount, "0"]);
+                  setFromAmount((prevAmount) => [amount, prevAmount[1]]);
                 }}
               />
               <hr />
+              {!!isBasketModeEnabled && tabValue === "mint" && (
+                <>
+                  <TokenInput
+                    selected={selectedFrom}
+                    selectedTokens={[selectedFrom, selectedTo]}
+                    onTokenSelection={setSelectedFrom}
+                    amount={fromAmount[1]}
+                    balance={fromBalance?.formattedBalance}
+                    selectable={selectedFrom?.address !== honey?.address}
+                    customTokenList={collateralList}
+                    showExceeding
+                    setIsTyping={setIsTyping}
+                    setAmount={(amount) => {
+                      setGivenIn(true);
+                      setFromAmount((prevAmount) => [prevAmount[0], amount]);
+                    }}
+                  />
+                  <hr />
+                </>
+              )}
               {(isLoading || isTyping) && (
                 <SSRSpinner className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] rounded-md border border-border bg-background p-2" />
               )}
@@ -123,7 +143,7 @@ export function SwapCard() {
                 amount={toAmount[0]}
                 setAmount={(amount) => {
                   setGivenIn(false);
-                  setToAmount([amount, "0"]);
+                  setToAmount((prevAmount) => [amount, prevAmount[1]]);
                 }}
                 selectable={selectedTo?.address !== honey?.address}
                 customTokenList={collateralList}
@@ -132,6 +152,26 @@ export function SwapCard() {
                 balance={toBalance?.formattedBalance}
                 onTokenSelection={setSelectedTo}
               />
+              {!!isBasketModeEnabled && tabValue === "burn" && (
+                <>
+                  <hr />
+                  <TokenInput
+                    selected={selectedFrom}
+                    selectedTokens={[selectedFrom, selectedTo]}
+                    onTokenSelection={setSelectedFrom}
+                    amount={fromAmount[1]}
+                    balance={fromBalance?.formattedBalance}
+                    selectable={selectedFrom?.address !== honey?.address}
+                    customTokenList={collateralList}
+                    showExceeding
+                    setIsTyping={setIsTyping}
+                    setAmount={(amount) => {
+                      setGivenIn(false);
+                      setFromAmount((prevAmount) => [prevAmount[0], amount]);
+                    }}
+                  />
+                </>
+              )}
             </ul>
             {(isBadCollateral?.isBlacklisted || isBadCollateral?.isDepegged) &&
             !isBasketModeEnabled ? (

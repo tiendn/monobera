@@ -8,6 +8,7 @@ import { DefaultHookOptions, DefaultHookReturnType, Token } from "~/types";
 
 export interface UsePollHoneyPreviewArgs {
   collateral: Token | undefined;
+  collateralList: Token[] | undefined;
   amount: string;
   mint: boolean; // true mint, false redeem
   given_in: boolean; // true given in, false given out
@@ -17,7 +18,13 @@ export interface UsePollHoneyPreviewResponse
   extends DefaultHookReturnType<string[] | undefined> {}
 
 export const usePollHoneyPreview = (
-  { collateral, amount, mint, given_in }: UsePollHoneyPreviewArgs,
+  {
+    collateral,
+    collateralList,
+    amount,
+    mint,
+    given_in,
+  }: UsePollHoneyPreviewArgs,
   options?: DefaultHookOptions,
 ): UsePollHoneyPreviewResponse => {
   const publicClient = usePublicClient();
@@ -48,6 +55,7 @@ export const usePollHoneyPreview = (
         client: publicClient,
         config,
         collateral,
+        collateralList,
         amount,
         method,
       });

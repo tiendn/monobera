@@ -7,6 +7,7 @@ export enum HoneyPreviewMethod {
   Mint = "previewMint",
   RequiredCollateral = "previewRequiredCollateral",
   Redeem = "previewRedeem",
+  RedeemBasket = "previewRedeemBasketMode",
   HoneyToRedeem = "previewHoneyToRedeem",
 }
 
@@ -14,6 +15,7 @@ export interface HoneyPreviewArgs {
   client: PublicClient;
   config: BeraConfig;
   collateral: Token;
+  collateralList: Token[] | undefined;
   amount: string;
   method: HoneyPreviewMethod;
 }
@@ -25,6 +27,7 @@ export const getHoneyPreview = async ({
   client,
   config,
   collateral,
+  collateralList,
   amount,
   method,
 }: HoneyPreviewArgs): Promise<string[] | undefined> => {
@@ -46,10 +49,17 @@ export const getHoneyPreview = async ({
       address: config.contracts.honeyFactoryReaderAddress as Address,
       abi: honeyFactoryReaderAbi,
       functionName: method,
-      args: [collateral.address, formattedAmount],
+      args: [
+        collateral.address,
+        method === HoneyPreviewMethod.RedeemBasket
+          ? formattedAmount
+          : undefined,
+      ],
     })) as bigint | bigint[];
 
-    const formattedResult = ["0", "0"];
+    const formattedResult = Array<string>(collateralList?.length ?? 2).fill(
+      "0",
+    );
     if (
       method === HoneyPreviewMethod.Mint ||
       method === HoneyPreviewMethod.HoneyToRedeem
@@ -57,14 +67,14 @@ export const getHoneyPreview = async ({
       formattedResult[0] = formatUnits(result as bigint, 18); //honey decimals
     } else if (method === HoneyPreviewMethod.Redeem) {
       formattedResult[0] = formatUnits(result as bigint, collateral.decimals);
-    } else {
+    } else if (collateralList && collateralList.length === 2) {
       formattedResult[0] = formatUnits(
         (result as bigint[])[0],
-        collateral.decimals,
+        collateralList?.[0].decimals,
       );
       formattedResult[1] = formatUnits(
         (result as bigint[])[1],
-        collateral.decimals,
+        collateralList?.[1].decimals,
       );
     }
     return formattedResult;

@@ -59,7 +59,7 @@ export const usePsm = () => {
     collateral: collateral?.address as Address,
   });
 
-  const { data: isBasketModeEnabled } = useIsBasketModeEnabled(isMint);
+  const { data: isBasketModeEnabled } = useIsBasketModeEnabled({ isMint });
 
   const { useBalance: useFromBalance } = usePollBalance({
     address: selectedFrom?.address,
@@ -119,6 +119,7 @@ export const usePsm = () => {
   const { data: previewRes, isLoading: isHoneyPreviewLoading } =
     usePollHoneyPreview({
       collateral: isTyping ? undefined : collateral,
+      collateralList: isBasketModeEnabled ? collateralList : undefined,
       amount: (givenIn ? fromAmount[0] : toAmount[0]) ?? "0",
       mint: isMint,
       given_in: givenIn,
