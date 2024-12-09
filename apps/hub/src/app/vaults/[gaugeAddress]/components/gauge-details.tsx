@@ -9,6 +9,8 @@ import {
   type UserValidator,
   useRewardVaultIncentives,
   useMultipleTokenInformation,
+  useBeraJs,
+  Token,
 } from "@bera/berajs";
 import { lendRewardsAddress, blockExplorerUrl } from "@bera/config";
 import { DataTable, GaugeIcon, MarketIcon, PoolHeader } from "@bera/shared-ui";
@@ -22,6 +24,9 @@ import { getGaugeValidatorColumns } from "~/columns/general-validator-columns";
 import Loading from "../loading";
 import { BendRewardsBanner } from "./banner";
 import { MyGaugeDetails } from "./my-gauge-details";
+import { Card, CardContent } from "@bera/ui/card";
+import { Button } from "@bera/ui/button";
+import Link from "next/link";
 
 export const GaugeDetails = ({
   gaugeAddress,
@@ -44,6 +49,7 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
   } = useSelectedGauge(gaugeAddress);
 
   const router = useRouter();
+  const { account } = useBeraJs();
 
   const {
     data: rewardVault,
@@ -66,15 +72,13 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
   });
 
   const activeIncentives = incentivesData?.map((incentive) => {
-    const token = incentiveTokens?.find(
-      (token) => token.address === incentive.token,
-    ) ?? { address: incentive.token };
+    const token =
+      incentiveTokens?.find((token) => token.address === incentive.token) ??
+      ({ address: incentive.token } as Token);
     return { ...incentive, token };
   });
 
   if (rewardVaultError) return notFound();
-
-  console.log({ gauge });
 
   return (
     <>
@@ -118,6 +122,33 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
             ]}
             className="border-b border-border pb-8"
           />
+
+          {activeIncentives
+            ?.filter((inc) => account && inc.manager === account)
+            .map((inc) => (
+              <Card>
+                <CardContent className="md:flex w-full items-center justify-between p-4 pt-4">
+                  <div className="flex flex-col items-start pr-4">
+                    <div className="text-muted-foregorund font-medium">
+                      Add {inc.token.name ? `${inc.token.name} ` : ""}incentives
+                      to this rewards vault
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      You are currently logged in with a token manager wallet
+                      enabling you to add incentives.
+                    </div>
+                  </div>
+                  <Button
+                    as={Link}
+                    className=" max-md:mt-4 max-md:w-full whitespace-nowrap"
+                    href={`/incentivize?gauge=${gaugeAddress}&token=${inc.token.address}`}
+                  >
+                    Add {inc.token.name ?? "incentives"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+
           {gaugeAddress.toLowerCase() !== lendRewardsAddress.toLowerCase() ? (
             <MyGaugeDetails gauge={gauge} rewardVault={rewardVault} />
           ) : (
