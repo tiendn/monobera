@@ -13,6 +13,7 @@ export { useSelectedGaugeValidators } from "./useSelectedGaugeValidators";
 export { useGaugeAddress } from "./useGaugeAddress";
 export { usePollIncentivesInfo } from "./usePollIncentivesInfo";
 export { useClaimableFees } from "./useClaimableFees";
+export { useRewardVaultIncentives } from "./useRewardVaultIncentives";
 export * from "./useBgtInflation";
 export * from "./useIsFriendOfTheChef";
 export * from "./useRewardVault";

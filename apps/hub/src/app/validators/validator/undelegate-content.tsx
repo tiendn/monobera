@@ -60,7 +60,7 @@ export const UnDelegateContent = ({
       {UnBondModalPortal}
       <div className="flex flex-col gap-3">
         <div className="text-lg font-semibold capitalize leading-7 text-foreground">
-          Unbond
+          Unboost
         </div>
         <Image
           src={ImageMapEnum.UNBOND.light}
@@ -117,7 +117,7 @@ export const UnDelegateContent = ({
               })
             }
           >
-            Unbond
+            Unboost
           </Button>
         </ActionButton>
       </div>

@@ -15,8 +15,8 @@ export const GaugueLPChange = ({
     <div className="w-full">
       <Tabs defaultValue="deposit" className="flex w-full flex-col gap-4">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="deposit">Deposit</TabsTrigger>
-          <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+          <TabsTrigger value="deposit">Stake</TabsTrigger>
+          <TabsTrigger value="withdraw">Unstake</TabsTrigger>
         </TabsList>
         <TabsContent value="deposit">
           {lpToken && <DepositLP lpToken={lpToken} rewardVault={rewardVault} />}

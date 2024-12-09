@@ -70,7 +70,13 @@ export function BGTStatusDetails({ isHub }: { isHub?: boolean }) {
       <div>
         <p className="text-sm font-semibold">Unclaimed Rewards</p>
         <FormattedNumber
-          value={totalBgtRewardValue + parseFloat(claimableFees ?? "0")}
+          value={
+            totalBgtRewardValue +
+            (beraInfo?.usdValue
+              ? parseFloat(claimableFees ?? "0") *
+                parseFloat(beraInfo?.usdValue ?? "0")
+              : 0)
+          }
           className="text-sm font-medium text-muted-foreground"
           symbol="USD"
         />
@@ -96,7 +102,7 @@ export function BGTStatusDetails({ isHub }: { isHub?: boolean }) {
         </div>
         <div className="w-full justify-between flex flex-row items-center">
           <div className="flex flex-row items-center text-sm gap-2 font-medium">
-            <Icons.honey className="w-6 h-6" /> HONEY
+            <Icons.beraIcon className="w-6 h-6" /> BERA
           </div>
           <div className="flex flex-col gap-0 items-end">
             <FormattedNumber
@@ -106,21 +112,24 @@ export function BGTStatusDetails({ isHub }: { isHub?: boolean }) {
             />
             <FormattedNumber
               className="text-xs font-medium text-muted-foreground"
-              value={claimableFees}
+              value={
+                beraInfo?.usdValue
+                  ? claimableFees * parseFloat(beraInfo?.usdValue ?? "0")
+                  : 0
+              }
               symbol="USD"
               compact
             />
           </div>
         </div>
       </div>
-      <Button className="w-full" disabled>
-        Coming Soon
+      <Button
+        as={Link}
+        href={isHub ? "/rewards/" : `${hubUrl}/rewards/`}
+        className="w-full"
+      >
+        View Breakdown
       </Button>
-      <Link href={isHub ? "/rewards/" : `${hubUrl}/rewards/`}>
-        <Button className="w-full mt-[-8px]" variant={"ghost"}>
-          View Breakdown
-        </Button>
-      </Link>
     </div>
   );
 }

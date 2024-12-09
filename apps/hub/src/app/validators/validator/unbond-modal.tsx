@@ -20,7 +20,7 @@ export const UnbondModal = ({
         onClick={() => setOpen(true)}
         disabled={Number(userValidator.amountDeposited) <= 0}
       >
-        Unbond
+        Unboost
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">

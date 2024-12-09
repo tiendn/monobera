@@ -25,9 +25,11 @@ const InputWithLabel = React.forwardRef<
   CustomInputProps & {
     label?: string;
     error?: string | null;
+    isLoading?: boolean;
+    loader?: React.ReactNode;
     tooltip?: React.ReactNode; // NOTE: optional label tooltip object
   }
->(({ label, error, tooltip, ...props }, ref) => {
+>(({ label, error, tooltip, loader, isLoading, ...props }, ref) => {
   return (
     <div className="grid grid-cols-1 gap-y-2">
       {label && (
@@ -36,6 +38,7 @@ const InputWithLabel = React.forwardRef<
             {label}
           </Label>
           {tooltip && <div className="pb-0.5 pl-[-2]">{tooltip}</div>}
+          {isLoading && loader}
         </div>
       )}
 

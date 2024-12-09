@@ -7,6 +7,7 @@ export enum LOCAL_STORAGE_KEYS {
   SLIPPAGE_TOLERANCE_VALUE = "SLIPPAGE_TOLERANCE_VALUE",
   DEADLINE_TYPE = "DEADLINE_TYPE",
   DEADLINE_VALUE = "DEADLINE_VALUE",
+  CLAIM_REWARDS_RECIPIENT = "CLAIM_REWARDS_RECIPIENT",
 }
 
 // FIXME: this and settings.tsx are defining similar things (mostly for the swap-settings & settings inputs)

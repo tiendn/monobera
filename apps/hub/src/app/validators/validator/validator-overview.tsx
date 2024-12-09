@@ -58,7 +58,7 @@ export const ValidatorOverview = ({ validator }: { validator: Validator }) => {
   const totalValidators = allValidators?.validators?.length ?? 0;
   let valStakedRanking = -1;
   allValidators?.validators?.find((v, index: number) => {
-    if (v.id === validator.coinbase.toLowerCase()) {
+    if (v.id === validator.id.toLowerCase()) {
       valStakedRanking = index + 1;
       return true;
     }
@@ -67,16 +67,17 @@ export const ValidatorOverview = ({ validator }: { validator: Validator }) => {
 
   let valSignedRanking = -1;
   allValidatorBlockData?.blockStatsByValidators?.find((v, index: number) => {
-    if (v.validator.publicKey === validator.coinbase.toLowerCase()) {
+    if (v.validator.id.toLowerCase() === validator.id.toLowerCase()) {
       valSignedRanking = index + 1;
       return true;
     }
     return;
   });
 
-  const activeIncentivesTokens = [
-    ...new Set(activeIncentivesArray?.map((incentive) => incentive.token)),
-  ];
+  const activeIncentivesTokens = activeIncentivesArray
+    ? [...new Set(activeIncentivesArray?.map((incentive) => incentive?.token))]
+    : [];
+
   const { data: tokenHoneyPrices } = useTokenHoneyPrices({
     tokenAddresses: activeIncentivesTokens.map(
       (t: Token) => t.address,
@@ -92,8 +93,6 @@ export const ValidatorOverview = ({ validator }: { validator: Validator }) => {
     },
     0,
   );
-
-  console.log({ totalBlocks });
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
