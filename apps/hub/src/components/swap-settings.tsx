@@ -86,6 +86,7 @@ export default function SwapSettings({
             step="any"
             min={MIN_SLIPPAGE}
             max={MAX_SLIPPAGE}
+            className="text-right"
             disabled={slippageToleranceType !== SELECTION.CUSTOM}
             value={
               slippageToleranceType === SELECTION.AUTO
@@ -165,7 +166,7 @@ export default function SwapSettings({
             <Input
               type="number"
               step="any"
-              className="h-[40px] pl-1 pr-9 text-right"
+              className="h-[40px] text-right"
               min={MIN_INPUT_DEADLINE}
               max={MAX_INPUT_DEADLINE}
               disabled={deadlineType !== SELECTION.CUSTOM}
