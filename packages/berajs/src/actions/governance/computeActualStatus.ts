@@ -20,18 +20,19 @@ export function computeActualStatus(
   /**
    * Value returned by the `state` function of the governance contract.
    */
-  proposalState?: ProposalState,
+  proposalOnChainState?: ProposalState,
 ): ProposalStatus {
   /**
    * If the proposal state is provided, we can use it for early return.
    */
-  if (proposalState !== undefined) {
-    if (proposalState === ProposalState.Canceled) {
+  if (proposalOnChainState !== undefined) {
+    if (proposalOnChainState === ProposalState.Canceled) {
       if (proposal.voteStartBlock < currentBlock)
         return ProposalStatus.CanceledByUser;
       return ProposalStatus.CanceledByGuardian;
     }
-    if (proposalState === ProposalState.Defeated) {
+
+    if (proposalOnChainState === ProposalState.Defeated) {
       if (!proposal.pollResult) {
         // Poll result is created after first vote.
         return ProposalStatus.QuorumNotReached;
@@ -45,17 +46,18 @@ export function computeActualStatus(
       return ProposalStatus.Defeated; //
     }
 
-    if (proposalState === ProposalState.Succeeded)
+    if (proposalOnChainState === ProposalState.Succeeded)
       return ProposalStatus.PendingQueue;
-    if (proposalState === ProposalState.Queued) {
+
+    if (proposalOnChainState === ProposalState.Queued) {
       if (proposal.queueEnd < currentBlock) {
         return ProposalStatus.PendingExecution;
       }
       return ProposalStatus.InQueue;
     }
 
-    if (proposalState === ProposalState.Expired) {
-      console.warn("Unexpected expired stato on proposal id: ", proposal.id);
+    if (proposalOnChainState === ProposalState.Expired) {
+      console.warn("Unexpected expired state on proposal id: ", proposal.id);
       return ProposalStatus.Defeated;
     }
 
@@ -64,7 +66,7 @@ export function computeActualStatus(
       [ProposalState.Active]: ProposalStatus.Active,
       [ProposalState.Executed]: ProposalStatus.Executed,
     };
-    return map[proposalState];
+    return map[proposalOnChainState];
   }
 
   /*
@@ -79,7 +81,7 @@ export function computeActualStatus(
 
   if (
     governanceAccelerateProposal &&
-    proposalState === ProposalState.Active &&
+    proposalOnChainState === ProposalState.Active &&
     BigInt(proposal.quorum) < BigInt(proposal.pollResult.totalTowardsQuorum) &&
     Number(proposal.pollResult.forPercentage) >
       Number(proposal.pollResult.againstPercentage)
