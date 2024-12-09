@@ -101,7 +101,7 @@ enum Chart {
   FEES = "supply",
 }
 
-const getData = (data: HoneyEntry[]) => {
+const getData = (data: HoneyEntry[], arcade: boolean) => {
   return {
     labels: data.map((entry: any) => {
       const utcDate = new Date(entry.timestamp * 1000);
@@ -118,10 +118,12 @@ const getData = (data: HoneyEntry[]) => {
       {
         data: data.map((entry: any) => Number(entry.amount)),
         labelColor: false,
-        backgroundColor: barColors.arcade,
-        borderColor: barColors.arcade,
-        hoverBackgroundColor: barColors.arcadeHover,
-        hoverBorderColor: barColors.arcadeHover,
+        backgroundColor: arcade ? barColors.arcade : barColors.pro,
+        borderColor: arcade ? barColors.arcade : barColors.pro,
+        hoverBackgroundColor: arcade
+          ? barColors.arcadeHover
+          : barColors.proHover,
+        hoverBorderColor: arcade ? barColors.arcadeHover : barColors.proHover,
         tension: 0.4,
         borderRadius: 100,
         borderSkipped: false,
@@ -157,7 +159,7 @@ function calculatePercentageDifference(entries: HoneyEntry[]): number {
   return percentageDifference;
 }
 
-export const HoneyChart = () => {
+export const HoneyChart = ({ arcade = false }: { arcade?: boolean }) => {
   const [timeFrame, setTimeFrame] = useState(HoneyTimeFrame.WEEKLY);
   const calculatedTimestamp = useMemo(() => getTime(timeFrame), [timeFrame]);
   const [chart, setChart] = useState<Chart.VOLUME | Chart.FEES>(Chart.VOLUME);
@@ -187,20 +189,38 @@ export const HoneyChart = () => {
             : startingTimeStamp,
         );
 
-  const chartData = getData(data);
+  const chartData = getData(data, arcade);
   const total = data[data.length - 1]?.amount ?? 0;
   const difference = calculatePercentageDifference(data);
 
   return (
     <section>
-      <Card className="border-2 p-0 border-dashed border-foregroundSecondary">
+      <Card
+        className={cn(
+          "border-2 p-0",
+          arcade
+            ? "border-dashed border-foregroundSecondary"
+            : "border-border bg-background",
+        )}
+      >
         <Tabs
           defaultValue={Chart.VOLUME}
           onValueChange={(value: string) => setChart(value as Chart)}
         >
           <CardHeader className="flex w-full flex-col items-center justify-start px-6 py-4 sm:flex-row sm:justify-between">
-            <div className="flex w-full gap-1 flex-col items-start">
-              <div className="text-2xl font-normal leading-9 text-foregroundSecondary">
+            <div
+              className={cn(
+                "flex w-full gap-1",
+                arcade ? "flex-col items-start" : "flex-row items-center",
+              )}
+            >
+              <div
+                className={cn(
+                  arcade
+                    ? "text-2xl font-normal leading-9 text-foregroundSecondary"
+                    : "text-xl font-semibold leading-7",
+                )}
+              >
                 <FormattedNumber value={total} symbol="USD" compact={false} />
               </div>
               <FormattedNumber
@@ -213,16 +233,27 @@ export const HoneyChart = () => {
             </div>
 
             <div className="flex w-full flex-row items-center justify-start gap-2 sm:justify-end">
-              <TabsList className="rounded-md border-2 border-foregroundSecondary bg-blue-100">
+              <TabsList
+                className={cn(
+                  arcade &&
+                    "rounded-md border-2 border-foregroundSecondary bg-blue-100",
+                )}
+              >
                 <TabsTrigger
                   value={Chart.VOLUME}
-                  className="text-foregroundSecondary data-[state=active]:bg-foregroundSecondary"
+                  className={cn(
+                    arcade &&
+                      "text-foregroundSecondary data-[state=active]:bg-foregroundSecondary",
+                  )}
                 >
                   Volume
                 </TabsTrigger>
                 <TabsTrigger
                   value={Chart.FEES}
-                  className="text-foregroundSecondary data-[state=active]:bg-foregroundSecondary"
+                  className={cn(
+                    arcade &&
+                      "text-foregroundSecondary data-[state=active]:bg-foregroundSecondary",
+                  )}
                 >
                   Supply
                 </TabsTrigger>
@@ -232,28 +263,55 @@ export const HoneyChart = () => {
                   setTimeFrame(value as HoneyTimeFrame)
                 }
               >
-                <SelectTrigger className="w-fit justify-start gap-1 rounded-md border-2 border-foregroundSecondary bg-blue-100 text-foregroundSecondary">
+                <SelectTrigger
+                  className={cn(
+                    "w-fit justify-start gap-1 rounded-md",
+                    arcade
+                      ? "border-2 border-foregroundSecondary bg-blue-100 text-foregroundSecondary"
+                      : "border border-border bg-muted text-foreground",
+                  )}
+                >
                   <SelectValue
                     placeholder={HoneyTimeFrame.WEEKLY}
                     defaultValue={HoneyTimeFrame.WEEKLY}
                   />
                 </SelectTrigger>
-                <SelectContent className="rounded-md border-2 border-blue-900 bg-blue-100 text-blue-900">
+                <SelectContent
+                  className={cn(
+                    arcade &&
+                      "rounded-md border-2 border-blue-900 bg-blue-100 text-blue-900",
+                  )}
+                >
                   <SelectItem
                     value={HoneyTimeFrame.WEEKLY}
-                    className="cursor-pointer rounded-md hover:text-boue-100 text-blue-900 hover:bg-blue-900 hover:text-blue-100"
+                    className={cn(
+                      "cursor-pointer rounded-md",
+                      arcade
+                        ? "hover:text-boue-100 text-blue-900 hover:bg-blue-900 hover:text-blue-100"
+                        : "hover:bg-muted hover:text-foreground focus:text-foreground",
+                    )}
                   >
                     7D
                   </SelectItem>
                   <SelectItem
                     value={HoneyTimeFrame.MONTHLY}
-                    className="cursor-pointer rounded-md hover:text-boue-100 text-blue-900 hover:bg-blue-900 hover:text-blue-100"
+                    className={cn(
+                      "cursor-pointer rounded-md",
+                      arcade
+                        ? "hover:text-boue-100 text-blue-900 hover:bg-blue-900 hover:text-blue-100"
+                        : "hover:bg-muted hover:text-foreground focus:text-foreground",
+                    )}
                   >
                     30D
                   </SelectItem>
                   <SelectItem
                     value={HoneyTimeFrame.QUARTERLY}
-                    className="cursor-pointer rounded-md hover:text-boue-100 text-blue-900 hover:bg-blue-900 hover:text-blue-100"
+                    className={cn(
+                      "cursor-pointer rounded-md",
+                      arcade
+                        ? "hover:text-boue-100 text-blue-900 hover:bg-blue-900 hover:text-blue-100"
+                        : "hover:bg-muted hover:text-foreground focus:text-foreground",
+                    )}
                   >
                     90D
                   </SelectItem>
