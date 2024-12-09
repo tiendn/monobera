@@ -31,7 +31,9 @@ export const RewardAllocationConfiguration = ({
     { address: string; distribution: number; id: string }[]
   >([{ address: "", distribution: 0, id: uuidv4() }]);
   const { data: rewardVaults, isLoading } = usePollGaugesData();
-  const { data: blockNumber } = useBlockNumber();
+  const { data: blockNumber } = useBlockNumber({
+    query: { refetchInterval: 10000 },
+  });
   const { data: rewardAllocationBlockDelay } =
     usePollRewardAllocationBlockDelay();
   const { data: defaultRewardAllocation } = usePollDefaultRewardAllocation();
@@ -388,9 +390,9 @@ export const RewardAllocationConfiguration = ({
           </span>
         )}
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
-          className="ml-auto mr-2 flex min-w-36 px-4 py-2"
+          className="ml-auto border-border mr-2 flex min-w-36 px-4 py-2"
           disabled={isQueuedRewardAllocation}
           onClick={handleResetToDefault}
         >

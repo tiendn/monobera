@@ -71,6 +71,10 @@ export const QueuedRewardAllocationConfiguration = ({
     }));
   }, [queuedRewardAllocation, vaultsData]);
 
+  const startBlockTimestamp = useBlockToTimestamp(
+    queuedRewardAllocation?.startBlock ?? 0,
+  );
+
   const rgbColorPalette = [
     "rgb(248 113 113)", // bg-red-400
     "rgb(96 165 250)", // bg-blue-400
@@ -174,14 +178,9 @@ export const QueuedRewardAllocationConfiguration = ({
     },
   };
 
-  const startBlockTimestamp = queuedRewardAllocation?.startBlock
-    ? useBlockToTimestamp(queuedRewardAllocation?.startBlock)
-    : undefined;
-
-  console.log("startBlockTimestamp", startBlockTimestamp);
   return (
     <>
-      {queuedRewardAllocationLoading && allVaultsLoading ? (
+      {queuedRewardAllocationLoading || allVaultsLoading ? (
         <Skeleton className="h-[300px] w-full" />
       ) : vaults && vaults.length > 0 ? (
         <Card className="">
