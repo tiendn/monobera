@@ -1,9 +1,10 @@
-import useSWRImmutable from "swr/immutable";
+import useSWR from "swr";
 import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { isBadCollateralAsset, isBadCollateralResponse } from "~/actions/honey";
 import { useBeraJs } from "~/contexts";
+import POLLING from "~/enum/polling";
 import { DefaultHookOptions, DefaultHookReturnType } from "~/types";
 
 export interface UseIsBadCollateralResponse
@@ -19,7 +20,7 @@ export const useIsBadCollateralAsset = (
   const { config: beraConfig } = useBeraJs();
   const config = options?.beraConfigOverride ?? beraConfig;
 
-  const swrResponse = useSWRImmutable(
+  const swrResponse = useSWR(
     QUERY_KEY,
     async () => {
       if (!publicClient) throw new Error("publicClient is not defined");
@@ -33,7 +34,10 @@ export const useIsBadCollateralAsset = (
         collateral,
       });
     },
-    { ...options?.opts },
+    {
+      ...options?.opts,
+      refreshInterval: options?.opts?.refreshInterval ?? POLLING.NORMAL,
+    },
   );
 
   return {

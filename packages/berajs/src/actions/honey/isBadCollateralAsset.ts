@@ -44,12 +44,12 @@ export const isBadCollateralAsset = async ({
     });
 
     // check if the collateral is depegged
-    const isDepeggedResult = await client.readContract({
+    const isDepeggedResult = !(await client.readContract({
       address: config.contracts!.honeyFactoryAddress,
       abi: honeyFactoryAbi,
       functionName: "isPegged",
       args: [collateral],
-    });
+    }));
 
     return {
       isBlacklisted: badCollateralResult,
