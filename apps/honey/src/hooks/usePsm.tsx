@@ -10,6 +10,7 @@ import {
   usePollHoneyPreview,
   useTokens,
   useIsBadCollateralAsset,
+  useIsBasketModeEnabled,
   type Token,
 } from "@bera/berajs";
 import { honeyFactoryAddress, honeyTokenAddress } from "@bera/config";
@@ -57,6 +58,8 @@ export const usePsm = () => {
   const { data: isBadCollateral } = useIsBadCollateralAsset({
     collateral: collateral?.address as Address,
   });
+
+  const { data: isBasketModeEnabled } = useIsBasketModeEnabled(isMint);
 
   const { useBalance: useFromBalance } = usePollBalance({
     address: selectedFrom?.address,
@@ -192,5 +195,6 @@ export const usePsm = () => {
     setIsTyping,
     isTyping,
     isBadCollateral,
+    isBasketModeEnabled,
   };
 };

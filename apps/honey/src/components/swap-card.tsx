@@ -17,6 +17,8 @@ import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { parseUnits } from "viem";
 
 import { usePsm } from "~/hooks/usePsm";
+import { Icons } from "@bera/ui/icons";
+import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 
 export function SwapCard() {
   const [tabValue, setTabValue] = useState<"mint" | "burn">("mint");
@@ -48,6 +50,7 @@ export function SwapCard() {
     exceedBalance,
     isTyping,
     isBadCollateral,
+    isBasketModeEnabled,
   } = usePsm();
 
   return (
@@ -130,6 +133,34 @@ export function SwapCard() {
                 onTokenSelection={setSelectedTo}
               />
             </ul>
+            {(isBadCollateral?.isBlacklisted || isBadCollateral?.isDepegged) &&
+            !isBasketModeEnabled ? (
+              <Alert variant="default" className="flex gap-2">
+                <Icons.info className="h-4 w-4 flex-shrink-0 text-default-foreground" />
+                <div>
+                  <AlertTitle className="text-destructive-foreground">
+                    Selected token disabled
+                  </AlertTitle>
+                  <AlertDescription className="text-sm text-muted-foreground">
+                    Selected token is currently{" "}
+                    {isBadCollateral.isBlacklisted ? "blacklisted" : "depegged"}
+                    .
+                  </AlertDescription>
+                </div>
+              </Alert>
+            ) : isBasketModeEnabled ? (
+              <Alert variant="default" className="flex gap-2">
+                <Icons.info className="h-4 w-4 flex-shrink-0 text-default-foreground" />
+                <div>
+                  <AlertTitle className="text-destructive-foreground">
+                    Minting is currently restricted to preset pairs
+                  </AlertTitle>
+                  <AlertDescription className="text-sm text-muted-foreground">
+                    Restrictions in effect due to price volatility.
+                  </AlertDescription>
+                </div>
+              </Alert>
+            ) : null}
             {!isReady ? (
               <ConnectButton className="w-full" />
             ) : needsApproval && !exceedBalance ? (
