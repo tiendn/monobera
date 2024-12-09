@@ -161,26 +161,42 @@ const getTokenDisplay = (event: HoneyTxn, tokenDictionary: any) => {
 export const EventTable = ({
   events,
   isLoading,
+  arcade,
 }: {
   // events: HoneyMint[] | HoneyRedemption[] ;
   events: HoneyTxn[];
   isLoading: boolean | undefined;
+  arcade: boolean;
 }) => {
   const { data: tokenData } = useTokens();
   console.log("tokenData", events);
   return (
     <Table>
       <TableHeader>
-        <TableRow className="border-b border-blue-300 bg-blue-100 text-blue-600 hover:bg-blue-100">
-          <TableHead className="text-blue-600">Action</TableHead>
-          <TableHead className="text-blue-600">Value</TableHead>
-          <TableHead className="hidden sm:table-cell text-blue-600">
+        <TableRow
+          className={
+            arcade
+              ? "border-b border-blue-300 bg-blue-100 text-blue-600 hover:bg-blue-100"
+              : ""
+          }
+        >
+          <TableHead className={cn(arcade && "text-blue-600")}>
+            Action
+          </TableHead>
+          <TableHead className={cn(arcade && "text-blue-600")}>Value</TableHead>
+          <TableHead
+            className={cn("hidden sm:table-cell", arcade && "text-blue-600")}
+          >
             Tokens
           </TableHead>
-          <TableHead className="hidden sm:table-cell text-blue-600">
+          <TableHead
+            className={cn("hidden sm:table-cell", arcade && "text-blue-600")}
+          >
             TxnHash
           </TableHead>
-          <TableHead className="text-center text-blue-600">Time</TableHead>
+          <TableHead className={cn("text-center", arcade && "text-blue-600")}>
+            Time
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -189,7 +205,10 @@ export const EventTable = ({
             if (!event) return null;
             return (
               <TableRow
-                className="hover:cursor-pointer hover:bg-blue-200"
+                className={cn(
+                  "hover:cursor-pointer",
+                  arcade ? "hover:bg-blue-200" : "hover:bg-muted",
+                )}
                 key={event.id}
                 onClick={() =>
                   window.open(`${blockExplorerUrl}/tx/${event.id}`, "_blank")
