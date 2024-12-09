@@ -50,7 +50,7 @@ export function computeActualStatus(
       return ProposalStatus.PendingQueue;
 
     if (proposalOnChainState === ProposalState.Queued) {
-      if (proposal.queueEnd < currentBlock) {
+      if (proposal.queueEnd < Date.now() / 1000) {
         return ProposalStatus.PendingExecution;
       }
       return ProposalStatus.InQueue;
@@ -60,13 +60,6 @@ export function computeActualStatus(
       console.warn("Unexpected expired state on proposal id: ", proposal.id);
       return ProposalStatus.Defeated;
     }
-
-    const map = {
-      [ProposalState.Pending]: ProposalStatus.Pending,
-      [ProposalState.Active]: ProposalStatus.Active,
-      [ProposalState.Executed]: ProposalStatus.Executed,
-    };
-    return map[proposalOnChainState];
   }
 
   /*
@@ -74,7 +67,7 @@ export function computeActualStatus(
    */
 
   if (proposal.status === ProposalStatus.InQueue) {
-    if (proposal.queueEnd < currentBlock) {
+    if (proposal.queueEnd < Date.now() / 1000) {
       return ProposalStatus.PendingExecution;
     }
   }

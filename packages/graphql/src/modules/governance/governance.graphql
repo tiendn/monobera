@@ -27,6 +27,7 @@ fragment ProposalSelection on Proposal {
   }
   voteEndBlock
   voteStartBlock
+  queueStart
   queueEnd
   canceledAt
   canceledAt
