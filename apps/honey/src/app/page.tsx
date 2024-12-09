@@ -10,7 +10,7 @@ import HoneyPage from "~/components/honey-page";
 import HoneyTransactionsTable from "~/components/honey-transactions-table";
 import { LoadingBee } from "~/components/loadingBee";
 import { cn } from "@bera/ui";
-import ModeSwitch from "~/components/mode-switch";
+// import ModeSwitch from "~/components/mode-switch";
 
 export default function Page() {
   return (
@@ -28,7 +28,7 @@ const Content = () => {
         arcade ? "bg-backgroundSecondary font-honey" : "pro-mode-background",
       )}
     >
-      <ModeSwitch arcade={arcade} />
+      {/* <ModeSwitch arcade={arcade} /> */}
       <HoneyPage arcade={arcade} />
       <div
         className={cn(
