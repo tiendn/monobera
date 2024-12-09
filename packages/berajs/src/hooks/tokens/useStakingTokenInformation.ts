@@ -8,30 +8,33 @@ import useSWRImmutable from "swr/immutable";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { getTokenInformation } from "~/actions";
 import {
   DefaultHookOptions,
   DefaultHookReturnType,
   Token,
   useBeraJs,
 } from "../..";
+import { getStakingTokenInformation } from "../../actions/dex/getStakingTokenInformation";
 
-export type UseTokenInformationResponse = DefaultHookReturnType<
-  Token | undefined
+export type UseStakingTokenInformationResponse = DefaultHookReturnType<
+  Partial<Token> | undefined
 >;
 
-export type UseTokenInformationArgs = {
+export type useStakingTokenInformationArgs = {
   address: string | undefined;
+  includeTotalSupply?: boolean;
 };
-export const useTokenInformation = (
-  args: UseTokenInformationArgs,
+export const useStakingTokenInformation = (
+  args: useStakingTokenInformationArgs,
   options?: DefaultHookOptions,
-): UseTokenInformationResponse => {
+): UseStakingTokenInformationResponse => {
   const publicClient = usePublicClient();
   const { config: beraConfig } = useBeraJs();
   const QUERY_KEY =
-    args?.address && publicClient ? [args.address, publicClient] : null;
-  const swrResponse = useSWRImmutable<Token | undefined>(
+    args?.address && publicClient
+      ? [args.address, publicClient, args.includeTotalSupply]
+      : null;
+  const swrResponse = useSWRImmutable<Partial<Token> | undefined>(
     QUERY_KEY,
     async () => {
       if (args?.address === nativeTokenAddress) {
@@ -40,12 +43,14 @@ export const useTokenInformation = (
           decimals: gasTokenDecimals,
           name: gasTokenName,
           symbol: gasTokenSymbol,
-        } satisfies Token;
+        };
       }
+
       if (!args?.address || !isAddress(args.address, { strict: false })) {
         throw new Error("Invalid address");
       }
-      return await getTokenInformation({
+
+      return await getStakingTokenInformation({
         address: args.address,
         config: options?.beraConfigOverride ?? beraConfig,
         publicClient,

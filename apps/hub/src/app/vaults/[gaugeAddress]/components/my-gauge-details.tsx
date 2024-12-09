@@ -14,6 +14,8 @@ import { Icons } from "@bera/ui/icons";
 import BigNumber from "bignumber.js";
 
 import { GaugueLPChange } from "./gauge-lp-change";
+import { ClaimBGTModal } from "../../components/claim-modal";
+import { useState } from "react";
 
 export const MyGaugeDetails = ({
   gauge,
@@ -22,21 +24,16 @@ export const MyGaugeDetails = ({
   gauge: Gauge | undefined | null;
   rewardVault: RewardVault;
 }) => {
-  const { isReady, account } = useBeraJs();
-  const { data, refresh } = usePollVaultsInfo({
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const { isReady } = useBeraJs();
+
+  const { data } = usePollVaultsInfo({
     vaultAddress: rewardVault.address,
   });
   const { data: price } = useTokenHoneyPrice({
     tokenAddress: beraTokenAddress,
   });
-  const { captureException, track } = useAnalytics();
-  const { write, ModalPortal } = useTxn({
-    message: "Claim BGT Rewards",
-    actionType: TransactionActionType.CLAIMING_REWARDS,
-    onSuccess: () => {
-      refresh();
-    },
-  });
+
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
       <GaugueLPChange rewardVault={rewardVault} />
@@ -86,22 +83,19 @@ export const MyGaugeDetails = ({
             </div>
             <Button
               disabled={!data.rewards || Number(data.rewards) <= 0}
-              onClick={() =>
-                write({
-                  address: rewardVault.address,
-                  abi: BERA_VAULT_REWARDS_ABI,
-                  functionName: "getReward",
-                  params: [account!, account!], // TODO: A second param is needed here for recipient. Added current account twice for now
-                })
-              }
+              onClick={() => setIsClaimModalOpen(true)}
             >
-              {" "}
               Claim Rewards
             </Button>
+
+            <ClaimBGTModal
+              isOpen={isClaimModalOpen}
+              onOpenChange={setIsClaimModalOpen}
+              rewardVault={rewardVault.address}
+            />
           </div>
         </div>
       )}
-      {ModalPortal}
     </div>
   );
 };

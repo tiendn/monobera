@@ -170,19 +170,11 @@ export const GeneralInfo = () => {
               text={"Claim all BGT rewards coming soon"}
               toolTipTrigger={
                 <Button
-                  // onClick={() => {
-                  //   claimAllBgtWrite({
-                  //     address: multicallAddress,
-                  //     abi: multicall3Abi as any,
-                  //     functionName: "aggregate",
-                  //     params: [claimAllBgtCalldata],
-                  //   });
-                  // }}
                   className="relative z-10 mt-4 flex w-full gap-1"
                   disabled={true}
                 >
                   <Icons.bgt className="h-6 w-6" />
-                  Claim BGT
+                  Claim All
                 </Button>
               }
             />
@@ -274,9 +266,9 @@ export const GeneralInfo = () => {
                     value={claimableFees}
                     compact
                     showIsSmallerThanMin
-                    symbol="HONEY"
+                    symbol="WBERA"
                   />{" "}
-                  <Icons.honey className="h-6 w-6" />
+                  <Icons.beraIcon className="h-6 w-6" />
                 </>
               ) : (
                 <Skeleton className="h-8 w-24" />
@@ -310,7 +302,6 @@ export const GeneralInfo = () => {
                 isClaimingRewardsLoading
               }
             >
-              <Icons.honey className="h-6 w-6" />
               Claim Fees
             </Button>
           </ActionButton>

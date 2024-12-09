@@ -2,12 +2,16 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { usePollRewardVault } from "@bera/berajs";
-import { Spinner, Tooltip } from "@bera/shared-ui";
+import {
+  usePollRewardVault,
+  useStakingTokenInformation,
+  useTokenInformation,
+} from "@bera/berajs";
+import { FormattedNumber, Spinner, Tooltip } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
-import { Input } from "@bera/ui/input";
+import { Input, InputWithLabel } from "@bera/ui/input";
 import { Address, isAddress } from "viem";
 import { useCreateRewardVault } from "./useCreateRewardVault";
 
@@ -22,6 +26,10 @@ export const CreateGaugeCard: React.FC = () => {
       isAddress(targetAddress) ? (targetAddress as `0x${string}`) : undefined,
     );
 
+  const { data: tokenInformation, error } = useStakingTokenInformation({
+    address: targetAddress,
+  });
+
   const rewardVault = useMemo(
     () =>
       rewardVaultData?.vaults.length === 0
@@ -29,6 +37,8 @@ export const CreateGaugeCard: React.FC = () => {
         : rewardVaultData?.vaults?.[0],
     [rewardVaultData],
   );
+
+  console.log({ tokenInformation, error });
 
   const router = useRouter();
 
@@ -57,27 +67,24 @@ export const CreateGaugeCard: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <div className="flex justify-between">
-              <label
-                htmlFor="targetAddress"
-                className="mb-1 block text-sm font-medium"
-              >
-                Target Contract Address
-              </label>
-              {isLoadingRewardVault && (
-                <p className="flex">
-                  <Spinner size={16} color="white" />
-                </p>
-              )}
-            </div>
-            <Input
-              id="targetAddress"
-              placeholder="Enter the target address"
-              value={targetAddress}
-              onChange={(e) => setTargetAddress(e.target.value)}
-            />
-          </div>
+          <InputWithLabel
+            label="Target Contract Address"
+            placeholder="Enter the target address"
+            id="targetAddress"
+            value={targetAddress}
+            loader={<Spinner size={16} color="white" />}
+            isLoading={isLoadingRewardVault}
+            onChange={(e) => setTargetAddress(e.target.value)}
+            error={
+              targetAddress
+                ? !isAddress(targetAddress)
+                  ? "Not a valid address"
+                  : error
+                    ? "Not a valid ERC20 contract"
+                    : undefined
+                : undefined
+            }
+          />
           <div className="grid grid-cols-3 gap-4 truncate">
             <div>
               <label className="mb-1 block text-sm font-medium">
@@ -89,7 +96,7 @@ export const CreateGaugeCard: React.FC = () => {
               </label>
               <div className="w-full overflow-hidden">
                 <span className="block truncate">
-                  {rewardVault ? rewardVault?.stakingToken?.name : "--"}
+                  {tokenInformation?.name ?? "--"}
                 </span>
               </div>
             </div>
@@ -102,9 +109,14 @@ export const CreateGaugeCard: React.FC = () => {
                 />
               </label>
               <div className="w-full overflow-hidden">
-                <span className="block truncate">
-                  {rewardVault?.stakingTokenAmount || "—"}
-                </span>
+                {tokenInformation?.totalSupply ? (
+                  <FormattedNumber
+                    value={tokenInformation?.totalSupply || "0"}
+                    symbol={tokenInformation?.symbol}
+                  />
+                ) : (
+                  "--"
+                )}
               </div>
             </div>
             <div>
@@ -116,7 +128,7 @@ export const CreateGaugeCard: React.FC = () => {
                 />
               </label>
               <div className="flex items-center">
-                {rewardVault || isAddress(targetAddress) ? (
+                {tokenInformation || isAddress(targetAddress) ? (
                   <>
                     <span
                       className={
@@ -132,7 +144,7 @@ export const CreateGaugeCard: React.FC = () => {
                     )}
                   </>
                 ) : (
-                  <span>—</span>
+                  <span>--</span>
                 )}
               </div>
             </div>
@@ -141,7 +153,10 @@ export const CreateGaugeCard: React.FC = () => {
             className="w-full"
             onClick={() => createRewardVault()}
             disabled={
-              isLoadingRewardVault || !!rewardVault || !isAddress(targetAddress)
+              isLoadingRewardVault ||
+              !!rewardVault ||
+              !isAddress(targetAddress) ||
+              !tokenInformation
             }
           >
             Create Reward Vault
