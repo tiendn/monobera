@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useBeraJs,
-  type Validator,
   usePollSelectedValidator,
+  type Validator,
 } from "@bera/berajs";
 import {
   Select,
@@ -17,7 +17,8 @@ import { ValidatorOverview } from "../validator/validator-overview";
 import { ValidatorPolData } from "../validator/validator-pol-data";
 import { ValidatorAnalytics } from "./validator-analytics";
 import { ValidatorConfiguration } from "./validator-configuration";
-import { ValidatorEvents } from "./validator-events";
+
+// import { ValidatorEvents } from "./validator-events";
 
 export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
   const { account } = useBeraJs();
@@ -26,9 +27,21 @@ export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
     data?.validators[0]?.publicKey === validator.coinbase;
 
   const [dayRange, setDayRange] = useState("30");
+  const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    if (activeTab === "configuration" && !isValidatorWallet) {
+      setActiveTab("overview");
+    }
+  }, [isValidatorWallet, activeTab]);
 
   return (
-    <Tabs className="mt-4" defaultValue="overview">
+    <Tabs
+      className="mt-4"
+      value={activeTab}
+      onValueChange={setActiveTab}
+      defaultValue="overview"
+    >
       <div className="mb-6 flex w-full flex-col justify-between gap-6 sm:flex-row">
         <TabsList variant="ghost">
           <TabsTrigger value="overview">Overview</TabsTrigger>

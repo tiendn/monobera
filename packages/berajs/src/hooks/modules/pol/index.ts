@@ -19,3 +19,5 @@ export { usePollRewardAllocationBlockDelay } from "./hooks/poll-reward-allocatio
 export { usePollDefaultRewardAllocation } from "./hooks/poll-default-reward-allocation";
 export { usePollValidatorQueuedRewardAllocation } from "./hooks/poll-validator-queued-reward-allocation";
 export { usePollSelectedValidator } from "./hooks/poll-selected-validator";
+export { usePollValidatorQueuedOperatorAddress } from "./hooks/poll-validator-queued-operator-address";
+export { usePollValidatorOperatorAddress } from "./hooks/poll-validator-operator-address";

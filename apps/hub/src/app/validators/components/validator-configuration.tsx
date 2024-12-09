@@ -1,24 +1,14 @@
-import { useCallback, useState } from "react";
-import { cn } from "@bera/ui";
-import { Button } from "@bera/ui/button";
+import { useCallback } from "react";
 import { Card } from "@bera/ui/card";
-import { Icons } from "@bera/ui/icons";
-import { Input } from "@bera/ui/input";
 import { Address } from "viem";
 import { QueuedRewardAllocationConfiguration } from "./queued-reward-allocation-configuration";
 import { RewardAllocationConfiguration } from "./reward-allocation-configuration";
-
+import { GeneralSettings } from "./general-settings";
 export const ValidatorConfiguration = ({
   validatorPublicKey,
 }: {
   validatorPublicKey: Address;
 }) => {
-  const [operatorAddress, setOperatorAddress] = useState<string>("");
-
-  const handleSaveSettings = useCallback(() => {
-    console.log("changing settings", validatorPublicKey);
-  }, []);
-
   const handleUpdateMetadata = useCallback(() => {
     console.log("updating metadata", validatorPublicKey);
   }, []);
@@ -29,28 +19,7 @@ export const ValidatorConfiguration = ({
         validatorPublicKey={validatorPublicKey}
       />
       <RewardAllocationConfiguration validatorPublicKey={validatorPublicKey} />
-      {/* <Card className="flex flex-col gap-1 p-4">
-        <span className="text-2xl font-bold">General Settings</span>
-        <span className="text-sm text-muted-foreground">
-          Configure your operator address & commission
-        </span>
-        <span className="mt-2 flex font-semibold">Operator Address</span>
-        <Input
-          type="input"
-          className="w-[300px]"
-          value={operatorAddress}
-          onChange={(e) => setOperatorAddress(e.target.value)}
-        />
-
-        <div className="my-4 border-b border-border" />
-        <Button
-          className="flex w-[100px] self-end border border-border p-2"
-          size={"sm"}
-          onClick={handleSaveSettings}
-        >
-          {"Save"}
-        </Button>
-      </Card> */}
+      <GeneralSettings validatorPublicKey={validatorPublicKey} />
       <Card className="flex flex-col gap-1 p-4">
         <span className="text-2xl font-bold">Update your metadata</span>
         <span className="text-sm text-muted-foreground">

@@ -14,3 +14,5 @@ export * from "./get-reward-allocation-block-delay";
 export * from "./get-default-reward-allocation";
 export * from "./get-validator-queued-reward-allocation";
 export * from "./get-selected-validator";
+export * from "./get-validator-queued-operator-address";
+export * from "./get-validator-operator-address";
