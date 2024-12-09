@@ -10,7 +10,7 @@ export interface UseIsBadCollateralResponse
   extends DefaultHookReturnType<isBadCollateralResponse | undefined> {}
 
 export const useIsBadCollateralAsset = (
-  { collateral }: { collateral: Address },
+  { collateral }: { collateral: Address | undefined },
   options?: DefaultHookOptions,
 ): UseIsBadCollateralResponse => {
   const publicClient = usePublicClient();
@@ -26,6 +26,7 @@ export const useIsBadCollateralAsset = (
       if (!config) throw new Error("missing beraConfig");
       if (!config.contracts?.honeyFactoryAddress)
         throw new Error("missing contract address honeyFactoryAddress");
+      if (!collateral) throw new Error("missing collateral");
       return await isBadCollateralAsset({
         client: publicClient,
         config,
