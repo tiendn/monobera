@@ -26,3 +26,4 @@ export * from "./usePrevious";
 export * from "./useInterval";
 export * from "./useGetVerifiedAbi";
 export * from "./useBlockToTimestamp";
+export * from "./useIsWhitelistedVault";
