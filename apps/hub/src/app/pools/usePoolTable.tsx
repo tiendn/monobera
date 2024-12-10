@@ -16,6 +16,16 @@ import { Icons } from "@bera/ui/icons";
 import { PoolSummary } from "../../components/pools-table-columns";
 import { usePools } from "./usePools";
 
+// FIXME: we can avoid this with better typing.
+function getValidVaultAddress(
+  address: string | bigint | undefined,
+): `0x${string}` | null {
+  if (typeof address === "string" && address.startsWith("0x")) {
+    return address as `0x${string}`;
+  }
+  return null;
+}
+
 export const usePoolTable = ({
   sorting,
   userPoolsOnly,
@@ -124,13 +134,21 @@ export const usePoolTable = ({
           />
         ),
         cell: ({ row }) => {
-          const isWhitelisted =
-            whitelistStatusMap.get(row.original.address) || false;
+          const rewardVault = rewardVaults?.find(
+            (rv) => rv.tokenAddress === row.original.address,
+          );
+          const isWhitelisted = getValidVaultAddress(rewardVault?.vaultAddress)
+            ? whitelistStatusMap.get(
+                getValidVaultAddress(rewardVault?.vaultAddress)!,
+              )
+            : false;
           return (
             <div className="flex items-center gap-2">
               <PoolSummary pool={row.original} />
+
               {isWhitelisted && (
-                <Icons.checkCircle className="text-green-500" />
+                // FIXME: this might belong in pool-tables-columns (check against Provided Liquidity badge)
+                <Icons.bgt className="h-4 w-4" />
               )}
             </div>
           );
