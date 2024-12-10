@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-imports */
 import {
   developmentAnalytics,
-  mixpanelProjectToken,
   postHogHostAddress,
   postHogProjectKey,
   projectName,
@@ -10,28 +9,10 @@ import {
   captureEvent as _captureEvent,
   captureException as _captureException,
 } from "@sentry/react";
-import mixpanel from "mixpanel-browser";
 import posthog from "posthog-js";
 
 const isDevelopmentWithoutAnalytics =
   process.env.NODE_ENV === "development" && !developmentAnalytics;
-
-// Initialize Mixpanel
-const isMixpanelEnabled =
-  mixpanelProjectToken && !isDevelopmentWithoutAnalytics;
-
-if (isMixpanelEnabled) {
-  // NOTE: the events have changed since we integrated PostHog, so if you enable mixPanel and see this comment you are mixing.
-  mixpanel.init(mixpanelProjectToken, {
-    debug: true,
-    track_pageview: true,
-    persistence: "localStorage",
-  });
-  mixpanel.register({
-    project: projectName ?? "unknown",
-    env: process.env.NODE_ENV,
-  });
-}
 
 // Initialize PostHog
 const isPosthogEnabled = postHogProjectKey && !isDevelopmentWithoutAnalytics;
@@ -53,10 +34,6 @@ export const useAnalytics = () => {
   };
 
   const setAnalyticsUserId = (userId: string) => {
-    if (isMixpanelEnabled) {
-      mixpanel.reset();
-      mixpanel.identify(userId);
-    }
     if (isPosthogEnabled) {
       posthog.reset();
       posthog.identify(userId);
@@ -64,20 +41,12 @@ export const useAnalytics = () => {
   };
 
   const unsetAnalyticsUserId = () => {
-    if (isMixpanelEnabled) {
-      mixpanel.reset();
-    }
     if (isPosthogEnabled) {
       posthog.reset();
     }
   };
 
   const track = (eventName: string, eventData?: { [key: string]: any }) => {
-    if (isMixpanelEnabled) {
-      mixpanel.track(eventName, {
-        eventData,
-      });
-    }
     if (isPosthogEnabled) {
       posthog.capture(eventName, eventData);
     }

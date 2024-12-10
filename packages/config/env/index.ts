@@ -207,8 +207,6 @@ export const balancerApiChainName = process.env
 // Sentry && Mixpanel && PostHog
 export const developmentAnalytics = process.env
   .NEXT_PUBLIC_DEVELOPMENT_ANALYTICS as string;
-export const mixpanelProjectToken = process.env
-  .NEXT_PUBLIC_MIXPANEL_PROJECT_TOKEN as string;
 export const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME as string;
 export const postHogProjectKey = process.env.NEXT_PUBLIC_POSTHOG_KEY as string;
 export const postHogHostAddress = process.env
