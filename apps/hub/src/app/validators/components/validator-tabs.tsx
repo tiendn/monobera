@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   useBeraJs,
-  usePollSelectedValidator,
+  useValidatorByOperator,
   type Validator,
 } from "@bera/berajs";
 import {
@@ -20,14 +20,16 @@ import { ValidatorConfiguration } from "./validator-configuration";
 
 // import { ValidatorEvents } from "./validator-events";
 
+type ValidatorTabValue = "overview" | "configuration" | "analytics" | "events";
+
 export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
   const { account } = useBeraJs();
-  const { data } = usePollSelectedValidator(account ?? "0x");
+  const { data } = useValidatorByOperator(account ?? "0x");
   const isValidatorWallet =
     data?.validators[0]?.publicKey === validator.coinbase;
 
   const [dayRange, setDayRange] = useState("30");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<ValidatorTabValue>("overview");
 
   useEffect(() => {
     if (activeTab === "configuration" && !isValidatorWallet) {
@@ -39,7 +41,9 @@ export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
     <Tabs
       className="mt-4"
       value={activeTab}
-      onValueChange={setActiveTab}
+      onValueChange={(value: string) =>
+        setActiveTab(value as ValidatorTabValue)
+      }
       defaultValue="overview"
     >
       <div className="mb-6 flex w-full flex-col justify-between gap-6 sm:flex-row">
@@ -52,7 +56,9 @@ export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
           {/* <TabsTrigger value="events">Events</TabsTrigger> */}
         </TabsList>
         <TabsContent value="analytics">
-          <Select onValueChange={(value: string) => setDayRange(value)}>
+          <Select
+            onValueChange={(value: "30" | "60" | "90") => setDayRange(value)}
+          >
             <SelectTrigger className="flex w-[120px] items-center justify-between rounded-md border border-border">
               <SelectValue placeholder={"30 Days"} defaultValue={"30"} />
             </SelectTrigger>

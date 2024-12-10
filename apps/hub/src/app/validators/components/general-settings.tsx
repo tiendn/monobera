@@ -3,8 +3,8 @@ import {
   TransactionActionType,
   beaconDepositAbi,
   useBeraJs,
-  usePollValidatorOperatorAddress,
-  usePollValidatorQueuedOperatorAddress,
+  useValidatorOperatorAddress,
+  useValidatorQueuedOperatorAddress,
 } from "@bera/berajs";
 import { depositContractAddress } from "@bera/config";
 import { useTxn } from "@bera/shared-ui";
@@ -13,7 +13,7 @@ import { Card, CardContent, CardFooter } from "@bera/ui/card";
 import { Checkbox } from "@bera/ui/checkbox";
 import { Icons } from "@bera/ui/icons";
 import { Input } from "@bera/ui/input";
-import { Address } from "viem";
+import { Address, zeroAddress } from "viem";
 
 export const GeneralSettings = ({
   validatorPublicKey,
@@ -26,12 +26,12 @@ export const GeneralSettings = ({
     data: operatorAddress,
     isLoading: isOperatorAddressLoading,
     refresh: refreshOperatorAddress,
-  } = usePollValidatorOperatorAddress(validatorPublicKey);
+  } = useValidatorOperatorAddress(validatorPublicKey);
   const {
     data: queuedOperatorAddress,
     isLoading: isQueuedOperatorAddressLoading,
     refresh: refreshQueuedOperatorAddress,
-  } = usePollValidatorQueuedOperatorAddress(validatorPublicKey);
+  } = useValidatorQueuedOperatorAddress(validatorPublicKey);
   const [operatorInput, setOperatorInput] = useState<string>(account || "");
 
   const isQueuedOperatorAddress = useMemo(() => {
@@ -44,7 +44,7 @@ export const GeneralSettings = ({
       return true;
     return (
       queuedOperatorAddress[1] !== operatorAddress &&
-      queuedOperatorAddress[1] !== "0x0000000000000000000000000000000000000000"
+      queuedOperatorAddress[1] !== zeroAddress
     );
   }, [
     queuedOperatorAddress,

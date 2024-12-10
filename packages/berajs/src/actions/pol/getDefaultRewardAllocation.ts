@@ -1,15 +1,21 @@
-import { PublicClient } from "viem";
 import { beraChefAddress } from "@bera/config";
+import { PublicClient } from "viem";
+
 import { BERA_CHEF_ABI } from "~/abi";
 import { BeraConfig } from "~/types";
 
-export const getRewardAllocationBlockDelay = async ({
+export interface DefaultRewardAllocation {
+  startBlock: bigint;
+  weights: readonly { receiver: `0x${string}`; percentageNumerator: bigint }[];
+}
+
+export const getDefaultRewardAllocation = async ({
   client,
   config,
 }: {
   client: PublicClient;
   config: BeraConfig;
-}): Promise<bigint | undefined> => {
+}): Promise<DefaultRewardAllocation | undefined> => {
   try {
     if (!beraChefAddress)
       throw new Error("missing contract address beraChefAddress");
@@ -17,12 +23,12 @@ export const getRewardAllocationBlockDelay = async ({
     const result = await client.readContract({
       address: beraChefAddress,
       abi: BERA_CHEF_ABI,
-      functionName: "rewardAllocationBlockDelay",
+      functionName: "getDefaultRewardAllocation",
       args: [],
     });
     return result;
   } catch (e) {
     console.log("getRewardAllocationBlockDelay:", e);
-    return undefined;
+    throw e;
   }
 };

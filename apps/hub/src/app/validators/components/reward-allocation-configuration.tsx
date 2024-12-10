@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BERA_CHEF_ABI,
   TransactionActionType,
-  usePollDefaultRewardAllocation,
+  useDefaultRewardAllocation,
   usePollGaugesData,
-  usePollRewardAllocationBlockDelay,
-  usePollValidatorQueuedRewardAllocation,
-  usePollValidatorRewardAllocation,
+  useRewardAllocationBlockDelay,
+  useValidatorQueuedRewardAllocation,
+  useValidatorRewardAllocation,
 } from "@bera/berajs";
 import { beraChefAddress } from "@bera/config";
 import { Combobox, useTxn } from "@bera/shared-ui";
@@ -34,15 +34,14 @@ export const RewardAllocationConfiguration = ({
   const { data: blockNumber } = useBlockNumber({
     query: { refetchInterval: 10000 },
   });
-  const { data: rewardAllocationBlockDelay } =
-    usePollRewardAllocationBlockDelay();
-  const { data: defaultRewardAllocation } = usePollDefaultRewardAllocation();
+  const { data: rewardAllocationBlockDelay } = useRewardAllocationBlockDelay();
+  const { data: defaultRewardAllocation } = useDefaultRewardAllocation();
 
   const {
     data: queuedRewardAllocation,
     isLoading: queuedRewardAllocationLoading,
     refresh: refreshQueuedRewardAllocation,
-  } = usePollValidatorQueuedRewardAllocation(validatorPublicKey);
+  } = useValidatorQueuedRewardAllocation(validatorPublicKey);
 
   const isQueuedRewardAllocation = useMemo(
     () =>
@@ -65,7 +64,7 @@ export const RewardAllocationConfiguration = ({
   });
 
   const { data: rewardAllocation, isLoading: rewardAllocationLoading } =
-    usePollValidatorRewardAllocation(validatorPublicKey, {
+    useValidatorRewardAllocation(validatorPublicKey, {
       opts: { revalidateOnMount: true },
     });
 

@@ -220,7 +220,7 @@ query GetRewardVault($stakingToken: String) {
   }
 }
 
-query GetSelectedValidator($operator: Bytes = "") {
+query GetValidatorByOperator($operator: Bytes = "") {
   validators(where: {operator: $operator}) {
     publicKey
   }

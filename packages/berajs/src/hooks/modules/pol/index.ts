@@ -14,10 +14,11 @@ export * from "./hooks/useRewardVaultBalanceFromStakingToken";
 export { useRewardVaultFromToken } from "./hooks/useRewardVaultFromToken";
 export { usePollRewardVault } from "./hooks/poll-reward-vault";
 export { useSubgraphUserValidators } from "./hooks/useSubgraphUserValidators";
-export { usePollValidatorRewardAllocation } from "./hooks/poll-validator-reward-allocation";
-export { usePollRewardAllocationBlockDelay } from "./hooks/poll-reward-allocation-block-delay";
-export { usePollDefaultRewardAllocation } from "./hooks/poll-default-reward-allocation";
-export { usePollValidatorQueuedRewardAllocation } from "./hooks/poll-validator-queued-reward-allocation";
-export { usePollSelectedValidator } from "./hooks/poll-selected-validator";
-export { usePollValidatorQueuedOperatorAddress } from "./hooks/poll-validator-queued-operator-address";
-export { usePollValidatorOperatorAddress } from "./hooks/poll-validator-operator-address";
+
+export { useValidatorRewardAllocation } from "./hooks/useValidatorRewardAllocation";
+export { useRewardAllocationBlockDelay } from "./hooks/useRewardAllocationBlockDelay";
+export { useDefaultRewardAllocation } from "./hooks/useDefaultRewardAllocation";
+export { useValidatorQueuedRewardAllocation } from "./hooks/useValidatorQueuedRewardAllocation";
+export { useValidatorByOperator } from "./hooks/useValidatorByOperator";
+export { useValidatorQueuedOperatorAddress } from "./hooks/useValidatorQueuedOperatorAddress";
+export { useValidatorOperatorAddress } from "./hooks/useValidatorOperatorAddress";

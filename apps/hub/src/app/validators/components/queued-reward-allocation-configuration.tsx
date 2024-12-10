@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import {
   usePollGaugesData,
-  usePollValidatorQueuedRewardAllocation,
+  useValidatorQueuedRewardAllocation,
   useBlockToTimestamp,
 } from "@bera/berajs";
 import { SimpleTable, useAsyncTable } from "@bera/shared-ui";
@@ -40,7 +40,7 @@ export const QueuedRewardAllocationConfiguration = ({
   const {
     data: queuedRewardAllocation,
     isLoading: queuedRewardAllocationLoading,
-  } = usePollValidatorQueuedRewardAllocation(validatorPublicKey);
+  } = useValidatorQueuedRewardAllocation(validatorPublicKey);
   const { data, isLoading: allVaultsLoading } = usePollGaugesData();
 
   const vaultsData = useMemo<VaultData[] | undefined>(() => {

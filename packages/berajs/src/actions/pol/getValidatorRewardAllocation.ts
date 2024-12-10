@@ -3,7 +3,7 @@ import { beraChefAddress } from "@bera/config";
 import { BERA_CHEF_ABI } from "~/abi";
 import { BeraConfig } from "~/types";
 
-export interface ValidatorQueuedRewardAllocation {
+export interface ValidatorRewardAllocation {
   startBlock: bigint;
   weights: readonly {
     receiver: `0x${string}`;
@@ -11,7 +11,7 @@ export interface ValidatorQueuedRewardAllocation {
   }[];
 }
 
-export const getValidatorQueuedRewardAllocation = async ({
+export const getValidatorRewardAllocation = async ({
   client,
   config,
   pubKey,
@@ -19,7 +19,7 @@ export const getValidatorQueuedRewardAllocation = async ({
   client: PublicClient;
   config: BeraConfig;
   pubKey: Address;
-}): Promise<ValidatorQueuedRewardAllocation | undefined> => {
+}): Promise<ValidatorRewardAllocation | undefined> => {
   try {
     if (!beraChefAddress)
       throw new Error("missing contract address beraChefAddress");
@@ -27,12 +27,12 @@ export const getValidatorQueuedRewardAllocation = async ({
     const result = await client.readContract({
       address: beraChefAddress,
       abi: BERA_CHEF_ABI,
-      functionName: "getQueuedRewardAllocation",
+      functionName: "getActiveRewardAllocation",
       args: [pubKey],
     });
     return result;
   } catch (e) {
-    console.log("getValidatorQueuedRewardAllocation:", e);
-    return undefined;
+    console.log("getValidatorRewardAllocation:", e);
+    throw e;
   }
 };

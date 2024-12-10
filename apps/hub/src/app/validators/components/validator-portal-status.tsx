@@ -1,15 +1,11 @@
 import React from "react";
-import {
-  truncateHash,
-  useBeraJs,
-  usePollSelectedValidator,
-} from "@bera/berajs";
+import { truncateHash, useBeraJs, useValidatorByOperator } from "@bera/berajs";
 import { ActionButton } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 
 export const ValidatorPortalStatus = () => {
   const { account, isReady } = useBeraJs();
-  const { data: validator } = usePollSelectedValidator(account ?? "0x");
+  const { data: validator } = useValidatorByOperator(account ?? "0x");
   if (validator?.validators[0]?.publicKey) return <></>;
 
   return (

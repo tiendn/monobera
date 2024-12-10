@@ -27,6 +27,6 @@ export const getValidatorOperatorAddress = async ({
     return result as ValidatorOperatorAddress;
   } catch (e) {
     console.log("getValidatorOperatorAddress:", e);
-    return undefined;
+    throw e;
   }
 };
