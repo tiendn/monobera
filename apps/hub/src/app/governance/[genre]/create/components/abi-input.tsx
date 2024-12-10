@@ -1,7 +1,6 @@
 import { AbiParameter } from "viem";
 import { InputWithLabel } from "@bera/ui/input";
-import { ChangeEventHandler, useEffect, useState } from "react";
-import { SolidityArrayWithTuple } from "abitype";
+import { useEffect, useState } from "react";
 import { Button } from "@bera/ui/button";
 
 export function AbiInput({
@@ -96,42 +95,44 @@ export function AbiTupleArrayInput({
   return (
     <div className="grid grid-cols-1 gap-4 pl-4">
       <h3 className="-ml-4">Enter {input.name}</h3>
-      {values.map((value, i) => (
-        <div
-          key={`${id}-${input.name}-${i}`}
-          className="pb-6 border border-border rounded-md p-4"
-        >
-          <AbiInput
-            label={`Enter ${input.name} ${i + 1}`}
-            id={`${id}-${input.name}-${i}`}
-            input={{ ...input, type: "tuple" }}
-            onChange={(v) =>
-              setValues((prev) => {
-                const newValues = [...prev];
-                newValues[i] = v;
-                return newValues;
-              })
-            }
-            value={value}
-            errors={Array.isArray(errors) ? errors[i] : errors}
-          />
-          <div className="flex justify-end">
-            <Button
-              variant={"link"}
-              type="button"
-              onClick={() =>
-                setValues((prev) => prev.filter((_, idx) => idx !== i))
-              }
-              className="text-destructive-foreground px-0 text-sm block"
+      {Array.isArray(values)
+        ? values.map((value, i) => (
+            <div
+              key={`${id}-${input.name}-${i}`}
+              className="pb-6 border border-border rounded-md p-4"
             >
-              Remove
-            </Button>
-          </div>
-        </div>
-      ))}
+              <AbiInput
+                label={`Enter ${input.name} ${i + 1}`}
+                id={`${id}-${input.name}-${i}`}
+                input={{ ...input, type: "tuple" }}
+                onChange={(v) =>
+                  setValues((prev) => {
+                    const newValues = [...prev];
+                    newValues[i] = v;
+                    return newValues;
+                  })
+                }
+                value={value}
+                errors={Array.isArray(errors) ? errors[i] : errors}
+              />
+              <div className="flex justify-end">
+                <Button
+                  variant={"link"}
+                  type="button"
+                  onClick={() =>
+                    setValues((prev) => prev.filter((_, idx) => idx !== i))
+                  }
+                  className="text-destructive-foreground px-0 text-sm block"
+                >
+                  Remove
+                </Button>
+              </div>
+            </div>
+          ))
+        : null}
 
       <div className="flex flex-row gap-2">
-        <Button onClick={() => setValues([...values, {}])}>Add</Button>
+        <Button onClick={() => setValues([...(values ?? []), {}])}>Add</Button>
       </div>
     </div>
   );
