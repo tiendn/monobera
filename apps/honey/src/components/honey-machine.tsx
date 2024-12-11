@@ -104,7 +104,7 @@ export function HoneyMachine() {
 
   const { write } = useTxn({
     message: needsApproval
-      ? `Approve ${selectedFrom?.symbol}`
+      ? `Approve ${selectedFrom?.[0]?.symbol}`
       : isMint
         ? `Mint ${toAmount} HONEY`
         : `Redeem ${fromAmount} HONEY`,
@@ -195,14 +195,14 @@ export function HoneyMachine() {
 
   const performApproval = () => {
     write({
-      address: selectedFrom?.address as `0x${string}`,
+      address: selectedFrom?.[0]?.address as `0x${string}`,
       abi: erc20Abi as unknown as (typeof erc20Abi)[],
       functionName: "approve",
       params: [
         honeyFactoryAddress,
         parseUnits(
           `${fromAmount ?? "0"}` as `${number}`,
-          selectedFrom?.decimals ?? 18,
+          selectedFrom?.[0]?.decimals ?? 18,
         ),
       ],
     });
@@ -295,12 +295,16 @@ export function HoneyMachine() {
               <ul className="relative">
                 <div className="rounded-t-md border-2 border-b-0 border-foreground bg-muted">
                   <TokenInput
-                    selected={selectedFrom}
-                    selectedTokens={[selectedFrom, selectedTo]}
-                    onTokenSelection={setSelectedFrom}
-                    amount={fromAmount[0]}
-                    balance={fromBalance?.formattedBalance}
-                    selectable={selectedFrom?.address !== honey?.address}
+                    selected={selectedFrom?.[0]}
+                    selectedTokens={selectedFrom}
+                    onTokenSelection={(amount) => {
+                      setSelectedFrom((prevAmount) =>
+                        amount && prevAmount ? [amount, prevAmount[1]] : [],
+                      );
+                    }}
+                    amount={fromAmount?.[0]}
+                    balance={fromBalance?.[0]?.formattedBalance}
+                    selectable={selectedFrom?.[0]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
@@ -315,18 +319,22 @@ export function HoneyMachine() {
                 )}
                 <div className="rounded-b-md border-2 border-foreground bg-muted">
                   <TokenInput
-                    selected={selectedTo}
-                    selectedTokens={[selectedFrom, selectedTo]}
-                    onTokenSelection={setSelectedTo}
-                    amount={toAmount[0]}
+                    selected={selectedTo?.[1]}
+                    selectedTokens={selectedTo}
+                    onTokenSelection={(amount) => {
+                      setSelectedTo((prevAmount) =>
+                        amount && prevAmount ? [amount, prevAmount[1]] : [],
+                      );
+                    }}
+                    amount={toAmount?.[0]}
                     setAmount={(amount) => {
                       setGivenIn(false);
                       setToAmount([amount, "0"]);
                     }}
-                    selectable={selectedTo?.address !== honey?.address}
+                    selectable={selectedTo?.[0]?.address !== honey?.address}
                     customTokenList={collateralList}
                     hideMax
-                    balance={toBalance?.formattedBalance}
+                    balance={toBalance?.[0]?.formattedBalance}
                     setIsTyping={setIsTyping}
                   />
                 </div>

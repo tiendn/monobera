@@ -64,8 +64,6 @@ const Content = () => {
               </h3>
             )}
             <HoneyChart arcade={arcade} />
-
-            <HoneyChart />
           </div>
           <HoneyTransactionsTable arcade={arcade} />
         </div>

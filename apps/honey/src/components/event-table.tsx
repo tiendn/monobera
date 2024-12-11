@@ -169,7 +169,6 @@ export const EventTable = ({
   arcade: boolean;
 }) => {
   const { data: tokenData } = useTokens();
-  console.log("tokenData", events);
   return (
     <Table>
       <TableHeader>

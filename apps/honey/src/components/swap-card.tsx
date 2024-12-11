@@ -47,11 +47,14 @@ export function SwapCard() {
     honey,
     collateralList,
     needsApproval,
+    refreshAllowances,
     exceedBalance,
     isTyping,
     isBadCollateral,
     isBasketModeEnabled,
   } = usePsm();
+
+  console.log("needsApproval", needsApproval);
 
   return (
     <div className="w-full">
@@ -98,12 +101,18 @@ export function SwapCard() {
           <div className="border-1 flex flex-col gap-6 border-border">
             <ul className="relative rounded-2xl border">
               <TokenInput
-                selected={selectedFrom}
-                selectedTokens={[selectedFrom, selectedTo]}
-                onTokenSelection={setSelectedFrom}
+                selected={selectedFrom?.[0]}
+                selectedTokens={selectedFrom}
+                onTokenSelection={(token) =>
+                  setSelectedFrom((prevToken) =>
+                    token && prevToken && prevToken[1]
+                      ? [token, prevToken?.[1]]
+                      : [],
+                  )
+                }
                 amount={fromAmount[0]}
-                balance={fromBalance?.formattedBalance}
-                selectable={selectedFrom?.address !== honey?.address}
+                balance={fromBalance?.[0]?.formattedBalance}
+                selectable={selectedFrom?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding
                 setIsTyping={setIsTyping}
@@ -116,12 +125,16 @@ export function SwapCard() {
               {!!isBasketModeEnabled && tabValue === "mint" && (
                 <>
                   <TokenInput
-                    selected={selectedFrom}
-                    selectedTokens={[selectedFrom, selectedTo]}
-                    onTokenSelection={setSelectedFrom}
+                    selected={selectedFrom?.[1]}
+                    selectedTokens={selectedFrom}
+                    onTokenSelection={(token) =>
+                      setSelectedFrom((prevToken) =>
+                        token && prevToken ? [prevToken[0], token] : [],
+                      )
+                    }
                     amount={fromAmount[1]}
-                    balance={fromBalance?.formattedBalance}
-                    selectable={selectedFrom?.address !== honey?.address}
+                    balance={fromBalance?.[1]?.formattedBalance}
+                    selectable={selectedFrom?.[1]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
@@ -137,31 +150,39 @@ export function SwapCard() {
                 <SSRSpinner className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] rounded-md border border-border bg-background p-2" />
               )}
               <TokenInput
-                selected={selectedTo}
-                selectedTokens={[selectedFrom, selectedTo]}
+                selected={selectedTo?.[0]}
+                selectedTokens={selectedTo}
                 setIsTyping={setIsTyping}
                 amount={toAmount[0]}
                 setAmount={(amount) => {
                   setGivenIn(false);
                   setToAmount((prevAmount) => [amount, prevAmount[1]]);
                 }}
-                selectable={selectedTo?.address !== honey?.address}
+                selectable={selectedTo?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding={false}
                 hideMax={true}
-                balance={toBalance?.formattedBalance}
-                onTokenSelection={setSelectedTo}
+                balance={toBalance?.[0]?.formattedBalance}
+                onTokenSelection={(token) =>
+                  setSelectedTo((prevToken) =>
+                    token && prevToken ? [token, prevToken[1]] : [],
+                  )
+                }
               />
               {!!isBasketModeEnabled && tabValue === "burn" && (
                 <>
                   <hr />
                   <TokenInput
-                    selected={selectedFrom}
-                    selectedTokens={[selectedFrom, selectedTo]}
-                    onTokenSelection={setSelectedFrom}
+                    selected={selectedTo?.[1]}
+                    selectedTokens={selectedTo}
+                    onTokenSelection={(token) =>
+                      setSelectedTo((prevToken) =>
+                        token && prevToken ? [prevToken[0], token] : [],
+                      )
+                    }
                     amount={fromAmount[1]}
-                    balance={fromBalance?.formattedBalance}
-                    selectable={selectedFrom?.address !== honey?.address}
+                    balance={fromBalance?.[1]?.formattedBalance}
+                    selectable={selectedFrom?.[1]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
@@ -173,7 +194,9 @@ export function SwapCard() {
                 </>
               )}
             </ul>
-            {(isBadCollateral?.isBlacklisted || isBadCollateral?.isDepegged) &&
+            {isBadCollateral.some((item) => item !== undefined) &&
+            (isBadCollateral.some((item) => item?.isBlacklisted) ||
+              isBadCollateral.some((item) => item?.isDepegged)) &&
             !isBasketModeEnabled ? (
               <Alert variant="default" className="flex gap-2">
                 <Icons.info className="h-4 w-4 flex-shrink-0 text-default-foreground" />
@@ -183,7 +206,9 @@ export function SwapCard() {
                   </AlertTitle>
                   <AlertDescription className="text-sm text-muted-foreground">
                     Selected token is currently{" "}
-                    {isBadCollateral.isBlacklisted ? "blacklisted" : "depegged"}
+                    {isBadCollateral?.some((item) => item?.isBlacklisted)
+                      ? "blacklisted"
+                      : "depegged"}
                     .
                   </AlertDescription>
                 </div>
@@ -203,25 +228,29 @@ export function SwapCard() {
             ) : null}
             {!isReady ? (
               <ConnectButton className="w-full" />
-            ) : needsApproval && !exceedBalance ? (
+            ) : needsApproval.length > 0 &&
+              !exceedBalance.some((item) => item) ? (
               <ApproveButton
-                token={selectedFrom}
+                token={needsApproval[0]}
                 spender={honeyFactoryAddress}
                 amount={parseUnits(
-                  fromAmount?.[0] ?? "0",
-                  selectedFrom?.decimals ?? 18,
+                  needsApproval[0].amount ?? "0",
+                  needsApproval[0].decimals ?? 18,
                 )}
+                onApproval={() => refreshAllowances()}
               />
             ) : (
               <Button
                 disabled={
                   isLoading ||
-                  !fromAmount ||
-                  !toAmount ||
-                  exceedBalance ||
+                  fromAmount.every((item) => item === "0") ||
+                  toAmount.every((item) => item === "0") ||
+                  exceedBalance.some((item) => item) ||
                   isTyping ||
-                  isBadCollateral?.isBlacklisted ||
-                  isBadCollateral?.isDepegged ||
+                  (!isBasketModeEnabled &&
+                    isBadCollateral.some((item) => item !== undefined) &&
+                    (isBadCollateral.some((item) => item?.isBlacklisted) ||
+                      isBadCollateral.some((item) => item?.isDepegged))) ||
                   !payload
                 }
                 onClick={() => {

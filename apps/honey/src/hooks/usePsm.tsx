@@ -12,11 +12,13 @@ import {
   useIsBadCollateralAsset,
   useIsBasketModeEnabled,
   type Token,
+  usePollAllowances,
 } from "@bera/berajs";
 import { honeyFactoryAddress, honeyTokenAddress } from "@bera/config";
 import { useAnalytics, useTxn } from "@bera/shared-ui";
 import BigNumber from "bignumber.js";
 import { getAddress, parseUnits, type Address } from "viem";
+import useMultipleTokenApprovals from "./useMultipleTokenApprovals";
 
 export const usePsm = () => {
   const [isTyping, setIsTyping] = useState(false);
@@ -32,18 +34,32 @@ export const usePsm = () => {
     ? tokenData?.tokenDictionary[getAddress(honeyTokenAddress)]
     : undefined;
 
-  const [selectedTo, setSelectedTo] = useState<Token | undefined>(undefined);
+  const [selectedTo, setSelectedTo] = useState<Token[] | undefined>([]);
 
-  const [selectedFrom, setSelectedFrom] = useState<Token | undefined>(
-    undefined,
-  );
+  const [selectedFrom, setSelectedFrom] = useState<Token[] | undefined>([]);
 
   const [givenIn, setGivenIn] = useState<boolean>(true);
 
+  const isMint = selectedFrom?.length
+    ? selectedFrom?.[0].address !== honey?.address
+    : true;
+
+  const { data: isBasketModeEnabled } = useIsBasketModeEnabled({ isMint });
+
   useEffect(() => {
-    if (defaultCollateral && honey && !selectedFrom && !selectedTo) {
-      setSelectedFrom(defaultCollateral);
-      setSelectedTo(honey);
+    if (
+      defaultCollateral &&
+      honey &&
+      !selectedFrom?.length &&
+      !selectedTo?.length
+    ) {
+      const initCollateralList =
+        isBasketModeEnabled && collateralList
+          ? [defaultCollateral, collateralList[1]]
+          : [defaultCollateral];
+
+      setSelectedFrom(initCollateralList);
+      setSelectedTo([honey]);
     }
   }, [collateralList, honey]);
 
@@ -51,41 +67,74 @@ export const usePsm = () => {
 
   const [toAmount, setToAmount] = useState<string[]>([]);
 
-  const isMint = selectedFrom?.address !== honey?.address;
+  const collaterals = isMint ? selectedFrom : selectedTo;
 
-  const collateral = isMint ? selectedFrom : selectedTo;
-
-  const { data: isBadCollateral } = useIsBadCollateralAsset({
-    collateral: collateral?.address as Address,
+  const isBadCollateral1 = useIsBadCollateralAsset({
+    collateral: collaterals?.[0]?.address as Address,
   });
 
-  const { data: isBasketModeEnabled } = useIsBasketModeEnabled({ isMint });
-
-  const { useBalance: useFromBalance } = usePollBalance({
-    address: selectedFrom?.address,
+  const isBadCollateral2 = useIsBadCollateralAsset({
+    collateral:
+      (collaterals?.[1]?.address as Address) ||
+      getAddress("0x0000000000000000000000000000000000000000"),
   });
 
-  const fromBalance = useFromBalance();
+  const isBadCollateral: (
+    | {
+        isBlacklisted: any;
+        isDepegged: boolean;
+      }
+    | undefined
+  )[] = [isBadCollateral1.data, isBadCollateral2.data];
 
-  const { useBalance: useToBalance } = usePollBalance({
-    address: selectedTo?.address,
+  const fromBalance1 = usePollBalance({
+    address:
+      selectedFrom?.[0]?.address ||
+      getAddress("0x0000000000000000000000000000000000000000"),
   });
 
-  const toBalance = useToBalance();
+  const fromBalance2 = usePollBalance({
+    address:
+      selectedFrom?.[1]?.address ||
+      getAddress("0x0000000000000000000000000000000000000000"),
+  });
+
+  const fromBalance = [fromBalance1.useBalance(), fromBalance2.useBalance()];
+
+  const tobalance1 = usePollBalance({
+    address:
+      selectedTo?.[0]?.address ||
+      getAddress("0x0000000000000000000000000000000000000000"),
+  });
+
+  const toBalance2 = usePollBalance({
+    address:
+      selectedTo?.[1]?.address ||
+      getAddress("0x0000000000000000000000000000000000000000"),
+  });
+
+  const toBalance = [tobalance1.useBalance(), toBalance2.useBalance()];
 
   const { isReady, account } = useBeraJs();
 
-  const { data: allowance } = usePollAllowance({
+  const allowance1 = usePollAllowance({
     spender: honeyFactoryAddress,
-    token: selectedFrom,
+    token: selectedFrom?.[0] ?? undefined,
   });
+
+  const allowance2 = usePollAllowance({
+    spender: honeyFactoryAddress,
+    token: selectedFrom?.[1] ?? undefined,
+  });
+
+  const allowance = [allowance1.data ?? "0", allowance2.data ?? "0"];
 
   const { getCollateralRate, isLoading: isFeeLoading } = useCollateralsRates({
     collateralList: collateralList?.map((token: any) => token.address) ?? [],
   });
 
-  const params = collateral
-    ? getCollateralRate(collateral.address as Address)
+  const params = collaterals?.length
+    ? getCollateralRate(collaterals[0].address as Address)
     : undefined;
 
   const fee = params ? (isMint ? params.mintFee : params.redeemFee) : 0;
@@ -118,7 +167,7 @@ export const usePsm = () => {
 
   const { data: previewRes, isLoading: isHoneyPreviewLoading } =
     usePollHoneyPreview({
-      collateral: isTyping ? undefined : collateral,
+      collateral: isTyping ? undefined : collaterals?.[0],
       collateralList: isBasketModeEnabled ? collateralList : undefined,
       amount: (givenIn ? fromAmount[0] : toAmount[0]) ?? "0",
       mint: isMint,
@@ -146,24 +195,39 @@ export const usePsm = () => {
   };
 
   const payload =
-    collateral && account
+    collaterals && account
       ? ([
-          collateral?.address,
+          collaterals?.[0]?.address,
           parseUnits(
             fromAmount?.[0] ?? "0",
-            (isMint ? collateral?.decimals : honey?.decimals) ?? 18,
+            (isMint ? collaterals?.[0]?.decimals : honey?.decimals) ?? 18,
           ),
           account ?? "",
-          false,
+          !!isBasketModeEnabled,
         ] as const)
       : undefined;
 
-  const needsApproval = BigNumber(fromAmount?.[0] ?? "0").gt(
-    allowance?.formattedAllowance ?? "0",
-  );
-  const exceedBalance = BigNumber(fromAmount?.[0] ?? "0").gt(
-    fromBalance?.formattedBalance ?? "0",
-  );
+  const { needsApproval, refresh: refreshAllowances } =
+    useMultipleTokenApprovals(
+      selectedFrom?.map((token, idx) => ({
+        symbol: token.symbol,
+        name: token.name,
+        decimals: token.decimals,
+        address: token.address,
+        exceeding: false,
+        amount: fromAmount?.[idx] ?? "0",
+      })) ?? [],
+      honeyFactoryAddress,
+    );
+
+  const exceedBalance = [
+    BigNumber(fromAmount?.[0] ?? "0").gt(
+      fromBalance?.[0]?.formattedBalance ?? "0",
+    ),
+    BigNumber(fromAmount?.[1] ?? "0").gt(
+      fromBalance?.[1]?.formattedBalance ?? "0",
+    ),
+  ];
 
   const isLoading = isUseTxnLoading || isHoneyPreviewLoading;
   return {
@@ -190,6 +254,7 @@ export const usePsm = () => {
     ModalPortal,
     setGivenIn,
     needsApproval,
+    refreshAllowances,
     exceedBalance,
     honey,
     collateralList,
