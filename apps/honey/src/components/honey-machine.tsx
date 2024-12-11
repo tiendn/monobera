@@ -303,7 +303,7 @@ export function HoneyMachine() {
                       );
                     }}
                     amount={fromAmount?.[0]}
-                    balance={fromBalance?.[0]?.formattedBalance}
+                    balance={fromBalance?.[0]}
                     selectable={selectedFrom?.[0]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
@@ -334,7 +334,7 @@ export function HoneyMachine() {
                     selectable={selectedTo?.[0]?.address !== honey?.address}
                     customTokenList={collateralList}
                     hideMax
-                    balance={toBalance?.[0]?.formattedBalance}
+                    balance={toBalance?.[0]}
                     setIsTyping={setIsTyping}
                   />
                 </div>
