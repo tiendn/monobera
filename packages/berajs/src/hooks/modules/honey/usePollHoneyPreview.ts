@@ -12,6 +12,7 @@ export interface UsePollHoneyPreviewArgs {
   amount: string;
   mint: boolean; // true mint, false redeem
   given_in: boolean; // true given in, false given out
+  isBasketModeEnabled: boolean;
 }
 
 export interface UsePollHoneyPreviewResponse
@@ -24,6 +25,7 @@ export const usePollHoneyPreview = (
     amount,
     mint,
     given_in,
+    isBasketModeEnabled,
   }: UsePollHoneyPreviewArgs,
   options?: DefaultHookOptions,
 ): UsePollHoneyPreviewResponse => {
@@ -33,7 +35,9 @@ export const usePollHoneyPreview = (
       ? HoneyPreviewMethod.Mint
       : HoneyPreviewMethod.RequiredCollateral
     : given_in
-      ? HoneyPreviewMethod.Redeem
+      ? isBasketModeEnabled
+        ? HoneyPreviewMethod.RedeemBasket
+        : HoneyPreviewMethod.Redeem
       : HoneyPreviewMethod.HoneyToRedeem;
 
   const QUERY_KEY =

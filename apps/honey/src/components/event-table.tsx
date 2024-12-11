@@ -49,7 +49,7 @@ const getTokenDisplay = (event: HoneyTxn, tokenDictionary: any) => {
                     <FormattedNumber
                       value={formatUnits(
                         BigInt(event.collateral[0].collateralAmount),
-                        collateral1.decimals ?? 18,
+                        collateral1?.decimals ?? 18,
                       )}
                       compact={false}
                       compactThreshold={999_999}
@@ -66,7 +66,7 @@ const getTokenDisplay = (event: HoneyTxn, tokenDictionary: any) => {
                         <FormattedNumber
                           value={formatUnits(
                             BigInt(event.collateral[1].collateralAmount),
-                            collateral2.decimals ?? 18,
+                            collateral2?.decimals ?? 18,
                           )}
                           compact={false}
                           compactThreshold={999_999}
@@ -125,7 +125,7 @@ const getTokenDisplay = (event: HoneyTxn, tokenDictionary: any) => {
                 <FormattedNumber
                   value={formatUnits(
                     BigInt(event.collateral[0].collateralAmount),
-                    collateral1.decimals ?? 18,
+                    collateral1?.decimals ?? 18,
                   )}
                   compact={false}
                   compactThreshold={999_999}

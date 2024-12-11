@@ -45,24 +45,15 @@ export const getHoneyPreview = async ({
       formattedAmount = parseUnits(amount, 18); //honey decimals
     }
 
-    console.log("formattedAmount", formattedAmount);
-    console.log("collateral", collateral);
-    console.log("collateralList", collateralList);
-    console.log("method", method);
-
     const result = (await client.readContract({
       address: config.contracts.honeyFactoryReaderAddress as Address,
       abi: honeyFactoryReaderAbi,
       functionName: method,
-      args: [
-        collateral.address,
+      args:
         method !== HoneyPreviewMethod.RedeemBasket
-          ? formattedAmount
-          : undefined,
-      ],
+          ? [collateral.address, formattedAmount]
+          : [formattedAmount],
     })) as bigint | bigint[];
-
-    console.log("result", result);
 
     const formattedResult = Array<string>(collateralList?.length ?? 2).fill(
       "0",

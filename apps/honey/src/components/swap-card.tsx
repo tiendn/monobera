@@ -54,8 +54,6 @@ export function SwapCard() {
     isBasketModeEnabled,
   } = usePsm();
 
-  console.log("needsApproval", needsApproval);
-
   return (
     <div className="w-full">
       <Card className="relative z-10 m-auto block w-full max-w-[500px] bg-background shadow-2xl">
@@ -111,7 +109,7 @@ export function SwapCard() {
                   )
                 }
                 amount={fromAmount[0]}
-                balance={fromBalance?.[0]?.formattedBalance}
+                balance={fromBalance?.[0]}
                 selectable={selectedFrom?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding
@@ -133,7 +131,7 @@ export function SwapCard() {
                       )
                     }
                     amount={fromAmount[1]}
-                    balance={fromBalance?.[1]?.formattedBalance}
+                    balance={fromBalance?.[1]}
                     selectable={selectedFrom?.[1]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
@@ -162,7 +160,7 @@ export function SwapCard() {
                 customTokenList={collateralList}
                 showExceeding={false}
                 hideMax={true}
-                balance={toBalance?.[0]?.formattedBalance}
+                balance={toBalance?.[0]}
                 onTokenSelection={(token) =>
                   setSelectedTo((prevToken) =>
                     token && prevToken ? [token, prevToken[1]] : [],
@@ -180,9 +178,9 @@ export function SwapCard() {
                         token && prevToken ? [prevToken[0], token] : [],
                       )
                     }
-                    amount={fromAmount[1]}
-                    balance={fromBalance?.[1]?.formattedBalance}
-                    selectable={selectedFrom?.[1]?.address !== honey?.address}
+                    amount={toAmount[1]}
+                    balance={toBalance?.[1]}
+                    selectable={selectedTo?.[1]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}

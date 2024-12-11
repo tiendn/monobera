@@ -12,7 +12,6 @@ import {
   useIsBadCollateralAsset,
   useIsBasketModeEnabled,
   type Token,
-  usePollAllowances,
 } from "@bera/berajs";
 import { honeyFactoryAddress, honeyTokenAddress } from "@bera/config";
 import { useAnalytics, useTxn } from "@bera/shared-ui";
@@ -53,10 +52,14 @@ export const usePsm = () => {
       !selectedFrom?.length &&
       !selectedTo?.length
     ) {
-      const initCollateralList =
-        isBasketModeEnabled && collateralList
-          ? [defaultCollateral, collateralList[1]]
-          : [defaultCollateral];
+      const initCollateralList = collateralList?.length
+        ? [
+            defaultCollateral,
+            ...collateralList.filter(
+              (token) => token.address !== defaultCollateral?.address,
+            ),
+          ]
+        : [defaultCollateral];
 
       setSelectedFrom(initCollateralList);
       setSelectedTo([honey]);
@@ -99,7 +102,10 @@ export const usePsm = () => {
       getAddress("0x0000000000000000000000000000000000000000"),
   });
 
-  const fromBalance = [fromBalance1.useBalance(), fromBalance2.useBalance()];
+  const fromBalance = [
+    fromBalance1.data?.formattedBalance,
+    fromBalance2.data?.formattedBalance,
+  ];
 
   const tobalance1 = usePollBalance({
     address:
@@ -113,7 +119,10 @@ export const usePsm = () => {
       getAddress("0x0000000000000000000000000000000000000000"),
   });
 
-  const toBalance = [tobalance1.useBalance(), toBalance2.useBalance()];
+  const toBalance = [
+    tobalance1.data?.formattedBalance,
+    toBalance2.data?.formattedBalance,
+  ];
 
   const { isReady, account } = useBeraJs();
 
@@ -172,6 +181,7 @@ export const usePsm = () => {
       amount: (givenIn ? fromAmount[0] : toAmount[0]) ?? "0",
       mint: isMint,
       given_in: givenIn,
+      isBasketModeEnabled: !!isBasketModeEnabled,
     });
 
   useEffect(() => {
@@ -221,12 +231,8 @@ export const usePsm = () => {
     );
 
   const exceedBalance = [
-    BigNumber(fromAmount?.[0] ?? "0").gt(
-      fromBalance?.[0]?.formattedBalance ?? "0",
-    ),
-    BigNumber(fromAmount?.[1] ?? "0").gt(
-      fromBalance?.[1]?.formattedBalance ?? "0",
-    ),
+    BigNumber(fromAmount?.[0] ?? "0").gt(fromBalance?.[0] ?? "0"),
+    BigNumber(fromAmount?.[1] ?? "0").gt(fromBalance?.[1] ?? "0"),
   ];
 
   const isLoading = isUseTxnLoading || isHoneyPreviewLoading;
