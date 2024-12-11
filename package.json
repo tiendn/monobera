@@ -5,6 +5,13 @@
     "node": ">=v18.18.0",
     "pnpm": ">=9"
   },
+  "pnpm": {
+    "overrides": {
+      "react": "<19",
+      "react-dom": "<19",
+      "@types/react": "<19"
+    }
+  },
   "packageManager": "pnpm@9.1.4",
   "scripts": {
     "build": "turbo build",
