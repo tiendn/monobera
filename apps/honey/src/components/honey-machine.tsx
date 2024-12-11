@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   honeyFactoryAbi,
+  Token,
   TransactionActionType,
   truncateHash,
 } from "@bera/berajs";
@@ -298,7 +299,7 @@ export function HoneyMachine() {
                     selected={selectedFrom?.[0]}
                     selectedTokens={selectedFrom}
                     onTokenSelection={(amount) => {
-                      setSelectedFrom((prevAmount) =>
+                      setSelectedFrom((prevAmount: Token[]) =>
                         amount && prevAmount ? [amount, prevAmount[1]] : [],
                       );
                     }}
@@ -322,7 +323,7 @@ export function HoneyMachine() {
                     selected={selectedTo?.[1]}
                     selectedTokens={selectedTo}
                     onTokenSelection={(amount) => {
-                      setSelectedTo((prevAmount) =>
+                      setSelectedTo((prevAmount: Token[]) =>
                         amount && prevAmount ? [amount, prevAmount[1]] : [],
                       );
                     }}

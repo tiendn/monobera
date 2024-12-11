@@ -27,31 +27,32 @@ export function SwapCard() {
     isFeeLoading,
     payload,
     isReady,
-    setSelectedFrom,
-    setSelectedTo,
     isLoading,
-    write,
     selectedFrom,
     selectedTo,
     fromAmount,
-    setFromAmount,
-    setToAmount,
-    setIsTyping,
     toAmount,
     isMint,
     fromBalance,
     toBalance,
-    setGivenIn,
-    onSwitch,
     ModalPortal,
     honey,
     collateralList,
     needsApproval,
-    refreshAllowances,
     exceedBalance,
     isTyping,
     isBadCollateral,
     isBasketModeEnabled,
+    collateralWeights,
+    setSelectedFrom,
+    setSelectedTo,
+    write,
+    setFromAmount,
+    setToAmount,
+    setIsTyping,
+    setGivenIn,
+    onSwitch,
+    refreshAllowances,
   } = usePsm();
 
   return (
@@ -100,7 +101,9 @@ export function SwapCard() {
             <ul className="relative rounded-2xl border">
               <TokenInput
                 selected={selectedFrom?.[0]}
-                selectedTokens={selectedFrom}
+                selectedTokens={
+                  isBasketModeEnabled ? selectedFrom : [selectedFrom?.[0]]
+                }
                 onTokenSelection={(token) =>
                   setSelectedFrom((prevToken) =>
                     token && prevToken && prevToken[1]
@@ -149,7 +152,9 @@ export function SwapCard() {
               )}
               <TokenInput
                 selected={selectedTo?.[0]}
-                selectedTokens={selectedTo}
+                selectedTokens={
+                  isBasketModeEnabled ? selectedTo : [selectedTo?.[0]]
+                }
                 setIsTyping={setIsTyping}
                 amount={toAmount[0]}
                 setAmount={(amount) => {
@@ -192,10 +197,7 @@ export function SwapCard() {
                 </>
               )}
             </ul>
-            {isBadCollateral.some((item) => item !== undefined) &&
-            (isBadCollateral.some((item) => item?.isBlacklisted) ||
-              isBadCollateral.some((item) => item?.isDepegged)) &&
-            !isBasketModeEnabled ? (
+            {isBadCollateral && !isBasketModeEnabled ? (
               <Alert variant="default" className="flex gap-2">
                 <Icons.info className="h-4 w-4 flex-shrink-0 text-default-foreground" />
                 <div>
@@ -203,11 +205,7 @@ export function SwapCard() {
                     Selected token disabled
                   </AlertTitle>
                   <AlertDescription className="text-sm text-muted-foreground">
-                    Selected token is currently{" "}
-                    {isBadCollateral?.some((item) => item?.isBlacklisted)
-                      ? "blacklisted"
-                      : "depegged"}
-                    .
+                    Selected token is currently disabled
                   </AlertDescription>
                 </div>
               </Alert>
@@ -245,10 +243,7 @@ export function SwapCard() {
                   toAmount.every((item) => item === "0") ||
                   exceedBalance.some((item) => item) ||
                   isTyping ||
-                  (!isBasketModeEnabled &&
-                    isBadCollateral.some((item) => item !== undefined) &&
-                    (isBadCollateral.some((item) => item?.isBlacklisted) ||
-                      isBadCollateral.some((item) => item?.isDepegged))) ||
+                  (!isBasketModeEnabled && isBadCollateral) ||
                   !payload
                 }
                 onClick={() => {
