@@ -11,10 +11,10 @@ import {
   DEFAULT_DEADLINE,
   DEFAULT_SLIPPAGE,
   LOCAL_STORAGE_KEYS,
-  MAX_INPUT_DEADLINE,
-  MAX_SLIPPAGE,
-  MIN_INPUT_DEADLINE,
-  MIN_SLIPPAGE,
+  MAX_CUSTOM_DEADLINE,
+  MAX_CUSTOM_SLIPPAGE,
+  MIN_CUSTOM_DEADLINE,
+  MIN_CUSTOM_SLIPPAGE,
 } from "~/utils/constants";
 
 export enum SELECTION {
@@ -84,8 +84,8 @@ export default function SwapSettings({
           <Input
             type="number"
             step="any"
-            min={MIN_SLIPPAGE}
-            max={MAX_SLIPPAGE}
+            min={MIN_CUSTOM_SLIPPAGE}
+            max={MAX_CUSTOM_SLIPPAGE}
             className="text-right"
             disabled={slippageToleranceType !== SELECTION.CUSTOM}
             value={
@@ -112,8 +112,10 @@ export default function SwapSettings({
             }
             onChange={(e: React.FocusEvent<HTMLInputElement>) => {
               const value = parseFloat(e.target.value);
-              if (value > MAX_SLIPPAGE) setSlippageToleranceValue(MAX_SLIPPAGE);
-              if (value < MIN_SLIPPAGE) setSlippageToleranceValue(MIN_SLIPPAGE);
+              if (value > MAX_CUSTOM_SLIPPAGE)
+                setSlippageToleranceValue(MAX_CUSTOM_SLIPPAGE);
+              if (value < MIN_CUSTOM_SLIPPAGE)
+                setSlippageToleranceValue(MIN_CUSTOM_SLIPPAGE);
               setSlippageToleranceValue(value);
             }}
           />
@@ -167,8 +169,8 @@ export default function SwapSettings({
               type="number"
               step="any"
               className="h-[40px] text-right"
-              min={MIN_INPUT_DEADLINE}
-              max={MAX_INPUT_DEADLINE}
+              min={MIN_CUSTOM_DEADLINE}
+              max={MAX_CUSTOM_DEADLINE}
               disabled={deadlineType !== SELECTION.CUSTOM}
               placeholder={deadlineType === SELECTION.INFINITY ? "∞" : ""}
               value={
@@ -195,8 +197,8 @@ export default function SwapSettings({
               }
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 let value = Number(e.target.value);
-                if (value < MIN_INPUT_DEADLINE) value = MIN_INPUT_DEADLINE;
-                if (value > MAX_INPUT_DEADLINE) value = MAX_INPUT_DEADLINE;
+                if (value < MIN_CUSTOM_DEADLINE) value = MIN_CUSTOM_DEADLINE;
+                if (value > MAX_CUSTOM_DEADLINE) value = MAX_CUSTOM_DEADLINE;
                 setDeadlineValue(value);
               }}
             />
