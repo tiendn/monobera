@@ -219,10 +219,24 @@ export const usePsm = (): PsmHookReturn => {
       ? TransactionActionType.MINT_HONEY
       : TransactionActionType.REDEEM_HONEY,
     onSuccess: () => {
-      track(`${isMint ? "mint" : "redeem"}_honey`);
+      track(`${isMint ? "mint" : "redeem"}_honey`, {
+        amountCollaterals: isMint ? fromAmount : toAmount,
+        amountHoney: isMint
+          ? toAmount[honeyTokenAddress]
+          : fromAmount[honeyTokenAddress],
+        collateralTokens: isMint ? selectedFrom : selectedTo,
+        basketMode: isBasketModeEnabled,
+      });
     },
     onError: (e: Error | undefined) => {
-      track(`${isMint ? "mint" : "redeem"}_honey_failed`);
+      track(`${isMint ? "mint" : "redeem"}_honey_failed`, {
+        amountCollaterals: isMint ? fromAmount : toAmount,
+        amountHoney: isMint
+          ? toAmount[honeyTokenAddress]
+          : fromAmount[honeyTokenAddress],
+        collateralTokens: isMint ? selectedFrom : selectedTo,
+        basketMode: isBasketModeEnabled,
+      });
       captureException(e);
     },
   });
@@ -244,6 +258,7 @@ export const usePsm = (): PsmHookReturn => {
   // Update amounts based on preview results
   useEffect(() => {
     if (previewRes) {
+      // Convert collateral amounts from raw units to formatted units (with proper decimals)
       const newCollaterals: Record<Address, string> = Object.keys(
         previewRes?.collaterals,
       ).reduce(
@@ -251,18 +266,27 @@ export const usePsm = (): PsmHookReturn => {
           ...attrs,
           [key]: formatUnits(
             previewRes?.collaterals[key as Address],
+            // Find the correct decimal places for this token, default to 18 if not found
             collateralList?.find((token) => token.address === key)?.decimals ??
               18,
           ),
         }),
         {},
       );
+
+      // Check if we're in basket mode (collaterals missing are represented as 0)
       const previewBasketMode = Object.values(previewRes.collaterals).every(
         (value) => value > 0,
       );
+
+      // Handle Minting logic (collateral -> Honey)
       if (isMint) {
         if (givenIn) {
+          // User input collateral amount (fromAmount)
+          // Set the resulting Honey amount
           setToAmount({ [honey?.address!]: formatUnits(previewRes.honey, 18) });
+
+          // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setFromAmount((prevColl) => ({
               ...newCollaterals,
@@ -270,15 +294,25 @@ export const usePsm = (): PsmHookReturn => {
             }));
           }
         } else {
+          // User input Honey amount (toAmount)
+          // Set all required collateral amounts
           setFromAmount(newCollaterals);
         }
-      } else {
+      }
+      // Handle Redeeming logic (Honey -> collateral)
+      else {
         if (givenIn) {
+          // User input Honey amount (fromAmount)
+          // Set resulting collateral amounts
           setToAmount(newCollaterals);
         } else {
+          // User input collateral amount (toAmount)
+          // Set required Honey amount
           setFromAmount({
             [honey?.address!]: formatUnits(previewRes.honey, 18),
           });
+
+          // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setToAmount((prevColl) => ({
               ...newCollaterals,
