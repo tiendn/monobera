@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Badge } from "@bera/ui/badge";
 import { formatTimeLeft, getBadgeColor, getTimeLeft } from "../helper";
 import { useBlockToTimestamp } from "@bera/berajs";
@@ -13,19 +14,19 @@ export const statusMap: Record<ProposalStatus, string> = {
   [ProposalStatus.CanceledByUser]: "Canceled by user",
   [ProposalStatus.Defeated]: "Defeated",
   [ProposalStatus.Executed]: "Executed",
-  // [ProposalStatus.Expired]: "Expired",
   [ProposalStatus.InQueue]: "In queue",
   [ProposalStatus.Pending]: "Pending",
   [ProposalStatus.PendingExecution]: "Pending execution",
   [ProposalStatus.PendingQueue]: "Pending queue",
   [ProposalStatus.QuorumNotReached]: "Quorum not reached",
-  // [ProposalStatus.Succeeded]: "Succeeded",
 };
 
 export const StatusBadge = ({
   proposal,
   className,
 }: { proposal: ProposalSelectionFragment; className?: string }) => {
+  const [timeLeft, setTimeLeft] = useState<string>("");
+
   const start = useBlockToTimestamp(
     proposal.status === ProposalStatus.Pending
       ? proposal.voteStartBlock
@@ -36,6 +37,27 @@ export const StatusBadge = ({
       ? proposal.voteEndBlock
       : undefined,
   );
+
+  useEffect(() => {
+    const updateTime = () => {
+      const timestamp =
+        proposal.status === ProposalStatus.Pending
+          ? start
+          : proposal.status === ProposalStatus.Active
+            ? end
+            : null;
+
+      if (timestamp) {
+        console.log(formatTimeLeft(getTimeLeft(new Date(timestamp * 1000))));
+        setTimeLeft(formatTimeLeft(getTimeLeft(new Date(timestamp * 1000))));
+      }
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 5000);
+
+    return () => clearInterval(interval);
+  }, [proposal.status, start, end]);
 
   return (
     <div
@@ -50,18 +72,11 @@ export const StatusBadge = ({
       >
         {statusMap[proposal.status]}
       </Badge>
-      {proposal.status === ProposalStatus.Pending && start && (
-        // TODO: get end time from proposal
-        <span className="whitespace-nowrap">
-          {formatTimeLeft(getTimeLeft(new Date(start * 1000)))} left
-        </span>
-      )}
-      {proposal.status === ProposalStatus.Active && end && (
-        // TODO: get end time from proposal
-        <span className="whitespace-nowrap">
-          {formatTimeLeft(getTimeLeft(new Date(end * 1000)))} left
-        </span>
-      )}
+      {(proposal.status === ProposalStatus.Pending ||
+        proposal.status === ProposalStatus.Active) &&
+        timeLeft && <span className="whitespace-nowrap">{timeLeft} left</span>}
     </div>
   );
 };
+
+export default StatusBadge;
