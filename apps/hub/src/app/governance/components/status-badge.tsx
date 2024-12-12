@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Badge } from "@bera/ui/badge";
 import { formatTimeLeft, getBadgeColor, getTimeLeft } from "../helper";
 import { useBlockToTimestamp } from "@bera/berajs";
@@ -26,29 +26,39 @@ export const StatusBadge = ({
   className,
 }: { proposal: ProposalSelectionFragment; className?: string }) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const startRef = useRef<number | null>(null);
+  const endRef = useRef<number | null>(null);
 
-  const start = useBlockToTimestamp(
+  const startTimestamp = useBlockToTimestamp(
     proposal.status === ProposalStatus.Pending
       ? proposal.voteStartBlock
       : undefined,
   );
-  const end = useBlockToTimestamp(
+  const endTimestamp = useBlockToTimestamp(
     proposal.status === ProposalStatus.Active
       ? proposal.voteEndBlock
       : undefined,
   );
 
   useEffect(() => {
+    if (startTimestamp && !startRef.current) {
+      startRef.current = startTimestamp;
+    }
+    if (endTimestamp && !endRef.current) {
+      endRef.current = endTimestamp;
+    }
+  }, [startTimestamp, endTimestamp]);
+
+  useEffect(() => {
     const updateTime = () => {
       const timestamp =
         proposal.status === ProposalStatus.Pending
-          ? start
+          ? startRef.current
           : proposal.status === ProposalStatus.Active
-            ? end
+            ? endRef.current
             : null;
 
       if (timestamp) {
-        console.log(formatTimeLeft(getTimeLeft(new Date(timestamp * 1000))));
         setTimeLeft(formatTimeLeft(getTimeLeft(new Date(timestamp * 1000))));
       }
     };
@@ -57,7 +67,7 @@ export const StatusBadge = ({
     const interval = setInterval(updateTime, 5000);
 
     return () => clearInterval(interval);
-  }, [proposal.status, start, end]);
+  }, [proposal.status]);
 
   return (
     <div
@@ -74,7 +84,9 @@ export const StatusBadge = ({
       </Badge>
       {(proposal.status === ProposalStatus.Pending ||
         proposal.status === ProposalStatus.Active) &&
-        timeLeft && <span className="whitespace-nowrap">{timeLeft} left</span>}
+        timeLeft && (
+          <span className="whitespace-nowrap">~ {timeLeft} left</span>
+        )}
     </div>
   );
 };
