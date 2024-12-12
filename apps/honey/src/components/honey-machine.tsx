@@ -2,20 +2,20 @@
 
 import { useEffect, useState } from "react";
 import {
-  honeyFactoryAbi,
   Token,
   TransactionActionType,
+  honeyFactoryAbi,
   truncateHash,
 } from "@bera/berajs";
 import { honeyFactoryAddress } from "@bera/config";
 import {
   ConnectButton,
+  Identicon,
   SSRSpinner,
   Spinner,
   TokenInput,
   useTxn,
 } from "@bera/shared-ui";
-import { Identicon } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import {
@@ -25,7 +25,7 @@ import {
   useRive,
   useStateMachineInput,
 } from "@rive-app/react-canvas";
-import { parseUnits, erc20Abi } from "viem";
+import { erc20Abi, parseUnits } from "viem";
 
 import { LoadingBee } from "~/components/loadingBee";
 import { usePsm } from "~/hooks/usePsm";
@@ -62,6 +62,7 @@ export function HoneyMachine() {
     setSelectedFrom,
     setSelectedTo,
     setFromAmount,
+    setChangedAsset,
     setToAmount,
     setIsTyping,
   } = usePsm();
@@ -135,7 +136,7 @@ export function HoneyMachine() {
       } else {
         if (userReady.value) userReady.value = false;
         if (buttonState) buttonState.value = 0;
-        setFromAmount([]);
+        setFromAmount({});
       }
     }
   }, [isReady, userReady]);
@@ -303,15 +304,19 @@ export function HoneyMachine() {
                         amount && prevAmount ? [amount, prevAmount[1]] : [],
                       );
                     }}
-                    amount={fromAmount?.[0]}
+                    amount={fromAmount[selectedFrom?.[0]?.address!]}
                     balance={fromBalance?.[0]}
                     selectable={selectedFrom?.[0]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
                     setAmount={(amount) => {
+                      setChangedAsset(selectedFrom?.[0]?.address);
                       setGivenIn(true);
-                      setFromAmount([amount, "0"]);
+                      setFromAmount((prevAmount) => ({
+                        ...prevAmount,
+                        [selectedFrom?.[0]?.address!]: amount,
+                      }));
                     }}
                   />
                 </div>
@@ -327,10 +332,14 @@ export function HoneyMachine() {
                         amount && prevAmount ? [amount, prevAmount[1]] : [],
                       );
                     }}
-                    amount={toAmount?.[0]}
+                    amount={toAmount[selectedTo?.[1]?.address!]}
                     setAmount={(amount) => {
+                      setChangedAsset(selectedTo?.[1]?.address);
                       setGivenIn(false);
-                      setToAmount([amount, "0"]);
+                      setFromAmount((prevAmount) => ({
+                        ...prevAmount,
+                        [selectedTo?.[1]?.address!]: amount,
+                      }));
                     }}
                     selectable={selectedTo?.[0]?.address !== honey?.address}
                     customTokenList={collateralList}

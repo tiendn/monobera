@@ -10,15 +10,15 @@ import {
   SSRSpinner,
   TokenInput,
 } from "@bera/shared-ui";
+import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
+import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { parseUnits } from "viem";
 
 import { usePsm } from "~/hooks/usePsm";
-import { Icons } from "@bera/ui/icons";
-import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 
 export function SwapCard() {
   const [tabValue, setTabValue] = useState<"mint" | "burn">("mint");
@@ -51,6 +51,7 @@ export function SwapCard() {
     setToAmount,
     setIsTyping,
     setGivenIn,
+    setChangedAsset,
     onSwitch,
     refreshAllowances,
   } = usePsm();
@@ -111,15 +112,19 @@ export function SwapCard() {
                       : [],
                   )
                 }
-                amount={fromAmount[0]}
+                amount={fromAmount[selectedFrom?.[0]?.address!]}
                 balance={fromBalance?.[0]}
                 selectable={selectedFrom?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding
                 setIsTyping={setIsTyping}
                 setAmount={(amount) => {
+                  setChangedAsset(selectedFrom?.[0]?.address);
                   setGivenIn(true);
-                  setFromAmount((prevAmount) => [amount, prevAmount[1]]);
+                  setFromAmount((prevAmount) => ({
+                    ...prevAmount,
+                    [selectedFrom?.[0]?.address!]: amount,
+                  }));
                 }}
               />
               <hr />
@@ -133,15 +138,19 @@ export function SwapCard() {
                         token && prevToken ? [prevToken[0], token] : [],
                       )
                     }
-                    amount={fromAmount[1]}
+                    amount={fromAmount[selectedFrom?.[1]?.address!]}
                     balance={fromBalance?.[1]}
                     selectable={selectedFrom?.[1]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
                     setAmount={(amount) => {
+                      setChangedAsset(selectedFrom?.[1]?.address);
                       setGivenIn(true);
-                      setFromAmount((prevAmount) => [prevAmount[0], amount]);
+                      setFromAmount((prevAmount) => ({
+                        ...prevAmount,
+                        [selectedFrom?.[1]?.address!]: amount,
+                      }));
                     }}
                   />
                   <hr />
@@ -156,10 +165,14 @@ export function SwapCard() {
                   isBasketModeEnabled ? selectedTo : [selectedTo?.[0]]
                 }
                 setIsTyping={setIsTyping}
-                amount={toAmount[0]}
+                amount={toAmount[selectedTo?.[0]?.address!]}
                 setAmount={(amount) => {
+                  setChangedAsset(selectedTo?.[0]?.address);
                   setGivenIn(false);
-                  setToAmount((prevAmount) => [amount, prevAmount[1]]);
+                  setToAmount((prevAmount) => ({
+                    ...prevAmount,
+                    [selectedTo?.[0]?.address!]: amount,
+                  }));
                 }}
                 selectable={selectedTo?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
@@ -183,15 +196,19 @@ export function SwapCard() {
                         token && prevToken ? [prevToken[0], token] : [],
                       )
                     }
-                    amount={toAmount[1]}
+                    amount={toAmount[selectedTo?.[1]?.address!]}
                     balance={toBalance?.[1]}
                     selectable={selectedTo?.[1]?.address !== honey?.address}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
                     setAmount={(amount) => {
+                      setChangedAsset(selectedTo?.[1]?.address);
                       setGivenIn(false);
-                      setFromAmount((prevAmount) => [prevAmount[0], amount]);
+                      setToAmount((prevAmount) => ({
+                        ...prevAmount,
+                        [selectedTo?.[1]?.address!]: amount,
+                      }));
                     }}
                   />
                 </>
@@ -199,7 +216,7 @@ export function SwapCard() {
             </ul>
             {isBadCollateral && !isBasketModeEnabled ? (
               <Alert variant="default" className="flex gap-2">
-                <Icons.info className="h-4 w-4 flex-shrink-0 text-default-foreground" />
+                <Icons.info className="text-default-foreground h-4 w-4 flex-shrink-0" />
                 <div>
                   <AlertTitle className="text-destructive-foreground">
                     Selected token disabled
@@ -211,7 +228,7 @@ export function SwapCard() {
               </Alert>
             ) : isBasketModeEnabled ? (
               <Alert variant="default" className="flex gap-2">
-                <Icons.info className="h-4 w-4 flex-shrink-0 text-default-foreground" />
+                <Icons.info className="text-default-foreground h-4 w-4 flex-shrink-0" />
                 <div>
                   <AlertTitle className="text-destructive-foreground">
                     Minting is currently restricted to preset pairs
@@ -225,7 +242,7 @@ export function SwapCard() {
             {!isReady ? (
               <ConnectButton className="w-full" />
             ) : needsApproval.length > 0 &&
-              !exceedBalance.some((item) => item) ? (
+              !exceedBalance?.some((item) => item) ? (
               <ApproveButton
                 token={needsApproval[0]}
                 spender={honeyFactoryAddress}
@@ -239,9 +256,9 @@ export function SwapCard() {
               <Button
                 disabled={
                   isLoading ||
-                  fromAmount.every((item) => item === "0") ||
-                  toAmount.every((item) => item === "0") ||
-                  exceedBalance.some((item) => item) ||
+                  Object.values(fromAmount).every((item) => item === "0") ||
+                  Object.values(toAmount).every((item) => item === "0") ||
+                  exceedBalance?.some((item) => item) ||
                   isTyping ||
                   (!isBasketModeEnabled && isBadCollateral) ||
                   !payload

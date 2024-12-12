@@ -1,7 +1,11 @@
 import useSWR from "swr";
 import { usePublicClient } from "wagmi";
 
-import { HoneyPreviewMethod, getHoneyPreview } from "~/actions";
+import {
+  HoneyPreviewMethod,
+  HoneyPreviewResult,
+  getHoneyPreview,
+} from "~/actions";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
 import { DefaultHookOptions, DefaultHookReturnType, Token } from "~/types";
@@ -12,11 +16,10 @@ export interface UsePollHoneyPreviewArgs {
   amount: string;
   mint: boolean; // true mint, false redeem
   given_in: boolean; // true given in, false given out
-  isBasketModeEnabled: boolean;
 }
 
 export interface UsePollHoneyPreviewResponse
-  extends DefaultHookReturnType<string[] | undefined> {}
+  extends DefaultHookReturnType<HoneyPreviewResult | undefined> {}
 
 export const usePollHoneyPreview = (
   {
@@ -25,7 +28,6 @@ export const usePollHoneyPreview = (
     amount,
     mint,
     given_in,
-    isBasketModeEnabled,
   }: UsePollHoneyPreviewArgs,
   options?: DefaultHookOptions,
 ): UsePollHoneyPreviewResponse => {
@@ -35,9 +37,7 @@ export const usePollHoneyPreview = (
       ? HoneyPreviewMethod.Mint
       : HoneyPreviewMethod.RequiredCollateral
     : given_in
-      ? isBasketModeEnabled
-        ? HoneyPreviewMethod.RedeemBasket
-        : HoneyPreviewMethod.Redeem
+      ? HoneyPreviewMethod.Redeem
       : HoneyPreviewMethod.HoneyToRedeem;
 
   const QUERY_KEY =

@@ -8,24 +8,24 @@ import {
   useState,
 } from "react";
 import {
+  IContractWrite,
+  TokenWithAmount,
   TransactionActionType,
   useBeraJs,
+  useCollateralWeights,
   useCollateralsRates,
-  usePollAllowance,
+  useIsBadCollateralAsset,
+  useIsBasketModeEnabled,
   usePollBalance,
   usePollHoneyPreview,
   useTokens,
-  useIsBadCollateralAsset,
-  useIsBasketModeEnabled,
   type Token,
-  useCollateralWeights,
-  IContractWrite,
-  TokenWithAmount,
 } from "@bera/berajs";
 import { honeyFactoryAddress, honeyTokenAddress } from "@bera/config";
 import { useAnalytics, useTxn } from "@bera/shared-ui";
 import BigNumber from "bignumber.js";
 import { Abi, formatUnits, getAddress, parseUnits, type Address } from "viem";
+
 import useMultipleTokenApprovals from "./useMultipleTokenApprovals";
 
 interface PsmHookReturn {
@@ -37,14 +37,14 @@ interface PsmHookReturn {
   fee: number;
   isReady: boolean | undefined;
   isFeeLoading: boolean;
-  fromAmount: string[];
-  toAmount: string[];
+  fromAmount: Record<Address, string>;
+  toAmount: Record<Address, string>;
   isMint: boolean;
   fromBalance: Array<string | undefined>;
   toBalance: Array<string | undefined>;
   ModalPortal: ReactElement<any, any>;
   needsApproval: TokenWithAmount[];
-  exceedBalance: boolean[];
+  exceedBalance: boolean[] | undefined;
   honey: Token | undefined;
   collateralList: Token[] | undefined;
   isTyping: boolean;
@@ -53,10 +53,11 @@ interface PsmHookReturn {
   collateralWeights: Record<Address, bigint> | undefined;
   setSelectedFrom: Dispatch<SetStateAction<Token[]>>;
   setSelectedTo: Dispatch<SetStateAction<Token[]>>;
-  setFromAmount: Dispatch<SetStateAction<string[]>>;
-  setToAmount: Dispatch<SetStateAction<string[]>>;
+  setFromAmount: Dispatch<SetStateAction<Record<Address, string>>>;
+  setToAmount: Dispatch<SetStateAction<Record<Address, string>>>;
   setGivenIn: Dispatch<SetStateAction<boolean>>;
   setIsTyping: Dispatch<SetStateAction<boolean>>;
+  setChangedAsset: Dispatch<SetStateAction<Address | undefined>>;
   onSwitch: () => void;
   refreshAllowances: () => void;
   write: (args: IContractWrite<Abi, string>) => void;
@@ -76,8 +77,12 @@ export const usePsm = (): PsmHookReturn => {
   const [selectedFrom, setSelectedFrom] = useState<Token[]>([]);
   const [givenIn, setGivenIn] = useState<boolean>(true);
   // State for input/output amounts
-  const [fromAmount, setFromAmount] = useState<string[]>([]);
-  const [toAmount, setToAmount] = useState<string[]>([]);
+  const [fromAmount, setFromAmount] = useState<Record<Address, string>>({});
+  const [toAmount, setToAmount] = useState<Record<Address, string>>({});
+  // state for the asset that is changed, usefull to keep a value still in the input field
+  const [changedAsset, setChangedAsset] = useState<Address | undefined>(
+    undefined,
+  );
   const { isReady, account } = useBeraJs();
 
   // Get token data and filter for collateral tokens
@@ -117,7 +122,7 @@ export const usePsm = (): PsmHookReturn => {
         ? [
             defaultCollateral,
             ...collateralList.filter(
-              (token) => token.address !== defaultCollateral?.address,
+              (token) => token.address !== defaultCollateral.address,
             ),
           ]
         : [defaultCollateral];
@@ -133,11 +138,11 @@ export const usePsm = (): PsmHookReturn => {
   // ===== BAD COLLATERAL =====
   // Check if selected collaterals are flagged as bad (blacklisted or depegged)
   const isBadCollateral1 = useIsBadCollateralAsset({
-    collateral: collaterals?.[0]?.address as Address,
+    collateral: collaterals[0]?.address,
   });
   const isBadCollateral2 = useIsBadCollateralAsset({
     collateral:
-      (collaterals?.[1]?.address as Address) ||
+      (collaterals[1]?.address as Address) ??
       getAddress("0x0000000000000000000000000000000000000000"),
   });
   const isBadCollateral =
@@ -150,12 +155,12 @@ export const usePsm = (): PsmHookReturn => {
   // retrieve token balances for both input and output tokens
   const fromBalance1 = usePollBalance({
     address:
-      selectedFrom?.[0]?.address ||
+      selectedFrom[0]?.address ??
       getAddress("0x0000000000000000000000000000000000000000"),
   });
   const fromBalance2 = usePollBalance({
     address:
-      selectedFrom?.[1]?.address ||
+      selectedFrom[1]?.address ??
       getAddress("0x0000000000000000000000000000000000000000"),
   });
   const fromBalance = [
@@ -164,29 +169,18 @@ export const usePsm = (): PsmHookReturn => {
   ];
   const tobalance1 = usePollBalance({
     address:
-      selectedTo?.[0]?.address ||
+      selectedTo[0]?.address ??
       getAddress("0x0000000000000000000000000000000000000000"),
   });
   const toBalance2 = usePollBalance({
     address:
-      selectedTo?.[1]?.address ||
+      selectedTo[1]?.address ??
       getAddress("0x0000000000000000000000000000000000000000"),
   });
   const toBalance = [
     tobalance1.data?.formattedBalance,
     toBalance2.data?.formattedBalance,
   ];
-
-  // ===== TOKEN ALLOWANCES =====
-  // retrieve token allowances for spending
-  const allowance1 = usePollAllowance({
-    spender: honeyFactoryAddress,
-    token: selectedFrom?.[0] ?? undefined,
-  });
-  const allowance2 = usePollAllowance({
-    spender: honeyFactoryAddress,
-    token: selectedFrom?.[1] ?? undefined,
-  });
 
   // ===== FEE =====
   // Get current fees for selected collateral
@@ -212,10 +206,14 @@ export const usePsm = (): PsmHookReturn => {
   } = useTxn({
     message: isMint
       ? `Mint ${
-          Number(toAmount) < 0.01 ? "<0.01" : Number(toAmount).toFixed(2)
+          Number(toAmount[honeyTokenAddress]) < 0.01
+            ? "<0.01"
+            : Number(toAmount[honeyTokenAddress]).toFixed(2)
         } Honey`
       : `Redeem ${
-          Number(fromAmount) < 0.01 ? "<0.01" : Number(fromAmount).toFixed(2)
+          Number(fromAmount[honeyTokenAddress]) < 0.01
+            ? "<0.01"
+            : Number(fromAmount[honeyTokenAddress]).toFixed(2)
         } Honey`,
     actionType: isMint
       ? TransactionActionType.MINT_HONEY
@@ -232,18 +230,64 @@ export const usePsm = (): PsmHookReturn => {
   // Calculate amounts when inputs change
   const { data: previewRes, isLoading: isHoneyPreviewLoading } =
     usePollHoneyPreview({
-      collateral: isTyping ? undefined : collaterals?.[0],
+      collateral: isTyping ? undefined : collaterals[0],
       collateralList: isBasketModeEnabled ? collateralList : undefined,
-      amount: (givenIn ? fromAmount[0] : toAmount[0]) ?? "0",
+      amount: changedAsset
+        ? givenIn
+          ? fromAmount[changedAsset]
+          : toAmount[changedAsset]
+        : "0",
       mint: isMint,
       given_in: givenIn,
-      isBasketModeEnabled: !!isBasketModeEnabled,
     });
 
   // Update amounts based on preview results
   useEffect(() => {
-    if (givenIn) setToAmount(previewRes ?? []);
-    else setFromAmount(previewRes ?? []);
+    if (previewRes) {
+      const newCollaterals: Record<Address, string> = Object.keys(
+        previewRes?.collaterals,
+      ).reduce(
+        (attrs, key) => ({
+          ...attrs,
+          [key]: formatUnits(
+            previewRes?.collaterals[key as Address],
+            collateralList?.find((token) => token.address === key)?.decimals ??
+              18,
+          ),
+        }),
+        {},
+      );
+      const previewBasketMode = Object.values(previewRes.collaterals).every(
+        (value) => value > 0,
+      );
+      if (isMint) {
+        if (givenIn) {
+          setToAmount({ [honey?.address!]: formatUnits(previewRes.honey, 18) });
+          if (previewBasketMode && changedAsset) {
+            setFromAmount((prevColl) => ({
+              ...newCollaterals,
+              [changedAsset]: prevColl[changedAsset],
+            }));
+          }
+        } else {
+          setFromAmount(newCollaterals);
+        }
+      } else {
+        if (givenIn) {
+          setToAmount(newCollaterals);
+        } else {
+          setFromAmount({
+            [honey?.address!]: formatUnits(previewRes.honey, 18),
+          });
+          if (previewBasketMode && changedAsset) {
+            setToAmount((prevColl) => ({
+              ...newCollaterals,
+              [changedAsset]: prevColl[changedAsset],
+            }));
+          }
+        }
+      }
+    }
   }, [previewRes]);
 
   // Switch between mint and redeem operations
@@ -264,31 +308,30 @@ export const usePsm = (): PsmHookReturn => {
 
   // Update token weights when in basket mode with bad collateral
   useEffect(() => {
-    if (
-      isBadCollateral &&
-      collateralWeights &&
-      selectedFrom.length &&
-      selectedTo.length
-    ) {
-      selectedFrom.forEach((token) => {
-        const weight = collateralWeights[token.address];
-        if (weight) {
-          token.weight = Math.round(Number(formatUnits(weight, 18)));
-        }
-      });
+    if (collateralWeights && selectedFrom.length && selectedTo.length) {
+      if (!isBasketModeEnabled) {
+        selectedFrom.forEach((token) => (token.weight = undefined));
+      } else {
+        selectedFrom.forEach((token) => {
+          const weight = collateralWeights[token.address];
+          if (weight) {
+            token.weight = +Number(formatUnits(weight, 18)).toFixed(2);
+          }
+        });
+      }
     }
   }, [collateralWeights, isBasketModeEnabled]);
 
   // Prepare transaction payload
   const payload =
-    collaterals && account
+    collaterals && account && selectedFrom.length
       ? ([
-          collaterals?.[0]?.address,
+          collaterals[0].address,
           parseUnits(
-            fromAmount?.[0] ?? "0",
-            (isMint ? collaterals?.[0]?.decimals : honey?.decimals) ?? 18,
+            fromAmount[selectedFrom[0].address] ?? "0",
+            (isMint ? collaterals[0].decimals : honey?.decimals) ?? 18,
           ),
-          account ?? ("" as Address),
+          account,
           !!isBasketModeEnabled,
         ] as const)
       : undefined;
@@ -303,17 +346,16 @@ export const usePsm = (): PsmHookReturn => {
         decimals: token.decimals,
         address: token.address,
         exceeding: false,
-        amount: fromAmount?.[idx] ?? "0",
+        amount: fromAmount[token.address] ?? "0",
       })) ?? [],
       honeyFactoryAddress,
     );
 
   // ===== EXCEEDING BALANCE =====
   // Check if the input amount exceeds the balance
-  const exceedBalance = [
-    BigNumber(fromAmount?.[0] ?? "0").gt(fromBalance?.[0] ?? "0"),
-    BigNumber(fromAmount?.[1] ?? "0").gt(fromBalance?.[1] ?? "0"),
-  ];
+  const exceedBalance = collateralList?.map((token, idx) =>
+    BigNumber(fromAmount[token.address] ?? "0").gt(fromBalance?.[idx] ?? "0"),
+  );
 
   const isLoading = isUseTxnLoading || isHoneyPreviewLoading;
   return {
@@ -346,6 +388,7 @@ export const usePsm = (): PsmHookReturn => {
     setGivenIn,
     setIsTyping,
     setSelectedFrom,
+    setChangedAsset,
     refreshAllowances,
     write,
   };
