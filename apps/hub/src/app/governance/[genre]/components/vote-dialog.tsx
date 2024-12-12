@@ -30,6 +30,7 @@ import { TextArea } from "@bera/ui/text-area";
 import { ProposalHeading } from "../../components/proposal-heading";
 import { cn } from "@bera/ui";
 import { ProposalWithVotesFragment } from "@bera/graphql/governance";
+import { useSWRConfig } from "swr";
 
 export function VoteDialog({
   proposal,
@@ -57,12 +58,15 @@ export function VoteDialog({
     proposalId: proposalId,
   });
 
+  const { mutate: refreshPollProposal } = useSWRConfig();
+
   const { write, ModalPortal } = useTxn({
     message: "Vote Proposal",
     actionType: TransactionActionType.VOTE,
     onSuccess: () => {
       setOpen(false);
       mutate(true);
+      refreshPollProposal(["usePollProposal", proposalId]);
     },
   });
 
