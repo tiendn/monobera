@@ -12,20 +12,25 @@ import {
   DialogTrigger,
 } from "@bera/ui/dialog";
 import { StatusBadge } from "~/app/governance/components/status-badge";
+import { useState } from "react";
 
 export const QueueButton = ({
   proposal,
   title,
 }: { proposal: Proposal; title: string }) => {
+  const [open, setOpen] = useState(false);
   const { write, ModalPortal } = useTxn({
     message: "Queuing proposal",
+    onSuccess: () => {
+      setOpen(false);
+    },
   });
 
   const { governorAddress } = useGovernance();
   return (
     <>
       {ModalPortal}
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger>
           <Button>Queue</Button>
         </DialogTrigger>
