@@ -10,6 +10,7 @@ import {
   type IUseContractWriteArgs,
   type useContractWriteApi,
 } from "./types";
+import { DEFAULT_METAMASK_GAS_LIMIT } from "~/utils";
 
 const increaseByPercentage = (value: bigint, percentage: number) => {
   return value + (value * BigInt(percentage)) / BigInt(100);
@@ -45,7 +46,8 @@ const useBeraContractWrite = ({
       params,
       value = 0n,
       data,
-      gasLimit = 2000000n,
+      gasLimit = DEFAULT_METAMASK_GAS_LIMIT,
+      ...rest
     }: IContractWrite): Promise<void> => {
       dispatch({ type: ActionEnum.LOADING });
       onLoading?.();
@@ -60,18 +62,31 @@ const useBeraContractWrite = ({
             gas: gasLimit,
           });
         } else {
+          // Run simulation and gas estimation in parallel
           // TODO: figure out clean way to early detect errors and effectively show them on the UI
-          const { request } = await publicClient.simulateContract({
-            address: address,
-            abi: abi,
-            functionName: functionName,
-            args: params,
-            value: value,
-            account: account,
-          });
+          const [{ request }, wagmiPubEstimateContractGas] = await Promise.all([
+            publicClient.simulateContract({
+              address: address,
+              abi: abi,
+              functionName: functionName,
+              args: params,
+              value: value,
+              account: account,
+            }),
+            publicClient.estimateContractGas({
+              address: address,
+              abi: abi,
+              functionName: functionName,
+              args: params,
+              value: value,
+              account: account,
+            }),
+          ]);
+
           receipt = await writeContractAsync({
             ...request,
-            gas: gasLimit ?? request.gas,
+            gas:
+              increaseByPercentage(wagmiPubEstimateContractGas, 10) ?? gasLimit,
           });
         }
 
