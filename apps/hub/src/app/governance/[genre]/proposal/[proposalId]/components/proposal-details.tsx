@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { FC, useMemo } from "react";
+import React, { FC } from "react";
 import {
   Vote,
   useBeraJs,
@@ -35,6 +35,7 @@ import {
   ProposalStatus,
   ProposalWithVotesFragment,
 } from "@bera/graphql/governance";
+import { useProposalStatusMonitor } from "../../useProposalStatusMonitor";
 
 export const ProposalDetailsWrapper = ({
   children,
@@ -90,6 +91,8 @@ export default function ProposalDetails({
 
   const userVote =
     isReady && votes.find((vote: Vote) => vote.voter.address === account);
+
+  useProposalStatusMonitor(proposal);
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-12 pb-16 gap-4 md:gap-6">
