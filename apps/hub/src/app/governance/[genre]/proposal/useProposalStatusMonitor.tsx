@@ -5,6 +5,7 @@ import {
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useBlockNumber } from "wagmi";
+import { useSWRConfig } from "swr";
 
 /**
  * Monitors the status of a proposal and refreshes the page when the status changes.
@@ -19,6 +20,7 @@ export const useProposalStatusMonitor = (
     },
   });
   const router = useRouter();
+  const { mutate: refreshPollProposal } = useSWRConfig();
 
   useEffect(() => {
     if (!currentBlockNumber || !proposal) return;
@@ -33,7 +35,7 @@ export const useProposalStatusMonitor = (
       statusChecks[proposal.status as keyof typeof statusChecks];
 
     if (threshold && currentBlockNumber >= BigInt(threshold)) {
-      router.refresh();
+      refreshPollProposal(["usePollProposal", proposal.id]);
     }
   }, [proposal, currentBlockNumber, router]);
 };
