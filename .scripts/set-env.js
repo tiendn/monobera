@@ -11,13 +11,17 @@ const env = program.args[0];
 console.log("Copying files", env);
 
 if (fs.existsSync(path.resolve(process.cwd(), "secrets", `.env.${env}`))) {
-  fs.unlinkSync(path.resolve(process.cwd(), ".env"));
+  if (fs.existsSync(path.resolve(process.cwd(), ".env"))) {
+    fs.unlinkSync(path.resolve(process.cwd(), ".env"));
+  }
   fs.symlinkSync(
     path.resolve(process.cwd(), "secrets", `.env.${env}`),
     path.resolve(process.cwd(), ".env"),
   );
 } else if (fs.existsSync(path.resolve(process.cwd(), `.env.${env}`))) {
-  fs.unlinkSync(path.resolve(process.cwd(), ".env"));
+  if (fs.existsSync(path.resolve(process.cwd(), ".env"))) {
+    fs.unlinkSync(path.resolve(process.cwd(), ".env"));
+  }
   fs.symlinkSync(
     path.resolve(process.cwd(), `.env.${env}`),
     path.resolve(process.cwd(), ".env"),
