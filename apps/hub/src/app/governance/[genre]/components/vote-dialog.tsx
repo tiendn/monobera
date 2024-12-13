@@ -66,7 +66,7 @@ export function VoteDialog({
     onSuccess: () => {
       setOpen(false);
       mutate(true);
-      refreshPollProposal(["usePollProposal", proposalId]);
+      refreshPollProposal(["usePollProposal", proposalId.toString()]);
     },
   });
 
