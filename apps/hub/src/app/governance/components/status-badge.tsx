@@ -26,8 +26,6 @@ export const StatusBadge = ({
   className,
 }: { proposal: ProposalSelectionFragment; className?: string }) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
-  const startRef = useRef<number | null>(null);
-  const endRef = useRef<number | null>(null);
 
   const startTimestamp = useBlockToTimestamp(
     proposal.status === ProposalStatus.Pending
@@ -41,25 +39,21 @@ export const StatusBadge = ({
   );
 
   useEffect(() => {
-    if (startTimestamp && !startRef.current) {
-      startRef.current = startTimestamp;
-    }
-    if (endTimestamp && !endRef.current) {
-      endRef.current = endTimestamp;
-    }
-  }, [startTimestamp, endTimestamp]);
-
-  useEffect(() => {
     const updateTime = () => {
       const timestamp =
         proposal.status === ProposalStatus.Pending
-          ? startRef.current
+          ? startTimestamp
           : proposal.status === ProposalStatus.Active
-            ? endRef.current
+            ? endTimestamp
             : null;
 
       if (timestamp) {
-        setTimeLeft(formatTimeLeft(getTimeLeft(new Date(timestamp * 1000))));
+        const timeLeftMs = getTimeLeft(new Date(timestamp * 1000));
+        if (timeLeftMs <= 0) {
+          setTimeLeft("0 minutes");
+        } else {
+          setTimeLeft(formatTimeLeft(timeLeftMs));
+        }
       }
     };
 
@@ -67,7 +61,7 @@ export const StatusBadge = ({
     const interval = setInterval(updateTime, 5000);
 
     return () => clearInterval(interval);
-  }, [proposal.status]);
+  }, [proposal.status, startTimestamp, endTimestamp]);
 
   return (
     <div
