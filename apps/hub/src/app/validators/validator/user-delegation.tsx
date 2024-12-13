@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useUserActiveValidators,
   useUserBoostsOnValidator,
@@ -20,9 +20,19 @@ export const UserDelegation = ({
 
   const [isValidatorDataLoading, setIsValidatorDataLoading] = useState(false);
 
-  const { data: userBoosts, isLoading } = useUserBoostsOnValidator({
+  const {
+    data: userBoosts,
+    isLoading,
+    refresh,
+  } = useUserBoostsOnValidator({
     pubkey: valPubKey,
   });
+
+  useEffect(() => {
+    if (isValidatorDataLoading) {
+      refresh();
+    }
+  }, [isValidatorDataLoading, refresh]);
 
   return (
     <div className="flex flex-col gap-4 rounded-sm border border-border p-4">
@@ -68,8 +78,8 @@ export const UserDelegation = ({
                 </div>
               </div>
               <hr />
-              {Number(userBoosts?.queuedBoosts) <= 0 &&
-              Number(userBoosts?.queuedUnboosts) <= 0 ? (
+              {Number(userBoosts?.queuedBoosts) > 0 ||
+              Number(userBoosts?.queuedUnboosts) > 0 ? (
                 <BoostQueue
                   setIsValidatorDataLoading={setIsValidatorDataLoading}
                   selectedValidator={valPubKey}

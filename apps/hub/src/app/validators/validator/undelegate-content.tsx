@@ -21,9 +21,11 @@ import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 export const UnDelegateContent = ({
   validator,
   setIsValidatorDataLoading,
+  onSuccess,
 }: {
   validator: ApiValidatorFragment;
   setIsValidatorDataLoading: (loading: boolean) => void;
+  onSuccess?: () => void;
 }) => {
   const { isConnected, account } = useBeraJs();
   const { theme, systemTheme } = useTheme();
@@ -45,6 +47,7 @@ export const UnDelegateContent = ({
         refresh();
         setIsValidatorDataLoading(false);
       }, 5000);
+      onSuccess?.();
     },
   });
 

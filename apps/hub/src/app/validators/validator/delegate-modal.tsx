@@ -23,8 +23,11 @@ export const DelegateModal = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">
           <DelegateContent
-            validator={validator}
+            onSuccess={() => {
+              setOpen(false);
+            }}
             setIsValidatorDataLoading={setIsValidatorDataLoading}
+            validator={validator}
           />
         </DialogContent>
       </Dialog>

@@ -20,9 +20,11 @@ import { DelegateEnum, ImageMapEnum } from "./types";
 export const DelegateContent = ({
   validator,
   setIsValidatorDataLoading,
+  onSuccess,
 }: {
   validator?: Address;
   setIsValidatorDataLoading: (loading: boolean) => void;
+  onSuccess?: () => void;
 }) => {
   const { isReady } = useBeraJs();
 
@@ -50,6 +52,7 @@ export const DelegateContent = ({
         refreshBalance();
         setIsValidatorDataLoading(false);
       }, 5000);
+      onSuccess?.();
     },
   });
   return (

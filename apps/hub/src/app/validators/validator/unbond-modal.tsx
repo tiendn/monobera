@@ -33,6 +33,9 @@ export const UnbondModal = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">
           <UnDelegateContent
+            onSuccess={() => {
+              setOpen(false);
+            }}
             setIsValidatorDataLoading={setIsValidatorDataLoading}
             validator={validator}
           />
