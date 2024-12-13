@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from "@bera/ui/dialog";
 import { Address } from "viem";
 
 import { DelegateContent } from "./delegate-content";
+import { ActionButton } from "@bera/shared-ui";
 
 export const DelegateModal = ({
   validator,
@@ -16,7 +17,9 @@ export const DelegateModal = ({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Boost</Button>
+      <ActionButton>
+        <Button onClick={() => setOpen(true)}>Boost</Button>
+      </ActionButton>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">
           <DelegateContent

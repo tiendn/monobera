@@ -46,7 +46,7 @@ export const UserDelegation = ({
       </div>
       {isLoading ? (
         <Skeleton className="h-full w-full" />
-      ) : (
+      ) : userBoosts ? (
         <>
           {Number(userBoosts?.activeBoosts) <= 0 &&
           Number(userBoosts?.queuedBoosts) <= 0 &&
@@ -61,7 +61,7 @@ export const UserDelegation = ({
               <div className="w-full">
                 <div className="font-medium leading-6">
                   <div className="flex items-center gap-1">
-                    <FormattedNumber value={userBoosts?.activeBoosts ?? "0"} />{" "}
+                    <FormattedNumber value={userBoosts?.activeBoosts ?? 0} />{" "}
                     <Icons.bgt className="ml-1 h-4 w-4" />
                     BGT
                   </div>
@@ -78,6 +78,10 @@ export const UserDelegation = ({
             </>
           )}
         </>
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-center text-sm font-medium leading-5 text-muted-foreground">
+          Connect your wallet to see your boosts.
+        </div>
       )}
     </div>
   );
