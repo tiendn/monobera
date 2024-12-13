@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
-import { parseUnits } from "viem";
+import { Address, parseUnits } from "viem";
 
 import { usePsm } from "~/hooks/usePsm";
 
@@ -55,6 +55,22 @@ export function SwapCard() {
     onSwitch,
     refreshAllowances,
   } = usePsm();
+
+  const resetFromAmounts = () => {
+    const newAmounts: Record<Address, string> = {};
+    Object.keys(fromAmount).forEach((key) => {
+      newAmounts[key as Address] = "0";
+    });
+    setFromAmount(newAmounts);
+  };
+
+  const resetToAmounts = () => {
+    const newAmounts: Record<Address, string> = {};
+    Object.keys(toAmount).forEach((key) => {
+      newAmounts[key as Address] = "0";
+    });
+    setToAmount(newAmounts);
+  };
 
   return (
     <div className="w-full">
@@ -105,13 +121,20 @@ export function SwapCard() {
                 selectedTokens={
                   isBasketModeEnabled ? selectedFrom : [selectedFrom?.[0]]
                 }
-                onTokenSelection={(token) =>
+                onTokenSelection={(token) => {
+                  resetFromAmounts();
+                  resetToAmounts();
                   setSelectedFrom((prevToken) =>
-                    token && prevToken && prevToken[1]
-                      ? [token, prevToken?.[1]]
+                    token && prevToken
+                      ? [
+                          token,
+                          ...prevToken.filter(
+                            (t) => t.address !== token.address,
+                          ),
+                        ]
                       : [],
-                  )
-                }
+                  );
+                }}
                 amount={fromAmount[selectedFrom?.[0]?.address!]}
                 balance={fromBalance?.[0]}
                 selectable={selectedFrom?.[0]?.address !== honey?.address}
@@ -133,11 +156,20 @@ export function SwapCard() {
                   <TokenInput
                     selected={selectedFrom?.[1]}
                     selectedTokens={selectedFrom}
-                    onTokenSelection={(token) =>
+                    onTokenSelection={(token) => {
+                      resetFromAmounts();
+                      resetToAmounts();
                       setSelectedFrom((prevToken) =>
-                        token && prevToken ? [prevToken[0], token] : [],
-                      )
-                    }
+                        token && prevToken
+                          ? [
+                              token,
+                              ...prevToken.filter(
+                                (t) => t.address !== token.address,
+                              ),
+                            ]
+                          : [],
+                      );
+                    }}
                     amount={fromAmount[selectedFrom?.[1]?.address!]}
                     balance={fromBalance?.[1]}
                     selectable={selectedFrom?.[1]?.address !== honey?.address}
@@ -179,11 +211,20 @@ export function SwapCard() {
                 showExceeding={false}
                 hideMax={true}
                 balance={toBalance?.[0]}
-                onTokenSelection={(token) =>
+                onTokenSelection={(token) => {
+                  resetFromAmounts();
+                  resetToAmounts();
                   setSelectedTo((prevToken) =>
-                    token && prevToken ? [token, prevToken[1]] : [],
-                  )
-                }
+                    token && prevToken
+                      ? [
+                          token,
+                          ...prevToken.filter(
+                            (t) => t.address !== token.address,
+                          ),
+                        ]
+                      : [],
+                  );
+                }}
               />
               {!!isBasketModeEnabled && tabValue === "burn" && (
                 <>
@@ -191,11 +232,20 @@ export function SwapCard() {
                   <TokenInput
                     selected={selectedTo?.[1]}
                     selectedTokens={selectedTo}
-                    onTokenSelection={(token) =>
+                    onTokenSelection={(token) => {
+                      resetFromAmounts();
+                      resetToAmounts();
                       setSelectedTo((prevToken) =>
-                        token && prevToken ? [prevToken[0], token] : [],
-                      )
-                    }
+                        token && prevToken
+                          ? [
+                              token,
+                              ...prevToken.filter(
+                                (t) => t.address !== token.address,
+                              ),
+                            ]
+                          : [],
+                      );
+                    }}
                     amount={toAmount[selectedTo?.[1]?.address!]}
                     balance={toBalance?.[1]}
                     selectable={selectedTo?.[1]?.address !== honey?.address}
@@ -247,7 +297,7 @@ export function SwapCard() {
                 token={needsApproval[0]}
                 spender={honeyFactoryAddress}
                 amount={parseUnits(
-                  needsApproval[0].amount ?? "0",
+                  needsApproval[0].amount.toString() ?? "0",
                   needsApproval[0].decimals ?? 18,
                 )}
                 onApproval={() => refreshAllowances()}

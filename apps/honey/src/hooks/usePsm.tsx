@@ -37,8 +37,8 @@ interface PsmHookReturn {
   fee: number;
   isReady: boolean | undefined;
   isFeeLoading: boolean;
-  fromAmount: Record<Address, string>;
-  toAmount: Record<Address, string>;
+  fromAmount: Record<Address, string | undefined>;
+  toAmount: Record<Address, string | undefined>;
   isMint: boolean;
   fromBalance: Array<string | undefined>;
   toBalance: Array<string | undefined>;
@@ -53,8 +53,8 @@ interface PsmHookReturn {
   collateralWeights: Record<Address, bigint> | undefined;
   setSelectedFrom: Dispatch<SetStateAction<Token[]>>;
   setSelectedTo: Dispatch<SetStateAction<Token[]>>;
-  setFromAmount: Dispatch<SetStateAction<Record<Address, string>>>;
-  setToAmount: Dispatch<SetStateAction<Record<Address, string>>>;
+  setFromAmount: Dispatch<SetStateAction<Record<Address, string | undefined>>>;
+  setToAmount: Dispatch<SetStateAction<Record<Address, string | undefined>>>;
   setGivenIn: Dispatch<SetStateAction<boolean>>;
   setIsTyping: Dispatch<SetStateAction<boolean>>;
   setChangedAsset: Dispatch<SetStateAction<Address | undefined>>;
@@ -77,8 +77,12 @@ export const usePsm = (): PsmHookReturn => {
   const [selectedFrom, setSelectedFrom] = useState<Token[]>([]);
   const [givenIn, setGivenIn] = useState<boolean>(true);
   // State for input/output amounts
-  const [fromAmount, setFromAmount] = useState<Record<Address, string>>({});
-  const [toAmount, setToAmount] = useState<Record<Address, string>>({});
+  const [fromAmount, setFromAmount] = useState<
+    Record<Address, string | undefined>
+  >({});
+  const [toAmount, setToAmount] = useState<Record<Address, string | undefined>>(
+    {},
+  );
   // state for the asset that is changed, usefull to keep a value still in the input field
   const [changedAsset, setChangedAsset] = useState<Address | undefined>(
     undefined,
@@ -224,7 +228,7 @@ export const usePsm = (): PsmHookReturn => {
         amountHoney: isMint
           ? toAmount[honeyTokenAddress]
           : fromAmount[honeyTokenAddress],
-        collateralTokens: isMint ? selectedFrom : selectedTo,
+        collateralTokens: collaterals,
         basketMode: isBasketModeEnabled,
       });
     },
@@ -234,7 +238,7 @@ export const usePsm = (): PsmHookReturn => {
         amountHoney: isMint
           ? toAmount[honeyTokenAddress]
           : fromAmount[honeyTokenAddress],
-        collateralTokens: isMint ? selectedFrom : selectedTo,
+        collateralTokens: collaterals,
         basketMode: isBasketModeEnabled,
       });
       captureException(e);
@@ -244,12 +248,15 @@ export const usePsm = (): PsmHookReturn => {
   // Calculate amounts when inputs change
   const { data: previewRes, isLoading: isHoneyPreviewLoading } =
     usePollHoneyPreview({
-      collateral: isTyping ? undefined : collaterals[0],
+      collateral: isTyping
+        ? undefined
+        : collaterals.find((token) => token.address === changedAsset) ??
+          collaterals[0],
       collateralList: isBasketModeEnabled ? collateralList : undefined,
       amount: changedAsset
         ? givenIn
-          ? fromAmount[changedAsset]
-          : toAmount[changedAsset]
+          ? fromAmount[changedAsset] ?? "0"
+          : toAmount[changedAsset] ?? "0"
         : "0",
       mint: isMint,
       given_in: givenIn,
@@ -264,12 +271,14 @@ export const usePsm = (): PsmHookReturn => {
       ).reduce(
         (attrs, key) => ({
           ...attrs,
-          [key]: formatUnits(
-            previewRes?.collaterals[key as Address],
-            // Find the correct decimal places for this token, default to 18 if not found
-            collateralList?.find((token) => token.address === key)?.decimals ??
-              18,
-          ),
+          [key]: +Number(
+            formatUnits(
+              previewRes?.collaterals[key as Address],
+              // Find the correct decimal places for this token, default to 18 if not found
+              collateralList?.find((token) => token.address === key)
+                ?.decimals ?? 18,
+            ),
+          ).toFixed(2),
         }),
         {},
       );
@@ -284,13 +293,17 @@ export const usePsm = (): PsmHookReturn => {
         if (givenIn) {
           // User input collateral amount (fromAmount)
           // Set the resulting Honey amount
-          setToAmount({ [honey?.address!]: formatUnits(previewRes.honey, 18) });
+          setToAmount({
+            [honey?.address!]: Number(
+              formatUnits(previewRes.honey, 18),
+            ).toFixed(2),
+          });
 
           // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setFromAmount((prevColl) => ({
               ...newCollaterals,
-              [changedAsset]: prevColl[changedAsset],
+              [changedAsset]: Number(prevColl[changedAsset]).toFixed(2),
             }));
           }
         } else {
@@ -309,14 +322,16 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (toAmount)
           // Set required Honey amount
           setFromAmount({
-            [honey?.address!]: formatUnits(previewRes.honey, 18),
+            [honey?.address!]: Number(
+              formatUnits(previewRes.honey, 18),
+            ).toFixed(2),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setToAmount((prevColl) => ({
               ...newCollaterals,
-              [changedAsset]: prevColl[changedAsset],
+              [changedAsset]: Number(prevColl[changedAsset]).toFixed(2),
             }));
           }
         }
@@ -358,11 +373,15 @@ export const usePsm = (): PsmHookReturn => {
 
   // Prepare transaction payload
   const payload =
-    collaterals && account && selectedFrom.length
+    collaterals &&
+    account &&
+    selectedFrom.length &&
+    fromAmount[selectedFrom[0].address]
       ? ([
-          collaterals[0].address,
+          collaterals.find((token) => token.address === changedAsset)
+            ?.address ?? collaterals[0].address,
           parseUnits(
-            fromAmount[selectedFrom[0].address] ?? "0",
+            fromAmount[selectedFrom[0].address]?.toString() ?? "0",
             (isMint ? collaterals[0].decimals : honey?.decimals) ?? 18,
           ),
           account,
@@ -374,14 +393,16 @@ export const usePsm = (): PsmHookReturn => {
   // Check token approvals and balance limits
   const { needsApproval, refresh: refreshAllowances } =
     useMultipleTokenApprovals(
-      selectedFrom?.map((token, idx) => ({
-        symbol: token.symbol,
-        name: token.name,
-        decimals: token.decimals,
-        address: token.address,
-        exceeding: false,
-        amount: fromAmount[token.address] ?? "0",
-      })) ?? [],
+      selectedFrom
+        ?.map((token, idx) => ({
+          symbol: token.symbol,
+          name: token.name,
+          decimals: token.decimals,
+          address: token.address,
+          exceeding: false,
+          amount: fromAmount[token.address] ?? "0",
+        }))
+        .filter((token) => token.amount > "0") ?? [],
       honeyFactoryAddress,
     );
 

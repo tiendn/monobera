@@ -93,11 +93,36 @@ export const getHoneyPreview = async ({
       ),
     );
 
+    // ======= TEMP FIX ==========
+    /**
+     * TEMP FIX: the smart contract (when not in basket mode and when the user change the honey amount) returns the collateral value in the first position
+     * of the array disregarding the collateral order inside the contracts.
+     * [TODO] when the smart contract are updated we need to remove this fix
+     */
+    const collIdx = collaterals.indexOf(collateral.address);
+    if (collIdx !== 0 && formattedResult.collaterals[collIdx] === BigInt(0)) {
+      const tempValue = formattedResult.collaterals[0];
+      formattedResult.collaterals[0] = formattedResult.collaterals[collIdx];
+      formattedResult.collaterals[collIdx] = tempValue;
+    }
+    // ==========================
+
     const amountsWithAddress: Record<Address, bigint> = collaterals.reduce(
-      (agg, key, idx) =>
-        Object.assign(agg, { [key]: formattedResult.collaterals[idx] }),
+      (agg, key, idx) => {
+        if (
+          key === collateral.address &&
+          formattedResult.collaterals[idx] === BigInt(0)
+        ) {
+          return Object.assign(agg, { [key]: formattedResult.collaterals[0] });
+        }
+        return Object.assign(agg, { [key]: formattedResult.collaterals[idx] });
+      },
       {},
     );
+
+    if (amountsWithAddress[collateral.address] === BigInt(0)) {
+      amountsWithAddress[collateral.address] = formattedResult.collaterals[0];
+    }
 
     return {
       collaterals: amountsWithAddress,
