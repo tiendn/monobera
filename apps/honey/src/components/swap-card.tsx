@@ -10,8 +10,10 @@ import {
   SSRSpinner,
   TokenInput,
 } from "@bera/shared-ui";
+import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
+import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
 import { parseUnits } from "viem";
@@ -25,28 +27,33 @@ export function SwapCard() {
     isFeeLoading,
     payload,
     isReady,
-    setSelectedFrom,
-    setSelectedTo,
     isLoading,
-    write,
     selectedFrom,
     selectedTo,
     fromAmount,
-    setFromAmount,
-    setToAmount,
-    setIsTyping,
     toAmount,
     isMint,
     fromBalance,
     toBalance,
-    setGivenIn,
-    onSwitch,
     ModalPortal,
     honey,
     collateralList,
     needsApproval,
     exceedBalance,
     isTyping,
+    isBadCollateral,
+    isBasketModeEnabled,
+    collateralWeights,
+    setSelectedFrom,
+    setSelectedTo,
+    write,
+    setFromAmount,
+    setToAmount,
+    setIsTyping,
+    setGivenIn,
+    setChangedAsset,
+    onSwitch,
+    refreshAllowances,
   } = usePsm();
 
   return (
@@ -94,60 +101,166 @@ export function SwapCard() {
           <div className="border-1 flex flex-col gap-6 border-border">
             <ul className="relative rounded-2xl border">
               <TokenInput
-                selected={selectedFrom}
-                selectedTokens={[selectedFrom, selectedTo]}
-                onTokenSelection={setSelectedFrom}
-                amount={fromAmount}
-                balance={fromBalance?.formattedBalance}
-                selectable={selectedFrom?.address !== honey?.address}
+                selected={selectedFrom?.[0]}
+                selectedTokens={
+                  isBasketModeEnabled ? selectedFrom : [selectedFrom?.[0]]
+                }
+                onTokenSelection={(token) =>
+                  setSelectedFrom((prevToken) =>
+                    token && prevToken && prevToken[1]
+                      ? [token, prevToken?.[1]]
+                      : [],
+                  )
+                }
+                amount={fromAmount[selectedFrom?.[0]?.address!]}
+                balance={fromBalance?.[0]}
+                selectable={selectedFrom?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding
                 setIsTyping={setIsTyping}
                 setAmount={(amount) => {
+                  setChangedAsset(selectedFrom?.[0]?.address);
                   setGivenIn(true);
-                  setFromAmount(amount);
+                  setFromAmount((prevAmount) => ({
+                    ...prevAmount,
+                    [selectedFrom?.[0]?.address!]: amount,
+                  }));
                 }}
               />
               <hr />
+              {!!isBasketModeEnabled && tabValue === "mint" && (
+                <>
+                  <TokenInput
+                    selected={selectedFrom?.[1]}
+                    selectedTokens={selectedFrom}
+                    onTokenSelection={(token) =>
+                      setSelectedFrom((prevToken) =>
+                        token && prevToken ? [prevToken[0], token] : [],
+                      )
+                    }
+                    amount={fromAmount[selectedFrom?.[1]?.address!]}
+                    balance={fromBalance?.[1]}
+                    selectable={selectedFrom?.[1]?.address !== honey?.address}
+                    customTokenList={collateralList}
+                    showExceeding
+                    setIsTyping={setIsTyping}
+                    setAmount={(amount) => {
+                      setChangedAsset(selectedFrom?.[1]?.address);
+                      setGivenIn(true);
+                      setFromAmount((prevAmount) => ({
+                        ...prevAmount,
+                        [selectedFrom?.[1]?.address!]: amount,
+                      }));
+                    }}
+                  />
+                  <hr />
+                </>
+              )}
               {(isLoading || isTyping) && (
                 <SSRSpinner className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] rounded-md border border-border bg-background p-2" />
               )}
               <TokenInput
-                selected={selectedTo}
-                selectedTokens={[selectedFrom, selectedTo]}
+                selected={selectedTo?.[0]}
+                selectedTokens={
+                  isBasketModeEnabled ? selectedTo : [selectedTo?.[0]]
+                }
                 setIsTyping={setIsTyping}
-                amount={toAmount}
+                amount={toAmount[selectedTo?.[0]?.address!]}
                 setAmount={(amount) => {
+                  setChangedAsset(selectedTo?.[0]?.address);
                   setGivenIn(false);
-                  setToAmount(amount);
+                  setToAmount((prevAmount) => ({
+                    ...prevAmount,
+                    [selectedTo?.[0]?.address!]: amount,
+                  }));
                 }}
-                selectable={selectedTo?.address !== honey?.address}
+                selectable={selectedTo?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding={false}
                 hideMax={true}
-                balance={toBalance?.formattedBalance}
-                onTokenSelection={setSelectedTo}
+                balance={toBalance?.[0]}
+                onTokenSelection={(token) =>
+                  setSelectedTo((prevToken) =>
+                    token && prevToken ? [token, prevToken[1]] : [],
+                  )
+                }
               />
+              {!!isBasketModeEnabled && tabValue === "burn" && (
+                <>
+                  <hr />
+                  <TokenInput
+                    selected={selectedTo?.[1]}
+                    selectedTokens={selectedTo}
+                    onTokenSelection={(token) =>
+                      setSelectedTo((prevToken) =>
+                        token && prevToken ? [prevToken[0], token] : [],
+                      )
+                    }
+                    amount={toAmount[selectedTo?.[1]?.address!]}
+                    balance={toBalance?.[1]}
+                    selectable={selectedTo?.[1]?.address !== honey?.address}
+                    customTokenList={collateralList}
+                    showExceeding
+                    setIsTyping={setIsTyping}
+                    setAmount={(amount) => {
+                      setChangedAsset(selectedTo?.[1]?.address);
+                      setGivenIn(false);
+                      setToAmount((prevAmount) => ({
+                        ...prevAmount,
+                        [selectedTo?.[1]?.address!]: amount,
+                      }));
+                    }}
+                  />
+                </>
+              )}
             </ul>
+            {isBadCollateral && !isBasketModeEnabled ? (
+              <Alert variant="default" className="flex gap-2">
+                <Icons.info className="text-default-foreground h-4 w-4 flex-shrink-0" />
+                <div>
+                  <AlertTitle className="text-destructive-foreground">
+                    Selected token disabled
+                  </AlertTitle>
+                  <AlertDescription className="text-sm text-muted-foreground">
+                    Selected token is currently disabled
+                  </AlertDescription>
+                </div>
+              </Alert>
+            ) : isBasketModeEnabled ? (
+              <Alert variant="default" className="flex gap-2">
+                <Icons.info className="text-default-foreground h-4 w-4 flex-shrink-0" />
+                <div>
+                  <AlertTitle className="text-destructive-foreground">
+                    Minting is currently restricted to preset pairs
+                  </AlertTitle>
+                  <AlertDescription className="text-sm text-muted-foreground">
+                    Restrictions in effect due to price volatility.
+                  </AlertDescription>
+                </div>
+              </Alert>
+            ) : null}
             {!isReady ? (
               <ConnectButton className="w-full" />
-            ) : needsApproval && !exceedBalance ? (
+            ) : needsApproval.length > 0 &&
+              !exceedBalance?.some((item) => item) ? (
               <ApproveButton
-                token={selectedFrom}
+                token={needsApproval[0]}
                 spender={honeyFactoryAddress}
                 amount={parseUnits(
-                  fromAmount ?? "0",
-                  selectedFrom?.decimals ?? 18,
+                  needsApproval[0].amount ?? "0",
+                  needsApproval[0].decimals ?? 18,
                 )}
+                onApproval={() => refreshAllowances()}
               />
             ) : (
               <Button
                 disabled={
                   isLoading ||
-                  !fromAmount ||
-                  !toAmount ||
-                  exceedBalance ||
+                  Object.values(fromAmount).every((item) => item === "0") ||
+                  Object.values(toAmount).every((item) => item === "0") ||
+                  exceedBalance?.some((item) => item) ||
                   isTyping ||
+                  (!isBasketModeEnabled && isBadCollateral) ||
                   !payload
                 }
                 onClick={() => {
