@@ -1,14 +1,12 @@
 import {
-  BERA_VAULT_REWARDS_ABI,
   Gauge,
-  TransactionActionType,
   useBeraJs,
   usePollVaultsInfo,
   useTokenHoneyPrice,
   type RewardVault,
 } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
-import { FormattedNumber, useTxn } from "@bera/shared-ui";
+import { FormattedNumber, useAnalytics, useTxn } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import BigNumber from "bignumber.js";

@@ -15,3 +15,11 @@ export { useRewardVaultFromToken } from "./hooks/useRewardVaultFromToken";
 export { useRewardVaultsFromTokens } from "./hooks/useRewardVaultsFromTokens";
 export { usePollRewardVault } from "./hooks/poll-reward-vault";
 export { useSubgraphUserValidators } from "./hooks/useSubgraphUserValidators";
+
+export { useValidatorRewardAllocation } from "./hooks/useValidatorRewardAllocation";
+export { useRewardAllocationBlockDelay } from "./hooks/useRewardAllocationBlockDelay";
+export { useDefaultRewardAllocation } from "./hooks/useDefaultRewardAllocation";
+export { useValidatorQueuedRewardAllocation } from "./hooks/useValidatorQueuedRewardAllocation";
+export { useValidatorByOperator } from "./hooks/useValidatorByOperator";
+export { useValidatorQueuedOperatorAddress } from "./hooks/useValidatorQueuedOperatorAddress";
+export { useValidatorOperatorAddress } from "./hooks/useValidatorOperatorAddress";
