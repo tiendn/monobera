@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { honeyFactoryAbi } from "@bera/berajs";
+import { Token, honeyFactoryAbi } from "@bera/berajs";
 import { honeyFactoryAddress } from "@bera/config";
 import {
   ApproveButton,
@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@bera/ui/tabs";
-import { parseUnits } from "viem";
+import { Address, parseUnits } from "viem";
 
 import { usePsm } from "~/hooks/usePsm";
 
@@ -55,6 +55,19 @@ export function SwapCard() {
     onSwitch,
     refreshAllowances,
   } = usePsm();
+
+  const resetAmounts = () => {
+    const newFromAmounts: Record<Address, string> = {};
+    const newToAmounts: Record<Address, string> = {};
+    Object.keys(fromAmount).forEach((key) => {
+      newFromAmounts[key as Address] = "0";
+    });
+    Object.keys(toAmount).forEach((key) => {
+      newToAmounts[key as Address] = "0";
+    });
+    setFromAmount(newFromAmounts);
+    setToAmount(newToAmounts);
+  };
 
   return (
     <div className="w-full">
@@ -101,20 +114,13 @@ export function SwapCard() {
           <div className="border-1 flex flex-col gap-6 border-border">
             <ul className="relative rounded-2xl border">
               <TokenInput
+                amount={fromAmount[selectedFrom?.[0]?.address!]}
+                balance={fromBalance?.[0]}
                 selected={selectedFrom?.[0]}
+                selectable={selectedFrom?.[0]?.address !== honey?.address}
                 selectedTokens={
                   isBasketModeEnabled ? selectedFrom : [selectedFrom?.[0]]
                 }
-                onTokenSelection={(token) =>
-                  setSelectedFrom((prevToken) =>
-                    token && prevToken && prevToken[1]
-                      ? [token, prevToken?.[1]]
-                      : [],
-                  )
-                }
-                amount={fromAmount[selectedFrom?.[0]?.address!]}
-                balance={fromBalance?.[0]}
-                selectable={selectedFrom?.[0]?.address !== honey?.address}
                 customTokenList={collateralList}
                 showExceeding
                 setIsTyping={setIsTyping}
@@ -126,21 +132,29 @@ export function SwapCard() {
                     [selectedFrom?.[0]?.address!]: amount,
                   }));
                 }}
+                onTokenSelection={(token) => {
+                  resetAmounts();
+                  setSelectedFrom((prevToken) =>
+                    token && prevToken
+                      ? [
+                          token,
+                          ...prevToken.filter(
+                            (t) => t.address !== token.address,
+                          ),
+                        ]
+                      : [],
+                  );
+                }}
               />
               <hr />
               {!!isBasketModeEnabled && tabValue === "mint" && (
                 <>
                   <TokenInput
-                    selected={selectedFrom?.[1]}
-                    selectedTokens={selectedFrom}
-                    onTokenSelection={(token) =>
-                      setSelectedFrom((prevToken) =>
-                        token && prevToken ? [prevToken[0], token] : [],
-                      )
-                    }
                     amount={fromAmount[selectedFrom?.[1]?.address!]}
                     balance={fromBalance?.[1]}
+                    selected={selectedFrom?.[1]}
                     selectable={selectedFrom?.[1]?.address !== honey?.address}
+                    selectedTokens={selectedFrom}
                     customTokenList={collateralList}
                     showExceeding
                     setIsTyping={setIsTyping}
@@ -152,6 +166,19 @@ export function SwapCard() {
                         [selectedFrom?.[1]?.address!]: amount,
                       }));
                     }}
+                    onTokenSelection={(token) => {
+                      resetAmounts();
+                      setSelectedFrom((prevToken) =>
+                        token && prevToken
+                          ? [
+                              token,
+                              ...prevToken.filter(
+                                (t) => t.address !== token.address,
+                              ),
+                            ]
+                          : [],
+                      );
+                    }}
                   />
                   <hr />
                 </>
@@ -160,12 +187,18 @@ export function SwapCard() {
                 <SSRSpinner className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] rounded-md border border-border bg-background p-2" />
               )}
               <TokenInput
+                amount={toAmount[selectedTo?.[0]?.address!]}
+                balance={toBalance?.[0]}
                 selected={selectedTo?.[0]}
+                selectable={selectedTo?.[0]?.address !== honey?.address}
                 selectedTokens={
                   isBasketModeEnabled ? selectedTo : [selectedTo?.[0]]
                 }
+                customTokenList={collateralList}
+                showExceeding={false}
+                hideMax={true}
+                hideBalance
                 setIsTyping={setIsTyping}
-                amount={toAmount[selectedTo?.[0]?.address!]}
                 setAmount={(amount) => {
                   setChangedAsset(selectedTo?.[0]?.address);
                   setGivenIn(false);
@@ -174,32 +207,31 @@ export function SwapCard() {
                     [selectedTo?.[0]?.address!]: amount,
                   }));
                 }}
-                selectable={selectedTo?.[0]?.address !== honey?.address}
-                customTokenList={collateralList}
-                showExceeding={false}
-                hideMax={true}
-                balance={toBalance?.[0]}
-                onTokenSelection={(token) =>
+                onTokenSelection={(token) => {
+                  resetAmounts();
                   setSelectedTo((prevToken) =>
-                    token && prevToken ? [token, prevToken[1]] : [],
-                  )
-                }
+                    token && prevToken
+                      ? [
+                          token,
+                          ...prevToken.filter(
+                            (t) => t.address !== token.address,
+                          ),
+                        ]
+                      : [],
+                  );
+                }}
               />
               {!!isBasketModeEnabled && tabValue === "burn" && (
                 <>
                   <hr />
                   <TokenInput
-                    selected={selectedTo?.[1]}
-                    selectedTokens={selectedTo}
-                    onTokenSelection={(token) =>
-                      setSelectedTo((prevToken) =>
-                        token && prevToken ? [prevToken[0], token] : [],
-                      )
-                    }
                     amount={toAmount[selectedTo?.[1]?.address!]}
                     balance={toBalance?.[1]}
+                    selected={selectedTo?.[1]}
                     selectable={selectedTo?.[1]?.address !== honey?.address}
+                    selectedTokens={selectedTo}
                     customTokenList={collateralList}
+                    hideBalance
                     showExceeding
                     setIsTyping={setIsTyping}
                     setAmount={(amount) => {
@@ -209,6 +241,19 @@ export function SwapCard() {
                         ...prevAmount,
                         [selectedTo?.[1]?.address!]: amount,
                       }));
+                    }}
+                    onTokenSelection={(token) => {
+                      resetAmounts();
+                      setSelectedTo((prevToken) =>
+                        token && prevToken
+                          ? [
+                              token,
+                              ...prevToken.filter(
+                                (t) => t.address !== token.address,
+                              ),
+                            ]
+                          : [],
+                      );
                     }}
                   />
                 </>
@@ -247,7 +292,7 @@ export function SwapCard() {
                 token={needsApproval[0]}
                 spender={honeyFactoryAddress}
                 amount={parseUnits(
-                  needsApproval[0].amount ?? "0",
+                  needsApproval[0].amount.toString() ?? "0",
                   needsApproval[0].decimals ?? 18,
                 )}
                 onApproval={() => refreshAllowances()}
