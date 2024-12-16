@@ -191,9 +191,13 @@ export const usePsm = (): PsmHookReturn => {
   const { getCollateralRate, isLoading: isFeeLoading } = useCollateralsRates({
     collateralList: collateralList?.map((token: any) => token.address) ?? [],
   });
-  const params = collaterals?.length
-    ? getCollateralRate(collaterals[0].address as Address)
-    : undefined;
+  const params =
+    collaterals?.length && isBasketModeEnabled !== undefined
+      ? getCollateralRate(
+          collaterals[0].address as Address,
+          isBasketModeEnabled,
+        )
+      : undefined;
   const fee = params ? (isMint ? params.mintFee : params.redeemFee) : 0;
 
   // ===== COLLATERAL WEIGHTS =====

@@ -80,7 +80,7 @@ export function SwapCard() {
               <Skeleton className="absolute right-6 top-5 h-6 w-40" />
             ) : (
               <div className="absolute right-6 top-5 text-base font-medium text-muted-foreground">
-                Static fee of <FormattedNumber value={fee ?? 0} percent />
+                Static fee of <FormattedNumber value={fee ?? 0} />%
               </div>
             )}
           </CardTitle>
