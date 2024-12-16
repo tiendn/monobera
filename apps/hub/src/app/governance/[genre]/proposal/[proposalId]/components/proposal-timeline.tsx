@@ -119,7 +119,7 @@ const getVotingSteps = (
       // We know that the proposal has reached quorum during this stage because totalTowardsQuorum > quorum
       if (
         latestVote &&
-        proposal.pollResult.totalTowardsQuorum > proposal.quorum
+        BigInt(proposal.pollResult.totalTowardsQuorum) > BigInt(proposal.quorum)
       ) {
         votingSteps.push({
           title: "Quorum Reached",
