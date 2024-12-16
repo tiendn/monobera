@@ -54,6 +54,7 @@ export function VoteDialog({
     data: votingPower,
     isLoading,
     error,
+    mutate: refreshGetPastVotes,
   } = useGetPastVotes({
     proposalId: proposalId,
   });
@@ -67,6 +68,7 @@ export function VoteDialog({
       setOpen(false);
       mutate(true);
       refreshPollProposal(["usePollProposal", proposalId.toString()]);
+      refreshGetPastVotes();
     },
   });
 
