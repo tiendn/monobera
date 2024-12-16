@@ -8,6 +8,7 @@ import {
   useBeraJs,
   useGetPastVotes,
   useHasVoted,
+  usePollProposal,
 } from "@bera/berajs";
 import { governorAddress } from "@bera/config";
 import {
@@ -54,12 +55,13 @@ export function VoteDialog({
     data: votingPower,
     isLoading,
     error,
-    mutate: refreshGetPastVotes,
   } = useGetPastVotes({
     proposalId: proposalId,
   });
 
-  const { mutate: refreshPollProposal } = useSWRConfig();
+  const { refresh: refreshPollProposal } = usePollProposal(
+    proposalId.toString(),
+  );
 
   const { write, ModalPortal } = useTxn({
     message: "Vote Proposal",
@@ -67,8 +69,7 @@ export function VoteDialog({
     onSuccess: () => {
       setOpen(false);
       mutate(true);
-      refreshPollProposal(["usePollProposal", proposalId.toString()]);
-      refreshGetPastVotes();
+      refreshPollProposal();
     },
   });
 
