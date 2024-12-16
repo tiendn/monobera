@@ -11,6 +11,11 @@ type UsePollProposalVotesArgs = Omit<
 // const ACTUAL_PER_PAGE = 500;
 
 const DEFAULT_LIMIT = 1000;
+/**
+ * Fetches all the votes for a proposal from the Subgraph
+ * @param args - The arguments to pass to the query
+ * @param total - The total amount of votes to return per page
+ */
 export const usePollProposalVotes = (
   args: UsePollProposalVotesArgs,
   total: number,
