@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
 import { useTokens } from "@bera/berajs";
 import { cn } from "@bera/ui";
-import { Avatar, AvatarFallback, AvatarImage } from "@bera/ui/avatar";
+import { CustomAvatar } from "@bera/ui/custom-avatar";
 import { cva, type VariantProps } from "class-variance-authority";
 import { getAddress, isAddress } from "viem";
 
@@ -44,24 +45,42 @@ export const TokenIcon = ({
   ...props
 }: IconProps) => {
   const { data: tokenData } = useTokens();
+  const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const address = isAddress(adr ?? "") ? getAddress(adr ?? "") : adr;
   const img = useMemo(() => {
     if (tokenData?.tokenDictionary && address && isAddress(address)) {
+      const uploadedToken = tokenData?.tokenDictionary?.[address];
+      if (uploadedToken?.base64) {
+        setIsLoading(false);
+        return `data:image/svg+xml;base64,${uploadedToken.base64}`;
+      }
       return tokenData?.tokenDictionary[address]?.logoURI;
     }
     return "";
   }, [tokenData?.tokenDictionary, tokenData?.tokenDictionary?.[address ?? ""]]);
 
+  const finalImageUrl = imgOverride ?? img ?? "";
+
   return (
-    <Avatar className={cn(IconVariants({ size }), className)} {...props}>
-      <AvatarImage
-        src={imgOverride ?? img}
-        className="rounded-full"
-        alt={address}
-      />
-      <AvatarFallback className="h-full w-full border border-foreground bg-background text-inherit">
-        {symbol ? symbol.slice(0, 3) : "TKN"}
-      </AvatarFallback>
-    </Avatar>
+    <CustomAvatar
+      fallbackText={symbol ? symbol.slice(0, 3) : "TKN"}
+      className={cn(IconVariants({ size }), className)}
+      isNodeLoading={isLoading}
+      imageNode={
+        finalImageUrl && !imageError ? (
+          <Image
+            src={finalImageUrl}
+            alt="Custom Avatar"
+            fill
+            style={{ opacity: isLoading ? 0 : 1 }}
+            className={cn("aspect-square h-full w-full")}
+            onLoad={() => setIsLoading(false)}
+            onError={() => setImageError(true)}
+          />
+        ) : null
+      }
+      {...props}
+    />
   );
 };

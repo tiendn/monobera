@@ -1,5 +1,6 @@
 import useSWRImmutable from "swr/immutable";
 import { useLocalStorage } from "usehooks-ts";
+import { tokenListUrl } from "@bera/config";
 
 import {
   DefaultHookOptions,
@@ -24,12 +25,13 @@ export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
     Token[]
   >(TOKEN_KEY, []);
   const swrResponse = useSWRImmutable<GetTokens>(
-    ["defaultTokenList", localStorageTokenList, config],
+    ["useTokens", tokenListUrl],
     async () => {
-      return getTokens({ externalList: localStorageTokenList, config });
+      return getTokens({ externalList: localStorageTokenList });
     },
     {
       ...options?.opts,
+      revalidateOnMount: true,
     },
   );
 
@@ -54,6 +56,7 @@ export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
       ? [...localStorageTokenList]
       : [...localStorageTokenList, acceptedToken as Token];
     setLocalStorageTokenList(updatedData);
+    swrResponse?.mutate();
     // Update config data and store it in localStorage
   };
 
@@ -64,6 +67,7 @@ export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
 
     const updatedData = [...filteredList];
     setLocalStorageTokenList(updatedData);
+    swrResponse?.mutate();
   };
 
   return {

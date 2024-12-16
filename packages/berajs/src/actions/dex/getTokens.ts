@@ -1,11 +1,10 @@
-import { chainId } from "@bera/config";
+import { chainId, tokenListUrl } from "@bera/config";
 
-import { BeraConfig } from "../../types";
 import { Token } from "../../types/dex";
+import { formatTokenList, tokenListToDict } from "../../utils/formatTokenList";
 
 export interface GetTokensRequest {
   externalList?: Token[];
-  config: BeraConfig;
 }
 
 export interface GetTokens {
@@ -15,22 +14,11 @@ export interface GetTokens {
   featuredTokenList?: Token[] | undefined;
 }
 
-/**
- * fetch and format the token list
- */
-function tokenListToDict(list: Token[]): { [key: string]: Token } {
-  return list.reduce((acc, item) => {
-    // @ts-ignore
-    acc[item.address] = item;
-    return acc;
-  }, {});
-}
-
 export const getTokens = async ({
   externalList,
-  config,
 }: GetTokensRequest): Promise<GetTokens> => {
-  if (!config.endpoints?.tokenList) {
+  console.log("getting tokens", externalList);
+  if (!tokenListUrl) {
     return {
       tokenList: [],
       customTokenList: [...(externalList ?? [])],
@@ -39,49 +27,9 @@ export const getTokens = async ({
     };
   }
   try {
-    const tokenList = await fetch(config.endpoints?.tokenList);
+    const tokenList = await fetch(tokenListUrl);
     const temp = await tokenList.json();
-    if (!temp.tokens)
-      return {
-        tokenList: externalList ?? [],
-        customTokenList: externalList ?? [],
-        featuredTokenList: [],
-        tokenDictionary: {},
-      };
-    const defaultList = temp.tokens
-      .filter(
-        (token: any) =>
-          !token.chainId || Number(token.chainId) === Number(chainId),
-      )
-      .map((token: any) => {
-        return { ...token, default: true };
-      });
-
-    const isFeatured = (tag: string) => tag === "featured";
-
-    const defaultFeaturedList = defaultList
-      .filter((token: any) => {
-        return token.tags.some(isFeatured);
-      })
-      .map((token: any) => {
-        return { ...token, default: true };
-      });
-
-    const list = [...defaultList, ...(externalList ?? [])];
-
-    const uniqueList = list.filter(
-      (item, index) =>
-        list.findIndex((i) => i.address === item.address) === index,
-    );
-
-    console.log({ uniqueList, temp, defaultList, defaultFeaturedList });
-
-    return {
-      tokenList: uniqueList,
-      customTokenList: [...(externalList ?? [])],
-      tokenDictionary: tokenListToDict(list),
-      featuredTokenList: defaultFeaturedList ?? [],
-    };
+    return formatTokenList(temp.tokens, externalList ?? [], chainId);
   } catch (error) {
     console.error("Error fetching token list", error);
     return {

@@ -36,7 +36,8 @@
     "check": "biome check .",
     "prepare": "husky install",
     "upsertenv": "node ./scripts/upsertVercelEnv.js",
-    "knip": "knip --exclude binaries"
+    "knip": "knip --exclude binaries",
+    "local-install": "node ./.scripts/set-local-install.js"
   },
   "dependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^3.7.2",

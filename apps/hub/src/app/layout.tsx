@@ -1,9 +1,11 @@
 import "../styles/globals.css";
+import { readFileSync } from "fs";
+import path from "path";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { IBM_Plex_Sans } from "next/font/google";
 import Script from "next/script";
-import { hubName, hubUrl } from "@bera/config";
+import { chainId, hubName, hubUrl, tokenListUrl } from "@bera/config";
 import {
   Footer,
   Header,
@@ -35,7 +37,12 @@ const PostHogPageView = dynamic(() => import("./PostHogPageView"), {
   ssr: false,
 });
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
+  const fileContent = readFileSync(
+    path.join(process.cwd(), `public/${tokenListUrl}`),
+    "utf8",
+  );
+  const fetchedTokenList = JSON.parse(fileContent);
   return (
     <html lang="en" className="bg-background">
       <Script
@@ -55,7 +62,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body
         className={cn("min-h-screen font-sans antialiased", fontSans.variable)}
       >
-        <Providers>
+        <Providers content={fetchedTokenList}>
           <TermOfUseModal />
 
           <PostHogPageView />
