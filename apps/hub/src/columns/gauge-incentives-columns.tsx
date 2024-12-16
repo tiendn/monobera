@@ -5,16 +5,7 @@ import {
   FormattedNumber,
   TokenIcon,
 } from "@bera/shared-ui";
-import { Button } from "@bera/ui/button";
 import { type ColumnDef } from "@tanstack/react-table";
-import { type ActiveIncentiveWithVault } from "~/types/validators";
-import { GaugeHeaderWidget } from "~/components/gauge-header-widget";
-import {
-  ApiRewardAllocationWeightFragment,
-  ApiVaultFragment,
-  ApiVaultIncentiveFragment,
-} from "@bera/graphql/pol/api";
-import { Address } from "viem";
 
 export const gauge_incentives_columns: ColumnDef<RewardVaultIncentive>[] = [
   {

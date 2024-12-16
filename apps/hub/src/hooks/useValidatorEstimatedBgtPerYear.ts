@@ -30,6 +30,7 @@ export const getValidatorEstimatedBgtPerYear = (
   const estimatedBlocksPerYear = (365 * 24 * 60 * 60) / blockTime; // Ensure blockTime is defined somewhere in your code
   const estimatedValidatorBlocksPerYear =
     estimatedBlocksPerYear / validatorCounts;
+
   return (
     estimatedValidatorBlocksPerYear *
     parseFloat(validator.dynamicData?.rewardRate ?? "0")

@@ -86,7 +86,10 @@ export default function ValidatorDetails({
           <div className="my-4 flex w-full flex-row gap-1 text-muted-foreground">
             Operator:
             <span className="flex flex-row gap-1 text-foreground hover:underline">
-              <Link href={`${blockExplorerUrl}/address/${validator?.operator}`}>
+              <Link
+                href={`${blockExplorerUrl}/address/${validator?.operator}`}
+                target="_blank"
+              >
                 {truncateHash(validator?.operator ?? "")}
               </Link>
               <Icons.externalLink className="h-4 w-4 self-center" />

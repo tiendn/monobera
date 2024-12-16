@@ -40,9 +40,7 @@ export default function GlobalGaugeWeightTable({
 }) {
   const router = useRouter();
   const [page, setPage] = useState(0);
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: GqlRewardVaultOrderBy.AllTimeBgtReceived, desc: true },
-  ]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const { data, isLoading, isValidating } = useRewardVaults(
     {

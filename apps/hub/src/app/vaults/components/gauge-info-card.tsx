@@ -20,7 +20,7 @@ export default function GaugeInfoCard() {
           </div>
           {!isLoading ? (
             <span className="text-2xl font-semibold leading-8">
-              {globalData?.top3Vaults?.total}
+              {globalData?.vaultCount}
             </span>
           ) : (
             <Skeleton className="h-8 w-[125px] " />
@@ -100,40 +100,35 @@ export default function GaugeInfoCard() {
             Top 3 Validators
           </div>
           {!isLoading && globalData ? (
-            globalData.top3EmittingValidators?.validators?.map(
-              (
-                validator: { stakedVotingPower: number; validator: Validator },
-                index: number,
-              ) => (
-                <Link
-                  className="cursor-pointer flex w-full flex-1 items-center gap-2 rounded-sm border border-border bg-background px-4 py-2"
-                  key={`${index}-${validator.validator.id}`}
-                  href={getHubValidatorPath(validator.validator.pubkey)}
-                  target="_blank"
-                >
-                  <ValidatorIcon
-                    address={validator.validator.pubkey as Address}
-                    size="xl"
-                    imgOverride={validator.validator.metadata?.logoURI}
-                  />
-                  <div>
-                    <div className="text-nowrap text-sm font-semibold leading-5">
-                      {validator.validator?.metadata?.name ??
-                        truncateHash(validator.validator.pubkey)}
-                    </div>
-                    <FormattedNumber
-                      value={getValidatorEstimatedBgtPerYear(
-                        validator.validator,
-                        globalData.validatorCount,
-                      )}
-                      showIsSmallerThanMin
-                      symbol="BGT/Year"
-                      className="block text-nowrap text-[10px] font-medium leading-3 text-muted-foreground"
-                    />
+            globalData.top3EmittingValidators?.map((validator, index) => (
+              <Link
+                className="cursor-pointer flex w-full flex-1 items-center gap-2 rounded-sm border border-border bg-background px-4 py-2"
+                key={`${index}-${validator.id}`}
+                href={getHubValidatorPath(validator.pubkey)}
+                target="_blank"
+              >
+                <ValidatorIcon
+                  address={validator.pubkey as Address}
+                  size="xl"
+                  imgOverride={validator.metadata?.logoURI}
+                />
+                <div>
+                  <div className="text-nowrap text-sm font-semibold leading-5">
+                    {validator?.metadata?.name ??
+                      truncateHash(validator.pubkey)}
                   </div>
-                </Link>
-              ),
-            )
+                  <FormattedNumber
+                    value={getValidatorEstimatedBgtPerYear(
+                      validator,
+                      globalData.validatorCount,
+                    )}
+                    showIsSmallerThanMin
+                    symbol="BGT/Year"
+                    className="block text-nowrap text-[10px] font-medium leading-3 text-muted-foreground"
+                  />
+                </div>
+              </Link>
+            ))
           ) : (
             <>
               <Skeleton className="h-14 w-full rounded-md" />

@@ -133,3 +133,20 @@ query GetRewardVault($vaultId: String!, $chain: GqlChain!) {
     ...ApiVault
   }
 }
+
+query GlobalData {
+  top3EmittingValidators: polGetValidators(
+    orderBy: bgtCapturePercentage
+    orderDirection: desc
+    first: 3
+  ) {
+    ...ApiValidator
+  }
+  top3Vaults: polGetRewardVaults(
+    orderBy: last24hBGTReceived
+    orderDirection: desc
+    first: 3
+  ) {
+    ...ApiVault
+  }
+}

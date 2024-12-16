@@ -21,7 +21,8 @@ export const CuttingBoardDisplay = ({
 }: {
   cuttingBoard: ApiRewardAllocationWeightFragment | undefined;
 }) => {
-  if (!cuttingBoard) return <div>No Reward Vaults Found</div>;
+  if (!cuttingBoard)
+    return <div className="text-xs text-muted-foreground italic">–</div>;
   return (
     <Link
       className="flex  h-full w-[160px] items-center justify-start gap-2"
@@ -74,7 +75,7 @@ export default function ValidatorsTable() {
               className="w-full"
               disabled={!isReady}
             >
-              My Validators
+              My Boosts
             </TabsTrigger>
             <TabsTrigger value="queued" className="w-full" disabled={!isReady}>
               My Queue

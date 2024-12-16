@@ -227,7 +227,7 @@ export const BoostQueue = ({
         <>
           {queuedList?.map((validator, index: number) => (
             <ConfirmationCard
-              key={validator.pubkey}
+              key={`${validator.pubkey}-${validator.type}`}
               userValidator={validator}
               index={index}
               hasSubmittedTxn={hasSubmittedTxn[index] ?? false}
