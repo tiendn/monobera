@@ -13,7 +13,7 @@ export interface UsePollProposalResponse
 /**
  * Polls a proposal and returns the proposal details.
  * Pulls data from the subgraph and onchain.
- * 
+ *
  * @param proposalId - The ID of the proposal to poll
  * @param options - Optional configuration options
  * @returns {UsePollProposalResponse} Object containing:
