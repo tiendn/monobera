@@ -31,7 +31,6 @@ import { TextArea } from "@bera/ui/text-area";
 import { ProposalHeading } from "../../components/proposal-heading";
 import { cn } from "@bera/ui";
 import { ProposalWithVotesFragment } from "@bera/graphql/governance";
-import { useSWRConfig } from "swr";
 
 export function VoteDialog({
   proposal,
