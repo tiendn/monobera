@@ -11,7 +11,6 @@ import {
   FormattedNumber,
   useAsyncTable,
 } from "@bera/shared-ui";
-import { Icons } from "@bera/ui/icons";
 
 import { PoolSummary } from "../../components/pools-table-columns";
 import { usePools } from "./usePools";
@@ -137,19 +136,19 @@ export const usePoolTable = ({
           const rewardVault = rewardVaults?.find(
             (rv) => rv.tokenAddress === row.original.address,
           );
-          const isWhitelisted = getValidVaultAddress(rewardVault?.vaultAddress)
-            ? whitelistStatusMap.get(
+          const isWhitelistedVault: boolean = getValidVaultAddress(
+            rewardVault?.vaultAddress,
+          )
+            ? whitelistStatusMap.has(
                 getValidVaultAddress(rewardVault?.vaultAddress)!,
               )
             : false;
           return (
             <div className="flex items-center gap-2">
-              <PoolSummary pool={row.original} />
-
-              {isWhitelisted && (
-                // FIXME: this might belong in pool-tables-columns (check against Provided Liquidity badge)
-                <Icons.bgt className="h-4 w-4" />
-              )}
+              <PoolSummary
+                pool={row.original}
+                isWhitelistedVault={isWhitelistedVault}
+              />
             </div>
           );
         },
