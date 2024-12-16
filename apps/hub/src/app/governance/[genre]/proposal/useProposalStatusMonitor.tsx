@@ -26,7 +26,6 @@ export const useProposalStatusMonitor = (proposals: ProposalInput) => {
   const { mutate: refreshPollProposal } = useSWRConfig();
 
   useEffect(() => {
-    console.log("Updating all prop status");
     if (proposals === undefined) return;
     if (!currentBlockNumber || !proposals) return;
 
@@ -46,9 +45,6 @@ export const useProposalStatusMonitor = (proposals: ProposalInput) => {
 
       const threshold = getThreshold(proposal);
       if (currentBlockNumber >= BigInt(threshold)) {
-        console.log(
-          `Proposal ${proposal.id} status changed to ${proposal.status}`,
-        );
         refreshPollProposal(["usePollProposal", proposal.id]);
       }
     });
