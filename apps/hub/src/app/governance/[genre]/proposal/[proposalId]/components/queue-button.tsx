@@ -1,4 +1,4 @@
-import { GOVERNANCE_ABI, Proposal } from "@bera/berajs";
+import { GOVERNANCE_ABI, Proposal, usePollProposal } from "@bera/berajs";
 import { governanceTimelockAddress } from "@bera/config";
 import { ActionButton, useTxn } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
@@ -18,11 +18,13 @@ export const QueueButton = ({
   proposal,
   title,
 }: { proposal: Proposal; title: string }) => {
+  const { refresh } = usePollProposal(proposal.id);
   const [open, setOpen] = useState(false);
   const { write, ModalPortal } = useTxn({
     message: "Queuing proposal",
     onSuccess: () => {
       setOpen(false);
+      refresh();
     },
   });
 
