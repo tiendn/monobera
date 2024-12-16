@@ -167,13 +167,7 @@ const getExecutionSteps = (
 ): StepProps[] => {
   if (proposal.status === ProposalStatus.PendingQueue) return [];
 
-  const steps: StepProps[] = [
-    {
-      title: "Proposal Queued",
-      date: proposal.queueStart,
-      isActive: proposal.status === ProposalStatus.InQueue,
-    },
-  ];
+  const steps: StepProps[] = [];
 
   switch (proposal.status) {
     case ProposalStatus.CanceledByGuardian:
@@ -195,6 +189,12 @@ const getExecutionSteps = (
       break;
 
     case ProposalStatus.InQueue:
+      steps.push({
+        title: "Proposal Queued",
+        date: proposal.queueStart,
+        isActive: proposal.status === ProposalStatus.InQueue,
+      });
+      break;
     case ProposalStatus.PendingExecution:
       steps.push({
         title: "Proposal Executable",
