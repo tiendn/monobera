@@ -115,9 +115,28 @@ const getVotingSteps = (
         isActive: true,
       });
       break;
-
+    case ProposalStatus.Executed:
+      // We know that the proposal has reached quorum during this stage because totalTowardsQuorum > quorum
+      if (
+        latestVote &&
+        proposal.pollResult.totalTowardsQuorum > proposal.quorum
+      ) {
+        votingSteps.push({
+          title: "Quorum Reached",
+          date: latestVote.timestamp,
+          bulletClassName: "bg-success-foreground",
+          isActive: false,
+        });
+      } else {
+        votingSteps.push({
+          title: "Voting Period Ended",
+          block: proposal.voteEndBlock,
+          bulletClassName: "bg-success-foreground",
+          isActive: false,
+        });
+      }
+      break;
     default:
-      // The proposal can either have reached quorum or the voting period has ended
       if (
         latestVote &&
         currentBlockNumber &&
