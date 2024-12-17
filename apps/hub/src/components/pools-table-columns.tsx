@@ -1,9 +1,14 @@
 "use client";
 
 import { GqlPoolType, MinimalPoolInListFragment } from "@bera/graphql/dex/api";
-import { TokenIconList } from "@bera/shared-ui";
+import { TokenIconList, Tooltip } from "@bera/shared-ui";
 import { Badge } from "@bera/ui/badge";
 import { Icons } from "@bera/ui/icons";
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@bera/ui/tooltip";
 
 export const poolTypeLabels: Record<any, string> = {
   [GqlPoolType.ComposableStable]: "Stable",
@@ -53,7 +58,11 @@ export const PoolSummary = ({
               <span>Provided Liquidity</span>
             </Badge>
           )}
-          {isWhitelistedVault && <Icons.bgt className="h-4 w-4" />}
+          {isWhitelistedVault && (
+            <div title="This rewards vault is whitelisted">
+              <Icons.bgt className="h-4 w-4" />
+            </div>
+          )}
         </div>
       </div>
     </div>

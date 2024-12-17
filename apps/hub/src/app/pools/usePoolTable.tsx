@@ -15,16 +15,6 @@ import {
 import { PoolSummary } from "../../components/pools-table-columns";
 import { usePools } from "./usePools";
 
-// FIXME: we can avoid this with better typing.
-function getValidVaultAddress(
-  address: string | bigint | undefined,
-): `0x${string}` | null {
-  if (typeof address === "string" && address.startsWith("0x")) {
-    return address as `0x${string}`;
-  }
-  return null;
-}
-
 export const usePoolTable = ({
   sorting,
   userPoolsOnly,
@@ -58,23 +48,15 @@ export const usePoolTable = ({
     [pools],
   );
 
-  // Extract vault addresses and fetch whitelist statuses
+  // Extract vault addresses from the token addresse and fetch the whitelist statuses for all of those vaults
   const { data: rewardVaults } = useRewardVaultsFromTokens({
     tokenAddresses,
   });
 
-  const vaultAddresses = useMemo(() => {
-    return (
-      rewardVaults
-        ?.map((rv) => rv.vaultAddress)
-        .filter(
-          (addr): addr is `0x${string}` =>
-            typeof addr === "string" &&
-            addr.startsWith("0x") &&
-            addr !== ADDRESS_ZERO,
-        ) || []
-    );
-  }, [rewardVaults]);
+  const vaultAddresses = useMemo(
+    () => Object.values(rewardVaults ?? {}).filter((v) => v !== ADDRESS_ZERO),
+    [rewardVaults],
+  );
 
   const { data: whitelistedVaults } = useIsWhitelistedVault(vaultAddresses);
 
@@ -89,17 +71,11 @@ export const usePoolTable = ({
   // Sort pools: whitelisted pools first
   const sortedPools = useMemo(() => {
     if (!pools) return [];
-
-    const vaultAddressMap = new Map<string, `0x${string}`>(
-      rewardVaults?.map((rv) => [
-        rv.tokenAddress.toLowerCase(),
-        rv.vaultAddress as `0x${string}`,
-      ]) || [],
-    );
+    if (!rewardVaults) return pools;
 
     return [...pools].sort((a, b) => {
-      const aVault = vaultAddressMap.get(a.address.toLowerCase());
-      const bVault = vaultAddressMap.get(b.address.toLowerCase());
+      const aVault = rewardVaults[a.address.toLowerCase()];
+      const bVault = rewardVaults[b.address.toLowerCase()];
       const aIsWhitelisted = aVault
         ? whitelistStatusMap.get(aVault) || false
         : false;
@@ -109,8 +85,6 @@ export const usePoolTable = ({
       return Number(bIsWhitelisted) - Number(aIsWhitelisted);
     });
   }, [pools, rewardVaults, whitelistStatusMap]);
-
-  console.log("sortedPools", sortedPools);
 
   const table = useAsyncTable<MinimalPoolInListFragment>({
     data: sortedPools ?? [],
@@ -133,16 +107,13 @@ export const usePoolTable = ({
           />
         ),
         cell: ({ row }) => {
-          const rewardVault = rewardVaults?.find(
-            (rv) => rv.tokenAddress === row.original.address,
-          );
-          const isWhitelistedVault: boolean = getValidVaultAddress(
-            rewardVault?.vaultAddress,
-          )
-            ? whitelistStatusMap.has(
-                getValidVaultAddress(rewardVault?.vaultAddress)!,
-              )
+          const rewardVault =
+            rewardVaults?.[row.original.address.toLowerCase()];
+
+          const isWhitelistedVault = rewardVault
+            ? whitelistStatusMap.has(rewardVault)
             : false;
+
           return (
             <div className="flex items-center gap-2">
               <PoolSummary
@@ -154,7 +125,7 @@ export const usePoolTable = ({
         },
         enableSorting: false,
         enableHiding: false,
-        minSize: 280,
+        minSize: 320,
       },
       {
         accessorKey: "totalLiquidity",

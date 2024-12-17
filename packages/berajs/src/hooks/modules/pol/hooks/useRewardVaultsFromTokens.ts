@@ -37,11 +37,17 @@ export const useRewardVaultsFromTokens = ({
         allowFailure: true,
       });
 
-      // Map results to a usable format
-      return tokenAddresses.map((tokenAddress, index) => ({
-        tokenAddress,
-        vaultAddress: results?.[index]?.result || ADDRESS_ZERO,
-      }));
+      // Reduce results into a Record
+      return tokenAddresses.reduce<Record<Address, Address>>(
+        (acc, tokenAddress, index) => {
+          const vaultAddress =
+            (results?.[index]?.result as `0x${string}` | undefined) ||
+            ADDRESS_ZERO;
+          acc[tokenAddress] = vaultAddress;
+          return acc;
+        },
+        {},
+      );
     },
   );
 };
