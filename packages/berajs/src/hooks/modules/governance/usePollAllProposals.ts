@@ -52,9 +52,9 @@ type ProposalResult = {
 /**
  * Get all proposals for a given topic
  * @param args - The arguments to pass to the query
- * @param options 
+ * @param options - Optional configuration options
  * @param options.autoRefresh - If true, the data will be refreshed automatically based on the block number and status threshold
- * @returns 
+ * @returns {ProposalResult}
  */
 export const usePollAllProposals = (
   args: UsePollAllProposalsArgs,
