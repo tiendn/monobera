@@ -220,8 +220,6 @@ export const ProposalTimeline: React.FC<{
       steps.push(...getExecutionSteps(proposal));
   }
 
-  console.log(steps);
-
   return (
     <div className="gap-4 p-5 rounded-sm border border-border relative">
       {steps.map((step) => (
