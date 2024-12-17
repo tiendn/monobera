@@ -14,6 +14,7 @@ import {
   useBeraJs,
   useCollateralWeights,
   useCollateralsRates,
+  useHoneyCollaterals,
   useIsBadCollateralAsset,
   useIsBasketModeEnabled,
   usePollBalance,
@@ -91,13 +92,11 @@ export const usePsm = (): PsmHookReturn => {
 
   // Get token data and filter for collateral tokens
   const { data: tokenData } = useTokens();
-  const collateralList = tokenData?.tokenList?.filter((token: any) =>
-    token.tags?.includes("collateral"),
-  );
+  const { data: collateralList } = useHoneyCollaterals(tokenData);
+  // Find the default collateral token and get the HONEY token
   const honey = tokenData?.tokenDictionary
     ? tokenData?.tokenDictionary[getAddress(honeyTokenAddress)]
     : undefined;
-  // Find the default collateral token and get the HONEY token
   const defaultCollateral = collateralList?.find((token: any) =>
     token.tags.includes("defaultCollateral"),
   );
@@ -145,9 +144,7 @@ export const usePsm = (): PsmHookReturn => {
     collateral: collaterals[0]?.address,
   });
   const isBadCollateral2 = useIsBadCollateralAsset({
-    collateral:
-      (collaterals[1]?.address as Address) ??
-      getAddress("0x0000000000000000000000000000000000000000"),
+    collateral: collaterals[1]?.address,
   });
   const isBadCollateral =
     isBadCollateral1.data?.isBlacklisted ||
@@ -277,7 +274,7 @@ export const usePsm = (): PsmHookReturn => {
           ...attrs,
           [key]: +Number(
             formatUnits(
-              previewRes?.collaterals[key as Address],
+              previewRes?.collaterals[key as Address] ?? "0",
               // Find the correct decimal places for this token, default to 18 if not found
               collateralList?.find((token) => token.address === key)
                 ?.decimals ?? 18,
@@ -412,11 +409,12 @@ export const usePsm = (): PsmHookReturn => {
 
   // ===== EXCEEDING BALANCE =====
   // Check if the input amount exceeds the balance
-  const exceedBalance = collateralList?.map((token, idx) =>
+  const exceedBalance = selectedFrom?.map((token, idx) =>
     BigNumber(fromAmount[token.address] ?? "0").gt(fromBalance?.[idx] ?? "0"),
   );
 
-  const isLoading = isUseTxnLoading || isHoneyPreviewLoading;
+  const isLoading =
+    isUseTxnLoading || isHoneyPreviewLoading || !collateralList?.length;
   return {
     account,
     payload,
