@@ -68,26 +68,8 @@ export const usePoolTable = ({
     );
   }, [whitelistedVaults]);
 
-  // Sort pools: whitelisted pools first
-  const sortedPools = useMemo(() => {
-    if (!pools) return [];
-    if (!rewardVaults) return pools;
-
-    return [...pools].sort((a, b) => {
-      const aVault = rewardVaults[a.address.toLowerCase()];
-      const bVault = rewardVaults[b.address.toLowerCase()];
-      const aIsWhitelisted = aVault
-        ? whitelistStatusMap.get(aVault) || false
-        : false;
-      const bIsWhitelisted = bVault
-        ? whitelistStatusMap.get(bVault) || false
-        : false;
-      return Number(bIsWhitelisted) - Number(aIsWhitelisted);
-    });
-  }, [pools, rewardVaults, whitelistStatusMap]);
-
   const table = useAsyncTable<MinimalPoolInListFragment>({
-    data: sortedPools ?? [],
+    data: pools ?? [],
     fetchData: async () => {},
     additionalTableProps: {
       initialState: { sorting, pagination: { pageSize: 10, pageIndex: 0 } },
@@ -261,7 +243,7 @@ export const usePoolTable = ({
   });
 
   return {
-    data: sortedPools,
+    data: pools,
     table,
     search,
     setSearch,
