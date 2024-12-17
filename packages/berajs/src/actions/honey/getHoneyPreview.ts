@@ -1,6 +1,6 @@
-import { Address, PublicClient, formatUnits, parseUnits } from "viem";
+import { Address, PublicClient, parseUnits } from "viem";
 
-import { honeyFactoryAbi, honeyFactoryReaderAbi } from "~/abi";
+import { honeyFactoryReaderAbi } from "~/abi";
 import { BeraConfig, Token } from "~/types";
 import { getHoneyCollaterals } from "~/actions/honey";
 

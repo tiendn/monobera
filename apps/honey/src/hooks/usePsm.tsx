@@ -272,14 +272,16 @@ export const usePsm = (): PsmHookReturn => {
       ).reduce(
         (attrs, key) => ({
           ...attrs,
-          [key]: +Number(
+          [key]: new BigNumber(
             formatUnits(
               previewRes?.collaterals[key as Address] ?? "0",
               // Find the correct decimal places for this token, default to 18 if not found
               collateralList?.find((token) => token.address === key)
                 ?.decimals ?? 18,
             ),
-          ).toFixed(2),
+          )
+            .decimalPlaces(2, 1)
+            .toString(),
         }),
         {},
       );
@@ -295,9 +297,9 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (fromAmount)
           // Set the resulting Honey amount
           setToAmount({
-            [honey?.address!]: Number(
-              formatUnits(previewRes.honey, 18),
-            ).toFixed(2),
+            [honey?.address!]: new BigNumber(formatUnits(previewRes.honey, 18))
+              .decimalPlaces(2, 1)
+              .toString(),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
@@ -323,9 +325,9 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (toAmount)
           // Set required Honey amount
           setFromAmount({
-            [honey?.address!]: Number(
-              formatUnits(previewRes.honey, 18),
-            ).toFixed(2),
+            [honey?.address!]: new BigNumber(formatUnits(previewRes.honey, 18))
+              .decimalPlaces(2, 1)
+              .toString(),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
