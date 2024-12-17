@@ -116,14 +116,10 @@ const getVotingSteps = (
       });
       break;
     case ProposalStatus.Executed:
-      // We know that the proposal has reached quorum during this stage because totalTowardsQuorum > quorum
-      if (
-        latestVote &&
-        BigInt(proposal.pollResult.totalTowardsQuorum) > BigInt(proposal.quorum)
-      ) {
+      if (proposal.succeededAt) {
         votingSteps.push({
           title: "Quorum Reached",
-          date: latestVote.timestamp,
+          date: proposal.succeededAt,
           bulletClassName: "bg-success-foreground",
           isActive: false,
         });
@@ -137,14 +133,10 @@ const getVotingSteps = (
       }
       break;
     default:
-      if (
-        latestVote &&
-        currentBlockNumber &&
-        currentBlockNumber < BigInt(proposal.voteEndBlock)
-      ) {
+      if (proposal.succeededAt) {
         votingSteps.push({
           title: "Quorum Reached",
-          date: latestVote.timestamp,
+          date: proposal.succeededAt,
           bulletClassName: "bg-success-foreground",
           isActive: proposal.status === ProposalStatus.PendingQueue,
         });
@@ -165,8 +157,6 @@ const getVotingSteps = (
 const getExecutionSteps = (
   proposal: ProposalWithVotesFragment,
 ): StepProps[] => {
-  if (proposal.status === ProposalStatus.PendingQueue) return [];
-
   const steps: StepProps[] = [];
 
   switch (proposal.status) {
@@ -178,28 +168,41 @@ const getExecutionSteps = (
         bulletClassName: "bg-destructive-foreground",
       });
       break;
-
-    case ProposalStatus.Executed:
-      steps.push({
-        title: "Proposal Executed",
-        date: proposal.executedAt,
-        isActive: true,
-        bulletClassName: "bg-success-foreground",
-      });
-      break;
-
     case ProposalStatus.InQueue:
       steps.push({
         title: "Proposal Queued",
         date: proposal.queueStart,
-        isActive: proposal.status === ProposalStatus.InQueue,
+        isActive: true,
+      });
+      steps.push({
+        title: "Queue Ending",
+        date: proposal.queueEnd,
+        isActive: false,
       });
       break;
     case ProposalStatus.PendingExecution:
       steps.push({
         title: "Proposal Executable",
         date: proposal.queueEnd,
-        isActive: proposal.status === ProposalStatus.PendingExecution,
+        isActive: true,
+      });
+      break;
+    case ProposalStatus.Executed:
+      steps.push({
+        title: "Proposal Queued",
+        date: proposal.queueStart,
+        isActive: false,
+      });
+      steps.push({
+        title: "Queue Ended",
+        date: proposal.queueEnd,
+        isActive: false,
+      });
+      steps.push({
+        title: "Proposal Executed",
+        date: proposal.executedAt,
+        isActive: true,
+        bulletClassName: "bg-success-foreground",
       });
       break;
   }
@@ -232,6 +235,8 @@ export const ProposalTimeline: React.FC<{
       steps.push(...getVotingSteps(proposal, currentBlockNumber, latestVote));
       steps.push(...getExecutionSteps(proposal));
   }
+
+  console.log(steps);
 
   return (
     <div className="gap-4 p-5 rounded-sm border border-border relative">
