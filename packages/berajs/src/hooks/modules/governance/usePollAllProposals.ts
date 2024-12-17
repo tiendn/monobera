@@ -54,7 +54,16 @@ type ProposalResult = {
  * @param args - The arguments to pass to the query
  * @param options - Optional configuration options
  * @param options.autoRefresh - If true, the data will be refreshed automatically based on the block number and status threshold
- * @returns {ProposalResult}
+ * @returns {ProposalResult} Object containing:
+ * - data: ProposalSelectionFragment[][] - The proposal data if successful
+ * - error: Error | undefined - Error object if request failed
+ * - isLoading: boolean - True while data is being fetched
+ * - isValidating: boolean - True while data is being revalidated
+ * - mutate: () => Promise<ProposalSelectionFragment[] | undefined> - Function to manually refresh the data
+ * - refresh: () => Promise<void> - Function to manually refresh the data
+ * - size: number - The number of proposals fetched
+ * - setSize: (size: number) => void - Function to set the number of proposals fetched
+ * - hasMore: boolean - True if there are more proposals to fetch
  */
 export const usePollAllProposals = (
   args: UsePollAllProposalsArgs,
@@ -171,8 +180,8 @@ export const usePollAllProposals = (
 
   return {
     ...res,
-    data: data,
-    hasMore: (data.at(-1)?.length ?? 0) === (args.perPage ?? DEFAULT_PER_PAGE),
+    data,
+    hasMore: data.at(-1)?.length === (args.perPage ?? DEFAULT_PER_PAGE),
   };
 };
 

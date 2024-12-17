@@ -28,6 +28,7 @@ export interface UsePollProposalResponse
  *   - error: Error | undefined - Error object if request failed
  *   - isLoading: boolean - True while data is being fetched
  *   - isValidating: boolean - True while data is being revalidated
+ *   - mutate: () => Promise<ProposalWithVotesFragment | undefined> - Function to manually refresh the data
  *   - refresh: () => Promise<void> - Function to manually refresh the data
  */
 export const usePollProposal = (
