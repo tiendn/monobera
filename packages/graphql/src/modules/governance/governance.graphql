@@ -8,6 +8,7 @@ fragment ProposalSelection on Proposal {
   createdAtBlock
   unverifiedForumLink
   quorum
+  succeededAt
   pollResult {
     for
     forVotersCount
