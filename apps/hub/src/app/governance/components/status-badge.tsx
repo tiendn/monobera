@@ -14,11 +14,13 @@ export const statusMap: Record<ProposalStatus, string> = {
   [ProposalStatus.CanceledByUser]: "Canceled by user",
   [ProposalStatus.Defeated]: "Defeated",
   [ProposalStatus.Executed]: "Executed",
+  // [ProposalStatus.Expired]: "Expired",
   [ProposalStatus.InQueue]: "In queue",
   [ProposalStatus.Pending]: "Pending",
   [ProposalStatus.PendingExecution]: "Pending execution",
   [ProposalStatus.PendingQueue]: "Pending queue",
   [ProposalStatus.QuorumNotReached]: "Quorum not reached",
+  // [ProposalStatus.Succeeded]: "Succeeded",
 };
 
 export const StatusBadge = ({
