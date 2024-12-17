@@ -64,8 +64,6 @@ export const AllValidator = ({
     (state: TableState) => {
       setPage(state?.pagination?.pageIndex);
 
-      console.log(state?.sorting);
-
       setSorting(state?.sorting);
     },
     [setPage],

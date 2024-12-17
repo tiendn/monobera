@@ -67,7 +67,13 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
     const token =
       incentiveTokens?.find((token) => token.address === incentive.token) ??
       ({ address: incentive.token } as Token);
-    return { ...incentive, token };
+    return {
+      ...incentive,
+      amountRemaining: Number(incentive.amountRemaining),
+      incentiveRate: Number(incentive.incentiveRate),
+      token,
+      id: incentive.token,
+    };
   });
 
   if (!rewardVault && !isRewardVaultLoading && rewardVaultError) {
@@ -171,11 +177,6 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
                 columns={gauge_incentives_columns}
                 data={activeIncentives ?? []}
                 className="max-h-[300px] min-w-[1000px] shadow"
-                onRowClick={(row: any) =>
-                  router.push(
-                    `/incentivize?gauge=${gaugeAddress}&token=${row.original.token.address}`,
-                  )
-                }
               />
             </TabsContent>
             <TabsContent value="validators">

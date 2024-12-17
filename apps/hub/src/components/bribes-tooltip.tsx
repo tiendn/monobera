@@ -1,14 +1,14 @@
 import React from "react";
-import { RewardVaultIncentive, Token, useTokenHoneyPrices } from "@bera/berajs";
+import { Token, useTokenHoneyPrices } from "@bera/berajs";
 import {
   FormattedNumber,
   TokenIcon,
   TokenIconList,
   Tooltip,
 } from "@bera/shared-ui";
-import { Button } from "@bera/ui/button";
 import { type Address } from "viem";
 import { ApiVaultIncentiveFragment } from "@bera/graphql/pol/api";
+import { Skeleton } from "@bera/ui/skeleton";
 
 interface TotalValues {
   totalIncentives: number;
@@ -25,9 +25,11 @@ interface TotalValues {
 export const BribeTooltipRow = ({
   token,
   totalValues,
+  isLoading,
 }: {
   token: Token;
   totalValues: TotalValues;
+  isLoading?: boolean;
 }) => {
   return (
     <div className="flex justify-between">
@@ -36,12 +38,15 @@ export const BribeTooltipRow = ({
         {token.symbol}
       </div>
       <div className="text-md flex flex-row gap-1">
-        <FormattedNumber value={totalValues.totalIncentives} compact />
-        {totalValues.amountPerProposal !== 0 && (
-          <div className="text-muted-foreground">
-            $
-            <FormattedNumber value={totalValues.amountPerProposal} />
-          </div>
+        {isLoading ? (
+          <Skeleton className="h-4 w-10" />
+        ) : (
+          totalValues.amountPerProposal !== 0 && (
+            <div className="text-muted-foreground">
+              $
+              <FormattedNumber value={totalValues.amountPerProposal} />
+            </div>
+          )
         )}
       </div>
     </div>
@@ -53,14 +58,18 @@ export const BribesTooltip = ({
 }: {
   activeIncentive: ApiVaultIncentiveFragment[];
 }) => {
-  const { data: tokenHoneyPrices } = useTokenHoneyPrices({
-    tokenAddresses: activeIncentive.map((ab) => ab.token.address) as Address[],
-  });
+  const { data: tokenHoneyPrices, isLoading: isLoadingHoneyPrices } =
+    useTokenHoneyPrices({
+      tokenAddresses: activeIncentive.map(
+        (ab) => ab.token.address,
+      ) as Address[],
+    });
   const totalBribesValue: TotalValues = activeIncentive.reduce(
     (acc: TotalValues, ab) => {
       const tokenPrice = parseFloat(
         tokenHoneyPrices?.[ab.token.address] ?? "0",
       );
+
       return {
         totalIncentives:
           acc.totalIncentives + Number(ab.amountRemaining) * tokenPrice,
@@ -104,6 +113,7 @@ export const BribesTooltip = ({
         const tokenPrice = parseFloat(
           tokenHoneyPrices?.[ab.token.address] ?? "0",
         );
+
         const bribeTotalValues: TotalValues = {
           totalIncentives: Number(ab.amountRemaining) * tokenPrice,
           amountPerProposal: Number(ab.incentiveRate) * tokenPrice,
@@ -111,6 +121,7 @@ export const BribesTooltip = ({
         };
         return (
           <BribeTooltipRow
+            isLoading={isLoadingHoneyPrices}
             token={ab.token as Token}
             totalValues={bribeTotalValues}
             key={`${i}-BribeTooltipRow`}
@@ -155,6 +166,31 @@ export const BribesTooltip = ({
   );
 };
 
+function reduceIncentives(
+  incentives?: ApiVaultIncentiveFragment[],
+): ApiVaultIncentiveFragment[] | undefined {
+  return incentives
+    ?.filter((i) => i!)
+    .reduce<typeof incentives>((acc, curr) => {
+      const prevPosition = acc.findIndex(
+        (x) => x.tokenAddress === curr.tokenAddress,
+      );
+
+      if (prevPosition === -1) {
+        return [...acc, curr];
+      }
+
+      const prevIncentive = { ...acc[prevPosition] };
+
+      prevIncentive.amountRemaining = String(
+        Number(prevIncentive.amountRemaining) + Number(curr.amountRemaining),
+      );
+      acc[prevPosition] = prevIncentive;
+
+      return acc;
+    }, []);
+}
+
 export const BribesPopover = ({
   incentives,
 }: {
@@ -172,12 +208,11 @@ export const BribesPopover = ({
             <div className="w-fit rounded-lg p-1 hover:bg-muted">
               <TokenIconList
                 tokenList={
-                  incentives
-                    ?.filter((i) => i!)
-                    .map((incentive) => ({
-                      ...incentive!.token,
-                      id: incentive!.tokenAddress,
-                    })) ?? []
+                  reduceIncentives(incentives)?.map((i) => ({
+                    ...i.token,
+
+                    id: i.tokenAddress,
+                  })) ?? []
                 }
                 showCount={3}
                 size={"lg"}
