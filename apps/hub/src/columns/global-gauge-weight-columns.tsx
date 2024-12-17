@@ -29,14 +29,14 @@ export const AllRewardVaultColumns: ColumnDef<ApiVaultFragment>[] = [
         symbol="USD"
         compact={false}
         compactThreshold={999_999_999}
-        value={row.original.activeIncentivesValueUsd}
+        value={row.original.dynamicData?.activeIncentivesValueUsd ?? 0}
       />
     ),
     meta: {
       tooltip: "The total value of incentives in the gauge.",
       headerClassname: "flex-initial whitespace-nowrap",
     },
-    accessorKey: "allTimeBGTReceived",
+    accessorKey: "dynamicData?.activeIncentivesValueUsd",
     enableSorting: true,
   },
   {

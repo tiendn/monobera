@@ -22,6 +22,7 @@ fragment ApiVault on GqlRewardVault {
     allTimeBGTReceived
     apy
     bgtCapturePercentage
+    activeIncentivesValueUsd
   }
 
   stakingToken {
@@ -38,8 +39,6 @@ fragment ApiVault on GqlRewardVault {
     url
     productName
   }
-
-  activeIncentivesValueUsd
 
   activeIncentives {
     ...ApiVaultIncentive

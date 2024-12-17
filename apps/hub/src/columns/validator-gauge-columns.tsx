@@ -74,10 +74,13 @@ export const getValidatorGaugeColumns = () => {
             symbol="USD"
             compact={false}
             compactThreshold={999_999_999}
-            value={row.original.receivingVault?.activeIncentivesValueUsd ?? 0}
+            value={
+              row.original.receivingVault?.dynamicData
+                ?.activeIncentivesValueUsd ?? 0
+            }
           />
         ),
-        accessorKey: "receivingVault.activeIncentivesValueUsd",
+        accessorKey: "receivingVault.dynamicData.activeIncentivesValueUsd",
         enableSorting: false,
       },
       {

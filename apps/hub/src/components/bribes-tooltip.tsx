@@ -64,6 +64,7 @@ export const BribesTooltip = ({
         (ab) => ab.token.address,
       ) as Address[],
     });
+
   const totalBribesValue: TotalValues = activeIncentive.reduce(
     (acc: TotalValues, ab) => {
       const tokenPrice = parseFloat(
@@ -185,6 +186,11 @@ function reduceIncentives(
       prevIncentive.amountRemaining = String(
         Number(prevIncentive.amountRemaining) + Number(curr.amountRemaining),
       );
+
+      // FIXME: This is not correct, we need to check with quants
+      prevIncentive.incentiveRate = String(
+        Number(prevIncentive.incentiveRate) + Number(curr.incentiveRate),
+      );
       acc[prevPosition] = prevIncentive;
 
       return acc;
@@ -196,6 +202,8 @@ export const BribesPopover = ({
 }: {
   incentives: ApiVaultIncentiveFragment[] | undefined;
 }) => {
+  const reducedIncentives = reduceIncentives(incentives);
+
   return (
     <>
       {!incentives || incentives?.length === 0 ? (
@@ -208,9 +216,8 @@ export const BribesPopover = ({
             <div className="w-fit rounded-lg p-1 hover:bg-muted">
               <TokenIconList
                 tokenList={
-                  reduceIncentives(incentives)?.map((i) => ({
+                  reducedIncentives?.map((i) => ({
                     ...i.token,
-
                     id: i.tokenAddress,
                   })) ?? []
                 }
@@ -220,7 +227,7 @@ export const BribesPopover = ({
               />
             </div>
           }
-          children={<BribesTooltip activeIncentive={incentives ?? []} />}
+          children={<BribesTooltip activeIncentive={reducedIncentives ?? []} />}
         />
       )}
     </>
