@@ -83,13 +83,9 @@ const getCanceledStep = (proposal: ProposalWithVotesFragment): StepProps => ({
   bulletClassName: "bg-destructive-foreground",
 });
 
-const getVotingSteps = (
-  proposal: ProposalWithVotesFragment,
-  currentBlockNumber?: bigint,
-  latestVote?: Partial<Vote>,
-): StepProps[] => {
+const getVotingSteps = (proposal: ProposalWithVotesFragment): StepProps[] => {
   const initialVotingStep: StepProps = {
-    title: "Voting Period Begins",
+    title: "Voting Period Started",
     block: proposal.voteStartBlock ?? 0,
     isActive: proposal.status === ProposalStatus.Active,
   };
@@ -232,7 +228,7 @@ export const ProposalTimeline: React.FC<{
       steps.push(getCanceledStep(proposal));
       break;
     default:
-      steps.push(...getVotingSteps(proposal, currentBlockNumber, latestVote));
+      steps.push(...getVotingSteps(proposal));
       steps.push(...getExecutionSteps(proposal));
   }
 
