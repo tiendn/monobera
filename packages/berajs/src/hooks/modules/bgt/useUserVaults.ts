@@ -1,4 +1,12 @@
-import { multicallAddress, polEndpointUrl } from "@bera/config";
+import { balancerApiChainName, multicallAddress } from "@bera/config";
+import { bexApiGraphqlClient } from "@bera/graphql";
+import {
+  GetUserVaults,
+  ApiVaultFragment,
+  GetUserVaultsQuery,
+  GetUserVaultsQueryVariables,
+  GqlChain,
+} from "@bera/graphql/pol/api";
 import useSWR from "swr";
 import { Address, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
@@ -21,17 +29,18 @@ interface Call {
  * @returns the current honey price of a given token
  */
 
-export interface UserVault extends Vault {
+export interface UserVault {
   unclaimedBgt: string;
   balance: string;
+  vault: ApiVaultFragment;
 }
+
 export const useUserVaults = (
   options?: DefaultHookOptions,
 ): DefaultHookReturnType<
   | {
       totalBgtRewards: string;
       vaults: UserVault[];
-      claimAllCalldata: any;
     }
   | undefined
 > => {
@@ -42,7 +51,6 @@ export const useUserVaults = (
     | {
         totalBgtRewards: string;
         vaults: UserVault[];
-        claimAllCalldata: any;
       }
     | undefined
   >(
@@ -50,22 +58,28 @@ export const useUserVaults = (
     async () => {
       if (!account || !publicClient) return undefined;
 
-      // TODO: remove deprecated endpoint
-      const url = `${polEndpointUrl}/user/${account}/vaults`;
-      const validatorList = await fetch(url);
-      const temp: any = await validatorList.json();
+      const res = await bexApiGraphqlClient.query<
+        GetUserVaultsQuery,
+        GetUserVaultsQueryVariables
+      >({
+        query: GetUserVaults,
+        variables: {
+          userId: account,
+          chain: balancerApiChainName as GqlChain,
+        },
+      });
 
-      const vaultList: Vault[] = temp.userVaults;
+      const deposits = res.data?.userVaultDeposits;
 
-      const calls: Call[] = vaultList.map((vault: Vault) => ({
-        address: vault.vaultAddress,
+      const calls: Call[] = deposits.map((deposit) => ({
+        address: deposit.vaultAddress as Address,
         abi: BERA_VAULT_REWARDS_ABI,
         functionName: "earned",
         args: [account],
       }));
 
-      const balanceCalls: Call[] = vaultList.map((vault: Vault) => ({
-        address: vault.vaultAddress,
+      const balanceCalls: Call[] = deposits.map((deposit) => ({
+        address: deposit.vaultAddress as Address,
         abi: BERA_VAULT_REWARDS_ABI,
         functionName: "balanceOf",
         args: [account],
@@ -83,20 +97,20 @@ export const useUserVaults = (
       ]);
 
       let total = 0n;
-      const userVaults = vaultList.map((vault: Vault, index: number) => {
+      const userVaults = deposits.map((deposit, index: number) => {
         const item = result[index];
         const balanceItem = balanceResult[index];
         total += item.result as bigint;
 
         if (item.status === "success") {
           return {
-            ...vault,
+            ...deposit,
             unclaimedBgt: formatUnits(item.result as bigint, 18),
             balance: formatUnits(balanceItem.result as bigint, 18),
           };
         }
         return {
-          ...vault,
+          ...deposit,
           unclaimedBgt: "0",
           balance: "0",
         };
@@ -111,7 +125,6 @@ export const useUserVaults = (
       return {
         totalBgtRewards: formatUnits(total, 18),
         vaults: sortedUserVaults as UserVault[],
-        claimAllCalldata: "",
       };
     },
     {

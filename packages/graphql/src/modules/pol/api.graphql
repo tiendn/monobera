@@ -149,3 +149,16 @@ query GlobalData {
     ...ApiVault
   }
 }
+
+query GetUserVaults($userId: String!, $chain: GqlChain!) {
+  userVaultDeposits: polGetUserVaultDeposits(
+    userAddress: $userId
+    chain: $chain
+  ) {
+    amount
+    vaultAddress
+    vault {
+      ...ApiVault
+    }
+  }
+}
