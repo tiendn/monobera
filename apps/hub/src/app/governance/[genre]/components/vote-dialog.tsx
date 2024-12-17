@@ -60,6 +60,9 @@ export function VoteDialog({
 
   const { refresh: refreshPollProposal } = usePollProposal(
     proposalId.toString(),
+    {
+      autoRefresh: true,
+    },
   );
 
   const { write, ModalPortal } = useTxn({

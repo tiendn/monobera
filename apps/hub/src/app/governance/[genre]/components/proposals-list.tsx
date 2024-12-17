@@ -15,7 +15,6 @@ import {
   Proposal_OrderBy,
 } from "@bera/graphql/governance";
 import { useState } from "react";
-import { useProposalStatusMonitor } from "../proposal/useProposalStatusMonitor";
 
 // const PROPOSALS_PER_PAGE = 100;
 
@@ -34,15 +33,18 @@ export const ProposalsList = () => {
   const [search, setSearch] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<ProposalStatus[]>([]);
 
-  const { data, hasMore, isLoading, size, setSize } = usePollAllProposals({
-    topic: currentTopic.slug,
-    orderBy: sortBy.orderBy,
-    status_in: statusFilter,
-    orderDirection: sortBy.orderDirection,
-    text: search,
-  });
-
-  useProposalStatusMonitor(data?.flat().length ? data.flat() : []);
+  const { data, hasMore, isLoading, size, setSize } = usePollAllProposals(
+    {
+      topic: currentTopic.slug,
+      orderBy: sortBy.orderBy,
+      status_in: statusFilter,
+      orderDirection: sortBy.orderDirection,
+      text: search,
+    },
+    {
+      autoRefresh: true,
+    },
+  );
 
   const areFiltersSet = !!search || statusFilter.length !== 0;
 

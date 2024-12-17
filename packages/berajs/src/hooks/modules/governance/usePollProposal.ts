@@ -1,4 +1,7 @@
-import { ProposalWithVotesFragment } from "@bera/graphql/governance";
+import {
+  ProposalStatus,
+  ProposalWithVotesFragment,
+} from "@bera/graphql/governance";
 import useSWR from "swr";
 import { usePublicClient } from "wagmi";
 
@@ -6,6 +9,9 @@ import { getProposalDetails } from "~/actions/governance/getProposalDetails";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
 import { DefaultHookOptions, DefaultHookReturnType, Vote } from "~/types";
+import { useBlockNumber } from "wagmi";
+import { FALLBACK_BLOCK_TIME } from "@bera/config";
+import { useEffect } from "react";
 
 export interface UsePollProposalResponse
   extends DefaultHookReturnType<ProposalWithVotesFragment> {}
@@ -16,6 +22,7 @@ export interface UsePollProposalResponse
  *
  * @param proposalId - The ID of the proposal to poll
  * @param options - Optional configuration options
+ * @param options.autoRefresh - If true, the data will be refreshed automatically based on the block number and status threshold
  * @returns {UsePollProposalResponse} Object containing:
  *   - data: ProposalWithVotesFragment | undefined - The proposal data if successful
  *   - error: Error | undefined - Error object if request failed
@@ -25,10 +32,17 @@ export interface UsePollProposalResponse
  */
 export const usePollProposal = (
   proposalId: string,
-  options?: DefaultHookOptions,
+  options?: DefaultHookOptions & { autoRefresh?: boolean },
 ): UsePollProposalResponse => {
   const { config: beraConfig } = useBeraJs();
+  const autoRefreshProposal = options?.autoRefresh ?? false;
   const publicClient = usePublicClient();
+  const { data: currentBlockNumber } = useBlockNumber({
+    watch: {
+      pollingInterval: FALLBACK_BLOCK_TIME,
+      enabled: autoRefreshProposal,
+    },
+  });
   const config = options?.beraConfigOverride ?? beraConfig;
   const QUERY_KEY = proposalId ? ["usePollProposal", proposalId] : null;
 
@@ -41,6 +55,28 @@ export const usePollProposal = (
       refreshInterval: options?.opts?.refreshInterval ?? POLLING.SLOW,
     },
   );
+
+  useEffect(() => {
+    if (swrResponse.data === undefined || !currentBlockNumber) return;
+
+    switch (swrResponse.data.status) {
+      case ProposalStatus.Pending:
+        if (currentBlockNumber >= BigInt(swrResponse.data.voteStartBlock)) {
+          swrResponse.mutate();
+        }
+        break;
+      case ProposalStatus.Active:
+        if (currentBlockNumber >= BigInt(swrResponse.data.voteEndBlock)) {
+          swrResponse.mutate();
+        }
+        break;
+      case ProposalStatus.InQueue:
+        if (currentBlockNumber >= BigInt(swrResponse.data.queueEnd)) {
+          swrResponse.mutate();
+        }
+        break;
+    }
+  }, [swrResponse.data, currentBlockNumber]);
 
   // const votes = swrResponse.data?.votes.nodes ?? [];
   return {

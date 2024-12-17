@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   OrderDirection,
   ProposalStatus,
@@ -12,6 +12,8 @@ import { getAllProposals } from "~/actions/governance";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
 import { DefaultHookOptions } from "~/types";
+import { FALLBACK_BLOCK_TIME } from "@bera/config";
+import { useBlockNumber } from "wagmi";
 
 const DEFAULT_PER_PAGE = 20;
 
@@ -39,6 +41,7 @@ type UsePollAllProposalsArgs = {
   orderDirection?: OrderDirection;
   status_in?: ProposalStatus[];
   text?: string;
+  autoRefreshProposals?: boolean;
 };
 
 type ProposalResult = {
@@ -46,12 +49,26 @@ type ProposalResult = {
   hasMore: boolean;
 } & Omit<SWRInfiniteResponse<ProposalSelectionFragment[]>, "data">;
 
+/**
+ * Get all proposals for a given topic
+ * @param args - The arguments to pass to the query
+ * @param options 
+ * @param options.autoRefresh - If true, the data will be refreshed automatically based on the block number and status threshold
+ * @returns 
+ */
 export const usePollAllProposals = (
   args: UsePollAllProposalsArgs,
-  options?: DefaultHookOptions,
+  options?: DefaultHookOptions & { autoRefresh?: boolean },
 ): ProposalResult => {
   const { config: beraConfig } = useBeraJs();
   const config = options?.beraConfigOverride ?? beraConfig;
+  const autoRefreshProposals = options?.autoRefresh ?? false;
+  const { data: currentBlockNumber } = useBlockNumber({
+    watch: {
+      pollingInterval: FALLBACK_BLOCK_TIME,
+      enabled: autoRefreshProposals,
+    },
+  });
 
   const res = useSwrInfinite<ProposalSelectionFragment[]>(
     usePollAllProposalsQueryKey(args.topic, args),
@@ -87,6 +104,32 @@ export const usePollAllProposals = (
       refreshInterval: options?.opts?.refreshInterval ?? POLLING.SLOW,
     },
   );
+
+  const flattenedProposals = useMemo(() => res.data?.flat(), [res.data]);
+
+  useEffect(() => {
+    if (flattenedProposals === undefined || !currentBlockNumber) return;
+
+    for (const proposal of flattenedProposals) {
+      switch (proposal.status) {
+        case ProposalStatus.Pending:
+          if (currentBlockNumber >= BigInt(proposal.voteStartBlock)) {
+            res.mutate();
+          }
+          break;
+        case ProposalStatus.Active:
+          if (currentBlockNumber >= BigInt(proposal.voteEndBlock)) {
+            res.mutate();
+          }
+          break;
+        case ProposalStatus.InQueue:
+          if (currentBlockNumber >= BigInt(proposal.queueEnd)) {
+            res.mutate();
+          }
+          break;
+      }
+    }
+  }, [flattenedProposals, currentBlockNumber]);
 
   const data = useMemo(() => {
     if (!res.data) return [];
