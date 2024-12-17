@@ -7,8 +7,7 @@ import { BGT_ABI } from "~/abi";
 import { governanceTokenAddress } from "@bera/config";
 
 /**
- * Returns the amount of votes that account had at a specific moment in the past.
- *
+ * Returns the amount of voting power that a wallet had when the voting period began.
  * {@link https://docs.openzeppelin.com/contracts/5.x/api/governance#Votes-getPastVotes-address-uint256-}
  */
 export const useGetPastVotes = (
