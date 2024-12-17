@@ -115,6 +115,7 @@ export const usePollAllProposals = (
   );
 
   const flattenedProposals = useMemo(() => res.data?.flat(), [res.data]);
+  const statuses = flattenedProposals?.map((p) => p.status);
 
   useEffect(() => {
     if (flattenedProposals === undefined || !currentBlockNumber) return;
@@ -138,7 +139,7 @@ export const usePollAllProposals = (
           break;
       }
     }
-  }, [flattenedProposals, currentBlockNumber]);
+  }, [statuses, currentBlockNumber]);
 
   const data = useMemo(() => {
     if (!res.data) return [];

@@ -77,7 +77,7 @@ export const usePollProposal = (
         }
         break;
     }
-  }, [swrResponse.data, currentBlockNumber]);
+  }, [swrResponse.data?.status, currentBlockNumber]);
 
   // const votes = swrResponse.data?.votes.nodes ?? [];
   return {
