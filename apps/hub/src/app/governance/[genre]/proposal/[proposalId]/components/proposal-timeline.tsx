@@ -209,18 +209,6 @@ const getExecutionSteps = (
 export const ProposalTimeline: React.FC<{
   proposal: ProposalWithVotesFragment;
 }> = ({ proposal }) => {
-  const { data: latestVotes } = usePollProposalVotes(
-    {
-      proposalId: proposal.id,
-      orderDirection: OrderDirection.Desc,
-    },
-    1,
-  );
-
-  const { data: currentBlockNumber } = useBlockNumber();
-
-  const latestVote = latestVotes?.[0]?.data?.votes[0];
-
   const steps = [getInitialStep(proposal)];
 
   switch (proposal.status) {
