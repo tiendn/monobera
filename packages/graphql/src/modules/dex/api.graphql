@@ -118,3 +118,21 @@ query GetPoolHistoricalData($poolId: String!, $chain: GqlChain!) {
     ...PoolHistoricalData
   }
 }
+
+query GetRewardVaultByAddress($vaultAddress: String!, $chain: GqlChain!) {
+  polGetRewardVaults(chain: $chain, where: { vaultAddress: $vaultAddress }) {
+    vaultAddress
+    dynamicData {
+      apy
+      last24hBGTReceived
+    }
+  }
+}
+
+fragment GqlPoolDynamicData on GqlRewardVault {
+  vaultAddress
+  dynamicData {
+    apy
+    last24hBGTReceived
+  }
+}

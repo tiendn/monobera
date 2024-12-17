@@ -1,11 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ADDRESS_ZERO,
   useBgtInflation,
   useIsWhitelistedVault,
+  useRewardVaultsDynamicData,
   useRewardVaultsFromTokens,
 } from "@bera/berajs";
-import { MinimalPoolInListFragment } from "@bera/graphql/dex/api";
+import {
+  GqlRewardVault,
+  GqlRewardVaultDynamicData,
+  MinimalPoolInListFragment,
+} from "@bera/graphql/dex/api";
 import {
   DataTableColumnHeader,
   FormattedNumber,
@@ -59,13 +64,13 @@ export const usePoolTable = ({
   );
 
   // Extract vault addresses and fetch whitelist statuses
-  const { data: rewardVaults } = useRewardVaultsFromTokens({
+  const { data: rewardVaultAddresses } = useRewardVaultsFromTokens({
     tokenAddresses,
   });
 
   const vaultAddresses = useMemo(() => {
     return (
-      rewardVaults
+      rewardVaultAddresses
         ?.map((rv) => rv.vaultAddress)
         .filter(
           (addr): addr is `0x${string}` =>
@@ -74,7 +79,7 @@ export const usePoolTable = ({
             addr !== ADDRESS_ZERO,
         ) || []
     );
-  }, [rewardVaults]);
+  }, [rewardVaultAddresses]);
 
   const { data: whitelistedVaults } = useIsWhitelistedVault(vaultAddresses);
 
@@ -86,12 +91,18 @@ export const usePoolTable = ({
     );
   }, [whitelistedVaults]);
 
+  const { data: rewardVaults } = useRewardVaultsDynamicData(vaultAddresses);
+
+  useEffect(() => {
+    console.log("REWARD VAULTS", rewardVaults, vaultAddresses);
+  }, [rewardVaults]);
+
   // Sort pools: whitelisted pools first
   const sortedPools = useMemo(() => {
     if (!pools) return [];
 
     const vaultAddressMap = new Map<string, `0x${string}`>(
-      rewardVaults?.map((rv) => [
+      rewardVaultAddresses?.map((rv) => [
         rv.tokenAddress.toLowerCase(),
         rv.vaultAddress as `0x${string}`,
       ]) || [],
@@ -108,7 +119,7 @@ export const usePoolTable = ({
         : false;
       return Number(bIsWhitelisted) - Number(aIsWhitelisted);
     });
-  }, [pools, rewardVaults, whitelistStatusMap]);
+  }, [pools, rewardVaultAddresses, whitelistStatusMap]);
 
   console.log("sortedPools", sortedPools);
 
@@ -133,7 +144,7 @@ export const usePoolTable = ({
           />
         ),
         cell: ({ row }) => {
-          const rewardVault = rewardVaults?.find(
+          const rewardVault = rewardVaultAddresses?.find(
             (rv) => rv.tokenAddress === row.original.address,
           );
           const isWhitelistedVault: boolean = getValidVaultAddress(

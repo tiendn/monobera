@@ -7,8 +7,8 @@ import { Icons } from "@bera/ui/icons";
 
 export const poolTypeLabels: Record<any, string> = {
   [GqlPoolType.ComposableStable]: "Stable",
-  [GqlPoolType.MetaStable]: "Meta Stable",
-  [GqlPoolType.Weighted]: "Weighted",
+
+  [GqlPoolType.Weighted]: "Weighted", // FIXME rename to Standard?
 };
 
 export const PoolSummary = ({

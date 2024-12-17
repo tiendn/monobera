@@ -23,3 +23,4 @@ export { useValidatorQueuedRewardAllocation } from "./hooks/useValidatorQueuedRe
 export { useValidatorByOperator } from "./hooks/useValidatorByOperator";
 export { useValidatorQueuedOperatorAddress } from "./hooks/useValidatorQueuedOperatorAddress";
 export { useValidatorOperatorAddress } from "./hooks/useValidatorOperatorAddress";
+export { useRewardVaultsDynamicData } from "./hooks/useRewardVaultsDynamicData";
