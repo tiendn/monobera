@@ -72,15 +72,13 @@ export const ValidatorOverview = ({
     return;
   });
 
-  let valSignedRanking = -1;
-
-  allValidatorBlockData?.blockStatsByValidators?.find((v, index: number) => {
-    if (v.validator.id.toLowerCase() === validator.id.toLowerCase()) {
-      valSignedRanking = index + 1;
-      return true;
-    }
-    return;
-  });
+  const valSignedRanking =
+    allValidatorBlockData?.blockStatsByValidators?.findIndex((v) => {
+      if (v.validator.id.toLowerCase() === validator.id.toLowerCase()) {
+        return true;
+      }
+      return false;
+    }) ?? -1;
 
   const activeIncentivesTokens = activeIncentivesArray?.filter(
     (incentive, index, array) =>
@@ -152,13 +150,13 @@ export const ValidatorOverview = ({
                     <span className="text-2xl font-semibold">
                       {valSignedRanking === -1
                         ? "Unranked"
-                        : `${valSignedRanking} of ${totalValidators}`}
+                        : `${valSignedRanking + 1} of ${totalValidators}`}
                     </span>
                   )}
                   <Icons.cube className="absolute right-0 h-16 w-16 self-center text-muted" />
                 </div>
 
-                {isLoading ? (
+                {isLoading || isLoadingAllValidatorBlockData ? (
                   <Skeleton className="mt-1 h-4 w-full" />
                 ) : (
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">

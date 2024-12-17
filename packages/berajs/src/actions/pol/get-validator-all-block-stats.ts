@@ -29,9 +29,16 @@ export const getValidatorAllBlockStats = async ({
       },
     });
 
-    return result.data;
+    return {
+      ...result.data,
+      blockStatsByValidators: result.data.blockStatsByValidators.toSorted(
+        (a, b) => {
+          return Number(b.blockCount) - Number(a.blockCount);
+        },
+      ),
+    };
   } catch (e) {
     console.error("getValidatorAllBlockStats:", e);
-    return undefined;
+    throw e;
   }
 };

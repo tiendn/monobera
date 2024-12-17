@@ -17,9 +17,10 @@ export const usePollValidatorAllBlockStats = (
   >(
     QUERY_KEY,
     async () => {
+      const HOURS = 60 * 60;
       return await getValidatorAllBlockStats({
         config,
-        timestamp: Math.floor(Date.now() - 60 * 120 * 1000) * 1000, // 2 hours ago to get the latest timestamp from an hour ago
+        timestamp: Math.floor(Date.now() / HOURS) * HOURS,
       });
     },
     {
