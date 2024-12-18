@@ -140,19 +140,37 @@ export const ProposalTimeline = ({
           });
         } else if (proposal.status === ProposalStatus.Executed) {
           steps.push({
+            title: "Queue Ended",
+            date: proposal.queueEnd,
+            isActive: false,
+          });
+          steps.push({
             title: "Proposal Executed",
             date: proposal.executedAt,
             isActive: proposal.status === ProposalStatus.Executed,
             bulletClassName: "bg-success-foreground",
           });
-        } else if (
-          proposal.status === ProposalStatus.InQueue ||
-          proposal.status === ProposalStatus.PendingExecution
-        ) {
+        } else if (proposal.status === ProposalStatus.InQueue) {
+          steps.push({
+            title: "Queue Ending",
+            date: proposal.queueEnd,
+            isActive: false,
+          });
           steps.push({
             title: "Proposal Executable",
             date: proposal.queueEnd,
-            isActive: proposal.status === ProposalStatus.PendingExecution,
+            isActive: false,
+          });
+        } else if (proposal.status === ProposalStatus.PendingExecution) {
+          steps.push({
+            title: "Queue Ended",
+            date: proposal.queueEnd,
+            isActive: false,
+          });
+          steps.push({
+            title: "Proposal Executable",
+            date: proposal.queueEnd,
+            isActive: true,
           });
         }
       }
