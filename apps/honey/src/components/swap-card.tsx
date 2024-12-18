@@ -57,14 +57,12 @@ export function SwapCard() {
   } = usePsm();
 
   const resetAmounts = () => {
-    const newFromAmounts: Record<Address, string> = {};
-    const newToAmounts: Record<Address, string> = {};
-    Object.keys(fromAmount).forEach((key) => {
-      newFromAmounts[key as Address] = "0";
-    });
-    Object.keys(toAmount).forEach((key) => {
-      newToAmounts[key as Address] = "0";
-    });
+    const newFromAmounts: Record<Address, string | undefined> = {};
+    const newToAmounts: Record<Address, string | undefined> = {};
+    for (const key in fromAmount) {
+      newFromAmounts[key as Address] = undefined;
+      newToAmounts[key as Address] = undefined;
+    }
     setFromAmount(newFromAmounts);
     setToAmount(newToAmounts);
   };
@@ -80,7 +78,7 @@ export function SwapCard() {
               <Skeleton className="absolute right-6 top-5 h-6 w-40" />
             ) : (
               <div className="absolute right-6 top-5 text-base font-medium text-muted-foreground">
-                Static fee of <FormattedNumber value={fee ?? 0} percent />
+                Static fee of <FormattedNumber value={fee ?? 0} />%
               </div>
             )}
           </CardTitle>
@@ -283,7 +281,9 @@ export function SwapCard() {
                   </AlertDescription>
                 </div>
               </Alert>
-            ) : null}
+            ) : (
+              <></>
+            )}
             {!isReady ? (
               <ConnectButton className="w-full" />
             ) : needsApproval.length > 0 &&
