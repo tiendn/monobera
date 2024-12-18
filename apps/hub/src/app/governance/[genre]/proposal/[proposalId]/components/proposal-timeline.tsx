@@ -1,4 +1,3 @@
-import React from "react";
 import { useBlockToTimestamp } from "@bera/berajs";
 import { cn } from "@bera/ui";
 import {
@@ -6,7 +5,7 @@ import {
   ProposalWithVotesFragment,
 } from "@bera/graphql/governance";
 
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   month: "short",
   day: "numeric",
@@ -14,37 +13,20 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   minute: "numeric",
 });
 
-type BaseStepType = {
-  title: string;
-  isActive: boolean;
-  bulletClassName?: string;
-};
-
-type StepWithDate = BaseStepType & {
-  date: number | Date;
-  block?: never;
-};
-
-type StepWithBlock = BaseStepType & {
-  block: number | bigint | string;
-  date?: never;
-};
-
-type StepProps = StepWithDate | StepWithBlock;
-
-const TimelineStep: React.FC<StepProps> = ({
+const Step = ({
   title,
   date,
   isActive,
   block,
   bulletClassName,
+}: {
+  title: string;
+  date?: number | Date;
+  isActive: boolean;
+  block?: number | bigint | string;
+  bulletClassName?: string;
 }) => {
-  const timestamp = block ? useBlockToTimestamp(block) : date;
-  const formattedDate = timestamp
-    ? DATE_FORMATTER.format(
-        timestamp instanceof Date ? timestamp : timestamp * 1000,
-      )
-    : "--";
+  const d = block ? useBlockToTimestamp(block) : date;
 
   return (
     <div className="flex gap-2 items-center pb-16 last:pb-6 group/step">
@@ -60,175 +42,128 @@ const TimelineStep: React.FC<StepProps> = ({
       </div>
       <div className="h-4">
         <h3 className="leading-none text-primary mb-1">{title}</h3>
-        <p className="text-xs text-muted-foreground">{formattedDate}</p>
+        <p className="text-xs text-muted-foreground">
+          {d ? dateFormatter.format(d instanceof Date ? d : d * 1000) : "--"}
+        </p>
       </div>
     </div>
   );
 };
+export const ProposalTimeline = ({
+  proposal,
+}: { proposal: ProposalWithVotesFragment }) => {
+  const steps: ({
+    title: string;
+    isActive: boolean;
+    bulletClassName?: string;
+  } & (
+    | {
+        date: number | Date;
+      }
+    | {
+        block: number | bigint | string;
+      }
+  ))[] = [
+    {
+      title: "Initiated",
+      date: proposal.createdAt,
+      block: proposal.createdAtBlock,
+      isActive: proposal.status === ProposalStatus.Pending,
+    },
+  ];
 
-const getInitialStep = (proposal: ProposalWithVotesFragment): StepProps => ({
-  title: "Initiated",
-  date: proposal.createdAt,
-  block: proposal.createdAtBlock,
-  isActive: proposal.status === ProposalStatus.Pending,
-});
+  if (proposal.status === ProposalStatus.CanceledByUser) {
+    steps.push({
+      title: "Canceled by proposer",
+      date: proposal.canceledAt,
+      isActive: true,
+      bulletClassName: "bg-destructive-foreground",
+    });
+  } else {
+    steps.push({
+      title: "Voting Period Begins",
+      block: proposal.voteStartBlock ?? 0,
+      isActive: proposal.status === ProposalStatus.Active,
+    });
 
-const getCanceledStep = (proposal: ProposalWithVotesFragment): StepProps => ({
-  title: "Canceled by proposer",
-  date: proposal.canceledAt,
-  isActive: true,
-  bulletClassName: "bg-destructive-foreground",
-});
-
-const getVotingSteps = (proposal: ProposalWithVotesFragment): StepProps[] => {
-  const initialVotingStep: StepProps = {
-    title: "Voting Period Started",
-    block: proposal.voteStartBlock ?? 0,
-    isActive: proposal.status === ProposalStatus.Active,
-  };
-
-  const votingSteps: StepProps[] = [initialVotingStep];
-
-  switch (proposal.status) {
-    case ProposalStatus.Active:
-    case ProposalStatus.Pending:
-      votingSteps.push({
+    if (proposal.status === ProposalStatus.Active) {
+      steps.push({
         title: "Voting Period Ends",
         block: proposal.voteEndBlock,
         isActive: false,
       });
-      break;
-
-    case ProposalStatus.Defeated:
-    case ProposalStatus.QuorumNotReached:
-      votingSteps.push({
+    } else if (
+      proposal.status === ProposalStatus.Defeated ||
+      proposal.status === ProposalStatus.QuorumNotReached
+    ) {
+      steps.push({
         title: "Proposal Defeated",
         bulletClassName: "bg-destructive-foreground",
         block: proposal.voteEndBlock,
         isActive: true,
       });
-      break;
-    case ProposalStatus.Executed:
+    } else if (proposal.status === ProposalStatus.Pending) {
+      steps.push({
+        title: "Voting Period Ends",
+        block: proposal.voteEndBlock,
+        isActive: false,
+      });
+    } else {
       if (proposal.succeededAt) {
-        votingSteps.push({
+        steps.push({
           title: "Proposal Passed",
           date: proposal.succeededAt,
-          bulletClassName: "bg-success-foreground",
-          isActive: false,
+          isActive: proposal.status === ProposalStatus.PendingQueue,
         });
       } else {
-        votingSteps.push({
-          title: "Voting Period Ended",
+        steps.push({
+          title: "Voting Period Ends",
           block: proposal.voteEndBlock,
-          bulletClassName: "bg-success-foreground",
-          isActive: false,
-        });
-      }
-      break;
-    default:
-      if (proposal.succeededAt) {
-        votingSteps.push({
-          title: "Proposal Passed",
-          date: proposal.succeededAt,
           bulletClassName: "bg-success-foreground",
           isActive: proposal.status === ProposalStatus.PendingQueue,
         });
-        break;
       }
 
-      votingSteps.push({
-        title: "Voting Period Ended",
-        block: proposal.voteEndBlock,
-        bulletClassName: "bg-success-foreground",
-        isActive: proposal.status === ProposalStatus.PendingQueue,
-      });
-  }
+      if (proposal.status !== ProposalStatus.PendingQueue) {
+        steps.push({
+          title: "Proposal Queued",
+          date: proposal.queueStart,
+          isActive: proposal.status === ProposalStatus.InQueue,
+        });
 
-  return votingSteps;
-};
-
-const getExecutionSteps = (
-  proposal: ProposalWithVotesFragment,
-): StepProps[] => {
-  const steps: StepProps[] = [];
-
-  switch (proposal.status) {
-    case ProposalStatus.CanceledByGuardian:
-      steps.push({
-        title: "Canceled by guardian",
-        date: proposal.canceledAt,
-        isActive: true,
-        bulletClassName: "bg-destructive-foreground",
-      });
-      break;
-    case ProposalStatus.InQueue:
-      steps.push({
-        title: "Proposal Queued",
-        date: proposal.queueStart,
-        isActive: true,
-      });
-      steps.push({
-        title: "Proposal Executable",
-        date: proposal.queueEnd,
-        isActive: false,
-      });
-      break;
-    case ProposalStatus.PendingExecution:
-      steps.push({
-        title: "Proposal Queued",
-        date: proposal.queueStart,
-        isActive: false,
-      });
-      steps.push({
-        title: "Proposal Executable",
-        date: proposal.queueEnd,
-        isActive: true,
-      });
-      break;
-    case ProposalStatus.Executed:
-      steps.push({
-        title: "Proposal Queued",
-        date: proposal.queueStart,
-        isActive: false,
-      });
-      steps.push({
-        title: "Queue Ended",
-        date: proposal.queueEnd,
-        isActive: false,
-      });
-      steps.push({
-        title: "Proposal Executed",
-        date: proposal.executedAt,
-        isActive: true,
-        bulletClassName: "bg-success-foreground",
-      });
-      break;
-  }
-
-  return steps;
-};
-
-export const ProposalTimeline: React.FC<{
-  proposal: ProposalWithVotesFragment;
-}> = ({ proposal }) => {
-  const steps = [getInitialStep(proposal)];
-
-  switch (proposal.status) {
-    case ProposalStatus.CanceledByUser:
-      steps.push(getCanceledStep(proposal));
-      break;
-    default:
-      steps.push(...getVotingSteps(proposal));
-      steps.push(...getExecutionSteps(proposal));
+        if (proposal.status === ProposalStatus.CanceledByGuardian) {
+          steps.push({
+            title: "Canceled by guardian",
+            date: proposal.canceledAt,
+            isActive: true,
+            bulletClassName: "bg-destructive-foreground",
+          });
+        } else if (proposal.status === ProposalStatus.Executed) {
+          steps.push({
+            title: "Proposal Executed",
+            date: proposal.executedAt,
+            isActive: proposal.status === ProposalStatus.Executed,
+            bulletClassName: "bg-success-foreground",
+          });
+        } else if (
+          proposal.status === ProposalStatus.InQueue ||
+          proposal.status === ProposalStatus.PendingExecution
+        ) {
+          steps.push({
+            title: "Proposal Executable",
+            date: proposal.queueEnd,
+            isActive: proposal.status === ProposalStatus.PendingExecution,
+          });
+        }
+      }
+    }
   }
 
   return (
-    <div className="gap-4 p-5 rounded-sm border border-border relative">
+    <div className="gap-4 p-5 rounded-sm border border-border relative   ">
       {steps.map((step) => (
-        <TimelineStep key={step.title} {...step} />
+        <Step key={step.title} {...step} />
       ))}
     </div>
   );
 };
-
-export default ProposalTimeline;
