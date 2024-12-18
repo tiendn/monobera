@@ -37,7 +37,7 @@ const VALIDATOR_COLUMN: ColumnDef<ApiValidatorFragment> = {
 };
 
 const GLOBAL_VOTING_POWER_COLUMN: ColumnDef<ApiValidatorFragment> = {
-  header: "BGT Delegated",
+  header: "BGT Boosts",
   cell: ({ row }) => (
     <div className="w-full text-start">
       <FormattedNumber

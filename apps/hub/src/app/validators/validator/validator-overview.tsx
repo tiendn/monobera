@@ -1,9 +1,7 @@
 import {
   useAllValidators,
   usePollValidatorAllBlockStats,
-  usePollValidatorBlockStats,
   useTokenHoneyPrices,
-  type Token,
 } from "@bera/berajs";
 import { FormattedNumber, Tooltip } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
@@ -11,11 +9,10 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { type Address } from "viem";
-import { useBlockNumber } from "wagmi";
-import { type ActiveIncentiveWithVault } from "~/types/validators";
-// import Uptime from "../components/charts/validator-uptime";
 import { UserDelegation } from "./user-delegation";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
+import { useEffect, useState } from "react";
+import { isSameAddress } from "@berachain-foundation/berancer-sdk";
 
 export const ValidatorDataCard = ({
   title,
@@ -46,13 +43,19 @@ export const ValidatorOverview = ({
     (rv) => rv.receivingVault?.activeIncentives,
   );
 
-  const { data: totalBlocks = 0 } = useBlockNumber();
-  const { data, isLoading } = usePollValidatorBlockStats(
-    validator.id as Address,
-  );
-
-  const blocksSigned =
-    data?.blockStatsByValidators?.[0]?.allTimeBlockCount ?? 0;
+  const [rank, setRank] = useState<{
+    validatorRank: number;
+    totalValidators: number;
+    blockSigningRank: number;
+    blocksSigned: number;
+    totalBlocks: number;
+  }>({
+    validatorRank: -1,
+    totalValidators: 0,
+    blockSigningRank: -1,
+    blocksSigned: 0,
+    totalBlocks: 0,
+  });
 
   const {
     data: allValidatorBlockData,
@@ -62,23 +65,40 @@ export const ValidatorOverview = ({
   const { data: allValidators, isLoading: isLoadingValidators } =
     useAllValidators();
 
-  const totalValidators = allValidators?.validators?.length ?? 0;
-  let valStakedRanking = -1;
-  allValidators?.validators?.find((v, index: number) => {
-    if (v.id === validator.id.toLowerCase()) {
-      valStakedRanking = index + 1;
-      return true;
-    }
-    return;
-  });
+  useEffect(() => {
+    const totalValidators = allValidators?.validators?.length ?? 0;
+    const valStakedRanking = allValidators?.validators?.findIndex(
+      (v) => v.id === validator.id.toLowerCase(),
+    );
 
-  const valSignedRanking =
-    allValidatorBlockData?.blockStatsByValidators?.findIndex((v) => {
-      if (v.validator.id.toLowerCase() === validator.id.toLowerCase()) {
-        return true;
-      }
-      return false;
-    }) ?? -1;
+    const blocksSigned = allValidatorBlockData?.blockStatsByValidators?.reduce(
+      (acc, v, idx) => {
+        if (isSameAddress(v.validator.id, validator.id as Address)) {
+          return {
+            ...acc,
+            rank: idx,
+            blocksSigned: Number(v.blockCount),
+            totalBlocks: acc.totalBlocks + Number(v.blockCount),
+          };
+        }
+
+        return { ...acc, totalBlocks: acc.totalBlocks + Number(v.blockCount) };
+      },
+      {
+        rank: -1,
+        blocksSigned: 0,
+        totalBlocks: 0,
+      },
+    );
+
+    setRank({
+      validatorRank: valStakedRanking ?? -1,
+      totalValidators,
+      blockSigningRank: blocksSigned?.rank ?? -1,
+      blocksSigned: blocksSigned?.blocksSigned ?? 0,
+      totalBlocks: blocksSigned?.totalBlocks ?? 0,
+    });
+  }, [validator.id, allValidatorBlockData, allValidators]);
 
   const activeIncentivesTokens = activeIncentivesArray?.filter(
     (incentive, index, array) =>
@@ -120,21 +140,19 @@ export const ValidatorOverview = ({
             value={
               <div className="flex flex-col items-start gap-1">
                 <div className="relative flex w-full flex-row justify-between">
-                  {isLoadingValidators ? (
+                  {isLoadingValidators || rank.validatorRank === -1 ? (
                     <Skeleton className="mt-1 h-8 w-40" />
                   ) : (
                     <span className="text-2xl font-semibold">
-                      {valStakedRanking === -1
+                      {rank.validatorRank === -1
                         ? "Unranked"
-                        : `${valStakedRanking} of ${totalValidators}`}
+                        : `${rank.validatorRank + 1} of ${
+                            rank.totalValidators
+                          }`}
                     </span>
                   )}
                   <Icons.logo className="absolute right-0 h-16 w-16 self-center text-muted" />
                 </div>
-                {/* TODO */}
-                {/* <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
-                  {"+14 from last month"}
-                </span> */}
               </div>
             }
           />
@@ -144,31 +162,34 @@ export const ValidatorOverview = ({
             value={
               <div className="flex flex-col items-start gap-1">
                 <div className="relative flex w-full flex-row justify-between">
-                  {isLoading || isLoadingValidators ? (
+                  {isLoadingValidators ? (
                     <Skeleton className="mt-1 h-8 w-44" />
                   ) : (
                     <span className="text-2xl font-semibold">
-                      {valSignedRanking === -1
+                      {rank.blockSigningRank === -1
                         ? "Unranked"
-                        : `${valSignedRanking + 1} of ${totalValidators}`}
+                        : `${rank.blockSigningRank + 1} of ${
+                            rank.totalValidators
+                          }`}
                     </span>
                   )}
                   <Icons.cube className="absolute right-0 h-16 w-16 self-center text-muted" />
                 </div>
 
-                {isLoading || isLoadingAllValidatorBlockData ? (
+                {isLoadingAllValidatorBlockData ||
+                rank.blockSigningRank === -1 ? (
                   <Skeleton className="mt-1 h-4 w-full" />
                 ) : (
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
-                    All time:{" "}
+                    Last day:{" "}
                     <FormattedNumber
-                      value={blocksSigned}
+                      value={rank.blocksSigned}
                       compact
                       showIsSmallerThanMin
                     />{" "}
                     /{" "}
                     <FormattedNumber
-                      value={Number(totalBlocks)}
+                      value={rank.totalBlocks}
                       compact
                       showIsSmallerThanMin
                     />

@@ -109,7 +109,7 @@ export default function ValidatorInput({
             <div className="flex items-center gap-1">
               {/* <ValidatorIcon className="h-6 w-6" address={validatorAddress} /> */}
               <Tooltip
-                text="Amount of BGT delegated to this validator"
+                text="Amount of BGT boosted to this validator"
                 className="h-3 w-3"
               />
 

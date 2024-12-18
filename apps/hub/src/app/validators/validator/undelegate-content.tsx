@@ -95,7 +95,7 @@ export const UnDelegateContent = ({
         />
 
         {isConnected && Number(amount) > Number(bgtDelegated) && (
-          <Alert variant="destructive">Insufficient BGT delegated</Alert>
+          <Alert variant="destructive">Insufficient boosts</Alert>
         )}
 
         <ActionButton>

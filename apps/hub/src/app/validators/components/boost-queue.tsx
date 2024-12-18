@@ -313,8 +313,9 @@ const ConfirmationCard = ({
               showIsSmallerThanMin
               value={userValidator.type === "boost" ? amount : -Number(amount)}
               compact
-            />{" "}
-            BGT
+              colored
+              symbol="BGT"
+            />
           </div>
         </div>
         <div>

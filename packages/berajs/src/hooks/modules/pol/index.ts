@@ -5,7 +5,6 @@ export { usePollValidatorBgtBoost } from "./hooks/poll-validator-bgt-boost";
 export { usePollValidatorBgtStaked } from "./hooks/poll-validator-bgt-staked";
 
 export { usePollValidatorBlockRewardStats } from "./hooks/poll-validator-block-rewards-stats";
-export { usePollValidatorBlockStats } from "./hooks/poll-validator-block-stats";
 export { useAllValidators } from "./hooks/useAllValidators";
 export { usePollValidatorTokenRewards } from "./hooks/poll-validator-token-rewards";
 export { useUserActiveValidators } from "./hooks/useUserActiveValidators";
