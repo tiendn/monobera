@@ -6,13 +6,14 @@ import {
 } from "@bera/graphql/pol/subgraph";
 
 import { type BeraConfig } from "~/types";
+const DAYS = 24 * 60 * 60 * 1000;
 
 export const getValidatorAllBlockStats = async ({
   config,
-  timestamp,
+  timestamp = (Math.floor(Date.now() / DAYS) - 1) * DAYS,
 }: {
   config: BeraConfig;
-  timestamp: number;
+  timestamp?: number;
 }): Promise<GetAllValidatorBlockCountQuery | undefined> => {
   try {
     if (!config.subgraphs?.polSubgraph) {
@@ -25,7 +26,7 @@ export const getValidatorAllBlockStats = async ({
     >({
       query: GetAllValidatorBlockCount,
       variables: {
-        timestamp: timestamp.toString(),
+        timestamp: (timestamp * 1000).toString(),
       },
     });
 

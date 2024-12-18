@@ -160,7 +160,18 @@ export const ValidatorOverview = ({
                   <Skeleton className="mt-1 h-4 w-full" />
                 ) : (
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
-                    {`Signed: ${blocksSigned} / ${Number(totalBlocks)}`}
+                    All time:{" "}
+                    <FormattedNumber
+                      value={blocksSigned}
+                      compact
+                      showIsSmallerThanMin
+                    />{" "}
+                    /{" "}
+                    <FormattedNumber
+                      value={Number(totalBlocks)}
+                      compact
+                      showIsSmallerThanMin
+                    />
                   </span>
                 )}
               </div>

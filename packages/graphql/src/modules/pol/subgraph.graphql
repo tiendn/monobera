@@ -132,9 +132,9 @@ query GetValidatorBlockStats($address: String = "") {
 
 query GetAllValidatorBlockCount($timestamp: Timestamp) {
   blockStatsByValidators(
-    interval: hour
+    interval: day
     first: 1000
-    where: { timestamp_gte: $timestamp }
+    where: { timestamp: $timestamp }
   ) {
     allTimeBlockCount
     blockCount
