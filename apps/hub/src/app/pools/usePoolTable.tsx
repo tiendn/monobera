@@ -91,9 +91,12 @@ export const usePoolTable = ({
         cell: ({ row }) => {
           const rewardVault =
             rewardVaults?.[row.original.address.toLowerCase()];
-
           const isWhitelistedVault = rewardVault
-            ? whitelistStatusMap.has(rewardVault)
+            ? whitelistedVaults?.some(
+                (vault) =>
+                  vault.address.toLowerCase() === rewardVault.toLowerCase() &&
+                  vault.isWhitelisted,
+              ) ?? false
             : false;
 
           return (
