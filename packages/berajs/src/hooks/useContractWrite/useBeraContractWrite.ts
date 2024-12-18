@@ -52,14 +52,21 @@ const useBeraContractWrite = ({
       dispatch({ type: ActionEnum.LOADING });
       onLoading?.();
       let receipt: Awaited<ReturnType<typeof sendTransactionAsync>>;
-      if (!publicClient) return;
+      if (!publicClient || !account) return;
       try {
+        // Get the next nonce for the account
+        const nonce = await publicClient.getTransactionCount({
+          address: account,
+          blockTag: "pending",
+        });
+
         if (data) {
           receipt = await sendTransactionAsync({
             data,
             to: address,
             value,
             gas: gasLimit,
+            nonce: nonce + 1,
           });
         } else {
           // Run simulation and gas estimation in parallel
@@ -87,6 +94,7 @@ const useBeraContractWrite = ({
             ...request,
             gas:
               increaseByPercentage(wagmiPubEstimateContractGas, 10) ?? gasLimit,
+            nonce: nonce + 1,
           });
         }
 
