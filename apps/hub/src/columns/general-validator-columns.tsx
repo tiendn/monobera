@@ -140,11 +140,11 @@ const CLAIMABLE_BRIBES_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
   enableSorting: false,
 };
 
-const USER_STAKED_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
+const USER_BOOSTED_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
   header: ({ column }) => (
     <DataTableColumnHeader
       column={column}
-      title="User Staked"
+      title="Boosts"
       className="whitespace-nowrap"
     />
   ),
@@ -161,14 +161,14 @@ const USER_STAKED_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
   sortingFn: (a, b) =>
     Number(a.original.userBoosts.activeBoosts) -
     Number(b.original.userBoosts.activeBoosts),
-  enableSorting: false,
+  enableSorting: true,
 };
 
-const USER_QUEUED_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
+const USER_QUEUED_BOOSTS_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
   header: ({ column }) => (
     <DataTableColumnHeader
       column={column}
-      title="User Queued"
+      title="Queued Boosts"
       className="whitespace-nowrap"
     />
   ),
@@ -184,7 +184,31 @@ const USER_QUEUED_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
   sortingFn: (a, b) =>
     Number(a.original.userBoosts?.queuedBoosts) -
     Number(b.original.userBoosts?.queuedBoosts),
-  enableSorting: false,
+  enableSorting: true,
+};
+
+const USER_QUEUED_DROP_BOOSTS_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
+  header: ({ column }) => (
+    <DataTableColumnHeader
+      column={column}
+      title="Queued Unboosts"
+      className="whitespace-nowrap"
+    />
+  ),
+  cell: ({ row }) => {
+    return (
+      <FormattedNumber
+        value={-(row.original.userBoosts?.queuedUnboosts ?? 0)}
+        symbol="BGT"
+        colored
+      />
+    );
+  },
+  accessorKey: "userBoosts.queuedUnboosts",
+  sortingFn: (a, b) =>
+    Number(a.original.userBoosts?.queuedUnboosts) -
+    Number(b.original.userBoosts?.queuedUnboosts),
+  enableSorting: true,
 };
 
 export const getGaugeValidatorColumns = (rewardVault: ApiVaultFragment) => {
@@ -316,16 +340,16 @@ export const generalValidatorColumns: ColumnDef<ApiValidatorFragment>[] = [
 export const user_general_validator_columns: ColumnDef<ValidatorWithUserBoost>[] =
   [
     VALIDATOR_COLUMN as ColumnDef<ValidatorWithUserBoost>,
-    USER_STAKED_COLUMN,
-    USER_QUEUED_COLUMN,
-    GLOBAL_VOTING_POWER_COLUMN as ColumnDef<ValidatorWithUserBoost>,
+    USER_BOOSTED_COLUMN,
+    USER_QUEUED_BOOSTS_COLUMN,
+    USER_QUEUED_DROP_BOOSTS_COLUMN,
     { ...APY_COLUMN, enableSorting: true } as ColumnDef<ValidatorWithUserBoost>,
     BRIBES_COLUMN,
   ];
 
 export const user_incentives_columns: ColumnDef<ValidatorWithUserBoost>[] = [
   VALIDATOR_COLUMN as ColumnDef<ValidatorWithUserBoost>,
-  USER_STAKED_COLUMN,
+  USER_BOOSTED_COLUMN,
   APY_COLUMN as ColumnDef<ValidatorWithUserBoost>,
   CLAIMABLE_BRIBES_COLUMN,
 ];

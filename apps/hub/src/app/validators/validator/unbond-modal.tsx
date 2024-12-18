@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UserValidator, useUserBoostsOnValidator } from "@bera/berajs";
+import { useUserBoostsOnValidator } from "@bera/berajs";
 import { Button } from "@bera/ui/button";
 import { Dialog, DialogContent } from "@bera/ui/dialog";
 

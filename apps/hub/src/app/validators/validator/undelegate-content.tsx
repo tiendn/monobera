@@ -6,6 +6,7 @@ import {
   type UserValidator,
   useBeraJs,
   useUserActiveValidators,
+  useUserBoostsOnValidator,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
 import { ActionButton, useTxn } from "@bera/shared-ui";
@@ -32,7 +33,10 @@ export const UnDelegateContent = ({
   const t = theme === "system" ? systemTheme : theme;
 
   const [amount, setAmount] = React.useState<string | undefined>(undefined);
-  const { data, refresh } = useUserActiveValidators();
+
+  const { data: userBoosts, refresh } = useUserBoostsOnValidator({
+    pubkey: validator?.pubkey as Address,
+  });
 
   const {
     write: unbondWrite,
@@ -51,13 +55,9 @@ export const UnDelegateContent = ({
     },
   });
 
-  const selectedValidator = data?.find(
-    (v) => v.pubkey.toLowerCase() === validator.pubkey.toLowerCase(),
-  );
-
-  const bgtDelegated = selectedValidator
-    ? selectedValidator.userBoosts.activeBoosts
-    : "0";
+  const bgtDelegated = userBoosts
+    ? Number(userBoosts?.activeBoosts) - Number(userBoosts.queuedUnboosts)
+    : 0;
 
   return (
     <div>
