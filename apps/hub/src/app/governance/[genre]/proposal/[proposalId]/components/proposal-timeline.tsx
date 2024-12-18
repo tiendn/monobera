@@ -95,7 +95,7 @@ export const ProposalTimeline = ({
     });
   } else {
     steps.push({
-      title: "Voting Period Begins",
+      title: "Voting Period Begun",
       block: proposal.voteStartBlock ?? 0,
       isActive: status === ProposalStatus.Active,
     });
@@ -125,7 +125,7 @@ export const ProposalTimeline = ({
     } else {
       if (proposal.succeededAt) {
         steps.push({
-          title: "Proposal Passed",
+          title: "Proposal Queueable",
           date: proposal.succeededAt,
           isActive: status === ProposalStatus.PendingQueue,
         });
