@@ -1,19 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  useUserActiveValidators,
-  useUserBoostsOnValidator,
-} from "@bera/berajs";
+import { useEffect, useState } from "react";
+import { useUserBoostsOnValidator } from "@bera/berajs";
 import { FormattedNumber, Spinner } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Address } from "viem";
 
 import { BoostQueue } from "../components/boost-queue";
-import { DelegateModal } from "./delegate-modal";
-import { UnbondModal } from "./unbond-modal";
+import { BoostModal } from "./boost-modal";
+import { UnbondModal } from "./unboost-modal";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 
-export const UserDelegation = ({
+export const UserBoosts = ({
   validator,
 }: { validator: ApiValidatorFragment | undefined }) => {
   const valPubKey = validator?.pubkey as Address;
@@ -48,7 +45,7 @@ export const UserDelegation = ({
               setIsValidatorDataLoading={setIsValidatorDataLoading}
             />
           ) : null}
-          <DelegateModal
+          <BoostModal
             validator={valPubKey}
             setIsValidatorDataLoading={setIsValidatorDataLoading}
           />

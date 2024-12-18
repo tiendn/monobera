@@ -9,7 +9,7 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { type Address } from "viem";
-import { UserDelegation } from "./user-delegation";
+import { UserBoosts } from "./user-boosts";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 import { useEffect, useState } from "react";
 import { isSameAddress } from "@berachain-foundation/berancer-sdk";
@@ -232,7 +232,7 @@ export const ValidatorOverview = ({
         {/* TODO: Uptime need work on beaconkit to add */}
         {/* <Uptime address={validator.id} /> */}
       </div>
-      <UserDelegation validator={validator} />
+      <UserBoosts validator={validator} />
     </div>
   );
 };

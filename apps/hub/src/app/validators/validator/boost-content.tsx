@@ -3,71 +3,73 @@ import Image from "next/image";
 import {
   BGT_ABI,
   TransactionActionType,
-  type UserValidator,
   useBeraJs,
+  useBgtUnstakedBalance,
   useUserActiveValidators,
   useUserBoostsOnValidator,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
-import { ActionButton, useTxn } from "@bera/shared-ui";
+import { ActionButton, FormattedNumber, useTxn } from "@bera/shared-ui";
 import { Alert } from "@bera/ui/alert";
 import { Button } from "@bera/ui/button";
-import { useTheme } from "next-themes";
+import BigNumber from "bignumber.js";
 import { Address, parseUnits } from "viem";
 
 import ValidatorInput from "~/components/validator-input";
 import { DelegateEnum, ImageMapEnum } from "./types";
-import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 
-export const UnDelegateContent = ({
+export const DelegateContent = ({
   validator,
   setIsValidatorDataLoading,
   onSuccess,
 }: {
-  validator: ApiValidatorFragment;
+  validator?: Address;
   setIsValidatorDataLoading: (loading: boolean) => void;
   onSuccess?: () => void;
 }) => {
-  const { isConnected, account } = useBeraJs();
-  const { theme, systemTheme } = useTheme();
-  const t = theme === "system" ? systemTheme : theme;
+  const { isReady } = useBeraJs();
 
   const [amount, setAmount] = React.useState<string | undefined>(undefined);
+  const { refresh } = useUserActiveValidators();
 
-  const { data: userBoosts, refresh } = useUserBoostsOnValidator({
-    pubkey: validator?.pubkey as Address,
+  const { refresh: refreshUserBoosts } = useUserBoostsOnValidator({
+    pubkey: validator as Address,
   });
+  const { data: bgtBalance, refresh: refreshBalance } = useBgtUnstakedBalance();
+
+  const exceeding = BigNumber(amount ?? "0").gt(
+    bgtBalance ? bgtBalance.toString() : "0",
+  );
+
+  const disabled = exceeding || !amount || amount === "" || amount === "0";
 
   const {
-    write: unbondWrite,
-    isLoading: isUnbondLoading,
-    ModalPortal: UnBondModalPortal,
+    write,
+    isLoading: isDelegatingLoading,
+    ModalPortal,
   } = useTxn({
-    message: "Unbonding from Validator",
-    actionType: TransactionActionType.UNBONDING,
+    message: `Boosting ${Number(amount).toFixed(2)} BGT to Validator`,
+    actionType: TransactionActionType.DELEGATE,
     onSuccess: () => {
       setIsValidatorDataLoading(true);
       setTimeout(() => {
         refresh();
+        refreshUserBoosts();
+        refreshBalance();
         setIsValidatorDataLoading(false);
       }, 5000);
       onSuccess?.();
     },
   });
-
-  const bgtDelegated = userBoosts
-    ? Number(userBoosts?.activeBoosts) - Number(userBoosts.queuedUnboosts)
-    : 0;
-
   return (
-    <div>
-      {UnBondModalPortal}
-      <div className="flex flex-col gap-3">
+    <>
+      {ModalPortal}
+      <div className="mt-4 flex flex-col gap-3">
         <div className="text-lg font-semibold capitalize leading-7 text-foreground">
-          Unboost
+          Boost
         </div>
         <Image
-          src={ImageMapEnum.UNBOND.light}
+          src={ImageMapEnum.DELEGATE.light}
           alt="bera banner"
           width={452}
           height={175}
@@ -76,7 +78,7 @@ export const UnDelegateContent = ({
           loading="eager"
         />
         <Image
-          src={ImageMapEnum.UNBOND.dark}
+          src={ImageMapEnum.DELEGATE.dark}
           alt="bera banner"
           width={452}
           height={175}
@@ -85,46 +87,39 @@ export const UnDelegateContent = ({
           loading="eager"
         />
         <ValidatorInput
-          action={DelegateEnum.UNBOND}
+          action={DelegateEnum.DELEGATE}
           amount={amount}
           onAmountChange={setAmount}
-          validatorAddress={validator.pubkey as Address}
-          showDelegated
-          showSearch={false}
+          validatorAddress={validator}
+          showSearch={true}
+          showDelegated={false}
           unselectable
         />
 
-        {isConnected && Number(amount) > Number(bgtDelegated) && (
-          <Alert variant="destructive">Insufficient boosts</Alert>
+        {isReady && exceeding && (
+          <Alert variant="destructive">
+            This amount exceeds your total balance of{" "}
+            <FormattedNumber value={bgtBalance ?? "0"} symbol="BGT" />
+          </Alert>
         )}
 
         <ActionButton>
           <Button
             className="w-full"
-            disabled={
-              !account || // no account connected
-              !validator || // no validator selected
-              isUnbondLoading || // unbond action processing
-              Number(amount) > Number(bgtDelegated) ||
-              !amount ||
-              amount === ""
-            }
+            disabled={!validator || isDelegatingLoading || disabled}
             onClick={() =>
-              unbondWrite({
+              write({
                 address: bgtTokenAddress,
                 abi: BGT_ABI,
-                functionName: "queueDropBoost",
-                params: [
-                  validator.pubkey as Address,
-                  parseUnits(amount ?? "0", 18),
-                ],
+                functionName: "queueBoost",
+                params: [validator!, parseUnits(amount ?? "0", 18)],
               })
             }
           >
-            Unboost
+            Queue Boost
           </Button>
         </ActionButton>
       </div>
-    </div>
+    </>
   );
 };

@@ -1,38 +1,28 @@
 import { useState } from "react";
-import { useUserBoostsOnValidator } from "@bera/berajs";
 import { Button } from "@bera/ui/button";
 import { Dialog, DialogContent } from "@bera/ui/dialog";
-
-import { UnDelegateContent } from "./undelegate-content";
-import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 import { Address } from "viem";
 
-export const UnbondModal = ({
+import { DelegateContent } from "./boost-content";
+import { ActionButton } from "@bera/shared-ui";
+
+export const BoostModal = ({
   validator,
   setIsValidatorDataLoading,
 }: {
-  validator: ApiValidatorFragment | undefined;
+  validator: Address;
   setIsValidatorDataLoading: (loading: boolean) => void;
 }) => {
   const [open, setOpen] = useState(false);
 
-  const { data: userBoosts } = useUserBoostsOnValidator({
-    pubkey: validator?.pubkey as Address,
-  });
-
-  if (!validator) return null;
   return (
     <>
-      <Button
-        variant="ghost"
-        onClick={() => setOpen(true)}
-        disabled={Number(userBoosts?.activeBoosts) <= 0}
-      >
-        Unboost
-      </Button>
+      <ActionButton>
+        <Button onClick={() => setOpen(true)}>Boost</Button>
+      </ActionButton>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">
-          <UnDelegateContent
+          <DelegateContent
             onSuccess={() => {
               setOpen(false);
             }}
