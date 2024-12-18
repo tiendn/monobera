@@ -32,8 +32,13 @@ export const PoolSummary = ({
       />
       <div className="flex flex-col items-start justify-start gap-1">
         <div className="flex flex-row items-center justify-start gap-1">
-          <span className="w-fit max-w-[180px] truncate text-left text-sm font-semibold">
+          <span className="flex w-fit max-w-[180px] flex-row gap-1 truncate text-left text-sm font-semibold">
             {pool?.name}
+            {isWhitelistedVault && (
+              <div title="This rewards vault is whitelisted" className="pt-1">
+                <Icons.bgt className="h-4 w-4" />
+              </div>
+            )}
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -57,11 +62,6 @@ export const PoolSummary = ({
             >
               <span>Provided Liquidity</span>
             </Badge>
-          )}
-          {isWhitelistedVault && (
-            <div title="This rewards vault is whitelisted">
-              <Icons.bgt className="h-4 w-4" />
-            </div>
           )}
         </div>
       </div>
