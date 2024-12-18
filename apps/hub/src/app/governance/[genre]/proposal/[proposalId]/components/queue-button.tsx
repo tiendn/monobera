@@ -24,7 +24,12 @@ export const QueueButton = ({
     message: "Queuing proposal",
     onSuccess: () => {
       setOpen(false);
-      refresh();
+      // Wait a few seconds for subgraph to update and then refresh
+      const timeoutId = setTimeout(() => {
+        refresh();
+      }, 3000);
+
+      return () => clearTimeout(timeoutId);
     },
   });
 

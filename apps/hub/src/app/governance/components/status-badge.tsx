@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Badge } from "@bera/ui/badge";
 import { formatTimeLeft, getBadgeColor, getTimeLeft } from "../helper";
-import { useBlockToTimestamp } from "@bera/berajs";
+import { useBlockToTimestamp, useProposalTimelockState } from "@bera/berajs";
 import { cn } from "@bera/ui";
 import {
   ProposalSelectionFragment,
   ProposalStatus,
 } from "@bera/graphql/governance";
+import { governanceTimelockAddress } from "@bera/config";
 
 export const statusMap: Record<ProposalStatus, string> = {
   [ProposalStatus.Active]: "Active",
@@ -28,6 +29,11 @@ export const StatusBadge = ({
   className,
 }: { proposal: ProposalSelectionFragment; className?: string }) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
+
+  const { data: timelockState } = useProposalTimelockState({
+    proposalTimelockId: proposal.timelock?.id,
+    timelockAddress: governanceTimelockAddress,
+  });
 
   const startTimestamp = useBlockToTimestamp(
     proposal.status === ProposalStatus.Pending
@@ -65,6 +71,14 @@ export const StatusBadge = ({
     return () => clearInterval(interval);
   }, [proposal.status, startTimestamp, endTimestamp]);
 
+  const status =
+    proposal.status === ProposalStatus.PendingExecution &&
+    proposal.queueEnd === null &&
+    proposal.queueStart === null &&
+    timelockState !== "ready"
+      ? ProposalStatus.InQueue
+      : proposal.status;
+
   return (
     <div
       className={cn(
@@ -73,10 +87,10 @@ export const StatusBadge = ({
       )}
     >
       <Badge
-        variant={getBadgeColor(proposal.status)}
+        variant={getBadgeColor(status)}
         className="mr-3 select-none rounded-xs px-2 py-1 text-sm leading-none font-semibold capitalize"
       >
-        {statusMap[proposal.status]}
+        {statusMap[status]}
       </Badge>
       {(proposal.status === ProposalStatus.Pending ||
         proposal.status === ProposalStatus.Active) &&

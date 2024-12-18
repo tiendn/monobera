@@ -12,6 +12,10 @@ const TimelockOperationState = {
   3: "done",
 } as const;
 
+/**
+ * Fetches the state of a proposal timelock
+ * @returns state of the proposal timelock (unset, waiting, ready, done)
+ */
 export const useProposalTimelockState = ({
   proposalTimelockId,
   timelockAddress,

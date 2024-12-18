@@ -9,6 +9,9 @@ fragment ProposalSelection on Proposal {
   unverifiedForumLink
   quorum
   succeededAt
+  timelock {
+    id
+  }
   pollResult {
     for
     forVotersCount
