@@ -5,19 +5,12 @@ import { usePublicClient } from "wagmi";
 import POLLING from "~/enum/polling";
 import { governanceTimelockAbi } from "../../../abi";
 
-enum OperationState {
-  Unset = 0,
-  Waiting = 1,
-  Ready = 2,
-  Done = 3,
-}
-
-const OperationStateMap: Record<OperationState, string> = {
-  [OperationState.Unset]: "unset",
-  [OperationState.Waiting]: "waiting",
-  [OperationState.Ready]: "ready",
-  [OperationState.Done]: "done",
-};
+const TimelockOperationState = {
+  0: "unset",
+  1: "waiting",
+  2: "ready",
+  3: "done",
+} as const;
 
 export const useProposalTimelockState = ({
   proposalTimelockId,
@@ -25,7 +18,9 @@ export const useProposalTimelockState = ({
 }: {
   proposalTimelockId: Address | undefined;
   timelockAddress: Address;
-}): SWRResponse<string> => {
+}): SWRResponse<
+  (typeof TimelockOperationState)[keyof typeof TimelockOperationState]
+> => {
   const publicClient = usePublicClient();
 
   const QUERY_KEY =
@@ -45,11 +40,9 @@ export const useProposalTimelockState = ({
         address: timelockAddress,
         functionName: "getOperationState",
         args: [proposalTimelockId!],
-      })) as OperationState;
+      })) as keyof typeof TimelockOperationState;
 
-      console.log({ snapshot, state: OperationStateMap[snapshot] });
-
-      return OperationStateMap[snapshot];
+      return TimelockOperationState[snapshot];
     },
     {
       refreshInterval: POLLING.SLOW,
