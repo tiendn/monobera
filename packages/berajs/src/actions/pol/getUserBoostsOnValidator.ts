@@ -10,6 +10,8 @@ export type UserBoostsOnValidator = {
   queueBoostStartBlock: number;
   queuedUnboosts: string;
   queueUnboostStartBlock: number;
+  hasPendingBoosts: boolean;
+  hasActiveBoosts: boolean;
 };
 
 export const getUserBoostsOnValidator = async ({
@@ -57,5 +59,8 @@ export const getUserBoostsOnValidator = async ({
     queuedUnboosts: formatEther(queuedUnboosts[1]),
     queueBoostStartBlock: queuedBoosts[0],
     queueUnboostStartBlock: queuedUnboosts[0],
+    hasPendingBoosts:
+      Number(queuedBoosts[1]) > 0 || Number(queuedUnboosts[1]) > 0,
+    hasActiveBoosts: Number(activeBoosts) > 0,
   };
 };

@@ -45,6 +45,10 @@ export const getUserActiveValidators = async ({
         queueBoostStartBlock: userDeposited?.queuedStartBlock,
         queuedUnboosts: userDeposited?.amountDropQueued,
         queueUnboostStartBlock: userDeposited?.dropQueuedStartBlock,
+        hasPendingBoosts:
+          Number(userDeposited?.amountQueued) > 0 ||
+          Number(userDeposited?.amountDropQueued) > 0,
+        hasActiveBoosts: Number(userDeposited?.amountDeposited) > 0,
       } satisfies UserBoostsOnValidator,
     } satisfies ValidatorWithUserBoost;
   });

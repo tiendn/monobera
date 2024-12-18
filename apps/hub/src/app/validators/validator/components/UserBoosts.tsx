@@ -9,6 +9,7 @@ import { BoostQueue } from "../../components/boost-queue";
 import { BoostModal } from "./BoostModal";
 import { UnbondModal } from "./UnboostModal";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
+import { QueueItem } from "./QueueItem";
 
 export const UserBoosts = ({
   validator,
@@ -55,9 +56,7 @@ export const UserBoosts = ({
         <Skeleton className="h-full w-full" />
       ) : userBoosts ? (
         <>
-          {Number(userBoosts?.activeBoosts) <= 0 &&
-          Number(userBoosts?.queuedBoosts) <= 0 &&
-          Number(userBoosts?.queuedUnboosts) <= 0 ? (
+          {!userBoosts.hasActiveBoosts && !userBoosts.hasPendingBoosts ? (
             <div className="flex h-full w-full items-center justify-center text-center text-sm font-medium leading-5 text-muted-foreground">
               You have no current or queued delegations
               <br />
@@ -67,20 +66,42 @@ export const UserBoosts = ({
             <>
               <div className="w-full">
                 <div className="font-medium leading-6">
-                  <div className="flex items-center gap-1">
-                    <FormattedNumber value={userBoosts?.activeBoosts ?? 0} />{" "}
-                    <Icons.bgt className="ml-1 h-4 w-4" />
-                    BGT
+                  <div className="flex items-center gap-2">
+                    <Icons.bgt className="ml-1 h-6 w-6" />
+                    <FormattedNumber
+                      value={userBoosts?.activeBoosts ?? 0}
+                      symbol="BGT"
+                    />{" "}
                   </div>
                 </div>
               </div>
-              <hr />
-              {Number(userBoosts?.queuedBoosts) > 0 ||
-              Number(userBoosts?.queuedUnboosts) > 0 ? (
-                <BoostQueue
-                  setIsValidatorDataLoading={setIsValidatorDataLoading}
-                  selectedValidator={valPubKey}
-                />
+              {userBoosts.hasPendingBoosts ? (
+                <>
+                  <hr />
+                  <h3 className="text-lg font-semibold">Queued</h3>
+                  {Number(userBoosts?.queuedBoosts) > 0 ? (
+                    <QueueItem
+                      amount={userBoosts?.queuedBoosts ?? "0"}
+                      startBlock={userBoosts?.queueBoostStartBlock ?? 0}
+                      valPubKey={valPubKey}
+                      isDropBoost={false}
+                      onSuccess={() => {
+                        refresh();
+                      }}
+                    />
+                  ) : null}
+                  {Number(userBoosts?.queuedUnboosts) > 0 ? (
+                    <QueueItem
+                      amount={userBoosts?.queuedUnboosts ?? "0"}
+                      startBlock={userBoosts?.queueUnboostStartBlock ?? 0}
+                      valPubKey={valPubKey}
+                      isDropBoost={true}
+                      onSuccess={() => {
+                        refresh();
+                      }}
+                    />
+                  ) : null}
+                </>
               ) : null}
             </>
           )}

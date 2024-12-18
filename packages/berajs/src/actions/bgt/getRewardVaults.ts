@@ -17,20 +17,6 @@ export interface GetGaugeData {
   };
 }
 
-/**
- * @deprecated use `GetVaultsQueryVariables['where']` instead
- */
-export interface GaugeFilter {
-  validatorId?: Address;
-  filterByProduct?: string[];
-  coinbase?: Address;
-  sortBy?: "allTimeBGTReceived" | "amountstaked" | "bgtInflationCapture";
-  sortOrder?: "asc" | "desc";
-  query?: string;
-  page?: number;
-  pageSize?: number;
-}
-
 export const getRewardVaults = async (
   config: BeraConfig,
   filter?: GetVaultsQueryVariables,
