@@ -3,12 +3,11 @@ import { bexApiGraphqlClient } from "@bera/graphql";
 import { GqlChain } from "@bera/graphql/dex/api";
 import {
   ApiValidatorFragment,
-  ApiVaultFragment,
   GlobalData,
   GlobalDataQuery,
   GlobalDataQueryVariables,
 } from "@bera/graphql/pol/api";
-import type { BeraConfig, RewardVaultIncentive, Validator } from "~/types";
+import type { BeraConfig } from "~/types";
 
 export interface GlobalInfo {
   bgtInfo: {

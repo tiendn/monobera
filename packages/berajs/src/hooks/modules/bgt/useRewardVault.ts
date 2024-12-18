@@ -3,7 +3,7 @@ import useSWR, { mutate } from "swr";
 import { Address } from "viem";
 
 import { getApiRewardVault } from "~/actions";
-import { DefaultHookOptions, DefaultHookReturnType, Gauge } from "~/types";
+import { DefaultHookOptions, DefaultHookReturnType } from "~/types";
 
 export interface UsePollValidatorInfoResponse
   extends DefaultHookReturnType<ApiVaultFragment> {}

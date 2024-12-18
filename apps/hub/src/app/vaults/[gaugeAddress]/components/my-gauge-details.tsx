@@ -1,9 +1,4 @@
-import {
-  Gauge,
-  useBeraJs,
-  usePollVaultsInfo,
-  useTokenHoneyPrice,
-} from "@bera/berajs";
+import { useBeraJs, usePollVaultsInfo, useTokenHoneyPrice } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
 import { FormattedNumber } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";

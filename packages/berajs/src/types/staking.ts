@@ -63,31 +63,6 @@ export type Market = {
   description: string;
 };
 
-export type GaugeInfo = {
-  id: Address;
-  gaugeAddress: Address;
-  name: string;
-  logoURI: string;
-  product: string;
-  url: string;
-};
-
-export type Gauge = {
-  activeIncentives: RewardVaultIncentive[];
-  activeIncentivesInHoney: number;
-  activeValidators: ValidatorInfo[];
-  activeValidatorsCount: number;
-  amountStaked: string;
-  id: Address;
-  metadata?: GaugeInfo;
-  stakingTokenAddress: Address;
-  bgtInflationCapture: number;
-  vaultAddress: Address;
-  vaultWhitelist: {
-    whitelistedTokens: { isWhiteListed: boolean; token: Token }[];
-  };
-};
-
 export type ValidatorList = {
   id: string;
   logoURI: string;

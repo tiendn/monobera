@@ -46,7 +46,8 @@ export const GaugeHeaderWidget = ({
               address={gauge.vaultAddress as Address}
               overrideImage={gauge.metadata?.logoURI}
             />
-            {gauge.metadata?.name ?? truncateHash(gauge.id)}
+            {gauge.metadata?.name ??
+              truncateHash(gauge.id ?? gauge.vaultAddress)}
           </div>
           <div className="flex items-center gap-1 text-sm font-medium leading-5">
             <MarketIcon

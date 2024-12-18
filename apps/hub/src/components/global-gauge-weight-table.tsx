@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRewardVaults, type Gauge } from "@bera/berajs";
+import { useRewardVaults } from "@bera/berajs";
 import {
   SimpleTable,
   getRewardsVaultUrl,

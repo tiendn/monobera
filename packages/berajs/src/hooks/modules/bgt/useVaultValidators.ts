@@ -1,12 +1,7 @@
 import useSWR, { mutate } from "swr";
 import { Address } from "viem";
 import { getVaultValidators } from "~/actions";
-import {
-  DefaultHookOptions,
-  DefaultHookReturnType,
-  Gauge,
-  Validator,
-} from "~/types";
+import { DefaultHookOptions, DefaultHookReturnType, Validator } from "~/types";
 
 export interface UsePollValidatorInfoResponse
   extends DefaultHookReturnType<Validator[] | undefined> {}

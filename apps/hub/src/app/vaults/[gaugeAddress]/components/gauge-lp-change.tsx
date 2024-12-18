@@ -1,4 +1,4 @@
-import { RewardVault, useTokenInformation, type Gauge } from "@bera/berajs";
+import { RewardVault, useTokenInformation } from "@bera/berajs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 
 import { DepositLP } from "./deposit-lp";

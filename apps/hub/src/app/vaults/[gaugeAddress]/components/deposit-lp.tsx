@@ -1,13 +1,11 @@
 import { useState } from "react";
 import {
   BERA_VAULT_REWARDS_ABI,
-  type Gauge,
   type Token,
   TransactionActionType,
   usePollWalletBalances,
   usePollAllowance,
   usePollVaultsInfo,
-  RewardVault,
 } from "@bera/berajs";
 import {
   ActionButton,
@@ -72,9 +70,9 @@ export const DepositLP = ({
   return (
     <div className="flex flex-col gap-4 rounded-md border border-border p-4">
       <div>
-        <div className="text-lg font-semibold leading-7">Deposit Tokens</div>
+        <div className="text-lg font-semibold leading-7">Stake Tokens</div>
         <div className="mt-1 text-sm leading-5">
-          Deposit your tokens to start earning BGT rewards
+          Stake your tokens to start earning BGT rewards
         </div>
         <div className="mt-4 rounded-md border border-border bg-muted">
           <TokenInput
@@ -118,7 +116,7 @@ export const DepositLP = ({
               })
             }
           >
-            Deposit
+            Stake
           </Button>
         )}
       </ActionButton>

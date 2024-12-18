@@ -62,10 +62,10 @@ export const WithdrawLP = ({
     <div className="flex flex-col gap-4 rounded-md border border-border p-4">
       <div>
         <div className="text-lg font-semibold leading-7">
-          Withdraw Receipt Tokens
+          Unstake Receipt Tokens
         </div>
         <div className="mt-1 text-sm leading-5">
-          Withdrawing your receipt tokens will also claim your outstanding BGT
+          Unstaking your receipt tokens will also claim your outstanding BGT
           rewards
         </div>
         <div className="mt-4 rounded-md border border-border bg-muted">
@@ -148,7 +148,7 @@ export const WithdrawLP = ({
             })
           }
         >
-          Withdraw
+          Unstake
         </Button>
       </ActionButton>
       {ModalPortal}

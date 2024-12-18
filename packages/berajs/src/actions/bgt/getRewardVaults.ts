@@ -7,7 +7,7 @@ import {
 } from "@bera/graphql/pol/api";
 import { Address } from "viem";
 
-import { BeraConfig, Gauge } from "~/types";
+import { BeraConfig } from "~/types";
 
 export interface GetGaugeData {
   gaugeCounts: number;

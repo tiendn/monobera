@@ -1,5 +1,4 @@
 import React from "react";
-import { Validator, type Gauge } from "@bera/berajs";
 import { DataTableColumnHeader, FormattedNumber } from "@bera/shared-ui";
 import { Button } from "@bera/ui/button";
 import { type ColumnDef } from "@tanstack/react-table";
