@@ -1,13 +1,10 @@
 import React from "react";
-import { useBlockToTimestamp, usePollProposalVotes } from "@bera/berajs";
+import { useBlockToTimestamp } from "@bera/berajs";
 import { cn } from "@bera/ui";
 import {
-  OrderDirection,
   ProposalStatus,
   ProposalWithVotesFragment,
-  Vote,
 } from "@bera/graphql/governance";
-import { useBlockNumber } from "wagmi";
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
@@ -114,7 +111,7 @@ const getVotingSteps = (proposal: ProposalWithVotesFragment): StepProps[] => {
     case ProposalStatus.Executed:
       if (proposal.succeededAt) {
         votingSteps.push({
-          title: "Quorum Reached",
+          title: "Proposal Passed",
           date: proposal.succeededAt,
           bulletClassName: "bg-success-foreground",
           isActive: false,
@@ -131,7 +128,7 @@ const getVotingSteps = (proposal: ProposalWithVotesFragment): StepProps[] => {
     default:
       if (proposal.succeededAt) {
         votingSteps.push({
-          title: "Quorum Reached",
+          title: "Proposal Passed",
           date: proposal.succeededAt,
           bulletClassName: "bg-success-foreground",
           isActive: proposal.status === ProposalStatus.PendingQueue,
@@ -171,12 +168,17 @@ const getExecutionSteps = (
         isActive: true,
       });
       steps.push({
-        title: "Queue Ending",
+        title: "Proposal Executable",
         date: proposal.queueEnd,
         isActive: false,
       });
       break;
     case ProposalStatus.PendingExecution:
+      steps.push({
+        title: "Proposal Queued",
+        date: proposal.queueStart,
+        isActive: false,
+      });
       steps.push({
         title: "Proposal Executable",
         date: proposal.queueEnd,
