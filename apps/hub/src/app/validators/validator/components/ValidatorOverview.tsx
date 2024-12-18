@@ -9,7 +9,7 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { type Address } from "viem";
-import { UserBoosts } from "./user-boosts";
+import { UserBoosts } from "./UserBoosts";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 import { useEffect, useState } from "react";
 import { isSameAddress } from "@berachain-foundation/berancer-sdk";

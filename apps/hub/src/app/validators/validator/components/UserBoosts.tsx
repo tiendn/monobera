@@ -5,9 +5,9 @@ import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Address } from "viem";
 
-import { BoostQueue } from "../components/boost-queue";
-import { BoostModal } from "./boost-modal";
-import { UnbondModal } from "./unboost-modal";
+import { BoostQueue } from "../../components/boost-queue";
+import { BoostModal } from "./BoostModal";
+import { UnbondModal } from "./UnboostModal";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 
 export const UserBoosts = ({

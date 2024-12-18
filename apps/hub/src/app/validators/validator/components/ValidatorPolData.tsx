@@ -1,5 +1,4 @@
 import { SimpleTable, useAsyncTable } from "@bera/shared-ui";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 
 import GlobalGaugeWeightChart from "~/components/global-gauge-weight-chart";
 import { getValidatorGaugeColumns } from "~/columns/validator-gauge-columns";

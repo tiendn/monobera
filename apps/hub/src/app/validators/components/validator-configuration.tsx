@@ -4,9 +4,9 @@ import { Card } from "@bera/ui/card";
 import { Icons } from "@bera/ui/icons";
 import { Address } from "viem";
 
-import { GeneralSettings } from "./general-settings";
+import { GeneralSettings } from "./GeneralSettings";
 import { QueuedRewardAllocationConfiguration } from "./queued-reward-allocation-configuration";
-import { RewardAllocationConfiguration } from "./reward-allocation-configuration";
+import { RewardAllocationConfiguration } from "./RewardAllocationConfiguration";
 
 export const ValidatorConfiguration = ({
   validatorPublicKey,

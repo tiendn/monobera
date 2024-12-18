@@ -3,7 +3,7 @@ import { useUserBoostsOnValidator } from "@bera/berajs";
 import { Button } from "@bera/ui/button";
 import { Dialog, DialogContent } from "@bera/ui/dialog";
 
-import { UnboostContent } from "./unboost-content";
+import { UnboostContent } from "./UnboostContent";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 import { Address } from "viem";
 

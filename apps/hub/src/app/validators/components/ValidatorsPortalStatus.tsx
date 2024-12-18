@@ -1,9 +1,11 @@
+"use client";
+
 import React from "react";
 import { truncateHash, useBeraJs, useValidatorByOperator } from "@bera/berajs";
 import { ActionButton } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
 
-export const ValidatorPortalStatus = () => {
+export const ValidatorsPortalStatus = () => {
   const { account, isReady } = useBeraJs();
   const { data: validator } = useValidatorByOperator(account ?? "0x");
   if (validator?.validators[0]?.publicKey) return <></>;

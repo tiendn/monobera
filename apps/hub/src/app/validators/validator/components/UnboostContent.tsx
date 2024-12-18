@@ -16,7 +16,7 @@ import { useTheme } from "next-themes";
 import { Address, parseUnits } from "viem";
 
 import ValidatorInput from "~/components/validator-input";
-import { DelegateEnum, ImageMapEnum } from "./types";
+import { DelegateEnum, ImageMapEnum } from "../types";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 
 export const UnboostContent = ({

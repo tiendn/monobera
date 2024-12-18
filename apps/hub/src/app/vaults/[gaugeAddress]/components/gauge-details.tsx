@@ -46,7 +46,6 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
     isValidating: rewardVaultError,
   } = useRewardVault(gaugeAddress);
 
-  const router = useRouter();
   const { account } = useBeraJs();
 
   const {

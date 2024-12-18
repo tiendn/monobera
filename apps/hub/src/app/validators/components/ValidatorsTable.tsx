@@ -14,7 +14,6 @@ import { AllValidator } from "./all-validator";
 import { BoostQueue } from "./boost-queue";
 import { MyValidator } from "./my-validators";
 import { ApiRewardAllocationWeightFragment } from "@bera/graphql/pol/api";
-import { ValidatorWithUserBoost } from "@bera/berajs/actions";
 
 export const CuttingBoardDisplay = ({
   cuttingBoard,

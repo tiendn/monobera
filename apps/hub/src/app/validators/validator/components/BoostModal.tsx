@@ -3,7 +3,7 @@ import { Button } from "@bera/ui/button";
 import { Dialog, DialogContent } from "@bera/ui/dialog";
 import { Address } from "viem";
 
-import { DelegateContent } from "./boost-content";
+import { DelegateContent } from "./BoostContent";
 import { ActionButton } from "@bera/shared-ui";
 
 export const BoostModal = ({

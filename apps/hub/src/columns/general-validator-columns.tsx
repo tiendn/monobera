@@ -12,7 +12,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { type Address } from "viem";
 
 import { ApiValidatorFragment, ApiVaultFragment } from "@bera/graphql/pol/api";
-import { CuttingBoardDisplay } from "~/app/validators/components/validators-table";
+import { CuttingBoardDisplay } from "~/app/validators/components/ValidatorsTable";
 import { BribesPopover } from "~/components/bribes-tooltip";
 import { useValidatorEstimatedBgtPerYear } from "~/hooks/useValidatorEstimatedBgtPerYear";
 import { ValidatorWithUserBoost } from "@bera/berajs/actions";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { truncateHash } from "@bera/berajs";
 import { blockExplorerUrl } from "@bera/config";
@@ -12,7 +12,9 @@ export default function ValidatorDetails({
 }: {
   validator: ApiValidatorFragment | undefined;
 }) {
-  console.log({ validator });
+  useEffect(() => {
+    console.log({ validator });
+  }, [validator]);
 
   const validatorDataItems = [
     {

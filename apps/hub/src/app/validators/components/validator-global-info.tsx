@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { usePollGlobalData } from "@bera/berajs";
 import { cloudinaryUrl } from "@bera/config";
@@ -5,7 +7,7 @@ import { FormattedNumber } from "@bera/shared-ui";
 import { Card } from "@bera/ui/card";
 import { Skeleton } from "@bera/ui/skeleton";
 
-export const ValidatorGlobalInfo = () => {
+export const ValidatorsGlobalInfo = () => {
   const { data, isLoading } = usePollGlobalData();
   const generalInfo = [
     {

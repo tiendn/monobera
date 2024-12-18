@@ -13,8 +13,8 @@ import {
 } from "@bera/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 
-import { ValidatorOverview } from "../validator/validator-overview";
-import { ValidatorPolData } from "../validator/validator-pol-data";
+import { ValidatorOverview } from "../validator/components/ValidatorOverview";
+import { ValidatorPolData } from "../validator/components/ValidatorPolData";
 import { ValidatorAnalytics } from "./validator-analytics";
 import { ValidatorConfiguration } from "./validator-configuration";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
