@@ -48,19 +48,23 @@ export const StatusBadge = ({
 
   useEffect(() => {
     const updateTime = () => {
-      const timestamp =
-        proposal.status === ProposalStatus.Pending
-          ? startTimestamp
-          : proposal.status === ProposalStatus.Active
-            ? endTimestamp
-            : null;
+      let timestamp;
+      if (proposal.status === ProposalStatus.Pending) {
+        timestamp = startTimestamp;
+      } else if (proposal.status === ProposalStatus.Active) {
+        timestamp = endTimestamp;
+      } else if (proposal.status === ProposalStatus.InQueue) {
+        timestamp = proposal.queueEnd;
+      } else {
+        timestamp = null;
+      }
 
       if (timestamp) {
         const timeLeftMs = getTimeLeft(new Date(timestamp * 1000));
         if (timeLeftMs <= 0) {
-          setTimeLeft("0 minutes");
+          setTimeLeft("Less than a minute left");
         } else {
-          setTimeLeft(formatTimeLeft(timeLeftMs));
+          setTimeLeft(`~ ${formatTimeLeft(timeLeftMs)} left`);
         }
       }
     };
@@ -93,10 +97,9 @@ export const StatusBadge = ({
         {statusMap[status]}
       </Badge>
       {(proposal.status === ProposalStatus.Pending ||
+        proposal.status === ProposalStatus.InQueue ||
         proposal.status === ProposalStatus.Active) &&
-        timeLeft && (
-          <span className="whitespace-nowrap">~ {timeLeft} left</span>
-        )}
+        timeLeft && <span className="whitespace-nowrap">{timeLeft}</span>}
     </div>
   );
 };
