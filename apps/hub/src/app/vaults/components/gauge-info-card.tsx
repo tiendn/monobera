@@ -1,6 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import { truncateHash, usePollGlobalData, type Validator } from "@bera/berajs";
+import {
+  truncateHash,
+  useBlockTime,
+  usePollGlobalData,
+  type Validator,
+} from "@bera/berajs";
 import { FormattedNumber, ValidatorIcon } from "@bera/shared-ui";
 import { getHubValidatorPath } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
@@ -11,6 +16,11 @@ import { Address } from "viem";
 
 export default function GaugeInfoCard() {
   const { data: globalData, isLoading } = usePollGlobalData();
+
+  const timePerBlock = useBlockTime();
+  const blockCountPerYear = timePerBlock
+    ? (60 * 60 * 24 * 365) / timePerBlock
+    : 0;
   return (
     <div className="flex w-full flex-1 flex-col gap-6 sm:flex-row">
       <div className="flex flex-1 flex-row gap-6 sm:flex-col">
@@ -71,7 +81,7 @@ export default function GaugeInfoCard() {
             <Skeleton className="h-8 w-full" />
           ) : (
             <FormattedNumber
-              value={globalData?.bgtInfo?.blockCountPerYear ?? 0}
+              value={blockCountPerYear}
               compact={false}
               compactThreshold={999_999}
               symbol="BGT"

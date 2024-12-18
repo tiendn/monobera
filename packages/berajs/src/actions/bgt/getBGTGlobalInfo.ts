@@ -1,4 +1,6 @@
+import { balancerApiChainName } from "@bera/config";
 import { bexApiGraphqlClient } from "@bera/graphql";
+import { GqlChain } from "@bera/graphql/dex/api";
 import {
   ApiValidatorFragment,
   ApiVaultFragment,
@@ -11,14 +13,9 @@ import type { BeraConfig, RewardVaultIncentive, Validator } from "~/types";
 export interface GlobalInfo {
   bgtInfo: {
     bgtInflation: number;
-    bgtPerBlock: number;
-    blockCountPerYear: number;
     totalStakeBgt: number;
   };
-  incentiveCount: number;
   sumAllIncentivesInHoney: string;
-  top3Incentives: { activeIncentives: RewardVaultIncentive[] };
-  top3Vaults: ApiVaultFragment[];
   top3EmittingValidators: ApiValidatorFragment[];
   validatorCount: number;
   vaultCount: number;
@@ -27,26 +24,28 @@ export interface GlobalInfo {
 export const getBGTGlobalInfo = async (
   config: BeraConfig,
 ): Promise<GlobalInfo | undefined> => {
-  if (!config.endpoints?.polEndpoint) {
-    throw new Error("Missing backend endpoint in config");
-  }
-  const [res, apiRes] = await Promise.all([
-    fetch(`${config.endpoints.polEndpoint}/homepage`),
-    bexApiGraphqlClient.query<GlobalDataQuery, GlobalDataQueryVariables>({
-      query: GlobalData,
-    }),
-  ]);
+  const apiRes = await bexApiGraphqlClient.query<
+    GlobalDataQuery,
+    GlobalDataQueryVariables
+  >({
+    query: GlobalData,
+    variables: {
+      chain: balancerApiChainName as GqlChain,
+    },
+  });
 
-  const data = await res.json();
-  const apiData = apiRes.data;
+  const data = apiRes.data;
 
   return {
-    bgtInfo: data.bgtInfo,
-    sumAllIncentivesInHoney: data.sumAllIncentivesInHoney,
-    validatorCount: data.validatorCount,
-    vaultCount: data.vaultCount,
-    incentiveCount: data.incentiveCount,
-    top3Incentives: data.top3Incentives,
-    ...apiData,
+    bgtInfo: {
+      // TODO: get bgt inflation somehow, maybe from the backend
+      bgtInflation: 0,
+      totalStakeBgt: Number(data.polGetGlobalInfo?.totalBGTStaked ?? "0"),
+    },
+    sumAllIncentivesInHoney:
+      data.polGetGlobalInfo?.totalActiveIncentivesValueUSD ?? "0",
+    validatorCount: data.polGetGlobalInfo?.totalValidators ?? 0,
+    vaultCount: data.polGetGlobalInfo?.totalRewardVaults ?? 0,
+    top3EmittingValidators: apiRes.data.top3EmittingValidators,
   } satisfies GlobalInfo;
 };

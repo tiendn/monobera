@@ -2,7 +2,6 @@ fragment ApiVaultIncentive on GqlRewardVaultIncentive {
   active
   amountRemaining
   incentiveRate
-
   tokenAddress
   token {
     address
@@ -133,7 +132,7 @@ query GetRewardVault($vaultId: String!, $chain: GqlChain!) {
   }
 }
 
-query GlobalData {
+query GlobalData($chain: GqlChain!) {
   top3EmittingValidators: polGetValidators(
     orderBy: bgtCapturePercentage
     orderDirection: desc
@@ -141,12 +140,13 @@ query GlobalData {
   ) {
     ...ApiValidator
   }
-  top3Vaults: polGetRewardVaults(
-    orderBy: last24hBGTReceived
-    orderDirection: desc
-    first: 3
-  ) {
-    ...ApiVault
+
+  polGetGlobalInfo(chain: $chain) {
+    totalBGTStaked
+    totalValidators
+    totalRewardVaults
+    totalActiveIncentives
+    totalActiveIncentivesValueUSD
   }
 }
 
