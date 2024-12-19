@@ -118,7 +118,6 @@ export const usePollAllProposals = (
   const statuses = flattenedProposals?.map((p) => p.status);
 
   useEffect(() => {
-    if (!autoRefreshProposals) return;
     if (flattenedProposals === undefined || !currentBlockNumber) return;
 
     let shouldMutate = false;

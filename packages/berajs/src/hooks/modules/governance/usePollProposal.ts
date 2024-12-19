@@ -58,7 +58,6 @@ export const usePollProposal = (
   );
 
   useEffect(() => {
-    if (!autoRefreshProposal) return;
     if (swrResponse.data === undefined || !currentBlockNumber) return;
 
     switch (swrResponse.data.status) {
