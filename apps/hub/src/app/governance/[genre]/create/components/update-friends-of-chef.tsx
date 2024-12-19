@@ -72,20 +72,17 @@ export const UpdateFriendsOfChef = ({
           <div className="mb-2 text-sm font-semibold leading-tight">Update</div>
           <div className="rounded-md border border-border p-3">
             <div className="flex gap-2 text-sm font-semibold">
-              {!isFriendOfTheChef ? "Remove" : "Add"} status:{" "}
-              {isAddress(gauge.vault ?? "") ? (
-                <span
-                  className={cn(
-                    !isFriendOfTheChef
-                      ? "text-destructive-foreground"
-                      : "text-success-foreground",
-                  )}
-                >
-                  Receiving Emissions
-                </span>
-              ) : (
-                <span>–</span>
-              )}
+              <span
+                className={cn(
+                  !isFriendOfTheChef
+                    ? "text-destructive-foreground"
+                    : "text-success-foreground",
+                )}
+              >
+                {isFriendOfTheChef
+                  ? "This vault will be able to receive BGT rewards."
+                  : "This vault will not be able to receive BGT rewards."}
+              </span>
             </div>
             <div className="text-sm font-medium text-muted-foreground">
               Update this reward vault to be {!isFriendOfTheChef ? "in-" : ""}
