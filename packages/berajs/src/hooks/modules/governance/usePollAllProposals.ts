@@ -155,7 +155,7 @@ export const usePollAllProposals = (
         clearTimeout(timeout);
       }
     };
-}, [statuses, currentBlockNumber]);
+  }, [statuses, currentBlockNumber]);
 
   const data = useMemo(() => {
     if (!res.data) return [];
