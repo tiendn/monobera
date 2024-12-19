@@ -118,6 +118,7 @@ export const usePollAllProposals = (
   const statuses = flattenedProposals?.map((p) => p.status);
 
   useEffect(() => {
+    if (!autoRefreshProposals) return;
     if (flattenedProposals === undefined || !currentBlockNumber) return;
 
     let shouldMutate = false;
@@ -135,26 +136,12 @@ export const usePollAllProposals = (
           }
           break;
         case ProposalStatus.InQueue: {
-          const queueEndDate = new Date(proposal.queueEnd * 1000);
-          if (new Date() >= queueEndDate) {
+          if (new Date().getTime() + 1000 >= proposal.queueEnd) {
             shouldMutate = true;
           }
         }
       }
     }
-
-    let timeout: NodeJS.Timeout | undefined;
-    if (shouldMutate) {
-      timeout = setTimeout(() => {
-        res.mutate();
-      }, 1000);
-    }
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
   }, [statuses, currentBlockNumber]);
 
   const data = useMemo(() => {

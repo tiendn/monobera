@@ -8,7 +8,7 @@ import { usePublicClient } from "wagmi";
 import { getProposalDetails } from "~/actions/governance/getProposalDetails";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
-import { DefaultHookOptions, DefaultHookReturnType, Vote } from "~/types";
+import { DefaultHookOptions, DefaultHookReturnType } from "~/types";
 import { useBlockNumber } from "wagmi";
 import { FALLBACK_BLOCK_TIME } from "@bera/config";
 import { useEffect } from "react";
@@ -57,9 +57,8 @@ export const usePollProposal = (
     },
   );
 
-  let timeout: NodeJS.Timeout | undefined = undefined;
-
   useEffect(() => {
+    if (!autoRefreshProposal) return;
     if (swrResponse.data === undefined || !currentBlockNumber) return;
 
     switch (swrResponse.data.status) {
@@ -74,19 +73,10 @@ export const usePollProposal = (
         }
         break;
       case ProposalStatus.InQueue:
-        {
-          const queueEndDate = new Date(swrResponse.data.queueEnd * 1000);
-          if (new Date() >= queueEndDate) {
-            timeout = setTimeout(() => {
-              swrResponse.mutate();
-            }, 1000);
-          }
+        if (new Date().getTime() + 1000 >= swrResponse.data.queueEnd) {
+          swrResponse.mutate();
         }
         break;
-    }
-
-    if (timeout) {
-      return () => clearTimeout(timeout);
     }
   }, [swrResponse.data?.status, currentBlockNumber]);
 
