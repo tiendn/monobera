@@ -167,12 +167,13 @@ export const ProposalTimeline = ({
         } else if (status === ProposalStatus.InQueue) {
           steps.push({
             title: "Queue Ending",
-            date: proposal.queueEnd,
+            // Temporary fix for proposals that are in queue but have no queueEnd
+            date: proposal.queueEnd ?? new Date().getTime() / 1000 + 60 * 15,
             isActive: false,
           });
           steps.push({
             title: "Proposal Executable",
-            date: proposal.queueEnd,
+            date: proposal.queueEnd ?? new Date().getTime() / 1000 + 60 * 15,
             isActive: false,
           });
         } else if (status === ProposalStatus.PendingExecution) {
