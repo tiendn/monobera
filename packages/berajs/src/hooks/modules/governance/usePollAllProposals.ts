@@ -120,26 +120,42 @@ export const usePollAllProposals = (
   useEffect(() => {
     if (flattenedProposals === undefined || !currentBlockNumber) return;
 
+    let shouldMutate = false;
+
     for (const proposal of flattenedProposals) {
       switch (proposal.status) {
         case ProposalStatus.Pending:
           if (currentBlockNumber >= BigInt(proposal.voteStartBlock)) {
-            res.mutate();
+            shouldMutate = true;
           }
           break;
         case ProposalStatus.Active:
           if (currentBlockNumber >= BigInt(proposal.voteEndBlock)) {
-            res.mutate();
+            shouldMutate = true;
           }
           break;
-        case ProposalStatus.InQueue:
-          if (currentBlockNumber >= BigInt(proposal.queueEnd)) {
-            res.mutate();
+        case ProposalStatus.InQueue: {
+          const queueEndDate = new Date(proposal.queueEnd * 1000);
+          if (new Date() >= queueEndDate) {
+            shouldMutate = true;
           }
-          break;
+        }
       }
     }
-  }, [statuses, currentBlockNumber]);
+
+    let timeout: NodeJS.Timeout | undefined;
+    if (shouldMutate) {
+      timeout = setTimeout(() => {
+        res.mutate();
+      }, 1000);
+    }
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+}, [statuses, currentBlockNumber]);
 
   const data = useMemo(() => {
     if (!res.data) return [];
