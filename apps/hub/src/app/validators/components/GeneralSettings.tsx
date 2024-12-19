@@ -130,7 +130,7 @@ export const GeneralSettings = ({
               </div>
               <div>
                 <span className="text-sm text-muted-foreground">
-                  {"Operator Address is currently queued to change to "}
+                  Operator Address is currently queued to change to{" "}
                   <a
                     href={`${blockExplorerUrl}/address/${queuedOperatorAddress?.[1]}`}
                     target="_blank"
@@ -139,9 +139,8 @@ export const GeneralSettings = ({
                   >
                     {queuedOperatorAddress?.[1]}
                   </a>
-                  {`. You'll be able to apply the change at ${new Date(
-                    timeRemaining,
-                  ).toLocaleString()}`}
+                  . You'll be able to apply the change at{" "}
+                  {new Date(timeRemaining).toLocaleString()}
                 </span>
               </div>
             </div>

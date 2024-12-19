@@ -120,7 +120,7 @@ query GetValidatorBgtBoost($address: String!) {
   }
 }
 
-query GetValidatorBlockStats($address: String = "") {
+query GetValidatorBlockStats($address: String) {
   blockStatsByValidators(
     interval: hour
     first: 1
