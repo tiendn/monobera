@@ -141,7 +141,7 @@ export const ProposalTimeline = ({
       if (status !== ProposalStatus.PendingQueue) {
         steps.push({
           title: "Proposal Queued",
-          date: proposal.queueStart,
+          date: proposal.queueStart ?? new Date().getTime() / 1000,
           isActive: status === ProposalStatus.InQueue,
         });
 
