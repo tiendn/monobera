@@ -39,7 +39,7 @@ export const getUserBgtColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Amount Deposited"
+          title="Amount Staked"
           className="items-center whitespace-nowrap text-center"
         />
       ),

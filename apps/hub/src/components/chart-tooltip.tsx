@@ -1,4 +1,4 @@
-import { truncateHash, type CuttingBoardWeight } from "@bera/berajs";
+import { truncateHash } from "@bera/berajs";
 import { ApiRewardAllocationWeightFragment } from "@bera/graphql/pol/api";
 import { GaugeIcon, MarketIcon } from "@bera/shared-ui";
 import uniqolor from "uniqolor";

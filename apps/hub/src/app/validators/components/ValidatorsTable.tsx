@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { truncateHash, useBeraJs, type CuttingBoardWeight } from "@bera/berajs";
+import { truncateHash, useBeraJs } from "@bera/berajs";
 import { blockExplorerUrl } from "@bera/config";
 import { GaugeIcon, SearchInput } from "@bera/shared-ui";
 import { getHubValidatorPath } from "@bera/shared-ui";

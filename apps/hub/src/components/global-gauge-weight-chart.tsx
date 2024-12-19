@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { ADDRESS_ZERO, type CuttingBoardWeight } from "@bera/berajs";
+import { ADDRESS_ZERO } from "@bera/berajs";
 import { FormattedNumber } from "@bera/shared-ui";
 import { BeraChart } from "@bera/ui/bera-chart";
 import { Skeleton } from "@bera/ui/skeleton";

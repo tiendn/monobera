@@ -5,12 +5,7 @@ import { Address } from "viem";
 
 import { getValidatorBgtStaked } from "~/actions/pol";
 import { useBeraJs } from "~/contexts";
-import {
-  DefaultHookOptions,
-  DefaultHookReturnType,
-  // TODO: remove this once we have the type
-  // ValidatorBgtStaked,
-} from "~/types";
+import { DefaultHookOptions, DefaultHookReturnType } from "~/types";
 
 export const usePollValidatorBgtStaked = (
   address: Address,

@@ -14,7 +14,6 @@ import { usePublicClient } from "wagmi";
 import { BERA_VAULT_REWARDS_ABI } from "~/abi";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
-import { Vault } from "~/types";
 import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
 
 interface Call {

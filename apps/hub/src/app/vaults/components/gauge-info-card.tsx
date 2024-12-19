@@ -80,6 +80,7 @@ export default function GaugeInfoCard() {
           {isLoading ? (
             <Skeleton className="h-8 w-full" />
           ) : (
+            // Get BGT emitted last day and multiply by 365
             <FormattedNumber
               value={0}
               compact={false}
