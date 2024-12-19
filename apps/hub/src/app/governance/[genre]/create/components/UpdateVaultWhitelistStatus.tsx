@@ -11,7 +11,7 @@ import {
 import { InputWithLabel } from "@bera/ui/input";
 import { beraChefAddress } from "@bera/config";
 
-export const UpdateFriendsOfChef = ({
+export const UpdateVaultWhitelistStatus = ({
   action: gauge,
   setAction,
   isFriendOfTheChef,
@@ -19,8 +19,8 @@ export const UpdateFriendsOfChef = ({
 }: {
   action: ProposalAction & {
     type:
-      | ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST
-      | ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST;
+      | ProposalTypeEnum.BLACKLIST_REWARD_VAULT
+      | ProposalTypeEnum.WHITELIST_REWARD_VAULT;
   };
   setAction: Dispatch<SetStateAction<ProposalAction>>;
   isFriendOfTheChef: boolean;
@@ -30,8 +30,6 @@ export const UpdateFriendsOfChef = ({
     setAction({
       ...gauge,
       target: beraChefAddress,
-
-      isFriend: isFriendOfTheChef,
     });
   }, [isFriendOfTheChef]);
 

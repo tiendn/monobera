@@ -38,8 +38,8 @@ export const getThemeColor = (ProposalType: ProposalTypeEnum) => {
   switch (ProposalType) {
     case ProposalTypeEnum.CUSTOM_PROPOSAL:
       return "foreground";
-    case ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST:
-    case ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST:
+    case ProposalTypeEnum.WHITELIST_REWARD_VAULT:
+    case ProposalTypeEnum.BLACKLIST_REWARD_VAULT:
       return "info-foreground";
     default:
       return "foreground";
