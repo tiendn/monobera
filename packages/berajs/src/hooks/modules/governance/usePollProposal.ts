@@ -57,6 +57,8 @@ export const usePollProposal = (
     },
   );
 
+  let timeout: NodeJS.Timeout | undefined = undefined;
+
   useEffect(() => {
     if (swrResponse.data === undefined || !currentBlockNumber) return;
 
@@ -72,10 +74,19 @@ export const usePollProposal = (
         }
         break;
       case ProposalStatus.InQueue:
-        if (currentBlockNumber >= BigInt(swrResponse.data.queueEnd)) {
-          swrResponse.mutate();
+        {
+          const queueEndDate = new Date(swrResponse.data.queueEnd * 1000);
+          if (new Date() >= queueEndDate) {
+            timeout = setTimeout(() => {
+              swrResponse.mutate();
+            }, 1000);
+          }
         }
         break;
+    }
+
+    if (timeout) {
+      return () => clearTimeout(timeout);
     }
   }, [swrResponse.data?.status, currentBlockNumber]);
 
