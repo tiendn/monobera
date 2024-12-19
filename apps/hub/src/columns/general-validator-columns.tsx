@@ -1,4 +1,4 @@
-import { RewardVault, truncateHash, useTokenHoneyPrice } from "@bera/berajs";
+import { truncateHash, useTokenHoneyPrice } from "@bera/berajs";
 import { beraTokenAddress } from "@bera/config";
 import {
   DataTableColumnHeader,
@@ -198,7 +198,11 @@ const USER_QUEUED_DROP_BOOSTS_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
   cell: ({ row }) => {
     return (
       <FormattedNumber
-        value={-(row.original.userBoosts?.queuedUnboosts ?? 0)}
+        value={
+          Number(row.original.userBoosts?.queuedUnboosts) > 0
+            ? -row.original.userBoosts?.queuedUnboosts
+            : 0
+        }
         symbol="BGT"
         colored
       />

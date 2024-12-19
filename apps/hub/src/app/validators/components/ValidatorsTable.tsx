@@ -77,7 +77,7 @@ export default function ValidatorsTable() {
               My Boosts
             </TabsTrigger>
             <TabsTrigger value="queued" className="w-full" disabled={!isReady}>
-              My Queue
+              Queued Boosts
             </TabsTrigger>
           </TabsList>
           <TabsContent value="all-validators">

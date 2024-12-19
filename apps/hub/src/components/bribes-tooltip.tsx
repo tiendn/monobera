@@ -153,7 +153,7 @@ export const BribesTooltip = ({
         </div>
       </div>
       <div className="flex flex-row justify-between">
-        <div className="text-md text-muted-foreground">Amount Per Proposal</div>
+        <div className="text-md text-muted-foreground">Amount Per BGT</div>
         <div className="text-md">
           $
           <FormattedNumber

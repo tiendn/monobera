@@ -1,21 +1,30 @@
 fragment ValidatorMinimal on Validator {
   id
+  publicKey
   amountStaked
+}
+fragment SubgraphStatusMeta on _Meta_ {
+  block {
+    timestamp
+  }
+  hasIndexingErrors
 }
 
 query GetUserValidatorInformation($address: Bytes!) {
   userValidatorInformations(where: { user: $address }, first: 1000) {
     id
-    amountQueued
-    amountDeposited
-    amountDropQueued
-
-    dropQueuedStartBlock
-    queuedStartBlock
+    queuedBoosts: amountQueued
+    activeBoosts: amountDeposited
+    queuedUnboosts: amountDropQueued
+    queuedUnboostStartBlock: dropQueuedStartBlock
+    queuedBoostStartBlock: queuedStartBlock
     user
     validator {
       ...ValidatorMinimal
     }
+  }
+  _meta {
+    ...SubgraphStatusMeta
   }
 }
 

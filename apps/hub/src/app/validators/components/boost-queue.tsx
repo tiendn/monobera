@@ -8,15 +8,9 @@ import {
   useUserActiveValidators,
   useBeraJs,
   useAllValidators,
-  useUserBoostsOnValidator,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
-import {
-  FormattedNumber,
-  Spinner,
-  ValidatorIcon,
-  useTxn,
-} from "@bera/shared-ui";
+import { FormattedNumber, ValidatorIcon, useTxn } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
 import { Button } from "@bera/ui/button";
 import { Skeleton } from "@bera/ui/skeleton";
@@ -32,21 +26,13 @@ type QueueItem = ValidatorWithUserBoost & {
 };
 
 export const BoostQueue = ({
-  selectedValidator,
-  isValidatorDataLoading,
   setIsValidatorDataLoading,
 }: {
-  selectedValidator?: string | undefined;
   isValidatorDataLoading?: boolean;
   setIsValidatorDataLoading: (loading: boolean) => void;
 }) => {
   const { data = [], refresh } = useUserActiveValidators();
   const { refresh: refreshBalance } = useBgtUnstakedBalance();
-
-  const { data: userBoosts, refresh: refreshUserBoosts } =
-    useUserBoostsOnValidator({
-      pubkey: selectedValidator as Address | undefined,
-    });
 
   const { data: blockNumber } = useBlockNumber();
 
@@ -54,24 +40,13 @@ export const BoostQueue = ({
     return !data || !blockNumber || !data.length
       ? []
       : data.flatMap((validator) => {
-          if (selectedValidator) {
-            if (
-              validator.pubkey.toLowerCase() !== selectedValidator.toLowerCase()
-            ) {
-              return [];
-            }
-            if (userBoosts) {
-              validator.userBoosts = userBoosts;
-            }
-          }
-
           const items: QueueItem[] = [];
 
           if (Number(validator.userBoosts.queuedBoosts) > 0) {
             items.push({
               ...validator,
               canActivate:
-                validator.userBoosts?.queueBoostStartBlock +
+                validator.userBoosts?.queuedBoostStartBlock +
                   HISTORY_BUFFER -
                   Number(blockNumber) <=
                 0,
@@ -83,7 +58,7 @@ export const BoostQueue = ({
             items.push({
               ...validator,
               canActivate:
-                validator.userBoosts?.queueUnboostStartBlock +
+                validator.userBoosts?.queuedUnboostStartBlock +
                   HISTORY_BUFFER -
                   Number(blockNumber) <=
                 0,
@@ -93,7 +68,17 @@ export const BoostQueue = ({
 
           return items;
         });
-  }, [data, blockNumber, userBoosts]);
+  }, [data, blockNumber]);
+
+  const onSuccess = () => {
+    setIsValidatorDataLoading(true);
+    setTimeout(() => {
+      refresh();
+      refreshBalance();
+      setHasSubmittedTxn({} as any);
+      setIsValidatorDataLoading(false);
+    }, 5000);
+  };
 
   const [hasSubmittedTxn, setHasSubmittedTxn] = useState<
     Record<number, boolean>
@@ -109,16 +94,7 @@ export const BoostQueue = ({
     onError: () => {
       setHasSubmittedTxn({} as any);
     },
-    onSuccess: () => {
-      setIsValidatorDataLoading(true);
-      setTimeout(() => {
-        refresh();
-        refreshBalance();
-        refreshUserBoosts();
-        setHasSubmittedTxn({} as any);
-        setIsValidatorDataLoading(false);
-      }, 5000);
-    },
+    onSuccess,
   });
 
   const {
@@ -131,13 +107,7 @@ export const BoostQueue = ({
     onError: () => {
       setHasSubmittedTxn({} as any);
     },
-    onSuccess: () => {
-      refresh();
-      refreshBalance();
-      refreshUserBoosts();
-      setHasSubmittedTxn({} as any);
-      setIsValidatorDataLoading(false);
-    },
+    onSuccess,
   });
 
   const {
@@ -150,16 +120,7 @@ export const BoostQueue = ({
     onError: () => {
       setHasSubmittedTxn({} as any);
     },
-    onSuccess: () => {
-      setIsValidatorDataLoading(true);
-      setTimeout(() => {
-        refresh();
-        refreshBalance();
-        refreshUserBoosts();
-        setHasSubmittedTxn({} as any);
-        setIsValidatorDataLoading(false);
-      }, 5000);
-    },
+    onSuccess,
   });
 
   const {
@@ -172,16 +133,7 @@ export const BoostQueue = ({
     onError: () => {
       setHasSubmittedTxn({} as any);
     },
-    onSuccess: () => {
-      setIsValidatorDataLoading(true);
-      setTimeout(() => {
-        refresh();
-        refreshBalance();
-        refreshUserBoosts();
-        setHasSubmittedTxn({} as any);
-        setIsValidatorDataLoading(false);
-      }, 5000);
-    },
+    onSuccess,
   });
 
   const handleTransaction = (
@@ -213,10 +165,6 @@ export const BoostQueue = ({
       {CancelModalPortal}
       {CancelDropBoostModalPortal}
       {DropBoostModalPortal}
-      <div className="flex items-center">
-        <div className="mr-2 text-lg font-semibold leading-7">Queued</div>
-        {isValidatorDataLoading && <Spinner size={18} color="white" />}
-      </div>
 
       {!queuedList ? (
         <div>
@@ -225,16 +173,18 @@ export const BoostQueue = ({
         </div>
       ) : (
         <>
-          {queuedList?.map((validator, index: number) => (
-            <ConfirmationCard
-              key={`${validator.pubkey}-${validator.type}`}
-              userValidator={validator}
-              index={index}
-              hasSubmittedTxn={hasSubmittedTxn[index] ?? false}
-              isTxnLoading={isActivationLoading || isCancelLoading}
-              handleTransaction={handleTransaction}
-            />
-          ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
+            {queuedList?.map((validator, index: number) => (
+              <ConfirmationCard
+                key={`${validator.pubkey}-${validator.type}`}
+                userValidator={validator}
+                index={index}
+                hasSubmittedTxn={hasSubmittedTxn[index] ?? false}
+                isTxnLoading={isActivationLoading || isCancelLoading}
+                handleTransaction={handleTransaction}
+              />
+            ))}
+          </div>
           {!queuedList?.length && (
             <div className="text-muted-foreground">No validators in queue</div>
           )}
@@ -272,8 +222,8 @@ const ConfirmationCard = ({
       : userValidator.userBoosts.queuedUnboosts;
   const startBlock =
     userValidator.type === "boost"
-      ? userValidator.userBoosts.queueBoostStartBlock
-      : userValidator.userBoosts.queueUnboostStartBlock;
+      ? userValidator.userBoosts.queuedBoostStartBlock
+      : userValidator.userBoosts.queuedUnboostStartBlock;
 
   const blocksLeft = Number(startBlock) + HISTORY_BUFFER - Number(block);
 
@@ -295,25 +245,26 @@ const ConfirmationCard = ({
   );
 
   return (
-    <div className="w-full rounded-md border border-border p-4">
+    <div className="w-full rounded-md border border-border py-4 px-8">
       <div className="flex w-full justify-between">
         <div className="font-medium">
           <div className="flex items-center gap-2">
             <ValidatorIcon
               address={userValidator.pubkey as Address}
-              className="h-8 w-8"
+              className="h-6 w-6"
             />
-            <div>
+            <h3 className="text-base font-medium">
               {validatorInfo?.metadata?.name ??
                 truncateHash(userValidator.pubkey)}
-            </div>
+            </h3>
           </div>
-          <div className="ml-8 text-muted-foreground ">
+          <div className="text-muted-foreground ">
             <FormattedNumber
               showIsSmallerThanMin
               value={userValidator.type === "boost" ? amount : -Number(amount)}
               compact
-              colored
+              prefixText={userValidator.type === "boost" ? "+" : ""}
+              colored={userValidator.type === "dropBoost"}
               symbol="BGT"
             />
           </div>
@@ -371,7 +322,7 @@ const ConfirmationCard = ({
         </div>
       </div>
 
-      <div className="mt-6 pl-8 pr-4">
+      <div className="mt-6 ">
         <div className="h-[9px] overflow-hidden rounded border border-border">
           <div
             className={cn(

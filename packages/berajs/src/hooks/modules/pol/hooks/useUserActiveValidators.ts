@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import { usePublicClient } from "wagmi";
 
 import {
   ValidatorWithUserBoost,
@@ -15,6 +16,7 @@ export const useUserActiveValidators = (
   options?: DefaultHookOptions,
 ): UseUserActiveValidatorsResponse => {
   const { account, config: beraConfig } = useBeraJs();
+  const publicClient = usePublicClient();
   const config = options?.beraConfigOverride ?? beraConfig;
   const QUERY_KEY = account ? ["useUserActiveValidators", account] : null;
 
@@ -24,7 +26,12 @@ export const useUserActiveValidators = (
       if (!account) {
         throw new Error("useUserActiveValidators needs a logged in account");
       }
-      return await getUserActiveValidators({ config, account: account });
+
+      return await getUserActiveValidators({
+        config,
+        account,
+        publicClient,
+      });
     },
     {
       ...options,

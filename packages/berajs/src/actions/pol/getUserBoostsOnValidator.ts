@@ -5,11 +5,12 @@ import { BGT_ABI } from "~/abi";
 import { type BeraConfig } from "~/types";
 
 export type UserBoostsOnValidator = {
+  pubkey: Address;
   activeBoosts: string;
   queuedBoosts: string;
-  queueBoostStartBlock: number;
+  queuedBoostStartBlock: number;
   queuedUnboosts: string;
-  queueUnboostStartBlock: number;
+  queuedUnboostStartBlock: number;
   hasPendingBoosts: boolean;
   hasActiveBoosts: boolean;
 };
@@ -54,11 +55,12 @@ export const getUserBoostsOnValidator = async ({
   ]);
 
   return {
+    pubkey,
     activeBoosts: formatEther(activeBoosts),
     queuedBoosts: formatEther(queuedBoosts[1]),
     queuedUnboosts: formatEther(queuedUnboosts[1]),
-    queueBoostStartBlock: queuedBoosts[0],
-    queueUnboostStartBlock: queuedUnboosts[0],
+    queuedBoostStartBlock: queuedBoosts[0],
+    queuedUnboostStartBlock: queuedUnboosts[0],
     hasPendingBoosts:
       Number(queuedBoosts[1]) > 0 || Number(queuedUnboosts[1]) > 0,
     hasActiveBoosts: Number(activeBoosts) > 0,

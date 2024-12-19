@@ -5,7 +5,6 @@ import { Icons } from "@bera/ui/icons";
 import { Skeleton } from "@bera/ui/skeleton";
 import { Address } from "viem";
 
-import { BoostQueue } from "../../components/boost-queue";
 import { BoostModal } from "./BoostModal";
 import { UnbondModal } from "./UnboostModal";
 import { ApiValidatorFragment } from "@bera/graphql/pol/api";
@@ -82,7 +81,7 @@ export const UserBoosts = ({
                   {Number(userBoosts?.queuedBoosts) > 0 ? (
                     <QueueItem
                       amount={userBoosts?.queuedBoosts ?? "0"}
-                      startBlock={userBoosts?.queueBoostStartBlock ?? 0}
+                      startBlock={userBoosts?.queuedBoostStartBlock ?? 0}
                       valPubKey={valPubKey}
                       isDropBoost={false}
                       onSuccess={() => {
@@ -93,7 +92,7 @@ export const UserBoosts = ({
                   {Number(userBoosts?.queuedUnboosts) > 0 ? (
                     <QueueItem
                       amount={userBoosts?.queuedUnboosts ?? "0"}
-                      startBlock={userBoosts?.queueUnboostStartBlock ?? 0}
+                      startBlock={userBoosts?.queuedUnboostStartBlock ?? 0}
                       valPubKey={valPubKey}
                       isDropBoost={true}
                       onSuccess={() => {

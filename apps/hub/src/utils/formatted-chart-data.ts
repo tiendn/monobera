@@ -54,6 +54,7 @@ const generateValidatorRewardsEmptyData = (
     allTimeBGTEarned: "0",
     validator: {
       id: "",
+      publicKey: "",
       amountStaked: "0",
     },
   };
