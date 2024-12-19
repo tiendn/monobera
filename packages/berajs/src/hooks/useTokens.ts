@@ -1,14 +1,22 @@
+import { useMemo } from "react";
+import { chainId, tokenListUrl } from "@bera/config";
 import useSWRImmutable from "swr/immutable";
 import { useLocalStorage } from "usehooks-ts";
-import { tokenListUrl } from "@bera/config";
 
 import {
   DefaultHookOptions,
   DefaultHookReturnType,
-  useBeraJs,
+  formatTokenList,
   type Token,
 } from "..";
-import { GetTokens, getTokens } from "../actions/dex";
+import { getTokens } from "../actions/dex";
+
+export interface GetTokens {
+  tokenList?: Token[] | undefined;
+  customTokenList?: Token[] | undefined;
+  tokenDictionary?: { [key: string]: Token } | undefined;
+  featuredTokenList?: Token[] | undefined;
+}
 
 export interface IUseTokens extends DefaultHookReturnType<GetTokens> {
   addNewToken: (token: Token | undefined) => void;
@@ -18,21 +26,23 @@ export interface IUseTokens extends DefaultHookReturnType<GetTokens> {
 export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
   const TOKEN_KEY = "tokens";
 
-  const { config: beraConfig } = useBeraJs();
-  const config = options?.beraConfigOverride ?? beraConfig;
-
   const [localStorageTokenList, setLocalStorageTokenList] = useLocalStorage<
     Token[]
   >(TOKEN_KEY, []);
-  const swrResponse = useSWRImmutable<GetTokens>(
+
+  const { data: fetchedTokens, ...swrRest } = useSWRImmutable<Token[]>(
     ["useTokens", tokenListUrl],
     async () => {
-      return getTokens({ externalList: localStorageTokenList });
+      return await getTokens();
     },
     {
       ...options?.opts,
-      revalidateOnMount: true,
     },
+  );
+
+  const formattedTokenList = useMemo(
+    () => formatTokenList(fetchedTokens ?? [], localStorageTokenList, chainId),
+    [fetchedTokens, localStorageTokenList, chainId],
   );
 
   const addNewToken = (token: Token | undefined) => {
@@ -44,7 +54,7 @@ export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
 
     // Check if the token already exists in tokenList
     if (
-      swrResponse.data?.tokenList?.some(
+      formattedTokenList?.tokenList?.some(
         (t: { address: string }) =>
           t.address.toLowerCase() === acceptedToken?.address?.toLowerCase(),
       )
@@ -56,7 +66,7 @@ export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
       ? [...localStorageTokenList]
       : [...localStorageTokenList, acceptedToken as Token];
     setLocalStorageTokenList(updatedData);
-    swrResponse?.mutate();
+    swrRest?.mutate();
     // Update config data and store it in localStorage
   };
 
@@ -67,12 +77,13 @@ export const useTokens = (options?: DefaultHookOptions): IUseTokens => {
 
     const updatedData = [...filteredList];
     setLocalStorageTokenList(updatedData);
-    swrResponse?.mutate();
+    swrRest?.mutate();
   };
 
   return {
-    ...swrResponse,
-    refresh: () => swrResponse?.mutate?.(),
+    ...swrRest,
+    data: formattedTokenList,
+    refresh: () => swrRest?.mutate?.(),
     addNewToken,
     removeToken,
   };

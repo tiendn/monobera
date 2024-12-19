@@ -16,7 +16,7 @@ const formatTokenList = (
   externalList: Token[],
   chainId: number,
 ) => {
-  if (!tokenList)
+  if (!tokenList || tokenList.length === 0)
     return {
       tokenList: externalList ?? [],
       customTokenList: externalList ?? [],

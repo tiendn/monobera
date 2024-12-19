@@ -46,19 +46,31 @@ export const TokenIcon = ({
 }: IconProps) => {
   const { data: tokenData } = useTokens();
   const [imageError, setImageError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const address = isAddress(adr ?? "") ? getAddress(adr ?? "") : adr;
-  const img = useMemo(() => {
-    if (tokenData?.tokenDictionary && address && isAddress(address)) {
-      const uploadedToken = tokenData?.tokenDictionary?.[address];
-      if (uploadedToken?.base64) {
-        setIsLoading(false);
-        return `data:image/svg+xml;base64,${uploadedToken.base64}`;
+
+  let img = "";
+  // check if the token exists in the token dictionary
+  const tokenExists =
+    tokenData?.tokenDictionary &&
+    address &&
+    isAddress(address) &&
+    tokenData?.tokenDictionary?.[address];
+  if (tokenExists) {
+    const uploadedToken = tokenData?.tokenDictionary?.[address];
+    if (uploadedToken?.base64) {
+      if (uploadedToken.base64.startsWith("data:")) {
+        img = uploadedToken.base64;
+      } else {
+        // if the token does not contain image type, we assume it's svg
+        img = `data:image/svg+xml;base64,${uploadedToken.base64}`;
       }
-      return tokenData?.tokenDictionary[address]?.logoURI;
+    } else {
+      img = tokenData?.tokenDictionary?.[address]?.logoURI ?? "";
     }
-    return "";
-  }, [tokenData?.tokenDictionary, tokenData?.tokenDictionary?.[address ?? ""]]);
+  }
+
+  // we assume the token has loaded if it exists in the token dictionary with server side rendering
+  const [isLoading, setIsLoading] = useState(!tokenExists);
 
   const finalImageUrl = imgOverride ?? img ?? "";
 

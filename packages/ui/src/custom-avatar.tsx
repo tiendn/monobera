@@ -103,8 +103,6 @@ const CustomAvatar = React.forwardRef<
               style={{ display: isLoading ? "none" : "block" }}
               onLoad={() => setIsLoading(false)}
               onError={() => setHasError(true)}
-              width={width}
-              height={height}
             />
             {isLoading && AvatarFallback}
           </>
@@ -128,8 +126,7 @@ const CustomAvatar = React.forwardRef<
       <AvatarPrimitive.Root
         ref={ref}
         className={cn(
-          "relative flex shrink-0 overflow-hidden rounded-full",
-          `h-[${height}px] w-[${width}px]`,
+          "relative h-10 w-10 flex shrink-0 overflow-hidden rounded-full",
           className,
         )}
         {...props}

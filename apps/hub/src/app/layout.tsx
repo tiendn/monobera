@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { IBM_Plex_Sans } from "next/font/google";
 import Script from "next/script";
-import { chainId, hubName, hubUrl, tokenListUrl } from "@bera/config";
+import { hubName, hubUrl, tokenListUrl } from "@bera/config";
 import {
   Footer,
   Header,
@@ -38,11 +38,15 @@ const PostHogPageView = dynamic(() => import("./PostHogPageView"), {
 });
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-  const fileContent = readFileSync(
-    path.join(process.cwd(), `public/${tokenListUrl}`),
-    "utf8",
-  );
-  const fetchedTokenList = JSON.parse(fileContent);
+  const fetchedTokenList = await (tokenListUrl.startsWith("http")
+    ? fetch(tokenListUrl).then((res) => res.json())
+    : JSON.parse(
+        readFileSync(
+          path.join(process.cwd(), `public/${tokenListUrl}`),
+          "utf8",
+        ),
+      ));
+
   return (
     <html lang="en" className="bg-background">
       <Script

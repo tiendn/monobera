@@ -1,13 +1,8 @@
 "use client";
 
 import React, { useEffect, type PropsWithChildren } from "react";
-import {
-  BeraJsProvider,
-  BlockTimeProvider,
-  SWRFallback,
-  formatTokenList,
-} from "@bera/berajs";
-import { chainId, tokenListUrl } from "@bera/config";
+import { BeraJsProvider, BlockTimeProvider, SWRFallback } from "@bera/berajs";
+import { tokenListUrl } from "@bera/config";
 import { BeraWagmi } from "@bera/wagmi";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
@@ -37,7 +32,7 @@ export default function Providers({
             <SWRFallback
               fallback={{
                 [unstable_serialize(["useTokens", tokenListUrl])]:
-                  formatTokenList(content?.tokens ?? [], [], chainId),
+                  content?.tokens,
               }}
             >
               <ThemeProvider
