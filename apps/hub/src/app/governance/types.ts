@@ -52,7 +52,8 @@ export type CustomProposalErrors = {
 
 export enum ProposalTypeEnum {
   CUSTOM_PROPOSAL = "custom-proposal",
-  UPDATE_REWARDS_GAUGE = "update-rewards-gauge",
+  UPDATE_REWARDS_GAUGE_WHITELIST = "update-rewards-gauge-whitelist",
+  UPDATE_REWARDS_GAUGE_BLACKLIST = "update-rewards-gauge-blacklist",
   ERC20_TRANSFER = "erc20-transfer",
 }
 export enum ProposalErrorCodes {
@@ -89,7 +90,13 @@ export type SafeProposalAction = {
       calldata: string[];
     }
   | {
-      type: ProposalTypeEnum.UPDATE_REWARDS_GAUGE;
+      type: ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST;
+      vault: Address;
+      isFriend: boolean;
+      metadata?: string | undefined;
+    }
+  | {
+      type: ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST;
       vault: Address;
       isFriend: boolean;
       metadata?: string | undefined;

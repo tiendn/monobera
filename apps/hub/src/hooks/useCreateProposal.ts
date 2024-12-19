@@ -351,7 +351,9 @@ export const useCreateProposal = ({
                 errors.functionSignature = ProposalErrorCodes.INVALID_ABI;
               }
             }
-          } else if (action.type === ProposalTypeEnum.UPDATE_REWARDS_GAUGE) {
+          } else if (
+            action.type === ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST
+          ) {
             errors.vault = checkProposalField({
               fieldOrType: "address",
               value: action.vault,
@@ -361,11 +363,22 @@ export const useCreateProposal = ({
               actions[idx] = encodeFunctionData({
                 abi: BERA_CHEF_ABI,
                 functionName: "setVaultWhitelistedStatus",
-                args: [
-                  action.vault!,
-                  !!action.isFriend!,
-                  action.metadata ?? "",
-                ], // TODO: A third param was added for metadata. It is optional but we should include it in our action
+                args: [action.vault!, true, action.metadata ?? ""], // TODO: A third param was added for metadata. It is optional but we should include it in our action
+              });
+            }
+          } else if (
+            action.type === ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST
+          ) {
+            errors.vault = checkProposalField({
+              fieldOrType: "address",
+              value: action.vault,
+            });
+            errors.isFriend = null; //checkProposalField("bool", action.isFriend);
+            if (!errors.vault) {
+              actions[idx] = encodeFunctionData({
+                abi: BERA_CHEF_ABI,
+                functionName: "setVaultWhitelistedStatus",
+                args: [action.vault!, false, action.metadata ?? ""], // TODO: A third param was added for metadata. It is optional but we should include it in our action
               });
             }
           } else if (action.type === ProposalTypeEnum.ERC20_TRANSFER) {

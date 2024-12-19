@@ -9,30 +9,31 @@ import {
   ProposalTypeEnum,
 } from "~/app/governance/types";
 import { InputWithLabel } from "@bera/ui/input";
-import { useIsFriendOfTheChef } from "@bera/berajs";
 import { beraChefAddress } from "@bera/config";
 
 export const UpdateFriendsOfChef = ({
   action: gauge,
   setAction,
+  isFriendOfTheChef,
   errors,
 }: {
-  action: ProposalAction & { type: ProposalTypeEnum.UPDATE_REWARDS_GAUGE };
+  action: ProposalAction & {
+    type:
+      | ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST
+      | ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST;
+  };
   setAction: Dispatch<SetStateAction<ProposalAction>>;
+  isFriendOfTheChef: boolean;
   errors: CustomProposalActionErrors;
 }) => {
-  const { data: isFriendOfTheChef, isLoading } = useIsFriendOfTheChef(
-    gauge.vault,
-  );
-
   useEffect(() => {
     setAction({
       ...gauge,
       target: beraChefAddress,
 
-      isFriend: !isFriendOfTheChef,
+      isFriend: isFriendOfTheChef,
     });
-  }, [isFriendOfTheChef, isLoading]);
+  }, [isFriendOfTheChef]);
 
   return (
     <>

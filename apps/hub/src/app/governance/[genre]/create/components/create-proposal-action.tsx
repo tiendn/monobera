@@ -63,8 +63,12 @@ export const CreateProposalAction = ({
               label: "Custom Action",
             },
             {
-              value: ProposalTypeEnum.UPDATE_REWARDS_GAUGE,
-              label: "Update Reward Vault",
+              value: ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST,
+              label: "Whitelist Reward Vault Address",
+            },
+            {
+              value: ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST,
+              label: "Blacklist Reward Vault Address",
             },
             // { // TODO add wen we have the treasury contract
             //   value: ProposalTypeEnum.ERC20_TRANSFER,
@@ -89,11 +93,20 @@ export const CreateProposalAction = ({
           idx={idx}
         />
       )}
-      {action.type === ProposalTypeEnum.UPDATE_REWARDS_GAUGE && (
+      {action.type === ProposalTypeEnum.UPDATE_REWARDS_GAUGE_WHITELIST && (
         <UpdateFriendsOfChef
           errors={errors}
           action={action}
           setAction={setAction}
+          isFriendOfTheChef={true}
+        />
+      )}
+      {action.type === ProposalTypeEnum.UPDATE_REWARDS_GAUGE_BLACKLIST && (
+        <UpdateFriendsOfChef
+          errors={errors}
+          action={action}
+          setAction={setAction}
+          isFriendOfTheChef={false}
         />
       )}
       {action.type === ProposalTypeEnum.ERC20_TRANSFER && (
