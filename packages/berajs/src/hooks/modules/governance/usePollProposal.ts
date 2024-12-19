@@ -73,7 +73,7 @@ export const usePollProposal = (
         }
         break;
       case ProposalStatus.InQueue:
-        if (new Date().getTime() + 1000 >= swrResponse.data.queueEnd) {
+        if (new Date().getTime() / 1000 + 1000 >= swrResponse.data.queueEnd) {
           swrResponse.mutate();
         }
         break;

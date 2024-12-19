@@ -136,7 +136,7 @@ export const usePollAllProposals = (
           }
           break;
         case ProposalStatus.InQueue: {
-          if (new Date().getTime() + 1000 >= proposal.queueEnd) {
+          if (new Date().getTime() / 1000 + 1000 >= proposal.queueEnd) {
             shouldMutate = true;
           }
         }
