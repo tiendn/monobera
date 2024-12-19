@@ -98,7 +98,9 @@ export const QueueItem = ({
                   blocks remaining
                 </>
               ) : (
-                "Ready for confirmation"
+                <span className="text-success-foreground">
+                  Ready for confirmation
+                </span>
               )}
             </div>
           </div>

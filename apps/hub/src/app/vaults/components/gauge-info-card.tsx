@@ -81,11 +81,11 @@ export default function GaugeInfoCard() {
             <Skeleton className="h-8 w-full" />
           ) : (
             <FormattedNumber
-              value={blockCountPerYear}
+              value={0}
               compact={false}
               compactThreshold={999_999}
               symbol="BGT"
-              className="items-center text-xl font-bold leading-5"
+              className="items-center text-xl font-bold opacity-20 leading-5"
             />
           )}
         </div>

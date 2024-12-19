@@ -207,7 +207,7 @@ export const ValidatorOverview = ({
                   <FormattedNumber
                     value={0}
                     percent
-                    className="text-2xl font-semibold"
+                    className="text-2xl font-semibold opacity-20"
                   />
                 </div>
               </div>
@@ -217,7 +217,7 @@ export const ValidatorOverview = ({
             className="h-[130px]"
             title="Est. Return per BGT"
             value={
-              <div className="flex flex-row gap-1 text-2xl font-semibold">
+              <div className="flex flex-row gap-1 text-2xl font-semibold opacity-20">
                 $
                 <FormattedNumber
                   value={returnPerBgt}
