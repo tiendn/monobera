@@ -141,6 +141,10 @@ export const usePollAllProposals = (
         }
       }
     }
+
+    if(shouldMutate) {
+      res.mutate();
+    }
   }, [statuses, currentBlockNumber]);
 
   const data = useMemo(() => {
