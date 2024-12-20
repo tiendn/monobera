@@ -465,7 +465,7 @@ export default function PoolPageContent({
                                   value={
                                     Number(
                                       gauge?.dynamicData?.bgtCapturePercentage,
-                                    ) / 10000 ?? 0
+                                    ) / 100 ?? 0
                                   }
                                 />
                               ) : (
