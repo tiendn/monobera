@@ -108,7 +108,7 @@ export const ValidatorTabs = ({
       </TabsContent>
       {/* TODO: Uncomment this when we have the events data */}
       {/* <TabsContent value="events">
-        <ValidatorEvents validatorAddress={validator.coinbase} />
+        <ValidatorEvents validatorAddress={validator.pubkey} />
       </TabsContent> */}
     </Tabs>
   );

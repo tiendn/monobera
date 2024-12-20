@@ -117,7 +117,6 @@ const CLAIMABLE_BRIBES_COLUMN: ColumnDef<ValidatorWithUserBoost> = {
     <DataTableColumnHeader column={column} title="Incentives" />
   ),
   cell: ({ row }) => {
-    // return <ClaimBribesPopover coinbase={row.original.coinbase} bribes={row.original.activeIncentives} />;
     return (
       <div className="flex flex-row items-center gap-1">
         <BribesPopover
