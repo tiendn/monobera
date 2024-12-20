@@ -76,8 +76,6 @@ export function SwapCard() {
     return new BigNumber(amount).decimalPlaces(2, 1).toString();
   };
 
-  console.log("toAmount", toAmount);
-
   return (
     <div className="w-full">
       <Card className="relative z-10 m-auto block w-full max-w-[500px] bg-background shadow-2xl">
@@ -89,7 +87,7 @@ export function SwapCard() {
               <Skeleton className="absolute right-6 top-5 h-6 w-40" />
             ) : (
               <div className="absolute right-6 top-5 text-base font-medium text-muted-foreground">
-                Static fee of <FormattedNumber value={fee ?? 0} />%
+                Static fee of <FormattedNumber value={fee ?? 0} percent />
               </div>
             )}
           </CardTitle>
