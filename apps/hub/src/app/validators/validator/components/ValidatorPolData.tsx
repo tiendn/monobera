@@ -33,7 +33,7 @@ export const ValidatorPolData = ({
       </div>
       <GlobalGaugeWeightChart
         gaugeWeights={validator?.rewardAllocationWeights}
-        totalAmountStaked={validator?.dynamicData?.amountStaked ?? "0"}
+        totalAmountStaked={validator?.dynamicData?.amountDelegated ?? "0"}
         globalAmountStaked={"10000000"}
         isLoading={false}
         showTotal={false}

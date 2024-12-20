@@ -27,8 +27,8 @@ export const useValidator = ({ pubkey }: { pubkey: Address }) => {
             operator: onChainValidator?.operator ?? indexerValidator?.operator,
             coinbase: onChainValidator?.pubkey ?? indexerValidator?.pubkey,
             amountStaked:
-              onChainValidator?.dynamicData?.amountStaked ??
-              indexerValidator?.dynamicData?.amountStaked,
+              onChainValidator?.dynamicData?.amountDelegated ??
+              indexerValidator?.dynamicData?.amountDelegated,
             metadata: onChainValidator?.metadata ?? indexerValidator?.metadata,
             id: onChainValidator?.id ?? indexerValidator?.id,
           } as ApiValidatorFragment)

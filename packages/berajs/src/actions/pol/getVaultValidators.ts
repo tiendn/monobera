@@ -25,5 +25,5 @@ export const getVaultValidators = async ({
     variables: { vaultId: address },
   });
 
-  return result.data?.validators ?? [];
+  return result.data?.validators.validators ?? [];
 };

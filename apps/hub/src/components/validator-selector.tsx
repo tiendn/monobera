@@ -33,7 +33,7 @@ export default function ValidatorSelector({
   const selectedValidatorInfo = useMemo(() => {
     if (selectedValidator) return selectedValidator;
 
-    return validatorInfo?.validators.find(
+    return validatorInfo?.validators?.validators?.find(
       (v) => v.pubkey.toLowerCase() === validatorAddress.toLowerCase(),
     );
   }, [isValidValidator, validatorInfo]);

@@ -44,7 +44,7 @@ export default function ValidatorDetails({
       value: (
         <span className="text-xl font-semibold">
           <FormattedNumber
-            value={validator?.dynamicData?.amountStaked ?? "10"}
+            value={validator?.dynamicData?.amountDelegated ?? "10"}
             showIsSmallerThanMin
             symbol="BGT"
           />

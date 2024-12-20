@@ -68,7 +68,7 @@ export const useUserVaults = (
         },
       });
 
-      const deposits = res.data?.userVaultDeposits;
+      const deposits = res.data?.userVaultDeposits?.deposits;
 
       const calls: Call[] = deposits.map((deposit) => ({
         address: deposit.vaultAddress as Address,

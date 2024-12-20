@@ -60,7 +60,13 @@ query GetVaults(
     orderDirection: $orderDirection
     search: $search
   ) {
-    ...ApiVault
+    pagination {
+      currentPage
+      totalCount
+    }
+    vaults {
+      ...ApiVault
+    }
   }
 }
 
@@ -75,8 +81,8 @@ fragment ApiValidator on GqlValidator {
     description
   }
   dynamicData {
-    amountStaked
-    usersStaked
+    amountDelegated
+    usersDelegated
     amountQueued
     usersQueued
     apy
@@ -116,13 +122,25 @@ query GetValidators(
     skip: $skip
     search: $search
   ) {
-    ...ApiValidator
+    pagination {
+      currentPage
+      totalCount
+    }
+    validators {
+      ...ApiValidator
+    }
   }
 }
 
 query GetVaultValidators($vaultId: String!) {
   validators: polGetValidators(where: { vaultAddress: $vaultId }) {
-    ...ApiValidator
+    pagination {
+      currentPage
+      totalCount
+    }
+    validators {
+      ...ApiValidator
+    }
   }
 }
 
@@ -138,13 +156,21 @@ query GlobalData($chain: GqlChain!) {
     orderDirection: desc
     first: 3
   ) {
-    ...ApiValidator
+    pagination {
+      currentPage
+      totalCount
+    }
+    validators {
+      ...ApiValidator
+    }
   }
 
   polGetGlobalInfo(chain: $chain) {
-    totalBGTStaked
+    totalBGTQueued
+    totalBGTDelegated
     totalValidators
-    totalRewardVaults
+    totalWhitelistedRewardVaults
+    totalActiveRewardVaults
     totalActiveIncentives
     totalActiveIncentivesValueUSD
   }
@@ -155,10 +181,16 @@ query GetUserVaults($userId: String!, $chain: GqlChain!) {
     userAddress: $userId
     chain: $chain
   ) {
-    amount
-    vaultAddress
-    vault {
-      ...ApiVault
+    pagination {
+      currentPage
+      totalCount
+    }
+    deposits {
+      amount
+      vaultAddress
+      vault {
+        ...ApiVault
+      }
     }
   }
 }

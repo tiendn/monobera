@@ -41,7 +41,7 @@ const GLOBAL_VOTING_POWER_COLUMN: ColumnDef<ApiValidatorFragment> = {
   cell: ({ row }) => (
     <div className="w-full text-start">
       <FormattedNumber
-        value={row.original.dynamicData?.amountStaked ?? 0}
+        value={row.original.dynamicData?.amountDelegated ?? 0}
         compact={false}
         symbol="BGT"
       />
@@ -49,14 +49,14 @@ const GLOBAL_VOTING_POWER_COLUMN: ColumnDef<ApiValidatorFragment> = {
   ),
   minSize: 200,
 
-  accessorKey: "dynamicData.amountStaked",
+  accessorKey: "dynamicData.amountDelegated",
 
   sortingFn: (a, b) => {
     console.log({ a, b });
 
     return (
-      Number(a.original.dynamicData?.amountStaked) -
-      Number(b.original.dynamicData?.amountStaked)
+      Number(a.original.dynamicData?.amountDelegated) -
+      Number(b.original.dynamicData?.amountDelegated)
     );
   },
   enableSorting: true,

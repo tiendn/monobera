@@ -66,10 +66,12 @@ export const ValidatorOverview = ({
     useAllValidators();
 
   useEffect(() => {
-    const totalValidators = allValidators?.validators?.length ?? 0;
-    const valStakedRanking = allValidators?.validators?.findIndex(
+    const totalValidators = allValidators?.validators?.validators?.length ?? 0;
+    const valStakedRanking = allValidators?.validators?.validators?.findIndex(
       (v) => v.id === validator.id.toLowerCase(),
     );
+
+    console.log({ allValidatorBlockData });
 
     const blocksSigned = allValidatorBlockData?.blockStatsByValidators?.reduce(
       (acc, v, idx) => {

@@ -23,7 +23,7 @@ const VALIDATOR_PAGE_SIZE = 10;
 
 const map: Record<string, GqlValidatorOrderBy> = {
   dynamicData_bgtCapturePercentage: GqlValidatorOrderBy.BgtCapturePercentage,
-  dynamicData_amountStaked: GqlValidatorOrderBy.AmountStaked,
+  dynamicData_amountDelegated: GqlValidatorOrderBy.AmountDelegated,
   dynamicData_amountQueued: GqlValidatorOrderBy.AmountQueued,
 };
 
@@ -58,7 +58,7 @@ export const AllValidator = ({
     search: isTyping ? "" : keyword,
   });
 
-  const validators = validatorData?.validators ?? [];
+  const validators = validatorData?.validators?.validators ?? [];
 
   const fetchData = useCallback(
     (state: TableState) => {

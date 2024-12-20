@@ -6,7 +6,7 @@ export const useValidatorEstimatedBgtPerYear = (
 ): number => {
   const { data } = useAllValidators();
 
-  const validatorCounts = data?.validators.length ?? 0;
+  const validatorCounts = data?.validators.validators.length ?? 0;
 
   const blockTime = useBlockTime();
   return useMemo(() => {

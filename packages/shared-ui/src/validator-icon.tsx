@@ -46,7 +46,7 @@ export const ValidatorIcon = ({
   const img = useMemo(
     // @ts-ignore
     () =>
-      data?.validators.find(
+      data?.validators?.validators?.find(
         (v) => v.pubkey.toLowerCase() === address.toLowerCase(),
       )?.metadata?.logoURI ?? "",
     [address, data],
