@@ -29,7 +29,7 @@ export const MyGaugeDetails = ({
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
       <GaugueLPChange rewardVault={rewardVault} />
-      {isReady && data && (
+      {isReady && data ? (
         <div className="flex w-full flex-col gap-4 lg:max-w-[440px]">
           <div className="flex flex-col gap-8 rounded-md border border-border p-4">
             <div className="text-lg font-semibold leading-7">
@@ -87,6 +87,8 @@ export const MyGaugeDetails = ({
             />
           </div>
         </div>
+      ) : (
+        <div className="lg:max-w-[440px] w-full" />
       )}
     </div>
   );
