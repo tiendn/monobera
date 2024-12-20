@@ -89,7 +89,7 @@ const MOST_WEIGHTED_GAUGE_COLUMN: ColumnDef<ApiValidatorFragment> = {
     const cuttingBoards = [...(row.original.rewardAllocationWeights ?? [])];
 
     const mostWeightedCuttingBoard = cuttingBoards.sort(
-      (a, b) => Number(a.percentageNumerator) - Number(b.percentageNumerator),
+      (a, b) => Number(b.percentageNumerator) - Number(a.percentageNumerator),
     )[0];
     return <CuttingBoardDisplay cuttingBoard={mostWeightedCuttingBoard} />;
   },

@@ -2,6 +2,7 @@ import { truncateHash, useRewardVaults, useTokens } from "@bera/berajs";
 import { ApiVaultFragment } from "@bera/graphql/pol/api";
 import { GaugeIcon, MarketIcon, TokenIconList } from "@bera/shared-ui";
 import { cn } from "@bera/ui";
+import { isAddressEqual } from "viem";
 import { Address } from "viem";
 
 export const GaugeHeaderWidget = ({
@@ -19,8 +20,8 @@ export const GaugeHeaderWidget = ({
 
   const gauge =
     defaultGauge ??
-    vaultsData?.gaugeList?.find(
-      (gauge) => gauge.vaultAddress.toLowerCase() === address.toLowerCase(),
+    vaultsData?.gaugeList?.find((gauge) =>
+      isAddressEqual(gauge.vaultAddress as Address, address),
     );
 
   const { data } = useTokens();

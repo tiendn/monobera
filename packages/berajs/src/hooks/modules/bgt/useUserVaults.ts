@@ -7,6 +7,7 @@ import {
   GetUserVaultsQueryVariables,
   GqlChain,
 } from "@bera/graphql/pol/api";
+import { captureException } from "@sentry/nextjs";
 import useSWR from "swr";
 import { Address, formatUnits } from "viem";
 import { usePublicClient } from "wagmi";
@@ -96,24 +97,46 @@ export const useUserVaults = (
       ]);
 
       let total = 0n;
-      const userVaults = deposits.map((deposit, index: number) => {
-        const item = result[index];
-        const balanceItem = balanceResult[index];
-        total += item.result as bigint;
 
-        if (item.status === "success") {
+      const userVaults = deposits
+        .map<UserVault | null>((deposit, index: number) => {
+          const item = result[index];
+          const balanceItem = balanceResult[index];
+          total += item.result as bigint;
+
+          if (!deposit.vault) {
+            // This is in case the API is missing the vault data
+
+            captureException(
+              new Error("Deposit data from API is missing vault"),
+              {
+                extra: {
+                  deposit,
+                },
+              },
+            );
+
+            console.error("Deposit data from API is missing vault", deposit);
+
+            return null;
+          }
+
+          if (item.status === "success") {
+            return {
+              ...deposit,
+              vault: deposit.vault,
+              unclaimedBgt: formatUnits(item.result as bigint, 18),
+              balance: formatUnits(balanceItem.result as bigint, 18),
+            };
+          }
           return {
             ...deposit,
-            unclaimedBgt: formatUnits(item.result as bigint, 18),
-            balance: formatUnits(balanceItem.result as bigint, 18),
+            vault: deposit.vault,
+            unclaimedBgt: "0",
+            balance: "0",
           };
-        }
-        return {
-          ...deposit,
-          unclaimedBgt: "0",
-          balance: "0",
-        };
-      });
+        })
+        .filter((item): item is UserVault => item !== null);
 
       const sortedUserVaults = userVaults.sort((a: any, b: any) => {
         const aUnclaimed = parseFloat(a.unclaimedBgt);
@@ -123,7 +146,7 @@ export const useUserVaults = (
 
       return {
         totalBgtRewards: formatUnits(total, 18),
-        vaults: sortedUserVaults as UserVault[],
+        vaults: sortedUserVaults satisfies UserVault[],
       };
     },
     {

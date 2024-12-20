@@ -55,7 +55,7 @@ const generateValidatorRewardsEmptyData = (
     validator: {
       id: "",
       publicKey: "",
-      amountStaked: "0",
+      amountDelegated: "0",
     },
   };
 };

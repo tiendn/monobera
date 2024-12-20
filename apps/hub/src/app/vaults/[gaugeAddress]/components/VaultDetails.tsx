@@ -5,7 +5,6 @@ import {
   truncateHash,
   useRewardVault,
   useVaultValidators,
-  type UserValidator,
   useRewardVaultIncentives,
   useMultipleTokenInformation,
   useBeraJs,
@@ -184,7 +183,7 @@ const _GaugeDetails = ({ address }: { address: Address }) => {
                 columns={getGaugeValidatorColumns(rewardVault)}
                 loading={isValidatorsLoading}
                 validating={isValidatorsValidating}
-                data={validators as UserValidator[]}
+                data={validators}
                 className="min-w-[800px] shadow"
                 onRowClick={(row: any) =>
                   window.open(getHubValidatorPath(row.original.id), "_blank")
