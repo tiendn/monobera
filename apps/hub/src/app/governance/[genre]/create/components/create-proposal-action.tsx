@@ -97,20 +97,12 @@ export const CreateProposalAction = ({
           idx={idx}
         />
       )}
-      {action.type === ProposalTypeEnum.WHITELIST_REWARD_VAULT && (
+      {(action.type === ProposalTypeEnum.WHITELIST_REWARD_VAULT ||
+        action.type === ProposalTypeEnum.BLACKLIST_REWARD_VAULT) && (
         <UpdateVaultWhitelistStatus
           errors={errors}
           action={action}
           setAction={setAction}
-          isFriendOfTheChef={true}
-        />
-      )}
-      {action.type === ProposalTypeEnum.BLACKLIST_REWARD_VAULT && (
-        <UpdateVaultWhitelistStatus
-          errors={errors}
-          action={action}
-          setAction={setAction}
-          isFriendOfTheChef={false}
         />
       )}
       {action.type === ProposalTypeEnum.ERC20_TRANSFER && (
