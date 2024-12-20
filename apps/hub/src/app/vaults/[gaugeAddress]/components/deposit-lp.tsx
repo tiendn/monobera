@@ -26,16 +26,18 @@ export const DepositLP = ({
   lpToken: Token;
   rewardVault: ApiVaultFragment;
 }) => {
-  const { useSelectedWalletBalance } = usePollWalletBalances({
-    externalTokenList: [lpToken],
-  });
+  const { useSelectedWalletBalance, refresh: refreshWalletBalances } =
+    usePollWalletBalances({
+      externalTokenList: [lpToken],
+    });
+
   const balance = useSelectedWalletBalance(lpToken.address);
   const [depositAmount, setDepositAmount] = useState("");
   const validAmount =
     BigNumber(depositAmount).gt(0) &&
     BigNumber(depositAmount).lte(balance?.formattedBalance ?? "0");
 
-  const { refresh } = usePollVaultsInfo({
+  const { refresh: refreshVaultInfo } = usePollVaultsInfo({
     vaultAddress: rewardVault.vaultAddress as Address,
   });
 
@@ -50,10 +52,12 @@ export const DepositLP = ({
           token: lpToken.symbol,
           vault: rewardVault.vaultAddress,
         });
+        setDepositAmount("");
       } catch (e) {
         captureException(e);
       }
-      refresh();
+      refreshWalletBalances();
+      refreshVaultInfo();
     },
     onError: (e: Error | undefined) => {
       track("stake_failed");
@@ -67,6 +71,7 @@ export const DepositLP = ({
   });
 
   const [exceeding, setExceeding] = useState(false);
+
   return (
     <div className="flex flex-col gap-4 rounded-md border border-border p-4">
       <div>

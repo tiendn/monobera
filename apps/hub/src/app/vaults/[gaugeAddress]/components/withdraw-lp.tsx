@@ -4,6 +4,7 @@ import {
   Token,
   TransactionActionType,
   usePollVaultsInfo,
+  usePollWalletBalances,
 } from "@bera/berajs";
 import {
   ActionButton,
