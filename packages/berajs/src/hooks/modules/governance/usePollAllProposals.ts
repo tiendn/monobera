@@ -142,7 +142,7 @@ export const usePollAllProposals = (
       }
     }
 
-    if(shouldMutate) {
+    if (shouldMutate) {
       res.mutate();
     }
   }, [statuses, currentBlockNumber]);
