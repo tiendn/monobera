@@ -68,18 +68,6 @@ export const GeneralInfo = () => {
     },
   });
 
-  // const {
-  //   write: claimAllBgtWrite,
-  //   isLoading: isClaimAllBgtLoading,
-  //   ModalPortal: ClaimAllBgtModalPortal,
-  // } = useTxn({
-  //   message: "Claiming all BGT Rewards",
-  //   actionType: TransactionActionType.CLAIMING_REWARDS,
-  //   // onSuccess: () => {
-  //   //   refresh();
-  //   // },
-  // });
-
   // const claimAllBgtCalldata = useClaimAllBgtCalldata(userVaultInfo?.vaults.map((vault: any) => vault.vaultAddress) ?? [])
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
@@ -128,7 +116,7 @@ export const GeneralInfo = () => {
                 Reward Vaults:
               </div>
               {isDataReady &&
-                userVaultInfo?.vaults.map((gauge: UserVault, index: number) => (
+                userVaultInfo?.vaults.map((gauge, index) => (
                   <div
                     className="flex h-6 w-fit items-center gap-1 rounded-full border border-border bg-background px-2"
                     key={`gauge-${index}-${gauge}`}
@@ -138,7 +126,6 @@ export const GeneralInfo = () => {
                       overrideImage={gauge.vault.metadata?.logoURI}
                       className="h-4 w-4"
                     />
-
                     <span className="text-xs">
                       {gauge.vault.metadata?.name}
                     </span>
@@ -189,7 +176,7 @@ export const GeneralInfo = () => {
               {isDataReady ? (
                 <>
                   <FormattedNumber
-                    value={claimableIncentives.honeyValue}
+                    value={claimableIncentives?.honeyValue ?? 0}
                     symbol="USD"
                     compact
                     showIsSmallerThanMin

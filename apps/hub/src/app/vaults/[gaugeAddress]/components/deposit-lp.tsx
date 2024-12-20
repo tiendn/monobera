@@ -43,7 +43,7 @@ export const DepositLP = ({
 
   const { captureException, track } = useAnalytics();
   const { write, ModalPortal } = useTxn({
-    message: "Deposit LP Tokens", // AKA 'stake'
+    message: "Stake LP Tokens", // AKA 'stake'
     actionType: TransactionActionType.ADD_LIQUIDITY,
     onSuccess: () => {
       try {

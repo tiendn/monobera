@@ -75,14 +75,14 @@ export const BoostQueue = ({
     setTimeout(() => {
       refresh();
       refreshBalance();
-      setHasSubmittedTxn({} as any);
+      setHasSubmittedTxn({});
       setIsValidatorDataLoading(false);
     }, 5000);
   };
 
   const [hasSubmittedTxn, setHasSubmittedTxn] = useState<
     Record<number, boolean>
-  >({} as any);
+  >({});
 
   const {
     write: activateWrite,
@@ -92,7 +92,7 @@ export const BoostQueue = ({
     message: "Activating queued BGT to Validator",
     actionType: TransactionActionType.DELEGATE,
     onError: () => {
-      setHasSubmittedTxn({} as any);
+      setHasSubmittedTxn({});
     },
     onSuccess,
   });
@@ -240,7 +240,7 @@ const ConfirmationCard = ({
   const { data } = useAllValidators();
 
   const pubkey = userValidator.pubkey;
-  const validatorInfo = data?.validators.find(
+  const validatorInfo = data?.validators?.validators?.find(
     (v) => v.pubkey.toLowerCase() === pubkey.toLowerCase(),
   );
 

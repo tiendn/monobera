@@ -50,7 +50,7 @@ export const getUserActiveValidators = async ({
       : undefined,
   ]);
 
-  return validatorInfoList?.validators.map((validator) => {
+  return validatorInfoList?.validators.validators.map((validator) => {
     const userDeposited = onChainBoosts
       ? onChainBoosts.find(
           (data) =>

@@ -25,13 +25,37 @@ export const useValidator = ({ pubkey }: { pubkey: Address }) => {
             ...indexerValidator,
             ...onChainValidator,
             operator: onChainValidator?.operator ?? indexerValidator?.operator,
-            coinbase: onChainValidator?.pubkey ?? indexerValidator?.pubkey,
-            amountStaked:
-              onChainValidator?.dynamicData?.amountStaked ??
-              indexerValidator?.dynamicData?.amountStaked,
+            dynamicData: {
+              amountDelegated:
+                onChainValidator?.dynamicData?.amountDelegated ??
+                indexerValidator?.dynamicData?.amountDelegated ??
+                "",
+              amountQueued: indexerValidator?.dynamicData?.amountQueued ?? "",
+              usersDelegated:
+                indexerValidator?.dynamicData?.usersDelegated ?? 0,
+              usersQueued: indexerValidator?.dynamicData?.usersQueued ?? 0,
+              apy: indexerValidator?.dynamicData?.apy ?? "",
+              bgtCapturePercentage:
+                onChainValidator?.dynamicData?.bgtCapturePercentage ??
+                indexerValidator?.dynamicData?.bgtCapturePercentage ??
+                "",
+              bgtEmittedAllTime:
+                indexerValidator?.dynamicData?.bgtEmittedAllTime ?? "0",
+              rewardRate:
+                onChainValidator?.dynamicData?.rewardRate ??
+                indexerValidator?.dynamicData?.rewardRate ??
+                "",
+              depositStakedAmount:
+                indexerValidator?.dynamicData?.depositStakedAmount ?? "",
+            },
+            id: onChainValidator?.id ?? indexerValidator?.id ?? "",
+            pubkey: onChainValidator?.pubkey ?? indexerValidator?.pubkey ?? "",
             metadata: onChainValidator?.metadata ?? indexerValidator?.metadata,
-            id: onChainValidator?.id ?? indexerValidator?.id,
-          } as ApiValidatorFragment)
+            rewardAllocationWeights:
+              onChainValidator?.rewardAllocationWeights ??
+              indexerValidator?.rewardAllocationWeights ??
+              [],
+          } satisfies ApiValidatorFragment)
         : null,
     isLoading: isIndexerValidatorLoading || isOnChainValidatorLoading,
     error: indexerValidatorError || onChainValidatorError,

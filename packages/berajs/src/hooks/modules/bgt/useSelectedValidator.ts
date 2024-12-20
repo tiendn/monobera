@@ -36,7 +36,7 @@ export const useSelectedValidator = (
         },
       });
 
-      return results.data?.validators?.[0];
+      return results.data?.validators?.validators?.[0];
     },
     {
       ...options?.opts,

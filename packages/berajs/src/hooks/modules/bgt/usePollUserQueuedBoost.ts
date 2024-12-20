@@ -24,7 +24,9 @@ export const usePollUserQueuedBoost = (
 
   const { data } = useAllValidators();
   const validatorAddressList =
-    data?.validators.map((validator) => validator.pubkey as Address) ?? [];
+    data?.validators?.validators?.map(
+      (validator) => validator.pubkey as Address,
+    ) ?? [];
 
   const QUERY_KEY = account
     ? [account, validatorAddressList, "usePollUserQueuedBoost"]

@@ -30,7 +30,7 @@ export default function GaugeInfoCard() {
           </div>
           {!isLoading ? (
             <span className="text-2xl font-semibold leading-8">
-              {globalData?.vaultCount}
+              {globalData?.activeRewardVaultCount}
             </span>
           ) : (
             <Skeleton className="h-8 w-[125px] " />

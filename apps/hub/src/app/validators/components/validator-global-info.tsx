@@ -72,7 +72,7 @@ export const ValidatorsGlobalInfo = () => {
     {
       amount: (
         <FormattedNumber
-          value={data?.vaultCount ?? 0}
+          value={data?.activeRewardVaultCount ?? 0}
           compact={false}
           visibleDecimals={0}
         />

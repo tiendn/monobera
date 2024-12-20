@@ -22,7 +22,7 @@ export const usePoolTable = ({
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
 
-  const handleEnter = (e: any) => {
+  const handleEnter: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === "Enter") {
       setKeyword(search);
     }

@@ -33,7 +33,7 @@ export const getRewardVaults = async (
     throw res.error;
   }
 
-  const vaults = res.data.polGetRewardVaults;
+  const vaults = res.data.polGetRewardVaults?.vaults;
 
   return {
     gaugeCounts: vaults.length,

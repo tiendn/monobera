@@ -51,7 +51,7 @@ export const ConfirmationCard = ({
   const { data } = useAllValidators();
 
   const pubkey = userValidator.pubkey;
-  const validatorInfo = data?.validators.find(
+  const validatorInfo = data?.validators?.validators?.find(
     (v) => v.pubkey.toLowerCase() === pubkey.toLowerCase(),
   );
 

@@ -1,7 +1,7 @@
 fragment ValidatorMinimal on Validator {
   id
   publicKey
-  amountStaked
+  amountDelegated
 }
 fragment SubgraphStatusMeta on _Meta_ {
   block {
@@ -11,7 +11,10 @@ fragment SubgraphStatusMeta on _Meta_ {
 }
 
 query GetUserValidatorInformation($address: Bytes!) {
-  userValidatorInformations(where: { user: $address }, first: 1000) {
+  userValidatorInformations: userValidatorBGTDelegateds(
+    where: { user: $address }
+    first: 1000
+  ) {
     id
     queuedBoosts: amountQueued
     activeBoosts: amountDeposited
@@ -35,20 +38,20 @@ query GetValidValidator($address: ID!) {
 }
 
 query GetAllValidators {
-  validators(first: 1000, orderDirection: desc, orderBy: amountStaked) {
+  validators(first: 1000, orderDirection: desc, orderBy: amountDelegated) {
     ...ValidatorMinimal
   }
 }
 
-fragment ValidatorStakedBgts on ValidatorBGTStaked {
-  allTimeBGTStaked
-  BGTStaked
+fragment ValidatorStakedBgts on ValidatorBGTDelegated {
+  allTimeBGTStaked: allTimeBGTDelegated
+  BGTStaked: BGTDelegated
   id
   timestamp
 }
 
 query GetValidatorBgtStaked($pubKey: String!, $timestamp: Timestamp!) {
-  validatorBgtStaked: validatorBGTStakeds(
+  validatorBgtStaked: validatorBGTDelegateds(
     interval: day
     where: { validator: $pubKey, timestamp_gte: $timestamp }
   ) {
@@ -109,7 +112,7 @@ query GetValidatorIncentivesReceiveds(
 }
 
 query GetValidatorBgtBoost($address: String!) {
-  userValidatorBoostQueued: userValidatorInformations(
+  userValidatorBoostQueued: userValidatorBGTDelegateds(
     first: 10
     where: { validator: $address, amountQueued_gt: "0" }
     orderBy: amountQueued
@@ -118,7 +121,7 @@ query GetValidatorBgtBoost($address: String!) {
     amountQueued
     user
   }
-  userValidatorBoostDeposited: userValidatorInformations(
+  userValidatorBoostDeposited: userValidatorBGTDelegateds(
     first: 10
     where: { validator: $address, amountDeposited_gt: "0" }
     orderBy: amountDeposited
@@ -179,7 +182,7 @@ fragment VaultWithStakingToken on Vault {
 
 fragment GlobalInfo on GlobalInfo {
   totalValidators
-  totalBGTStaked
+  totalBGTStaked: totalBGTDelegated
   totalBGTQueued
   totalBGTDistributed
   rewardRate
@@ -187,23 +190,8 @@ fragment GlobalInfo on GlobalInfo {
   baseRewardRate
 }
 
-fragment GlobalRewardAllocation on GlobalRewardAllocation {
-  id
-  amount
-  receiver
-  vault {
-    ...VaultMinimal
-  }
-}
-
 # TODO: we need to figure out what to do when we have 1000+ reward vaults and this query is wrong
 query GetGauges {
-  globalInfos(first: 1) {
-    ...GlobalInfo
-  }
-  globalRewardAllocations(first: 1) {
-    ...GlobalRewardAllocation
-  }
   vaults(first: 1000, where: { isWhitelisted: true }) {
     ...VaultWithStakingToken
   }
@@ -218,14 +206,6 @@ query GetWeeklyBgtInflation($wbera: ID!) {
   }
 }
 
-query GetGlobalCuttingBoard {
-  globalRewardAllocations {
-    ...GlobalRewardAllocation
-  }
-  globalInfos {
-    ...GlobalInfo
-  }
-}
 query GetRewardVault($stakingToken: String) {
   vaults(first: 1, where: { stakingToken: $stakingToken }) {
     ...VaultWithStakingToken
