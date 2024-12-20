@@ -295,16 +295,14 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (fromAmount)
           // Set the resulting Honey amount
           setToAmount({
-            [honey?.address!]: new BigNumber(formatUnits(previewRes.honey, 18))
-              .decimalPlaces(2, 1)
-              .toString(),
+            [honey?.address!]: formatUnits(previewRes.honey, 18),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setFromAmount((prevColl) => ({
               ...newCollaterals,
-              [changedAsset]: Number(prevColl[changedAsset]).toFixed(2),
+              [changedAsset]: prevColl[changedAsset],
             }));
           }
         } else {
@@ -323,16 +321,14 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (toAmount)
           // Set required Honey amount
           setFromAmount({
-            [honey?.address!]: new BigNumber(formatUnits(previewRes.honey, 18))
-              .decimalPlaces(2, 1)
-              .toString(),
+            [honey?.address!]: formatUnits(previewRes.honey, 18),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setToAmount((prevColl) => ({
               ...newCollaterals,
-              [changedAsset]: Number(prevColl[changedAsset]).toFixed(2),
+              [changedAsset]: prevColl[changedAsset],
             }));
           }
         }
