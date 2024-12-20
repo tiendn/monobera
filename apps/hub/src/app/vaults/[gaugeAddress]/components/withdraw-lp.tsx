@@ -38,7 +38,7 @@ export const WithdrawLP = ({
 
   const { captureException, track } = useAnalytics();
   const { write, ModalPortal } = useTxn({
-    message: "Withdraw LP Tokens", // aka unstake
+    message: "Unstake LP Tokens", // aka unstake
     actionType: TransactionActionType.WITHDRAW_LIQUIDITY,
     onSuccess: () => {
       try {
