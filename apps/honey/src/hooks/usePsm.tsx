@@ -143,14 +143,12 @@ export const usePsm = (): PsmHookReturn => {
   const isBadCollateral1 = useIsBadCollateralAsset({
     collateral: collaterals[0]?.address,
   });
-  const isBadCollateral2 = useIsBadCollateralAsset({
-    collateral: collaterals[1]?.address,
-  });
-  const isBadCollateral =
-    isBadCollateral1.data?.isBlacklisted ||
-    isBadCollateral1.data?.isDepegged ||
-    isBadCollateral2.data?.isBlacklisted ||
-    isBadCollateral2.data?.isDepegged;
+  // const isBadCollateral2 = useIsBadCollateralAsset({
+  //   collateral: collaterals[1]?.address,
+  // });
+  const isBadCollateral = isBasketModeEnabled
+    ? false
+    : isBadCollateral1.data?.isBlacklisted || isBadCollateral1.data?.isDepegged;
 
   // ===== TOKEN BALANCES =====
   // retrieve token balances for both input and output tokens
