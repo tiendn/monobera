@@ -1,19 +1,30 @@
 fragment ValidatorMinimal on Validator {
   id
+  publicKey
   amountStaked
+}
+fragment SubgraphStatusMeta on _Meta_ {
+  block {
+    timestamp
+  }
+  hasIndexingErrors
 }
 
 query GetUserValidatorInformation($address: Bytes!) {
   userValidatorInformations(where: { user: $address }, first: 1000) {
     id
-    amountQueued
-    amountDeposited
-    latestBlock
+    queuedBoosts: amountQueued
+    activeBoosts: amountDeposited
+    queuedUnboosts: amountDropQueued
+    queuedUnboostStartBlock: dropQueuedStartBlock
+    queuedBoostStartBlock: queuedStartBlock
     user
-    latestBlockTime
     validator {
       ...ValidatorMinimal
     }
+  }
+  _meta {
+    ...SubgraphStatusMeta
   }
 }
 
@@ -118,7 +129,7 @@ query GetValidatorBgtBoost($address: String!) {
   }
 }
 
-query GetValidatorBlockStats($address: String = "") {
+query GetValidatorBlockStats($address: String) {
   blockStatsByValidators(
     interval: hour
     first: 1
@@ -130,11 +141,12 @@ query GetValidatorBlockStats($address: String = "") {
 
 query GetAllValidatorBlockCount($timestamp: Timestamp) {
   blockStatsByValidators(
-    interval: hour
+    interval: day
     first: 1000
-    where: { timestamp_gte: $timestamp }
+    where: { timestamp: $timestamp }
   ) {
     allTimeBlockCount
+    blockCount
     validator {
       id
       publicKey
@@ -221,7 +233,7 @@ query GetRewardVault($stakingToken: String) {
 }
 
 query GetValidatorByOperator($operator: Bytes = "") {
-  validators(where: {operator: $operator}) {
+  validators(where: { operator: $operator }) {
     publicKey
   }
 }

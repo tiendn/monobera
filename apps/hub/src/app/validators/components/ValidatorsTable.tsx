@@ -3,23 +3,25 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { truncateHash, useBeraJs, type CuttingBoardWeight } from "@bera/berajs";
+import { truncateHash, useBeraJs } from "@bera/berajs";
 import { blockExplorerUrl } from "@bera/config";
 import { GaugeIcon, SearchInput } from "@bera/shared-ui";
 import { getHubValidatorPath } from "@bera/shared-ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
-import { getAddress } from "viem";
+import { Address, getAddress } from "viem";
 
 import { AllValidator } from "./all-validator";
 import { BoostQueue } from "./boost-queue";
 import { MyValidator } from "./my-validators";
+import { ApiRewardAllocationWeightFragment } from "@bera/graphql/pol/api";
 
 export const CuttingBoardDisplay = ({
   cuttingBoard,
 }: {
-  cuttingBoard: CuttingBoardWeight | undefined;
+  cuttingBoard: ApiRewardAllocationWeightFragment | undefined;
 }) => {
-  if (!cuttingBoard) return <div>No Reward Vaults Found</div>;
+  if (!cuttingBoard)
+    return <div className="text-xs text-muted-foreground italic">–</div>;
   return (
     <Link
       className="flex  h-full w-[160px] items-center justify-start gap-2"
@@ -28,11 +30,11 @@ export const CuttingBoardDisplay = ({
       onClick={(e) => e.stopPropagation()}
     >
       <GaugeIcon
-        address={cuttingBoard.receiverMetadata?.vaultAddress ?? "0x"}
-        overrideImage={cuttingBoard.receiverMetadata?.logoURI ?? ""}
+        address={(cuttingBoard.receivingVault?.vaultAddress as Address) ?? "0x"}
+        overrideImage={cuttingBoard.receivingVault?.metadata?.logoURI ?? ""}
       />
       <span className="max-w-[200px] truncate hover:underline">
-        {cuttingBoard.receiverMetadata?.name ??
+        {cuttingBoard.receivingVault?.metadata?.name ??
           truncateHash(cuttingBoard.receiver)}
       </span>
     </Link>
@@ -72,10 +74,10 @@ export default function ValidatorsTable() {
               className="w-full"
               disabled={!isReady}
             >
-              My Validators
+              My Boosts
             </TabsTrigger>
             <TabsTrigger value="queued" className="w-full" disabled={!isReady}>
-              My Queue
+              Queued Boosts
             </TabsTrigger>
           </TabsList>
           <TabsContent value="all-validators">
@@ -127,20 +129,20 @@ export default function ValidatorsTable() {
             isTyping={isTyping}
             page={allValidatorPage}
             setPage={setAllValidatorPage}
-            onRowClick={(row: any) =>
-              router.push(getHubValidatorPath(row.original.coinbase))
-            }
+            onRowClick={(row: any) => {
+              router.push(getHubValidatorPath(row.original.pubkey));
+            }}
             onRowHover={(row: any) =>
-              router.prefetch(getHubValidatorPath(row.original.coinbase))
+              router.prefetch(getHubValidatorPath(row.original.pubkey))
             }
           />
         </TabsContent>
         <TabsContent value="my-validators">
           <MyValidator
             keyword={keyword}
-            onRowClick={(row: any) =>
-              router.push(getHubValidatorPath(row.original.coinbase))
-            }
+            onRowClick={(row: any) => {
+              router.push(getHubValidatorPath(row.original.pubkey));
+            }}
           />
         </TabsContent>
         <TabsContent value="queued">

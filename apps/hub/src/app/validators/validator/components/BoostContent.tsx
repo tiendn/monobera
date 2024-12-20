@@ -6,6 +6,7 @@ import {
   useBeraJs,
   useBgtUnstakedBalance,
   useUserActiveValidators,
+  useUserBoostsOnValidator,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
 import { ActionButton, FormattedNumber, useTxn } from "@bera/shared-ui";
@@ -15,25 +16,31 @@ import BigNumber from "bignumber.js";
 import { Address, parseUnits } from "viem";
 
 import ValidatorInput from "~/components/validator-input";
-import { DelegateEnum, ImageMapEnum } from "./types";
+import { DelegateEnum, ImageMapEnum } from "../types";
 
 export const DelegateContent = ({
   validator,
   setIsValidatorDataLoading,
+  onSuccess,
 }: {
   validator?: Address;
   setIsValidatorDataLoading: (loading: boolean) => void;
+  onSuccess?: () => void;
 }) => {
   const { isReady } = useBeraJs();
 
   const [amount, setAmount] = React.useState<string | undefined>(undefined);
   const { refresh } = useUserActiveValidators();
 
+  const { refresh: refreshUserBoosts } = useUserBoostsOnValidator({
+    pubkey: validator as Address,
+  });
   const { data: bgtBalance, refresh: refreshBalance } = useBgtUnstakedBalance();
 
   const exceeding = BigNumber(amount ?? "0").gt(
     bgtBalance ? bgtBalance.toString() : "0",
   );
+
   const disabled = exceeding || !amount || amount === "" || amount === "0";
 
   const {
@@ -41,15 +48,17 @@ export const DelegateContent = ({
     isLoading: isDelegatingLoading,
     ModalPortal,
   } = useTxn({
-    message: `Delegating ${Number(amount).toFixed(2)} BGT to Validator`,
+    message: `Boosting ${Number(amount).toFixed(2)} BGT to Validator`,
     actionType: TransactionActionType.DELEGATE,
     onSuccess: () => {
       setIsValidatorDataLoading(true);
       setTimeout(() => {
         refresh();
+        refreshUserBoosts();
         refreshBalance();
         setIsValidatorDataLoading(false);
       }, 5000);
+      onSuccess?.();
     },
   });
   return (

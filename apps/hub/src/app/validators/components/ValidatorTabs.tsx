@@ -13,20 +13,25 @@ import {
 } from "@bera/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@bera/ui/tabs";
 
-import { ValidatorOverview } from "../validator/validator-overview";
-import { ValidatorPolData } from "../validator/validator-pol-data";
+import { ValidatorOverview } from "../validator/components/ValidatorOverview";
+import { ValidatorPolData } from "../validator/components/ValidatorPolData";
 import { ValidatorAnalytics } from "./validator-analytics";
 import { ValidatorConfiguration } from "./validator-configuration";
+import { ApiValidatorFragment } from "@bera/graphql/pol/api";
+import { Address } from "viem";
 
 // import { ValidatorEvents } from "./validator-events";
 
 type ValidatorTabValue = "overview" | "configuration" | "analytics" | "events";
 
-export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
+export const ValidatorTabs = ({
+  validator,
+}: { validator: ApiValidatorFragment }) => {
   const { account } = useBeraJs();
   const { data } = useValidatorByOperator(account ?? "0x");
   const isValidatorWallet =
-    data?.validators[0]?.publicKey === validator.coinbase;
+    data?.validators[0]?.publicKey?.toLowerCase() ===
+    validator.pubkey.toLowerCase();
 
   const [dayRange, setDayRange] = useState("30");
   const [activeTab, setActiveTab] = useState<ValidatorTabValue>("overview");
@@ -98,7 +103,7 @@ export const ValidatorTabs = ({ validator }: { validator: Validator }) => {
       <TabsContent value="analytics">
         <ValidatorAnalytics
           dayRange={dayRange}
-          validatorAddress={validator.coinbase}
+          validatorAddress={validator.pubkey as Address}
         />
       </TabsContent>
       {/* TODO: Uncomment this when we have the events data */}

@@ -166,7 +166,6 @@ export const usePoolTable = ({
           />
         ),
         cell: ({ row }) => {
-          const { data: bgtInflation } = useBgtInflation();
           return (
             <div
               className={`flex items-center justify-start text-sm ${

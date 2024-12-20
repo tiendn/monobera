@@ -3,9 +3,10 @@ import { Button } from "@bera/ui/button";
 import { Dialog, DialogContent } from "@bera/ui/dialog";
 import { Address } from "viem";
 
-import { DelegateContent } from "./delegate-content";
+import { DelegateContent } from "./BoostContent";
+import { ActionButton } from "@bera/shared-ui";
 
-export const DelegateModal = ({
+export const BoostModal = ({
   validator,
   setIsValidatorDataLoading,
 }: {
@@ -16,12 +17,17 @@ export const DelegateModal = ({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Boost</Button>
+      <ActionButton>
+        <Button onClick={() => setOpen(true)}>Boost</Button>
+      </ActionButton>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full md:w-[550px]">
           <DelegateContent
-            validator={validator}
+            onSuccess={() => {
+              setOpen(false);
+            }}
             setIsValidatorDataLoading={setIsValidatorDataLoading}
+            validator={validator}
           />
         </DialogContent>
       </Dialog>

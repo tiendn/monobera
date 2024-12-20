@@ -1,23 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
-import { truncateHash, type Validator } from "@bera/berajs";
+import { truncateHash } from "@bera/berajs";
 import { blockExplorerUrl } from "@bera/config";
 import { FormattedNumber, Tooltip, ValidatorIcon } from "@bera/shared-ui";
 import { Icons } from "@bera/ui/icons";
+import { ApiValidatorFragment } from "@bera/graphql/pol/api";
+import { Address } from "viem";
 
 export default function ValidatorDetails({
   validator,
 }: {
-  validator: Validator | undefined;
+  validator: ApiValidatorFragment | undefined;
 }) {
-  console.log("vaaaal", { validator });
+  useEffect(() => {
+    console.log({ validator });
+  }, [validator]);
 
   const validatorDataItems = [
     {
       title: "BGT emitted",
       value: (
         <div className="text-xl font-semibold">
-          <FormattedNumber value={0} />
+          <FormattedNumber
+            value={validator?.dynamicData?.bgtEmittedAllTime ?? 0}
+          />
         </div>
       ),
       tooltipText: "Amount of BGT emitted by this validator",
@@ -26,7 +32,9 @@ export default function ValidatorDetails({
       title: "Bera staked",
       value: (
         <div className="text-xl font-semibold">
-          <FormattedNumber value={0} />
+          <FormattedNumber
+            value={validator?.dynamicData?.depositStakedAmount ?? 0}
+          />
         </div>
       ),
       tooltipText: "Amount of BERA staked by this validator",
@@ -36,7 +44,7 @@ export default function ValidatorDetails({
       value: (
         <span className="text-xl font-semibold">
           <FormattedNumber
-            value={validator?.amountStaked ?? "0"}
+            value={validator?.dynamicData?.amountStaked ?? "10"}
             showIsSmallerThanMin
             symbol="BGT"
           />
@@ -70,7 +78,7 @@ export default function ValidatorDetails({
         <div className="items-left w-full flex-col justify-evenly gap-4">
           <div className="flex w-full items-center justify-start gap-2 text-xl font-bold leading-[48px]">
             <ValidatorIcon
-              address={validator?.id}
+              address={validator?.pubkey as Address}
               className="h-12 w-12"
               imgOverride={validator?.metadata?.logoURI}
             />
@@ -80,14 +88,17 @@ export default function ValidatorDetails({
           <div className="my-4 flex w-full flex-row gap-1 text-muted-foreground">
             Operator:
             <span className="flex flex-row gap-1 text-foreground hover:underline">
-              <Link href={`${blockExplorerUrl}/address/${validator?.operator}`}>
+              <Link
+                href={`${blockExplorerUrl}/address/${validator?.operator}`}
+                target="_blank"
+              >
                 {truncateHash(validator?.operator ?? "")}
               </Link>
               <Icons.externalLink className="h-4 w-4 self-center" />
             </span>
           </div>
           <div className="w-full overflow-hidden text-ellipsis text-foreground">
-            {validator?.metadata?.Description ?? ""}
+            {validator?.metadata?.description ?? ""}
           </div>
         </div>
         <div className="items-left w-full flex-col justify-between gap-4">

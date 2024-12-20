@@ -6,6 +6,7 @@ import {
   type UserValidator,
   useBeraJs,
   useUserActiveValidators,
+  useUserBoostsOnValidator,
 } from "@bera/berajs";
 import { bgtTokenAddress } from "@bera/config";
 import { ActionButton, useTxn } from "@bera/shared-ui";
@@ -15,21 +16,27 @@ import { useTheme } from "next-themes";
 import { Address, parseUnits } from "viem";
 
 import ValidatorInput from "~/components/validator-input";
-import { DelegateEnum, ImageMapEnum } from "./types";
+import { DelegateEnum, ImageMapEnum } from "../types";
+import { ApiValidatorFragment } from "@bera/graphql/pol/api";
 
-export const UnDelegateContent = ({
-  userValidator,
+export const UnboostContent = ({
+  validator,
   setIsValidatorDataLoading,
+  onSuccess,
 }: {
-  userValidator: UserValidator;
+  validator: ApiValidatorFragment;
   setIsValidatorDataLoading: (loading: boolean) => void;
+  onSuccess?: () => void;
 }) => {
   const { isConnected, account } = useBeraJs();
   const { theme, systemTheme } = useTheme();
   const t = theme === "system" ? systemTheme : theme;
 
   const [amount, setAmount] = React.useState<string | undefined>(undefined);
-  const { data, refresh } = useUserActiveValidators();
+
+  const { data: userBoosts, refresh } = useUserBoostsOnValidator({
+    pubkey: validator?.pubkey as Address,
+  });
 
   const {
     write: unbondWrite,
@@ -44,16 +51,13 @@ export const UnDelegateContent = ({
         refresh();
         setIsValidatorDataLoading(false);
       }, 5000);
+      onSuccess?.();
     },
   });
 
-  const selectedValidator = data?.find(
-    (v) => v.coinbase.toLowerCase() === userValidator.coinbase.toLowerCase(),
-  );
-
-  const bgtDelegated = selectedValidator
-    ? selectedValidator.amountDeposited
-    : "0";
+  const bgtDelegated = userBoosts
+    ? Number(userBoosts?.activeBoosts) - Number(userBoosts.queuedUnboosts)
+    : 0;
 
   return (
     <div>
@@ -84,14 +88,14 @@ export const UnDelegateContent = ({
           action={DelegateEnum.UNBOND}
           amount={amount}
           onAmountChange={setAmount}
-          validatorAddress={userValidator.coinbase as Address}
+          validatorAddress={validator.pubkey as Address}
           showDelegated
           showSearch={false}
           unselectable
         />
 
         {isConnected && Number(amount) > Number(bgtDelegated) && (
-          <Alert variant="destructive">Insufficient BGT delegated</Alert>
+          <Alert variant="destructive">Insufficient boosts</Alert>
         )}
 
         <ActionButton>
@@ -99,7 +103,7 @@ export const UnDelegateContent = ({
             className="w-full"
             disabled={
               !account || // no account connected
-              !userValidator || // no validator selected
+              !validator || // no validator selected
               isUnbondLoading || // unbond action processing
               Number(amount) > Number(bgtDelegated) ||
               !amount ||
@@ -111,7 +115,7 @@ export const UnDelegateContent = ({
                 abi: BGT_ABI,
                 functionName: "queueDropBoost",
                 params: [
-                  userValidator.coinbase as Address,
+                  validator.pubkey as Address,
                   parseUnits(amount ?? "0", 18),
                 ],
               })

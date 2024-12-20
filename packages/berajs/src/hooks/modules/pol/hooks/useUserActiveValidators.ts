@@ -1,33 +1,37 @@
-import { type Validator } from "@bera/graphql/pol";
 import useSWR from "swr";
+import { usePublicClient } from "wagmi";
 
-import { getUserActiveValidators } from "~/actions/pol/get-user-active-validators";
+import {
+  ValidatorWithUserBoost,
+  getUserActiveValidators,
+} from "~/actions/pol/get-user-active-validators";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
-import { UserValidator } from "~/types";
 import { DefaultHookOptions, DefaultHookReturnType } from "~/types/global";
 
 export interface UseUserActiveValidatorsResponse
-  extends DefaultHookReturnType<UserValidator[] | undefined> {
-  getSelectedUserValidator: (
-    validatorAddress: string,
-  ) => UserValidator | undefined;
-}
+  extends DefaultHookReturnType<ValidatorWithUserBoost[] | undefined> {}
 
 export const useUserActiveValidators = (
   options?: DefaultHookOptions,
 ): UseUserActiveValidatorsResponse => {
   const { account, config: beraConfig } = useBeraJs();
+  const publicClient = usePublicClient();
   const config = options?.beraConfigOverride ?? beraConfig;
   const QUERY_KEY = account ? ["useUserActiveValidators", account] : null;
 
-  const swrResponse = useSWR<UserValidator[] | undefined>(
+  const swrResponse = useSWR<ValidatorWithUserBoost[] | undefined>(
     QUERY_KEY,
     async () => {
       if (!account) {
         throw new Error("useUserActiveValidators needs a logged in account");
       }
-      return await getUserActiveValidators({ config, account: account });
+
+      return await getUserActiveValidators({
+        config,
+        account,
+        publicClient,
+      });
     },
     {
       ...options,
@@ -35,16 +39,9 @@ export const useUserActiveValidators = (
       keepPreviousData: true,
     },
   );
-  const getSelectedUserValidator = (validatorAddress: string) => {
-    const valiList = swrResponse.data;
-    return valiList?.find(
-      (validator: UserValidator) =>
-        validator.coinbase.toLowerCase() === validatorAddress.toLowerCase(),
-    );
-  };
+
   return {
     ...swrResponse,
-    getSelectedUserValidator,
     refresh: () => swrResponse?.mutate?.(),
   };
 };

@@ -1,11 +1,10 @@
 "use client";
 
-import { notFound, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   truncateHash,
-  useVaultAddress,
-  useSelectedGauge,
-  useSelectedGaugeValidators,
+  useRewardVault,
+  useVaultValidators,
   type UserValidator,
   useRewardVaultIncentives,
   useMultipleTokenInformation,
@@ -28,43 +27,35 @@ import { Card, CardContent } from "@bera/ui/card";
 import { Button } from "@bera/ui/button";
 import Link from "next/link";
 
-export const GaugeDetails = ({
-  gaugeAddress,
+export const VaultDetails = ({
+  address,
 }: {
-  gaugeAddress: Address;
+  address: Address;
 }) => {
   return (
     <SWRConfig value={{}}>
-      <_GaugeDetails gaugeAddress={gaugeAddress} />
+      <_GaugeDetails address={address} />
     </SWRConfig>
   );
 };
 
-const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
-  const {
-    data: gauge,
-    isLoading: isGaugeLoading,
-    error: gaugeError,
-    isValidating: isGaugeValidating,
-  } = useSelectedGauge(gaugeAddress);
-
-  const router = useRouter();
-  const { account } = useBeraJs();
-
+const _GaugeDetails = ({ address }: { address: Address }) => {
   const {
     data: rewardVault,
     isLoading: isRewardVaultLoading,
-    error: rewardVaultError,
-  } = useVaultAddress(gaugeAddress);
+    isValidating: rewardVaultError,
+  } = useRewardVault(address);
+
+  const { account } = useBeraJs();
 
   const {
     data: validators = [],
     isLoading: isValidatorsLoading,
     isValidating: isValidatorsValidating,
-  } = useSelectedGaugeValidators(gaugeAddress);
+  } = useVaultValidators(address);
 
   const { data: incentivesData } = useRewardVaultIncentives({
-    address: rewardVault?.address,
+    address: rewardVault?.vaultAddress as Address,
   });
 
   const { data: incentiveTokens } = useMultipleTokenInformation({
@@ -75,24 +66,34 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
     const token =
       incentiveTokens?.find((token) => token.address === incentive.token) ??
       ({ address: incentive.token } as Token);
-    return { ...incentive, token };
+    return {
+      ...incentive,
+      amountRemaining: Number(incentive.amountRemaining),
+      incentiveRate: Number(incentive.incentiveRate),
+      token,
+      id: incentive.token,
+    };
   });
 
-  if (rewardVaultError) return notFound();
+  if (!rewardVault && !isRewardVaultLoading && rewardVaultError) {
+    console.error("Reward vault error", rewardVaultError, rewardVault);
+    return notFound();
+  }
 
   return (
     <>
       {rewardVault ? (
-        <div className="flex flex-col gap-11">
+        <div className="flex flex-col gap-11 mb-12">
           <PoolHeader
+            isVault
             title={
               <>
                 <GaugeIcon
-                  address={rewardVault?.address}
+                  address={rewardVault?.vaultAddress as Address}
                   size="xl"
-                  overrideImage={gauge?.metadata?.logoURI}
+                  overrideImage={rewardVault?.metadata?.logoURI}
                 />
-                {gauge?.metadata?.name ?? truncateHash(gaugeAddress)}
+                {rewardVault?.metadata?.name ?? truncateHash(address)}
               </>
             }
             subtitles={[
@@ -101,23 +102,25 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
                 content: (
                   <>
                     <MarketIcon
-                      market={gauge?.metadata?.product ?? ""}
+                      market={rewardVault?.metadata?.productName ?? ""}
                       size={"md"}
                     />
-                    {gauge?.metadata?.product ?? "OTHER"}
+                    {rewardVault?.metadata?.productName ?? "OTHER"}
                   </>
                 ),
-                externalLink: gauge?.metadata?.url ?? "",
+                externalLink: rewardVault?.metadata?.url ?? "",
               },
               {
                 title: "Reward Vault",
-                content: <>{truncateHash(rewardVault?.address ?? "")}</>,
-                externalLink: `${blockExplorerUrl}/address/${rewardVault?.address}`,
+                content: <>{truncateHash(rewardVault?.vaultAddress ?? "")}</>,
+                externalLink: `${blockExplorerUrl}/address/${rewardVault?.vaultAddress}`,
               },
               {
                 title: "Staking Contract",
-                content: <>{truncateHash(gauge?.stakingTokenAddress ?? "")}</>,
-                externalLink: `${blockExplorerUrl}/address/${gauge?.stakingTokenAddress}`,
+                content: (
+                  <>{truncateHash(rewardVault?.stakingToken.address ?? "")}</>
+                ),
+                externalLink: `${blockExplorerUrl}/address/${rewardVault?.stakingToken.address}`,
               },
             ]}
             className="border-b border-border pb-8"
@@ -125,8 +128,8 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
 
           {activeIncentives
             ?.filter((inc) => account && inc.manager === account)
-            .map((inc) => (
-              <Card>
+            .map((inc, idx) => (
+              <Card key={idx}>
                 <CardContent className="md:flex w-full items-center justify-between p-4 pt-4">
                   <div className="flex flex-col items-start pr-4">
                     <div className="text-muted-foregorund font-medium">
@@ -141,7 +144,7 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
                   <Button
                     as={Link}
                     className=" max-md:mt-4 max-md:w-full whitespace-nowrap"
-                    href={`/incentivize?gauge=${gaugeAddress}&token=${inc.token.address}`}
+                    href={`/incentivize?gauge=${address}&token=${inc.token.address}`}
                   >
                     Add {inc.token.name ?? "incentives"}
                   </Button>
@@ -149,8 +152,8 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
               </Card>
             ))}
 
-          {gaugeAddress.toLowerCase() !== lendRewardsAddress.toLowerCase() ? (
-            <MyGaugeDetails gauge={gauge} rewardVault={rewardVault} />
+          {address.toLowerCase() !== lendRewardsAddress.toLowerCase() ? (
+            <MyGaugeDetails rewardVault={rewardVault} />
           ) : (
             <BendRewardsBanner />
           )}
@@ -169,16 +172,11 @@ const _GaugeDetails = ({ gaugeAddress }: { gaugeAddress: Address }) => {
 
             <TabsContent value="incentives">
               <DataTable
-                loading={isGaugeLoading}
-                validating={isGaugeValidating}
+                loading={isRewardVaultLoading}
+                validating={rewardVaultError}
                 columns={gauge_incentives_columns}
                 data={activeIncentives ?? []}
                 className="max-h-[300px] min-w-[1000px] shadow"
-                onRowClick={(row: any) =>
-                  router.push(
-                    `/incentivize?gauge=${gaugeAddress}&token=${row.original.token.address}`,
-                  )
-                }
               />
             </TabsContent>
             <TabsContent value="validators">
