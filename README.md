@@ -54,7 +54,7 @@ restart the typescript server and should pick up the new types.
 
 ## Commands
 
-Monobera requires node 20.17+.
+Monobera requires node 22.7+.
 
 | Script                   | Description                                                                                              |
 | ------------------------ | -------------------------------------------------------------------------------------------------------- |

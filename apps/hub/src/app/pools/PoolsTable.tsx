@@ -140,7 +140,7 @@ export const PoolSearch = ({
                   return;
                 }}
                 placeholder="Search..."
-                onKeyDown={(e: any) => {
+                onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     setKeyword(search);
                     clearTimeout(typingTimer);

@@ -14,6 +14,7 @@ import {
   useBeraJs,
   useCollateralWeights,
   useCollateralsRates,
+  useHoneyCollaterals,
   useIsBadCollateralAsset,
   useIsBasketModeEnabled,
   usePollBalance,
@@ -91,13 +92,11 @@ export const usePsm = (): PsmHookReturn => {
 
   // Get token data and filter for collateral tokens
   const { data: tokenData } = useTokens();
-  const collateralList = tokenData?.tokenList?.filter((token: any) =>
-    token.tags?.includes("collateral"),
-  );
+  const { data: collateralList } = useHoneyCollaterals(tokenData);
+  // Find the default collateral token and get the HONEY token
   const honey = tokenData?.tokenDictionary
     ? tokenData?.tokenDictionary[getAddress(honeyTokenAddress)]
     : undefined;
-  // Find the default collateral token and get the HONEY token
   const defaultCollateral = collateralList?.find((token: any) =>
     token.tags.includes("defaultCollateral"),
   );
@@ -144,16 +143,12 @@ export const usePsm = (): PsmHookReturn => {
   const isBadCollateral1 = useIsBadCollateralAsset({
     collateral: collaterals[0]?.address,
   });
-  const isBadCollateral2 = useIsBadCollateralAsset({
-    collateral:
-      (collaterals[1]?.address as Address) ??
-      getAddress("0x0000000000000000000000000000000000000000"),
-  });
-  const isBadCollateral =
-    isBadCollateral1.data?.isBlacklisted ||
-    isBadCollateral1.data?.isDepegged ||
-    isBadCollateral2.data?.isBlacklisted ||
-    isBadCollateral2.data?.isDepegged;
+  // const isBadCollateral2 = useIsBadCollateralAsset({
+  //   collateral: collaterals[1]?.address,
+  // });
+  const isBadCollateral = isBasketModeEnabled
+    ? false
+    : isBadCollateral1.data?.isBlacklisted || isBadCollateral1.data?.isDepegged;
 
   // ===== TOKEN BALANCES =====
   // retrieve token balances for both input and output tokens
@@ -191,9 +186,13 @@ export const usePsm = (): PsmHookReturn => {
   const { getCollateralRate, isLoading: isFeeLoading } = useCollateralsRates({
     collateralList: collateralList?.map((token: any) => token.address) ?? [],
   });
-  const params = collaterals?.length
-    ? getCollateralRate(collaterals[0].address as Address)
-    : undefined;
+  const params =
+    collaterals?.length && isBasketModeEnabled !== undefined
+      ? getCollateralRate(
+          collaterals[0].address as Address,
+          isBasketModeEnabled,
+        )
+      : undefined;
   const fee = params ? (isMint ? params.mintFee : params.redeemFee) : 0;
 
   // ===== COLLATERAL WEIGHTS =====
@@ -271,14 +270,16 @@ export const usePsm = (): PsmHookReturn => {
       ).reduce(
         (attrs, key) => ({
           ...attrs,
-          [key]: +Number(
+          [key]: new BigNumber(
             formatUnits(
-              previewRes?.collaterals[key as Address],
+              previewRes?.collaterals[key as Address] ?? "0",
               // Find the correct decimal places for this token, default to 18 if not found
               collateralList?.find((token) => token.address === key)
                 ?.decimals ?? 18,
             ),
-          ).toFixed(2),
+          )
+            .decimalPlaces(2, 1)
+            .toString(),
         }),
         {},
       );
@@ -294,16 +295,14 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (fromAmount)
           // Set the resulting Honey amount
           setToAmount({
-            [honey?.address!]: Number(
-              formatUnits(previewRes.honey, 18),
-            ).toFixed(2),
+            [honey?.address!]: formatUnits(previewRes.honey, 18),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setFromAmount((prevColl) => ({
               ...newCollaterals,
-              [changedAsset]: Number(prevColl[changedAsset]).toFixed(2),
+              [changedAsset]: prevColl[changedAsset],
             }));
           }
         } else {
@@ -322,16 +321,14 @@ export const usePsm = (): PsmHookReturn => {
           // User input collateral amount (toAmount)
           // Set required Honey amount
           setFromAmount({
-            [honey?.address!]: Number(
-              formatUnits(previewRes.honey, 18),
-            ).toFixed(2),
+            [honey?.address!]: formatUnits(previewRes.honey, 18),
           });
 
           // In basket mode, update all collaterals except the one user is currently modifying
           if (previewBasketMode && changedAsset) {
             setToAmount((prevColl) => ({
               ...newCollaterals,
-              [changedAsset]: Number(prevColl[changedAsset]).toFixed(2),
+              [changedAsset]: prevColl[changedAsset],
             }));
           }
         }
@@ -408,11 +405,12 @@ export const usePsm = (): PsmHookReturn => {
 
   // ===== EXCEEDING BALANCE =====
   // Check if the input amount exceeds the balance
-  const exceedBalance = collateralList?.map((token, idx) =>
+  const exceedBalance = selectedFrom?.map((token, idx) =>
     BigNumber(fromAmount[token.address] ?? "0").gt(fromBalance?.[idx] ?? "0"),
   );
 
-  const isLoading = isUseTxnLoading || isHoneyPreviewLoading;
+  const isLoading =
+    isUseTxnLoading || isHoneyPreviewLoading || !collateralList?.length;
   return {
     account,
     payload,

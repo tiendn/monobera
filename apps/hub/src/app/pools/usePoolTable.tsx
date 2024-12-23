@@ -22,7 +22,7 @@ export const usePoolTable = ({
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
 
-  const handleEnter = (e: any) => {
+  const handleEnter: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === "Enter") {
       setKeyword(search);
     }
@@ -166,7 +166,6 @@ export const usePoolTable = ({
           />
         ),
         cell: ({ row }) => {
-          const { data: bgtInflation } = useBgtInflation();
           return (
             <div
               className={`flex items-center justify-start text-sm ${
