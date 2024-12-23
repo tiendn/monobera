@@ -20,10 +20,9 @@ import { balancerPoolCreationHelperAbi } from "~/abi";
 import { ADDRESS_ZERO } from "~/config";
 import { IContractWrite } from "~/hooks/useContractWrite";
 import { Token, TokenInput } from "~/types";
+import { DEFAULT_METAMASK_GAS_LIMIT } from "~/utils";
 
 const DEFAULT_WEIGHTS_DUPLICATION_THRESHOLD = 0.005;
-const DEFAULT_POOL_CREATE_GAS_LIMIT = 7_920_027n; // NOTE: this is the metamask gas limit, in experiments we find we can easily use 75% of this.
-
 interface UseCreatePoolProps {
   poolCreateTokens: Token[];
   initialLiquidityTokens: TokenInput[];
@@ -56,7 +55,7 @@ const createStablePoolArgs = (
   poolSymbol: string,
   owner: string,
   amplification: number,
-  gasLimit: bigint = DEFAULT_POOL_CREATE_GAS_LIMIT,
+  gasLimit: bigint = DEFAULT_METAMASK_GAS_LIMIT,
 ) => {
   // Map and sort pool creation token addresses NOTE: we should never see BERA in this array.
   const sortedPoolCreateAddresses = poolCreateTokens
@@ -135,7 +134,7 @@ const createWeightedPoolArgs = (
   poolName: string,
   poolSymbol: string,
   owner: string,
-  gasLimit: bigint = DEFAULT_POOL_CREATE_GAS_LIMIT,
+  gasLimit: bigint = DEFAULT_METAMASK_GAS_LIMIT,
 ) => {
   // When joining weighted pools with BERA, we allow it as a joinPoolToken but never as a createPoolToken.
   const createPoolTokens: string[] = [];
