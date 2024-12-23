@@ -43,7 +43,7 @@ All Berachain dapps are built to be single chain applications.
 
 ## Commands
 
-Monobera requires node 20.17+.
+Monobera requires node 22.7+.
 
 | Script                   | Description                                                                                              |
 | ------------------------ | -------------------------------------------------------------------------------------------------------- |
