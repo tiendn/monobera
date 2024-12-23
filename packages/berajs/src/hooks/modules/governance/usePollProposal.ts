@@ -1,17 +1,16 @@
+import { useEffect } from "react";
+import { FALLBACK_BLOCK_TIME } from "@bera/config";
 import {
   ProposalStatus,
   ProposalWithVotesFragment,
 } from "@bera/graphql/governance";
 import useSWR from "swr";
-import { usePublicClient } from "wagmi";
+import { useBlockNumber, usePublicClient } from "wagmi";
 
 import { getProposalDetails } from "~/actions/governance/getProposalDetails";
 import { useBeraJs } from "~/contexts";
 import POLLING from "~/enum/polling";
 import { DefaultHookOptions, DefaultHookReturnType } from "~/types";
-import { useBlockNumber } from "wagmi";
-import { FALLBACK_BLOCK_TIME } from "@bera/config";
-import { useEffect } from "react";
 
 export interface UsePollProposalResponse
   extends DefaultHookReturnType<ProposalWithVotesFragment> {}
@@ -72,7 +71,7 @@ export const usePollProposal = (
         }
         break;
       case ProposalStatus.InQueue:
-        if (new Date().getTime() / 1000 + 1000 >= swrResponse.data.queueEnd) {
+        if (Date.now() / 1000 + 1 >= swrResponse.data.queueEnd) {
           swrResponse.mutate();
         }
         break;
